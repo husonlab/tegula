@@ -84,8 +84,12 @@ public class Main extends Application {
         StackPane.setAlignment(worldPane, Pos.CENTER);
 
         // setup scene and stage:
-        final Scene scene = new Scene(stackPane, 1000, 1000);
+        boolean useZBuffer = false; // for debugging, it is visually clearer not to use a zbuffer
+
+        final Scene scene = new Scene(stackPane, 1000, 1000, useZBuffer);
         MouseHandler.addMouseHandler(scene, worldTranslate, worldScale, worldRotateProperty);
+
+        //scene.setCamera(new PerspectiveCamera(true));
 
         stage.setScene(scene);
         stage.sizeToScene();
