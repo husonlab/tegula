@@ -43,9 +43,8 @@ public class FundamentalDomain {
             group.getChildren().add(sphere);
         }
 
-
         // set colors
-        for (int a = 1; a < dsymbol.size(); a = dsymbol.nextOrbit(0, 1, a, set)) {
+        for (int a = 1; a <= dsymbol.size(); a = dsymbol.nextOrbit(0, 1, a, set)) {
             final Color color = new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1);
             dsymbol.visitOrbit(0, 1, a, new DSymbol.OrbitVisitor() {
                 public void visit(int a) {
@@ -172,52 +171,54 @@ public class FundamentalDomain {
 
         // add some points to debug transforms:
 
-        if (fDomain.getGeometry() == FDomain.Geometry.Euclidean || fDomain.getGeometry() == FDomain.Geometry.Spherical) {
-            for (int i = 0; i < 3; i++) {
-                final Point3D a = fDomain.getVertex3D(i, 16);
-                final Sphere sphere = new Sphere(2);
-                sphere.setTranslateX(a.getX());
-                sphere.setTranslateY(a.getY());
-                sphere.setTranslateZ(a.getZ());
+        if (true) {
+            if (fDomain.getGeometry() == FDomain.Geometry.Euclidean || fDomain.getGeometry() == FDomain.Geometry.Spherical) {
+                for (int i = 0; i < 3; i++) {
+                    final Point3D a = fDomain.getVertex3D(i, 16);
+                    final Sphere sphere = new Sphere(2);
+                    sphere.setTranslateX(a.getX());
+                    sphere.setTranslateY(a.getY());
+                    sphere.setTranslateZ(a.getZ());
 
-                switch (i) {
-                    case 0:
-                        sphere.setMaterial(new PhongMaterial(Color.GREEN));
-                        break;
-                    case 1:
-                        sphere.setMaterial(new PhongMaterial(Color.YELLOW));
-                        break;
-                    case 2:
-                        sphere.setMaterial(new PhongMaterial(Color.RED));
-                        break;
+                    switch (i) {
+                        case 0:
+                            sphere.setMaterial(new PhongMaterial(Color.GREEN));
+                            break;
+                        case 1:
+                            sphere.setMaterial(new PhongMaterial(Color.YELLOW));
+                            break;
+                        case 2:
+                            sphere.setMaterial(new PhongMaterial(Color.RED));
+                            break;
+                    }
+                    group.getChildren().add(sphere);
                 }
-                group.getChildren().add(sphere);
-            }
 
-            Transform transform;
-            if (fDomain.getGeometry() == FDomain.Geometry.Euclidean)
-                transform = EuclideanGeometry.createTransform(fDomain.getVertex3D(0, 16), fDomain.getVertex3D(1, 16), fDomain.getVertex3D(0, 19), fDomain.getVertex3D(1, 19), true);
-            else
-                transform = SphericalGeometry.createTransform(fDomain.getVertex3D(0, 16), fDomain.getVertex3D(1, 16), fDomain.getVertex3D(0, 19), fDomain.getVertex3D(1, 19), true);
+                Transform transform;
+                if (fDomain.getGeometry() == FDomain.Geometry.Euclidean)
+                    transform = EuclideanGeometry.createTransform(fDomain.getVertex3D(0, 16), fDomain.getVertex3D(1, 16), fDomain.getVertex3D(0, 19), fDomain.getVertex3D(1, 19), true);
+                else
+                    transform = SphericalGeometry.createTransform(fDomain.getVertex3D(0, 16), fDomain.getVertex3D(1, 16), fDomain.getVertex3D(0, 19), fDomain.getVertex3D(1, 19), true);
 
-            for (int i = 0; i < 3; i++) {
-                final Point3D a = fDomain.getVertex3D(i, 16);
-                final Sphere sphere = new Sphere(2);
-                sphere.getTransforms().addAll(transform, new Translate(a.getX(), a.getY(), a.getZ()));
+                for (int i = 0; i < 3; i++) {
+                    final Point3D a = fDomain.getVertex3D(i, 16);
+                    final Sphere sphere = new Sphere(2);
+                    sphere.getTransforms().addAll(transform, new Translate(a.getX(), a.getY(), a.getZ()));
 
-                switch (i) {
-                    case 0:
-                        sphere.setMaterial(new PhongMaterial(Color.LIGHTGREEN));
-                        break;
-                    case 1:
-                        sphere.setMaterial(new PhongMaterial(Color.LIGHTYELLOW));
-                        break;
-                    case 2:
-                        sphere.setMaterial(new PhongMaterial(Color.PINK));
-                        break;
+                    switch (i) {
+                        case 0:
+                            sphere.setMaterial(new PhongMaterial(Color.LIGHTGREEN));
+                            break;
+                        case 1:
+                            sphere.setMaterial(new PhongMaterial(Color.LIGHTYELLOW));
+                            break;
+                        case 2:
+                            sphere.setMaterial(new PhongMaterial(Color.PINK));
+                            break;
 
+                    }
+                    group.getChildren().add(sphere);
                 }
-                group.getChildren().add(sphere);
             }
         }
         return group;
