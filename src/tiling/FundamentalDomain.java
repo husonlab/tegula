@@ -35,14 +35,6 @@ public class FundamentalDomain {
 
         final BitSet set = new BitSet();
         final Random random = new Random(666);
-
-        // add a huge sphere for debugging:
-        if (fDomain.getGeometry() == FDomain.Geometry.Spherical) {
-            Sphere sphere = new Sphere(100);
-            sphere.setDrawMode(DrawMode.LINE);
-            group.getChildren().add(sphere);
-        }
-
         // set colors
         for (int a = 1; a <= dsymbol.size(); a = dsymbol.nextOrbit(0, 1, a, set)) {
             final Color color = new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1);

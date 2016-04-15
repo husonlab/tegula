@@ -13,6 +13,8 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.DrawMode;
+import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
@@ -95,10 +97,19 @@ public class Main extends Application {
         stage.sizeToScene();
         stage.show();
 
+
+        // add a huge sphere for debugging:
+        if (fDomain.getGeometry() == FDomain.Geometry.Spherical) {
+            Sphere sphere = new Sphere(100);
+            sphere.setDrawMode(DrawMode.LINE);
+            world.getChildren().add(sphere);
+        }
+
+
         final Group fund = FundamentalDomain.buildFundamentalDomain(dsymbol, fDomain);
         world.getChildren().addAll(fund);
 
-        if (false) {
+        if (true) {
             Transform transform = EuclideanGeometry.createTransform(fDomain.getVertex3D(0, 15), fDomain.getVertex3D(1, 15), fDomain.getVertex3D(0, 5),
                     fDomain.getVertex3D(1, 5), true);
             Group group2 = FundamentalDomain.buildFundamentalDomain(dsymbol, fDomain);
@@ -106,7 +117,7 @@ public class Main extends Application {
             world.getChildren().add(group2);
         }
 
-        if (false) {
+        if (true) {
             Transform transform = EuclideanGeometry.createTransform(fDomain.getVertex3D(0, 7), fDomain.getVertex3D(2, 7), fDomain.getVertex3D(0, 8), fDomain.getVertex3D(2, 8), true);
             Group group2 = FundamentalDomain.buildFundamentalDomain(dsymbol, fDomain);
             group2.getTransforms().add(transform);
