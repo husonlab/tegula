@@ -43,7 +43,7 @@ public class Main extends Application {
     public void init() throws Exception {
         // Reader r = new StringReader("<23.1:20:2 4 6 8 10 12 14 16 18 20,2 10 5 9 8 20 13 15 17 19,11 12 13 14 15 16 17 18 19 20:3 3 6 5,4 4 4>");
         // edit the last 6 in above symbol to 5 for spherical and 7 or above for hyperbolic
-        Reader r = new StringReader("<23.1:20:2 4 6 8 10 12 14 16 18 20,2 10 5 9 8 20 13 15 17 19,11 12 13 14 15 16 17 18 19 20:3 3 7 5,4 4 4>");
+        Reader r = new StringReader("<23.1:20:2 4 6 8 10 12 14 16 18 20,2 10 5 9 8 20 13 15 17 19,11 12 13 14 15 16 17 18 19 20:3 3 5 5,4 4 4>");
         //Reader r = new StringReader("<62.1:2:2,2,2:4,4>");
         // Reader r = new StringReader("<93.1:1:1,1,1:3,6>");
 
@@ -117,7 +117,7 @@ public class Main extends Application {
         final Group fund = FundamentalDomain.buildFundamentalDomain(dsymbol, fDomain);
         world.getChildren().addAll(fund);
 
-        if (true) {
+        if (false) {
             Transform transform = EuclideanGeometry.createTransform(fDomain.getVertex3D(0, 15), fDomain.getVertex3D(1, 15), fDomain.getVertex3D(0, 5),
                     fDomain.getVertex3D(1, 5), true);
             Group group2 = FundamentalDomain.buildFundamentalDomain(dsymbol, fDomain);
@@ -125,7 +125,7 @@ public class Main extends Application {
             world.getChildren().add(group2);
         }
 
-        if (true) {
+        if (false) {
             Transform transform = EuclideanGeometry.createTransform(fDomain.getVertex3D(0, 7), fDomain.getVertex3D(2, 7), fDomain.getVertex3D(0, 8), fDomain.getVertex3D(2, 8), true);
             Group group2 = FundamentalDomain.buildFundamentalDomain(dsymbol, fDomain);
             group2.getTransforms().add(transform);
