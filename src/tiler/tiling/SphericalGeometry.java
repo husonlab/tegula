@@ -25,25 +25,30 @@ public class SphericalGeometry {
     public static Transform createTransform(Point3D a1, Point3D b1, Point3D a2, Point3D b2, boolean keepOrientation) {
         final Point3D n1 = a1.crossProduct(b1);  // Normal Vector of plane spanned by a1 and b1
         final Point3D n2 = a2.crossProduct(b2);  // Normal Vector of plane spanned by a2 and b2
-        final Point3D r = n1.crossProduct(n2);   // Rotation axis
+        final Point3D r = n1.crossProduct(n2);   // Rotation axis (r/|r| is a crossing point of geodesic formed by a1, b1 and of geodesic formed by a2, b2)
         final double diff = n1.angle(n2);        // Angle between planes = rotation angle
-        final Transform rotate = new Rotate(diff, r); // Maps a1-b1 to a2-b2 or after reflection b1-a1 to a2-b2
+
+        final Transform rotateBack = new Rotate(a1.angle(r),a1.crossProduct(r));  // Rotates a1 to point r/|r| on the geodesic formed by a1, b1 and r/|r|
+        final Transform rotate = new Rotate(diff, r); // Maps the geodesic formed by the pair a1, b1 to the geodesic formed by a2, b2
+        final Transform rotateForward = new Rotate(r.angle(a2),r.crossProduct(a2));  // Rotates r/|r| to point a2 on the geodesic formed by a2, b2 and r/|r|
 
         if (keepOrientation) {
-            return rotate;
+            return rotateForward.createConcatenation(rotate).createConcatenation(rotateBack);
         } else {
             final Point3D X_AXIS = new Point3D(1, 0, 0);  // x-axis of standard basis
-            final Point3D n = b1.subtract(a1);  // Normal vector of reflection plane; will be mapped by a change of basis to x-axis of standard basis
-            final Affine reflection = new Affine(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0);  // Reflection at y-z plane
+            final Point3D n = a1.subtract(b1);  // Normal vector of reflection plane; will be identified with x-axis by change of basis
             final Point3D k = X_AXIS.crossProduct(n); // Rotation axis for change of basis
             final double diff2 = X_AXIS.angle(n);  // Rotation angle for change of basis
-            final Transform changebasis = new Rotate(diff2, k);  // Change of basis
-            final Transform changebasis1 = new Rotate(-diff2, k);  // Inverse of change of basis
+            final Transform changeBasis = new Rotate(diff2, k);  // Change of basis
+            final Transform changeBasis1 = new Rotate(-diff2, k);  // Inverse of change of basis
+            final Affine reflection = new Affine(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0);  // Reflection at y-z plane
 
-            return rotate
-                    .createConcatenation(changebasis)
+            return rotateForward
+                    .createConcatenation(rotate)
+                    .createConcatenation(rotateBack)
+                    .createConcatenation(changeBasis)
                     .createConcatenation(reflection)
-                    .createConcatenation(changebasis1);
+                    .createConcatenation(changeBasis1);
         }
     }
 }
