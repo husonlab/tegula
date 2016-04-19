@@ -9,7 +9,7 @@ import javafx.scene.transform.Affine;
 
 /**
  * Spherical geometry
- * Created by huson on 4/8/16.
+ * Created by Huson and Zeller on 4/19/16.
  */
 public class SphericalGeometry {
     /**
@@ -27,16 +27,16 @@ public class SphericalGeometry {
         final Point3D n2 = a2.crossProduct(b2);  // Normal Vector of plane spanned by a2 and b2
         final Point3D r = n1.crossProduct(n2);   // Rotation axis
         final double diff = n1.angle(n2);        // Angle between planes = rotation angle
-        final Transform rotate = new Rotate(diff, r); // Maps a1-b1 to a2-b2 or b1-a1 to a2-b2, respectively
+        final Transform rotate = new Rotate(diff, r); // Maps a1-b1 to a2-b2 or after reflection b1-a1 to a2-b2
 
         if (keepOrientation) {
             return rotate;
         } else {
-            Point3D x = new Point3D(1, 0, 0);
-            Point3D n = b1.subtract(a1);
+            final Point3D X_AXIS = new Point3D(1, 0, 0);  // x-axis of standard basis
+            final Point3D n = b1.subtract(a1);  // Normal vector of reflection plane; will be mapped by a change of basis to x-axis of standard basis
             final Affine reflection = new Affine(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0);  // Reflection at y-z plane
-            final Point3D k = x.crossProduct(n);
-            final double diff2 = x.angle(n);  // Rotation angle
+            final Point3D k = X_AXIS.crossProduct(n); // Rotation axis for change of basis
+            final double diff2 = X_AXIS.angle(n);  // Rotation angle for change of basis
             final Transform changebasis = new Rotate(diff2, k);  // Change of basis
             final Transform changebasis1 = new Rotate(-diff2, k);  // Inverse of change of basis
 
