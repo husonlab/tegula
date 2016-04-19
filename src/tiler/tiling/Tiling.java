@@ -1,5 +1,6 @@
 package tiler.tiling;
 
+import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -10,6 +11,7 @@ import javafx.scene.transform.Translate;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.OrbifoldGroupName;
+import tiler.util.JavaFXUtils;
 
 /**
  * a tiling
@@ -88,35 +90,59 @@ public class Tiling {
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
         group.getChildren().addAll(fund);
 
-        if (false) {
-            Transform transform = EuclideanGeometry.createTransform(fDomain.getVertex3D(0, 15), fDomain.getVertex3D(1, 15), fDomain.getVertex3D(0, 5), fDomain.getVertex3D(1, 5), true);
-            Group group2 = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
+        if (true) {
+            Transform transform = getTransform(fDomain.getGeometry(), fDomain.getVertex3D(0, 15), fDomain.getVertex3D(1, 15), fDomain.getVertex3D(0, 5), fDomain.getVertex3D(1, 5), true);
+            Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
             group2.getTransforms().add(transform);
             group.getChildren().add(group2);
         }
 
-        if (false) {
-            Transform transform = EuclideanGeometry.createTransform(fDomain.getVertex3D(0, 7), fDomain.getVertex3D(2, 7), fDomain.getVertex3D(0, 8), fDomain.getVertex3D(2, 8), true);
-            Group group2 = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
+        if (true) {
+            Transform transform = getTransform(fDomain.getGeometry(), fDomain.getVertex3D(0, 7), fDomain.getVertex3D(2, 7), fDomain.getVertex3D(0, 8), fDomain.getVertex3D(2, 8), true);
+            Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
             group2.getTransforms().add(transform);
             group.getChildren().add(group2);
         }
 
-        if (false) {
-            Transform transform = EuclideanGeometry.createTransform(fDomain.getVertex3D(0, 15), fDomain.getVertex3D(1, 15), fDomain.getVertex3D(0, 5),
+        if (true) {
+            Transform transform = getTransform(fDomain.getGeometry(), fDomain.getVertex3D(0, 15), fDomain.getVertex3D(1, 15), fDomain.getVertex3D(0, 5),
                     fDomain.getVertex3D(1, 5), true);
-            Group group2 = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
+            Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
             group2.getTransforms().add(transform);
             group.getChildren().add(group2);
         }
 
-        if (false) {
-            Transform transform = EuclideanGeometry.createTransform(fDomain.getVertex3D(0, 7), fDomain.getVertex3D(2, 7), fDomain.getVertex3D(0, 8), fDomain.getVertex3D(2, 8), true);
-            Group group2 = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
+        if (true) {
+            Transform transform = getTransform(fDomain.getGeometry(), fDomain.getVertex3D(0, 7), fDomain.getVertex3D(2, 7), fDomain.getVertex3D(0, 8), fDomain.getVertex3D(2, 8), true);
+            Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
             group2.getTransforms().add(transform);
             group.getChildren().add(group2);
         }
 
         return group;
+    }
+
+    /**
+     * get the transform that maps a1-b1 to a2-b2, keeping orientation, if desired
+     *
+     * @param geom
+     * @param a1
+     * @param b1
+     * @param a2
+     * @param b2
+     * @param keepOrientation
+     * @return transform
+     */
+    public Transform getTransform(FDomain.Geometry geom, Point3D a1, Point3D b1, Point3D a2, Point3D b2, boolean keepOrientation) {
+        switch (geom) {
+            default:
+            case Euclidean:
+                return EuclideanGeometry.createTransform(a1, b1, a2, b2, true);
+            case Spherical:
+                return SphericalGeometry.createTransform(a1, b1, a2, b2, true);
+            case Hyperbolic:
+                return EuclideanGeometry.createTransform(a1, b1, a2, b2, true);
+        }
+
     }
 }

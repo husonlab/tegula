@@ -153,9 +153,8 @@ public class FundamentalDomain {
                 final Point3D apt = fDomain.getChamberCenter3D(a);
                 Text label = new Text("" + a);
                 label.setFont(Font.font(8));
-                label.setTranslateX(apt.getX() - 4);
-                label.setTranslateY(apt.getY() + 4);
-                label.setTranslateZ(apt.getZ());
+                label.getTransforms().add(new Translate(apt.getX() - 4, apt.getY() + 4, apt.getZ()));
+
                 label.setFill(Color.BLACK.deriveColor(0, 1, 1, 0.4));
                 group.getChildren().add(label);
             }
@@ -168,10 +167,6 @@ public class FundamentalDomain {
                 for (int i = 0; i < 3; i++) {
                     final Point3D a = fDomain.getVertex3D(i, 16);
                     final Sphere sphere = new Sphere(2);
-                    sphere.setTranslateX(a.getX());
-                    sphere.setTranslateY(a.getY());
-                    sphere.setTranslateZ(a.getZ());
-
                     switch (i) {
                         case 0:
                             sphere.setMaterial(new PhongMaterial(Color.GREEN));
@@ -183,6 +178,7 @@ public class FundamentalDomain {
                             sphere.setMaterial(new PhongMaterial(Color.RED));
                             break;
                     }
+                    sphere.getTransforms().add(new Translate(a.getX(), a.getY(), a.getZ()));
                     group.getChildren().add(sphere);
                 }
 
