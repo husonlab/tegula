@@ -161,7 +161,7 @@ public class DSymbol {
      */
     public int nextOrbit(final int i, final int j, int a, final int[] array, int mark) {
         markOrbit(i, j, a, array, mark);
-        while (array[a] != 0)
+        while (a < array.length && array[a] != 0)
             a++;
         return a;
     }
