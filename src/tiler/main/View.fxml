@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
@@ -20,6 +19,13 @@
             <menus>
                 <Menu text="File">
                     <items>
+                        <MenuItem onAction="#fireOpenFile" text="New...">
+                            <accelerator>
+                                <KeyCodeCombination alt="UP" code="N" control="UP" meta="DOWN" shift="UP"
+                                                    shortcut="UP"/>
+                            </accelerator>
+                        </MenuItem>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
                         <MenuItem onAction="#fireOpenFile" text="Open...">
                             <accelerator>
                                 <KeyCodeCombination alt="UP" code="O" control="UP" meta="DOWN" shift="UP"

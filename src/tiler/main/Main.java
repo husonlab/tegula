@@ -9,20 +9,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.DrawMode;
-import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
-import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.OrbifoldGroupName;
-import tiler.tiling.EuclideanGeometry;
-import tiler.tiling.FundamentalDomain;
+import tiler.tiling.Tiling;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -32,7 +26,6 @@ import java.io.StringReader;
  */
 public class Main extends Application {
     private DSymbol dsymbol = new DSymbol();
-    private FDomain fDomain;
 
 
     public static void main(String[] args) {
@@ -51,8 +44,7 @@ public class Main extends Application {
             if (dsymbol.read(r)) {
                 System.err.println(dsymbol);
                 System.err.println("Group: " + OrbifoldGroupName.getGroupName(dsymbol));
-                fDomain = new FDomain(dsymbol);
-                System.err.println(fDomain);
+
             }
         }
     }
@@ -102,36 +94,9 @@ public class Main extends Application {
 
 
         // add a huge sphere for debugging:
-        if (fDomain.getGeometry() == FDomain.Geometry.Spherical) {
-            Sphere sphere = new Sphere(100);
-            sphere.setDrawMode(DrawMode.LINE);
-            world.getChildren().add(sphere);
-        } else if (fDomain.getGeometry() == FDomain.Geometry.Hyperbolic) {
-            Circle circle = new Circle(100);
-            circle.getTransforms().add(new Translate(0, 0, 100));
-            circle.setStroke(Color.DARKGREY);
-            circle.setFill(Color.TRANSPARENT);
-            world.getChildren().add(circle);
-        }
+        Tiling tiling = new Tiling(dsymbol);
 
-        final Group fund = FundamentalDomain.buildFundamentalDomain(dsymbol, fDomain);
-        world.getChildren().addAll(fund);
-
-        if (false) {
-            Transform transform = EuclideanGeometry.createTransform(fDomain.getVertex3D(0, 15), fDomain.getVertex3D(1, 15), fDomain.getVertex3D(0, 5),
-                    fDomain.getVertex3D(1, 5), true);
-            Group group2 = FundamentalDomain.buildFundamentalDomain(dsymbol, fDomain);
-            group2.getTransforms().add(transform);
-            world.getChildren().add(group2);
-        }
-
-        if (false) {
-            Transform transform = EuclideanGeometry.createTransform(fDomain.getVertex3D(0, 7), fDomain.getVertex3D(2, 7), fDomain.getVertex3D(0, 8), fDomain.getVertex3D(2, 8), true);
-            Group group2 = FundamentalDomain.buildFundamentalDomain(dsymbol, fDomain);
-            group2.getTransforms().add(transform);
-            world.getChildren().add(group2);
-        }
-
+        world.getChildren().add(tiling.createTiling(100));
 
         /*
         Box box=new Box(100,100,100);
