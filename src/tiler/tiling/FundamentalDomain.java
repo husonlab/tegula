@@ -163,7 +163,6 @@ public class FundamentalDomain {
         // add some points to debug transforms:
 
         if (true) {
-            if (fDomain.getGeometry() == FDomain.Geometry.Euclidean || fDomain.getGeometry() == FDomain.Geometry.Spherical) {
                 for (int i = 0; i < 3; i++) {
                     final Point3D a = fDomain.getVertex3D(i, 16);
                     final Sphere sphere = new Sphere(2);
@@ -182,11 +181,8 @@ public class FundamentalDomain {
                     group.getChildren().add(sphere);
                 }
 
-                Transform transform;
-                if (fDomain.getGeometry() == FDomain.Geometry.Euclidean)
-                    transform = EuclideanGeometry.createTransform(fDomain.getVertex3D(0, 16), fDomain.getVertex3D(1, 16), fDomain.getVertex3D(0, 19), fDomain.getVertex3D(1, 19), true);
-                else
-                    transform = SphericalGeometry.createTransform(fDomain.getVertex3D(0, 16), fDomain.getVertex3D(1, 16), fDomain.getVertex3D(0, 19), fDomain.getVertex3D(1, 19), true);
+            final Transform transform = Tiling.getTransform(fDomain.getGeometry(), fDomain.getVertex3D(0, 16), fDomain.getVertex3D(1, 16),
+                    fDomain.getVertex3D(0, 19), fDomain.getVertex3D(1, 19), true);
 
                 for (int i = 0; i < 3; i++) {
                     final Point3D a = fDomain.getVertex3D(i, 16);
@@ -207,7 +203,6 @@ public class FundamentalDomain {
                     }
                     group.getChildren().add(sphere);
                 }
-            }
         }
         return group;
     }
