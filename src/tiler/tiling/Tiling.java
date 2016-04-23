@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.Sphere;
+import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.util.Pair;
@@ -339,6 +340,20 @@ public class Tiling {
         }
     }
 
+    public String getGroupName() {
+        return groupName;
+    }
+
+    /**
+     * gets the status line
+     *
+     * @return status line
+     */
+    public String getStatusLine() {
+        return String.format("Tiling: %d.%d  Vertices: %d  Edges: %d  Tiles: %d  Symmetry group: %s",
+                ds.getNr1(), ds.getNr2(), numbVert, numbEdge, numbTile, getGroupName());
+    }
+
     /**
      * create the set of tiles to be shown
      *
@@ -349,22 +364,24 @@ public class Tiling {
         final Group group = new Group();
 
         // add a huge sphere for debugging:
-        if (fDomain.getGeometry() == FDomain.Geometry.Spherical) {
-            Sphere sphere = new Sphere(99);
-            sphere.setDrawMode(DrawMode.LINE);
-            group.getChildren().add(sphere);
-        } else if (fDomain.getGeometry() == FDomain.Geometry.Hyperbolic) {
-            Circle circle = new Circle(100);
-            circle.getTransforms().add(new Translate(0, 0, 100));
-            circle.setStroke(Color.DARKGREY);
-            circle.setFill(Color.TRANSPARENT);
-            group.getChildren().add(circle);
+        if (true) {
+            if (fDomain.getGeometry() == FDomain.Geometry.Spherical) {
+                Sphere sphere = new Sphere(99);
+                sphere.setDrawMode(DrawMode.LINE);
+                group.getChildren().add(sphere);
+            } else if (fDomain.getGeometry() == FDomain.Geometry.Hyperbolic) {
+                Circle circle = new Circle(100);
+                circle.getTransforms().add(new Translate(0, 0, 100));
+                circle.setStroke(Color.DARKGREY);
+                circle.setFill(Color.TRANSPARENT);
+                group.getChildren().add(circle);
+            }
         }
 
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
         group.getChildren().addAll(fund);
 
-        if (false) { // add all generators
+        if (true) { // add all generators
             computeConstraintsAndGenerators();
 
             for (Transform transform : generators.getTransforms()) {
@@ -404,5 +421,104 @@ public class Tiling {
         }
 
         return group;
+    }
+
+    public DSymbol getDSymbol() {
+        return ds;
+    }
+
+    public FDomain.Geometry getGeometry() {
+        return fDomain.getGeometry();
+    }
+
+    /**
+     * straigthen all edges
+     */
+    public void straightenAllEdges() {
+        for (int i = 1; i <= numbEdge; i++) {
+            straightenEdge(i);
+        }
+    }
+
+    /**
+     * straighten a specific edge
+     *
+     * @param edge
+     */
+    public void straightenEdge(int edge) {
+        int i;
+        int[] a = new int[5];
+
+        if (edge < 1 || edge > numbEdge)
+            throw new RuntimeException(String.format("straighten_edge(edge=%d): edge not in 1..%d", edge, numbEdge));
+
+        a[0] = edge2flag[edge];
+
+        if (ds.getSi(0, a[0]) != a[0])
+            a[1] = ds.getSi(0, a[0]);
+        else
+            a[1] = 0;
+        if (ds.getSi(2, a[0]) != a[0] && ds.getSi(2, a[0]) != a[1])
+            a[2] = ds.getSi(2, a[0]);
+        else
+            a[2] = 0;
+        if (a[2] != 0 && ds.getSi(0, a[2]) != a[0] && ds.getSi(0, a[2]) != a[1] && ds.getSi(0, a[2]) != a[2])
+            a[3] = ds.getSi(0, a[2]);
+        else
+            a[3] = 0;
+
+        for (i = 0; i < 4; i++) {
+            if (a[i] != 0) // todo: this is broken: we probably need to calculate 2D transforms
+            {
+                Point2D aPt = fDomain.getVertex(0, a[i]);
+                Point2D bPt = fDomain.getVertex(0, ds.getSi(0, a[i]));
+                if (fDomain.isBoundaryEdge(0, a[i])) {
+                    try {
+                        Transform transform = generators.get(0, a[i]);
+                        bPt = transform.inverseTransform(bPt); // todo: this needs fixing because saved transforms are 3D
+
+                    } catch (NonInvertibleTransformException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                Point2D app = new Point2D(aPt.getX(), aPt.getY());
+                Point2D bpp = new Point2D(bPt.getX(), bPt.getY());
+                Point2D cpp = middle(fDomain.getGeometry(), app, bpp);
+
+                fDomain.setVertex(cpp, 1, a[i]);
+
+                cpp = middle(fDomain.getGeometry(), app, cpp);
+                fDomain.setEdgeCenter(cpp, 2, a[i]);
+            }
+        }
+    }
+
+
+    /**
+     * compute middle point
+     *
+     * @param p
+     * @param q
+     * @return middle
+     */
+    public static Point2D middle(FDomain.Geometry geometry, Point2D p, Point2D q) {
+        double d;
+
+        int sign = -1; // hyperbolic
+
+        switch (geometry) {
+            default:
+            case Euclidean:
+                d = 0.5;
+                break;
+            case Spherical:
+                sign = 1; // spherical
+            case Hyperbolic:
+                d = 2 * (1 + sign * p.dotProduct(q));
+                if (d <= 0) d = 0;
+                else d = 1 / Math.sqrt(d);
+                break;
+        }
+        return new Point2D(d * (p.getX() + q.getX()), d * (p.getY() + q.getY()));
     }
 }

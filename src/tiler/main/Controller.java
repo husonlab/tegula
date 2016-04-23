@@ -5,8 +5,17 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -14,13 +23,16 @@ import java.util.ResourceBundle;
 public class Controller implements Initializable {
 
     @FXML
+    private BorderPane mainPane;
+
+    @FXML
     private MenuBar menuBar;
 
     @FXML
-    private Pane worldPane;
+    private StackPane stackPane;
 
     @FXML
-    private Pane topPane;
+    private AnchorPane topPane;
 
     @FXML
     private MenuItem firstTilingMenuItem;
@@ -41,7 +53,104 @@ public class Controller implements Initializable {
     private MenuItem dualizeMenuItem;
 
     @FXML
-    private CheckMenuItem showSymmetryGroupMenuItem;
+    private Button firstTilingButton;
+
+    @FXML
+    private Button nextTilingButton;
+
+    @FXML
+    private Button previousTilingButton;
+
+    @FXML
+    private Button lastTilingButton;
+    
+    @FXML
+    private CheckMenuItem editSymmetryGroupMenuItem;
+
+    @FXML
+    private ToggleButton editSymmetryGroupButton;
+
+
+    @FXML
+    private TextField statusTextField;
+
+    @FXML
+    private VBox groupVBox;
+
+    @FXML
+    private Button decreaseV1;
+
+    @FXML
+    private Button increaseV1;
+
+    @FXML
+    private Label labelV1;
+
+    @FXML
+    private Button decreaseV2;
+
+    @FXML
+    private Button increaseV2;
+
+    @FXML
+    private Label labelV2;
+
+    @FXML
+    private Button decreaseV3;
+
+    @FXML
+    private Button increaseV3;
+
+    @FXML
+    private Label labelV3;
+
+    @FXML
+    private Button decreaseV4;
+
+    @FXML
+    private Button increaseV4;
+
+    @FXML
+    private Label labelV4;
+
+    @FXML
+    private Button decreaseV5;
+
+    @FXML
+    private Button increaseV5;
+
+    @FXML
+    private Label labelV5;
+
+    @FXML
+    private Button decreaseV6;
+
+    @FXML
+    private Button increaseV6;
+
+    @FXML
+    private Label labelV6;
+
+    @FXML
+    private Button decreaseV7;
+
+    @FXML
+    private Button increaseV7;
+
+    @FXML
+    private Label labelV7;
+
+    @FXML
+    private Button decreaseV8;
+
+    @FXML
+    private Button increaseV8;
+
+    @FXML
+    private Label labelV8;
+
+    private Document document;
+    private Stage stage;
 
     /**
      * initialize
@@ -53,18 +162,42 @@ public class Controller implements Initializable {
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         if (System.getProperty("os.name") != null && System.getProperty("os.name").toLowerCase().startsWith("mac"))
             menuBar.setUseSystemMenuBar(true);
+
+        statusTextField.setEditable(false);
+
+        topPane.getChildren().remove(groupVBox);
     }
 
-    public Pane getWorldPane() {
-        return worldPane;
+    public Document getDocument() {
+        return document;
     }
 
-    public Pane getTopPane() {
-        return topPane;
+    public void setDocument(Document document) {
+        this.document = document;
+    }
+
+    public Window getStage() {
+        return stage;
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    public StackPane getStackPane() {
+        return stackPane;
     }
 
     public MenuBar getMenuBar() {
         return menuBar;
+    }
+
+    public AnchorPane getTopPane() {
+        return topPane;
+    }
+
+    public TextField getStatusTextField() {
+        return statusTextField;
     }
 
     @FXML
@@ -94,11 +227,39 @@ public class Controller implements Initializable {
 
     @FXML
     void fireFirstTiling(ActionEvent event) {
+        if (getDocument().moveTo(Document.FIRST))
+            getDocument().update();
+    }
 
+    @FXML
+    void fireNextTiling(ActionEvent event) {
+        if (getDocument().moveTo(Document.NEXT))
+            getDocument().update();
+    }
+
+
+    @FXML
+    void firePreviousTiling(ActionEvent event) {
+        if (getDocument().moveTo(Document.PREV))
+            getDocument().update();
     }
 
     @FXML
     void fireLastTiling(ActionEvent event) {
+        if (getDocument().moveTo(Document.LAST))
+            getDocument().update();
+    }
+
+    public void updateNavigateTilings() {
+        firstTilingMenuItem.setDisable(getDocument().atFirstTiling());
+        previousTilingMenuItem.setDisable(getDocument().atFirstTiling());
+        lastTilingMenuItem.setDisable(getDocument().atLastTiling());
+        nextTilingMenuItem.setDisable(getDocument().atLastTiling());
+
+        firstTilingButton.setDisable(getDocument().atFirstTiling());
+        previousTilingButton.setDisable(getDocument().atFirstTiling());
+        nextTilingButton.setDisable(getDocument().atLastTiling());
+        lastTilingButton.setDisable(getDocument().atLastTiling());
 
     }
 
@@ -113,23 +274,30 @@ public class Controller implements Initializable {
     }
 
     @FXML
-    void fireNextTiling(ActionEvent event) {
-        System.err.println("next tiling");
-
-    }
-
-    @FXML
     void fireOpenFile(ActionEvent event) {
+        final FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open file of tilings");
+        fileChooser.setInitialDirectory(
+                new File(Main.getProperties().getProperty("InputDirectory", ".")));
+        fileChooser.setInitialFileName(Main.getProperties().getProperty("InputFile", ""));
 
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Tilings", "*.tgs"));
+
+        final File file = fileChooser.showOpenDialog(getStage());
+
+        if (file != null) {
+            try (FileReader reader = new FileReader(file)) {
+                getDocument().clear();
+                getDocument().read(reader);
+                getDocument().update();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @FXML
     void firePaste(ActionEvent event) {
-
-    }
-
-    @FXML
-    void firePreviousTiling(ActionEvent event) {
 
     }
 
@@ -191,17 +359,109 @@ public class Controller implements Initializable {
     }
 
     @FXML
-    void fireShowSymmetryGroup(ActionEvent event) {
+    void fireEditSymmetryGroup(ActionEvent event) {
+        if (topPane.getChildren().contains(groupVBox)) {
+            topPane.getChildren().remove(groupVBox);
+        } else {
+            topPane.getChildren().add(groupVBox);
+        }
+        editSymmetryGroupMenuItem.setSelected(topPane.getChildren().contains(groupVBox));
+        editSymmetryGroupButton.setSelected(topPane.getChildren().contains(groupVBox));
 
     }
 
     @FXML
     void fireStraigthenAll(ActionEvent event) {
-
+        document.straightenAll();
+        document.update();
     }
 
     @FXML
     void fireStraigthenSelected(ActionEvent event) {
-
     }
+
+    /**
+     * gets a V label
+     *
+     * @param i
+     * @return
+     */
+    public Label getLabelV(int i) {
+        switch (i) {
+            case 0:
+                return labelV1;
+            case 1:
+                return labelV2;
+            case 2:
+                return labelV3;
+            case 3:
+                return labelV4;
+            case 4:
+                return labelV5;
+            case 5:
+                return labelV6;
+            case 6:
+                return labelV7;
+            default:
+            case 7:
+                return labelV8;
+        }
+    }
+
+    /**
+     * gets a V decreaser
+     *
+     * @param i
+     * @return
+     */
+    public Button getDecreaseV(int i) {
+        switch (i) {
+            case 0:
+                return decreaseV1;
+            case 1:
+                return decreaseV2;
+            case 2:
+                return decreaseV3;
+            case 3:
+                return decreaseV4;
+            case 4:
+                return decreaseV5;
+            case 5:
+                return decreaseV6;
+            case 6:
+                return decreaseV7;
+            default:
+            case 7:
+                return decreaseV8;
+        }
+    }
+
+    /**
+     * gets a V increaser
+     *
+     * @param i
+     * @return
+     */
+    public Button getIncreaseV(int i) {
+        switch (i) {
+            case 0:
+                return increaseV1;
+            case 1:
+                return increaseV2;
+            case 2:
+                return increaseV3;
+            case 3:
+                return increaseV4;
+            case 4:
+                return increaseV5;
+            case 5:
+                return increaseV6;
+            case 6:
+                return increaseV7;
+            default:
+            case 7:
+                return increaseV8;
+        }
+    }
+
 }

@@ -296,6 +296,11 @@ public class DSymbol {
             return m / r;
     }
 
+    public void setVij(int i, int j, int a, int v) {
+        int r = computeOrbitLength(i, j, a);
+        setMij(i, j, a, r * v);
+    }
+
     /**
      * is i,j-orbit containing flag a a cycle?
      *
