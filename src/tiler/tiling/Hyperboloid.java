@@ -22,14 +22,15 @@ package tiler.tiling;
 import javafx.scene.shape.TriangleMesh;
 
 /**
+ * sets up a hyberboloid in Z direction
  * Created by huson on 4/25/16.
  */
 public class Hyperboloid extends TriangleMesh {
     /**
      * constructor
      *
-     * @param height
-     * @param levels
+     * @param height the height
+     * @param levels levels of subdivision
      */
     public Hyperboloid(int height, int levels) {
         if (levels <= 1)
@@ -45,7 +46,6 @@ public class Hyperboloid extends TriangleMesh {
             double radius = Math.sqrt((l + 1) * (l + 1) - 1);
             for (int i = 0; i < parts; i++) {
                 getPoints().addAll((float) (100 * radius * Math.cos((i * 2.0 * Math.PI) / parts)), 100 * (float) (radius * Math.sin((i * 2.0 * Math.PI) / parts)), zDelta * (l + 1) + 100);
-                //System.err.println("el: "+el+" i: "+i+" ")
             }
         }
         getTexCoords().setAll(0, 0, 1, 1, 2, 2);

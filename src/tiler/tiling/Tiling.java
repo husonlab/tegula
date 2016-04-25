@@ -6,6 +6,7 @@ import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.DrawMode;
+import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
@@ -378,6 +379,12 @@ public class Tiling {
                 Sphere sphere = new Sphere(1);
                 sphere.setDrawMode(DrawMode.LINE);
                 group.getChildren().add(sphere);
+
+                Hyperboloid hyperboloid = new Hyperboloid(100, 10);
+                MeshView meshView = new MeshView(hyperboloid);
+                meshView.setDrawMode(DrawMode.LINE);
+                group.getChildren().add(meshView);
+
             }
         }
 
