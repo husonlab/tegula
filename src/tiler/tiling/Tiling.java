@@ -371,10 +371,13 @@ public class Tiling {
                 group.getChildren().add(sphere);
             } else if (fDomain.getGeometry() == FDomain.Geometry.Hyperbolic) {
                 Circle circle = new Circle(100);
-                circle.getTransforms().add(new Translate(0, 0, 100));
+                circle.getTransforms().add(new Translate(0, 0, 200));
                 circle.setStroke(Color.DARKGREY);
                 circle.setFill(Color.TRANSPARENT);
                 group.getChildren().add(circle);
+                Sphere sphere = new Sphere(1);
+                sphere.setDrawMode(DrawMode.LINE);
+                group.getChildren().add(sphere);
             }
         }
 

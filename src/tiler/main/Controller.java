@@ -63,7 +63,7 @@ public class Controller implements Initializable {
 
     @FXML
     private Button lastTilingButton;
-    
+
     @FXML
     private CheckMenuItem editSymmetryGroupMenuItem;
 

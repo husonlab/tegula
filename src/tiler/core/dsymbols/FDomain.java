@@ -222,7 +222,7 @@ public class FDomain {
             case Hyperbolic: {
                 final double d = apt.getX() * apt.getX() + apt.getY() * apt.getY();
                 if (d < 1)
-                    return new Point3D(100 * (2 * apt.getX() / (1 - d)), 100 * (2 * apt.getY() / (1 - d)), 100 * ((1 + d) / (1 - d)) - 100);
+                    return new Point3D(100 * (2 * apt.getX() / (1 - d)), 100 * (2 * apt.getY() / (1 - d)), 100 * ((1 + d) / (1 - d)));
                 else
                     return new Point3D(0, 0, 0);
             }
