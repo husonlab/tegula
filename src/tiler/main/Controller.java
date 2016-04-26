@@ -149,6 +149,9 @@ public class Controller implements Initializable {
     @FXML
     private Label labelV8;
 
+    @FXML
+    private Slider fieldOfViewSlider;
+
     private Document document;
     private Stage stage;
 
@@ -198,6 +201,10 @@ public class Controller implements Initializable {
 
     public TextField getStatusTextField() {
         return statusTextField;
+    }
+
+    public Slider getFieldOfViewSlider() {
+        return fieldOfViewSlider;
     }
 
     @FXML

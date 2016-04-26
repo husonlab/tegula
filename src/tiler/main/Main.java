@@ -39,6 +39,7 @@ public class Main extends Application {
         camera.setNearClip(0.1);
         camera.setFarClip(10000.0);
         camera.setTranslateZ(-500);
+        camera.setFieldOfView(35);
 
         final ObjectProperty<Transform> worldRotateProperty = new SimpleObjectProperty<>(this, "rotation", new Rotate(0, 0, 0, 1));
         final Translate worldTranslate = new Translate(0, 0, 0);
@@ -50,11 +51,10 @@ public class Main extends Application {
         Pane root = fxmlLoader.load(getClass().getResource("View.fxml").openStream());
         final Controller controller = fxmlLoader.getController();
 
-
         // setup world and subscene
         final Group world = new Group();
         final SubScene subScene = new SubScene(new Group(world), 800, 800, false, SceneAntialiasing.BALANCED);
-        //subScene.setCamera(camera);
+        subScene.setCamera(camera);
 
         world.getTransforms().add(worldTranslate);
         world.getTransforms().add(worldScale);
@@ -81,10 +81,18 @@ public class Main extends Application {
         stage.sizeToScene();
         stage.show();
 
-        Document document = new Document(stage, world, controller);
+        Document document = new Document(stage, world, controller, camera);
         // read in a symbol for debugging:
         document.read(new StringReader("<23.1:20:2 4 6 8 10 12 14 16 18 20,2 10 5 9 8 20 13 15 17 19,11 12 13 14 15 16 17 18 19 20:3 3 5 5,4 4 4>"));
         document.update();
+
+        controller.getFieldOfViewSlider().valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
+                document.getCamera().setFieldOfView(new_val.intValue());
+            }
+        });
+
+
 
         /*
         Box box=new Box(100,100,100);

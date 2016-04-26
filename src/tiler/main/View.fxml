@@ -342,4 +342,9 @@
             </children>
         </StackPane>
     </center>
+    <left>
+        <Slider fx:id="fieldOfViewSlider" majorTickUnit="10.0" max="90.0" min="10.0" minorTickCount="5"
+                orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="35.0"
+                BorderPane.alignment="CENTER"/>
+    </left>
 </BorderPane>

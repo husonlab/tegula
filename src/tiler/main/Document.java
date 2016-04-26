@@ -20,6 +20,7 @@
 package tiler.main;
 
 import javafx.scene.Group;
+import javafx.scene.PerspectiveCamera;
 import javafx.scene.SubScene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -48,13 +49,15 @@ public class Document {
 
     private final Group world;
     private final Controller controller;
+    private PerspectiveCamera camera;
 
     /**
      * constructor
      */
-    public Document(Stage stage, Group world, Controller controller) {
+    public Document(Stage stage, Group world, Controller controller, PerspectiveCamera camera) {
         this.world = world;
         this.controller = controller;
+        this.camera = camera;
         controller.setDocument(this);
         controller.setStage(stage);
     }
@@ -166,8 +169,19 @@ public class Document {
             subScene = new SubScene(new Group(getWorld()), subScene.getWidth(), subScene.getHeight(), useDepthBuffer, subScene.getAntiAliasing());
             subScene.heightProperty().bind(stackPane.heightProperty());
             subScene.widthProperty().bind(stackPane.widthProperty());
+            PerspectiveCamera newCamera = new PerspectiveCamera(true);
+            newCamera.setNearClip(camera.getNearClip());
+            newCamera.setFarClip(camera.getFarClip());
+            newCamera.setFieldOfView(camera.getFieldOfView());
+            newCamera.setTranslateZ(camera.getTranslateZ());
+            camera = newCamera;
+            subScene.setCamera(camera);
             stackPane.getChildren().add(0, subScene);
         }
+    }
+
+    public PerspectiveCamera getCamera() {
+        return camera;
     }
 
     /**
