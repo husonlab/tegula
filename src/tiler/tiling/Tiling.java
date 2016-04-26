@@ -380,7 +380,7 @@ public class Tiling {
                 sphere.setDrawMode(DrawMode.LINE);
                 group.getChildren().add(sphere);
 
-                Hyperboloid hyperboloid = new Hyperboloid(100, 10);
+                Hyperboloid hyperboloid = new Hyperboloid(100, 30);
                 MeshView meshView = new MeshView(hyperboloid);
                 meshView.setDrawMode(DrawMode.LINE);
                 group.getChildren().add(meshView);
@@ -391,7 +391,7 @@ public class Tiling {
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
         group.getChildren().addAll(fund);
 
-        if (true) { // add all generators
+        if (false) { // add all generators
             computeConstraintsAndGenerators();
 
             for (Transform transform : generators.getTransforms()) {
