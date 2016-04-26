@@ -3,14 +3,11 @@ package tiler.tiling;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
-import javafx.scene.transform.Translate;
 import javafx.util.Pair;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
@@ -371,20 +368,14 @@ public class Tiling {
                 sphere.setDrawMode(DrawMode.LINE);
                 group.getChildren().add(sphere);
             } else if (fDomain.getGeometry() == FDomain.Geometry.Hyperbolic) {
-                Circle circle = new Circle(100);
-                circle.getTransforms().add(new Translate(0, 0, 200));
-                circle.setStroke(Color.DARKGREY);
-                circle.setFill(Color.TRANSPARENT);
-                group.getChildren().add(circle);
                 Sphere sphere = new Sphere(1);
                 sphere.setDrawMode(DrawMode.LINE);
                 group.getChildren().add(sphere);
 
-                Hyperboloid hyperboloid = new Hyperboloid(100, 30);
+                Hyperboloid hyperboloid = new Hyperboloid(500, 50);
                 MeshView meshView = new MeshView(hyperboloid);
                 meshView.setDrawMode(DrawMode.LINE);
                 group.getChildren().add(meshView);
-
             }
         }
 

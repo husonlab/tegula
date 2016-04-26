@@ -169,13 +169,15 @@ public class Document {
             subScene = new SubScene(new Group(getWorld()), subScene.getWidth(), subScene.getHeight(), useDepthBuffer, subScene.getAntiAliasing());
             subScene.heightProperty().bind(stackPane.heightProperty());
             subScene.widthProperty().bind(stackPane.widthProperty());
-            PerspectiveCamera newCamera = new PerspectiveCamera(true);
-            newCamera.setNearClip(camera.getNearClip());
-            newCamera.setFarClip(camera.getFarClip());
-            newCamera.setFieldOfView(camera.getFieldOfView());
-            newCamera.setTranslateZ(camera.getTranslateZ());
-            camera = newCamera;
-            subScene.setCamera(camera);
+            if (useDepthBuffer) {
+                PerspectiveCamera newCamera = new PerspectiveCamera(true);
+                newCamera.setNearClip(camera.getNearClip());
+                newCamera.setFarClip(camera.getFarClip());
+                newCamera.setFieldOfView(camera.getFieldOfView());
+                newCamera.setTranslateZ(camera.getTranslateZ());
+                camera = newCamera;
+                subScene.setCamera(camera);
+            }
             stackPane.getChildren().add(0, subScene);
         }
     }
