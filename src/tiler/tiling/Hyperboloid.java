@@ -70,6 +70,10 @@ public class Hyperboloid extends TriangleMesh {
 
                     getFaces().addAll(a, 0, b, 1, c, 2);
                     getFaces().addAll(a, 0, c, 1, d, 2);
+
+                    getFaces().addAll(a, 0, c, 2, c, 1);
+                    getFaces().addAll(a, 0, d, 2, c, 1);
+
                 }
             }
     }
