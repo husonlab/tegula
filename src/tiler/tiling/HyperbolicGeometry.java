@@ -23,7 +23,7 @@ public class HyperbolicGeometry {
      */
     public static Transform createTransform(Point3D a1, Point3D b1, Point3D a2, Point3D b2, boolean keepOrientation) {
         if (keepOrientation) {
-            return null;
+            return EuclideanGeometry.createTransform(a1, b1, a2, b2, keepOrientation);
         } else {
             return null;
         }

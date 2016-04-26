@@ -337,7 +337,7 @@ public class Tiling {
             case Spherical:
                 return SphericalGeometry.createTransform(a1, b1, a2, b2, keepOrientation);
             case Hyperbolic:
-                return EuclideanGeometry.createTransform(a1, b1, a2, b2, keepOrientation);
+                return HyperbolicGeometry.createTransform(a1, b1, a2, b2, keepOrientation);
         }
     }
 
@@ -391,7 +391,7 @@ public class Tiling {
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
         group.getChildren().addAll(fund);
 
-        if (false) { // add all generators
+        if (true) { // add all generators
             computeConstraintsAndGenerators();
 
             for (Transform transform : generators.getTransforms()) {
