@@ -365,7 +365,7 @@ public class Tiling {
         final Group group = new Group();
 
         // add a huge sphere for debugging:
-        if (false) {
+        if (true) {
             if (fDomain.getGeometry() == FDomain.Geometry.Spherical) {
                 Sphere sphere = new Sphere(99);
                 sphere.setDrawMode(DrawMode.LINE);
@@ -391,7 +391,7 @@ public class Tiling {
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
         group.getChildren().addAll(fund);
 
-        if (false) { // add all generators
+        if (true) { // add all generators
             computeConstraintsAndGenerators();
 
             for (Transform transform : generators.getTransforms()) {
