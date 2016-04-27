@@ -5,11 +5,10 @@ import javafx.geometry.Point3D;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
-import javafx.scene.transform.Translate;
 
 /**
- * Euclidean geometry
- * Created by huson on 4/8/16.
+ * Hyperbolic geometry
+ * Created by Zeller on 4/27/16.
  */
 public class HyperbolicGeometry {
 
@@ -23,68 +22,68 @@ public class HyperbolicGeometry {
      * @param keepOrientation keep orientation in x-y plane
      * @return transformation
      */
+
     public static Transform createTransform(Point3D a1, Point3D b1, Point3D a2, Point3D b2, boolean keepOrientation) {
-        if (true) {
-            final Transform a1Zero = matchZero(a1);
-            final Transform a2Zero = matchZero(a2);
-            final Point3D b1Zero = a1Zero.transform(b1);
-            final Point3D b2Zero = a2Zero.transform(b2);
-            final Transform b1Rotb2;
-            final Point3D b1Rotb2Axis;
-            final Point2D b1Zero2D = new Point2D(b1Zero.getX(), b1Zero.getY());
-            final double b1Rotb2Angle = b1Zero2D.angle(b2Zero.getX(), b2Zero.getY());
+        final Point3D Y_AXIS = new Point3D(0,1,0);
+        final Transform a1ToZero = matchZero(a1, false).createConcatenation(matchVec(a1, Y_AXIS, false)); // Maps a1 to minimal point of hyperboloid
+        final Transform a2ToZero = matchZero(a2, false).createConcatenation(matchVec(a2, Y_AXIS, false)); // Maps a2 to minimal point of hyperboloid
+        final Point3D b2Zero = a2ToZero.transform(b2);
 
-            if (b1Zero.getX() * b2Zero.getY() - b2Zero.getX() * b1Zero.getY() >= 0) {
-                b1Rotb2Axis = new Point3D(0, 0, 1);
-            }
-            else{
-                b1Rotb2Axis = new Point3D(0, 0, -1);
-            }
+        if (keepOrientation) {
 
-            b1Rotb2 = new Rotate(b1Rotb2Angle,b1Rotb2Axis);
+            final Point3D b1Zero = a1ToZero.transform(b1);
 
-            final double a2Rot = Math.sqrt(a2.getX() * a2.getX() + a2.getY() * a2.getY());
-            final Affine InvTrans = new Affine(1, 0, 0, 0, 0, a2.getZ()/100, a2Rot/100, 0, 0, a2Rot/100, a2.getZ()/100, 0);
+            return matchVec(a2, Y_AXIS, true)
+                    .createConcatenation(matchZero(a2, true))
+                    .createConcatenation(matchVec(b1Zero, b2Zero, false))   // Maps b1Zero to b2Zero by rotation
+                    .createConcatenation(a1ToZero);
 
-            final Point2D a22D = new Point2D(a2.getX(),a2.getY());
-            final double InvRotAngle = a22D.angle(0, 1);
-            final Point3D InvRotAxis;
-            if (a2.getX() >= 0){
-                InvRotAxis = new Point3D(0,0,1);
-            }
-            else{
-                InvRotAxis = new Point3D(0,0,-1);
-            }
-            final Transform InvRot = new Rotate(-InvRotAngle, InvRotAxis);
-
-            return InvRot.createConcatenation(InvTrans).createConcatenation(b1Rotb2).createConcatenation(a1Zero);
-
-            //return  a1Zero;
         } else {
-            return null;
+            final Affine reflection = new Affine(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0);  // Reflection at y-z plane
+            final Point3D b1Zero = reflection.createConcatenation(a1ToZero).transform(b1);
+
+            return matchVec(a2, Y_AXIS, true)
+                    .createConcatenation(matchZero(a2, true))
+                    .createConcatenation(matchVec(b1Zero, b2Zero, false))
+                    .createConcatenation(reflection)
+                    .createConcatenation(a1ToZero);
         }
     }
 
 
-    public static Transform matchZero(Point3D a){
-        final Point2D a2D = new Point2D(a.getX(), a.getY());
+    public static Transform matchVec(Point3D a, Point3D vec, boolean Inv) {     // Matches two points on the hyperboloid which have same z-component by a rotation around Z_Axis
+        final Point2D a2D = new Point2D(a.getX(), a.getY());    // Consider only x and y components to calculate angle of rotation
+        final Point2D vec2D = new Point2D(vec.getX(), vec.getY());
 
-        final Transform rot1;
-        final Point3D rot1Axis;
-        final double rot1Angle = a2D.angle(0, 1);
+        final Transform rot1;   //Rotation
+        final Point3D rot1Axis; // Rotation axis
+        final double rot1Angle = a2D.angle(vec2D); // Rotation angle
 
-        if (a.getX() >= 0) {
+        if (a2D.getX() * vec2D.getY() - vec2D.getX() * a2D.getY() >= 0) {
             rot1Axis = new Point3D(0, 0, 1);
-            rot1 = new Rotate(rot1Angle, rot1Axis);
+        } else {
+            rot1Axis = new Point3D(0, 0, -1);
+        }
+
+        if (Inv){   // Calculates the inverse if Inv is set to true
+            rot1 = new Rotate(-rot1Angle, rot1Axis);
         }
         else {
-            rot1Axis = new Point3D(0, 0, -1);
             rot1 = new Rotate(rot1Angle, rot1Axis);
         }
-
-        double aRot1Y = Math.sqrt(a.getX() * a.getX() + a.getY() * a.getY());
-        final Affine trans = new Affine(1, 0, 0, 0, 0, a.getZ()/100, -aRot1Y/100, 0, 0, -aRot1Y/100, a.getZ()/100, 0);
-        return trans.createConcatenation(rot1);
+        return rot1;
     }
 
+
+    public static Affine matchZero(Point3D a, boolean Inv){     // Maps a given point "a" which is in the intersection of y-z-plane and hyperboloid to the minimum of the hyperboloid
+        double aRot1Y = Math.sqrt(a.getX() * a.getX() + a.getY() * a.getY());   // distance of "a" from z-axis
+        final Affine trans;
+        if (Inv){   // Calculates inverse if Inv = true
+            trans = new Affine(1, 0, 0, 0, 0, a.getZ()/100, aRot1Y/100, 0, 0, aRot1Y/100, a.getZ()/100, 0); // Isometry leaving y-z-plane invariant
+        }
+        else {
+            trans = new Affine(1, 0, 0, 0, 0, a.getZ() / 100, -aRot1Y / 100, 0, 0, -aRot1Y / 100, a.getZ() / 100, 0);
+        }
+        return trans;
+    }
 }
