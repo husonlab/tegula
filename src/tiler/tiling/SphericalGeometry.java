@@ -12,6 +12,10 @@ import javafx.scene.transform.Affine;
  * Created by Huson and Zeller on 4/19/16.
  */
 public class SphericalGeometry {
+    private static final Point3D X_AXIS = new Point3D(1, 0, 0);  // x-axis of standard basis
+    private static final Affine reflection = new Affine(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0);  // Reflection at y-z plane
+
+
     /**
      * creates a transformation from a1-b1 to a2-b2, assuming that the distance between both pairs of points is the same
      *
@@ -19,7 +23,7 @@ public class SphericalGeometry {
      * @param b1              source point
      * @param a2              target point
      * @param b2              target point
-     * @param keepOrientation keep orientation in x-y plane
+     * @param keepOrientation keep orientation on sphere
      * @return transformation
      */
     public static Transform createTransform(Point3D a1, Point3D b1, Point3D a2, Point3D b2, boolean keepOrientation) {
@@ -55,12 +59,10 @@ public class SphericalGeometry {
             return geodesicRotate.createConcatenation(rotate);
         } else {
             // Change of basis and reflection at y-z plane
-            final Point3D X_AXIS = new Point3D(1, 0, 0);  // x-axis of standard basis
             final Point3D k = X_AXIS.crossProduct(n1); // Rotation axis for change of basis
             final double diff2 = X_AXIS.angle(n1);  // Rotation angle for change of basis
             final Transform changeBasis = new Rotate(diff2, k);  // Change of basis
             final Transform changeBasis1 = new Rotate(-diff2, k);  // Inverse of change of basis
-            final Affine reflection = new Affine(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0);  // Reflection at y-z plane
 
             return geodesicRotate.createConcatenation(rotate).createConcatenation(changeBasis).createConcatenation(reflection).createConcatenation(changeBasis1);
         }

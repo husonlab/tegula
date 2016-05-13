@@ -20,6 +20,11 @@ import javafx.scene.transform.Transform;
  */
 
 public class HyperbolicGeometry {
+    private static final Point3D Y_AXIS = new Point3D(0,1,0);
+    private static final Point3D Z_AXIS = new Point3D(0,0,1);
+    private static final Affine reflection = new Affine(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0);  // Reflection at y-z plane
+
+
     /**
      * creates a transformation from a1-b1 to a2-b2, assuming that the distance between both pairs of points is the same.
      *
@@ -28,12 +33,11 @@ public class HyperbolicGeometry {
      * @param b1              source point
      * @param a2              target point
      * @param b2              target point
-     * @param keepOrientation keep orientation in x-y plane
+     * @param keepOrientation keep orientation on hyperboloid
      * @return transformation
      */
 
     public static Transform createTransform(Point3D a1, Point3D b1, Point3D a2, Point3D b2, boolean keepOrientation) {
-        final Point3D Y_AXIS = new Point3D(0,1,0);
         final Transform a1ToZero = matchZero(a1, false).createConcatenation(matchVec(a1, Y_AXIS, false)); // Maps a1 to minimal point of hyperboloid
         final Transform a2ToZero = matchZero(a2, false).createConcatenation(matchVec(a2, Y_AXIS, false)); // Maps a2 to minimal point of hyperboloid
         final Point3D b2Zero = a2ToZero.transform(b2);
@@ -46,7 +50,6 @@ public class HyperbolicGeometry {
                     .createConcatenation(a1ToZero);     // Maps a1 to minimum of hyperboloid
 
         } else {
-            final Affine reflection = new Affine(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0);  // Reflection at y-z plane
             final Point3D b1Zero = reflection.createConcatenation(a1ToZero).transform(b1);
 
             return matchVec(a2, Y_AXIS, true)
@@ -66,9 +69,9 @@ public class HyperbolicGeometry {
         final double rot1Angle = a2D.angle(vec2D); // Rotation angle
 
         if (a2D.getX() * vec2D.getY() - vec2D.getX() * a2D.getY() >= 0) {
-            rot1Axis = new Point3D(0, 0, 1);    // Counter-clockwise rotation
+            rot1Axis = Z_AXIS;    // Counter-clockwise rotation
         } else {
-            rot1Axis = new Point3D(0, 0, -1);   // Clockwise rotation
+            rot1Axis = Z_AXIS.multiply(-1);   // Clockwise rotation
         }
 
         if (Inv){   // Calculates the inverse rotation if Inv is set to true
