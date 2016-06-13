@@ -38,8 +38,8 @@ public class Main extends Application {
         final PerspectiveCamera camera = new PerspectiveCamera(true);
         camera.setNearClip(0.1);
         camera.setFarClip(10000.0);
-        camera.setTranslateZ(-500);
-        camera.setFieldOfView(35);
+        camera.setTranslateZ(-100);
+        camera.setFieldOfView(90);
 
         final ObjectProperty<Transform> worldRotateProperty = new SimpleObjectProperty<>(this, "rotation", new Rotate(0, 0, 0, 1));
         final Translate worldTranslate = new Translate(0, 0, 0);

@@ -170,7 +170,7 @@ public class Document {
             subScene.heightProperty().bind(stackPane.heightProperty());
             subScene.widthProperty().bind(stackPane.widthProperty());
             if (useDepthBuffer) {
-                PerspectiveCamera newCamera = new PerspectiveCamera(true);
+                PerspectiveCamera newCamera = new PerspectiveCamera(camera.isFixedEyeAtCameraZero());
                 newCamera.setNearClip(camera.getNearClip());
                 newCamera.setFarClip(camera.getFarClip());
                 newCamera.setFieldOfView(camera.getFieldOfView());

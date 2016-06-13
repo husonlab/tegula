@@ -3,6 +3,8 @@ package tiler.tiling;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Sphere;
@@ -13,6 +15,9 @@ import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.OrbifoldGroupName;
 import tiler.util.JavaFXUtils;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * a tiling
@@ -376,6 +381,14 @@ public class Tiling {
                 MeshView meshView = new MeshView(hyperboloid);
                 meshView.setDrawMode(DrawMode.LINE);
                 group.getChildren().add(meshView);
+
+                double height = 6000;
+                Circle circle = new Circle(100 * Math.sqrt(height * height / 10000.0 - 1));
+                circle.setTranslateZ(height);
+                circle.setStroke(Color.RED);
+                circle.setFill(Color.TRANSPARENT);
+
+                group.getChildren().add(circle);
             }
         }
 
@@ -389,6 +402,35 @@ public class Tiling {
                 Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                 group2.getTransforms().add(transform);
                 group.getChildren().add(group2);
+            }
+        }
+
+        if (false) {
+            final double maxDistance = 9; // that distance????
+
+            final QuadTree seen = new QuadTree(); // todo: find appopriate class
+            final Point3D refPoint = new Point3D(0.01, 0.34, 0.55); // todo: better choice
+            seen.add(refPoint);
+
+            final Queue<Transform> queue = new LinkedList<>();
+            queue.addAll(generators.getTransforms());
+            while (queue.size() > 0) {
+                final Transform t = queue.poll(); // remove t from queue
+                Point3D apt = t.transform(refPoint);
+                if (!seen.contains(apt)) {
+                    seen.add(apt);
+                    Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
+                    group2.getTransforms().add(t);
+                    group.getChildren().add(group2);
+
+                    for (Transform g : generators.getTransforms()) {
+                        Transform tg = g.createConcatenation(t); // order???
+                        Point3D bpt = tg.transform(refPoint);
+                        if (!seen.contains(bpt) && refPoint.distance(bpt) < maxDistance) {
+                            queue.add(tg);
+                        }
+                    }
+                }
             }
         }
 
