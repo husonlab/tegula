@@ -10,6 +10,7 @@ import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
+import javafx.scene.transform.Translate;
 import javafx.util.Pair;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
@@ -382,8 +383,8 @@ public class Tiling {
                 meshView.setDrawMode(DrawMode.LINE);
                 group.getChildren().add(meshView);
 
-                double height = 6000;
-                Circle circle = new Circle(100 * Math.sqrt(height * height / 10000.0 - 1));
+                double height = 700;
+                Circle circle = new Circle(100 * Math.sqrt(height*height/10000.0 - 1));
                 circle.setTranslateZ(height);
                 circle.setStroke(Color.RED);
                 circle.setFill(Color.TRANSPARENT);
@@ -398,27 +399,33 @@ public class Tiling {
         if (true) { // add all generators
             computeConstraintsAndGenerators();
 
-            for (Transform transform : generators.getTransforms()) {
+            /*for (Transform transform : generators.getTransforms()) {
                 Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                 group2.getTransforms().add(transform);
                 group.getChildren().add(group2);
-            }
+            }*/
         }
 
-        if (false) {
-            final double maxDistance = 9; // that distance????
+        if (true) {
+            final double maxDistance = 100000000; // that distance????
 
-            final QuadTree seen = new QuadTree(); // todo: find appopriate class
-            final Point3D refPoint = new Point3D(0.01, 0.34, 0.55); // todo: better choice
-            seen.add(refPoint);
+            final OctTree seen = new OctTree(); // todo: find appropriate class
+            final Point3D refPoint = new Point3D(10, 11, 5); // todo: better choice
+            //Sphere helpSphere = new Sphere(12);
+            //Translate trans = new Translate(refPoint.getX(),refPoint.getY(),refPoint.getZ());
+            //group.getChildren().add(helpSphere);
+            //seen.insert(refPoint.getX(),refPoint.getY(),refPoint.getZ());
 
             final Queue<Transform> queue = new LinkedList<>();
             queue.addAll(generators.getTransforms());
             while (queue.size() > 0) {
+                System.out.println(queue.size());
                 final Transform t = queue.poll(); // remove t from queue
                 Point3D apt = t.transform(refPoint);
-                if (!seen.contains(apt)) {
-                    seen.add(apt);
+                System.out.println(apt);
+                if (seen.insert(apt.getX(),apt.getY(),apt.getZ())) {
+                    System.out.println("hier");
+                    //seen.add(apt);
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                     group2.getTransforms().add(t);
                     group.getChildren().add(group2);
@@ -426,7 +433,11 @@ public class Tiling {
                     for (Transform g : generators.getTransforms()) {
                         Transform tg = g.createConcatenation(t); // order???
                         Point3D bpt = tg.transform(refPoint);
-                        if (!seen.contains(bpt) && refPoint.distance(bpt) < maxDistance) {
+                        //System.out.println(seen.insert(bpt.getX(),bpt.getY(),bpt.getZ()));
+                        if (seen.insert(bpt.getX(),bpt.getY(),bpt.getZ())&& refPoint.distance(bpt) < maxDistance) {
+                            group2 = JavaFXUtils.copyFundamentalDomain(fund); //Todo: Bedingung besser formulieren! Punkt wird automatisch addiert!!
+                            group2.getTransforms().add(tg);
+                            group.getChildren().add(group2);
                             queue.add(tg);
                         }
                     }
