@@ -406,40 +406,47 @@ public class Tiling {
             }*/
         }
 
+        // Make copies of fundamental domain.
         if (true) {
-            final double maxDistance = 100000000; // that distance????
+            final double maxDistance = 600; // todo: that distance?
 
             final OctTree seen = new OctTree(); // todo: find appropriate class
-            final Point3D refPoint = new Point3D(10, 11, 5); // todo: better choice
-            //Sphere helpSphere = new Sphere(12);
-            //Translate trans = new Translate(refPoint.getX(),refPoint.getY(),refPoint.getZ());
-            //group.getChildren().add(helpSphere);
-            //seen.insert(refPoint.getX(),refPoint.getY(),refPoint.getZ());
+            final Point3D refPoint = new Point3D(1, 1, 1); // todo: better choice
 
             final Queue<Transform> queue = new LinkedList<>();
             queue.addAll(generators.getTransforms());
-            while (queue.size() > 0) {
+
+            for (Transform g : generators.getTransforms()){  // Makes copies of fundamental domain by using generators
+                Point3D genRef = g.transform(refPoint);
+                if (seen.insert(genRef.getX(),genRef.getY(),genRef.getZ())){    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
+                    Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
+                    group2.getTransforms().add(g);
+                    group.getChildren().add(group2);                }
+            }
+
+            while (queue.size() > 0 && queue.size() < 800) {
                 System.out.println(queue.size());
                 final Transform t = queue.poll(); // remove t from queue
-                Point3D apt = t.transform(refPoint);
-                System.out.println(apt);
-                if (seen.insert(apt.getX(),apt.getY(),apt.getZ())) {
-                    System.out.println("hier");
-                    //seen.add(apt);
-                    Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-                    group2.getTransforms().add(t);
-                    group.getChildren().add(group2);
+                //System.out.println(apt);
 
-                    for (Transform g : generators.getTransforms()) {
-                        Transform tg = g.createConcatenation(t); // order???
-                        Point3D bpt = tg.transform(refPoint);
-                        //System.out.println(seen.insert(bpt.getX(),bpt.getY(),bpt.getZ()));
-                        if (seen.insert(bpt.getX(),bpt.getY(),bpt.getZ())&& refPoint.distance(bpt) < maxDistance) {
-                            group2 = JavaFXUtils.copyFundamentalDomain(fund); //Todo: Bedingung besser formulieren! Punkt wird automatisch addiert!!
-                            group2.getTransforms().add(tg);
-                            group.getChildren().add(group2);
-                            queue.add(tg);
-                        }
+                for (Transform g : generators.getTransforms()) {
+                    Transform tg = t.createConcatenation(g);
+                    Point3D bpt = tg.transform(refPoint);
+                    //System.out.println(seen.insert(bpt.getX(),bpt.getY(),bpt.getZ()));
+                    if (seen.insert(bpt.getX(),bpt.getY(),bpt.getZ())&& refPoint.distance(bpt) < maxDistance) {
+                        Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
+                        group2.getTransforms().add(tg);
+                        group.getChildren().add(group2);
+                        queue.add(tg);
+                    }
+
+                    Transform gt = g.createConcatenation(t);
+                    bpt = gt.transform(refPoint);
+                    if (seen.insert(bpt.getX(),bpt.getY(),bpt.getZ())&& refPoint.distance(bpt) < maxDistance) {
+                        Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
+                        group2.getTransforms().add(gt);
+                        group.getChildren().add(group2);
+                        queue.add(gt);
                     }
                 }
             }
