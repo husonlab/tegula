@@ -1,18 +1,18 @@
 package tiler.tiling;
 
 import javafx.geometry.Point3D;
-
 /**
+ * Computes an OctTree for 3d-points. Returns true if a given point is added to the tree.
  * Created by Ruediger on 2016.06.23.
  */
 public class OctTree {
     private double eps = 0.01;
-    public Node root = new Node(1, 1, 1);
+    public Node root = new Node(1, 1, 1); //Root node of the tree.
 
 
-    public class Node {
+    private class Node {
         double x, y, z;
-        Node ppp, mpp, pmp, ppm, mmp, mpm, pmm, mmm; // Eight nodes
+        Node ppp, mpp, pmp, ppm, mmp, mpm, pmm, mmm; // Eight nodes for each direction in space
 
         Node (double x, double y, double z){
             this.x = x;
@@ -21,10 +21,14 @@ public class OctTree {
         }
     }
 
-    public boolean insert (double x, double y, double z){
+    private double distance (Point3D a, double x, double y, double z){ // Todo: Implement distance function for hyperbolic case
+        double dist = a.distance(x,y,z);
+        return dist;
+    }
+
+    public boolean insert (double x, double y, double z){   //Returns true if (x,y,z) is added to the tree structure.
         Node h = root;
         Point3D point = new Point3D(x,y,z);
-        //Node root = new Node(0.01, 0.34, 0.55);
 
         while (h != null){
             if (point.distance(h.x,h.y,h.z) > eps) {
@@ -71,8 +75,7 @@ public class OctTree {
                     } else h = h.mmm;
                 }
             }
-            else {//System.out.println(h.x);
-                return false;}
+            else {return false;}
         }
         return true;
     }
