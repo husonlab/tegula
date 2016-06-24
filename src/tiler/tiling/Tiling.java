@@ -358,6 +358,7 @@ public class Tiling {
                 ds.getNr1(), ds.getNr2(), numbVert, numbEdge, numbTile, getGroupName());
     }
 
+
     /**
      * create the set of tiles to be shown
      *
@@ -408,17 +409,17 @@ public class Tiling {
 
         // Make copies of fundamental domain.
         if (true) {
-            final double maxDistance = 600; // todo: that distance?
+            final double maxDistance = 300; // Distances: Euclidean 600, Hyperbolic 300, Spherical 2
 
             final OctTree seen = new OctTree(); // todo: find appropriate class
-            final Point3D refPoint = new Point3D(1, 1, 1); // todo: better choice
+            final Point3D refPoint = new Point3D(0, 0, 1); // todo: better choice
 
             final Queue<Transform> queue = new LinkedList<>();
             queue.addAll(generators.getTransforms());
 
             for (Transform g : generators.getTransforms()){  // Makes copies of fundamental domain by using generators
                 Point3D genRef = g.transform(refPoint);
-                if (seen.insert(genRef.getX(),genRef.getY(),genRef.getZ())){    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
+                if (seen.insert(fDomain.getGeometry(), genRef.getX(),genRef.getY(),genRef.getZ())){    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                     group2.getTransforms().add(g);
                     group.getChildren().add(group2);                }
@@ -433,7 +434,7 @@ public class Tiling {
                     Transform tg = t.createConcatenation(g);
                     Point3D bpt = tg.transform(refPoint);
                     //System.out.println(seen.insert(bpt.getX(),bpt.getY(),bpt.getZ()));
-                    if (seen.insert(bpt.getX(),bpt.getY(),bpt.getZ())&& refPoint.distance(bpt) < maxDistance) {
+                    if (seen.insert(fDomain.getGeometry(), bpt.getX(),bpt.getY(),bpt.getZ())&& refPoint.distance(bpt) < maxDistance) {
                         Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                         group2.getTransforms().add(tg);
                         group.getChildren().add(group2);
@@ -442,7 +443,7 @@ public class Tiling {
 
                     Transform gt = g.createConcatenation(t);
                     bpt = gt.transform(refPoint);
-                    if (seen.insert(bpt.getX(),bpt.getY(),bpt.getZ())&& refPoint.distance(bpt) < maxDistance) {
+                    if (seen.insert(fDomain.getGeometry(), bpt.getX(),bpt.getY(),bpt.getZ())&& refPoint.distance(bpt) < maxDistance) {
                         Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                         group2.getTransforms().add(gt);
                         group.getChildren().add(group2);

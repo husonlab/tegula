@@ -1,13 +1,15 @@
 package tiler.tiling;
 
 import javafx.geometry.Point3D;
+import tiler.core.dsymbols.FDomain;
+
 /**
  * Computes an OctTree for 3d-points. Returns true if a given point is added to the tree.
  * Created by Ruediger on 2016.06.23.
  */
 public class OctTree {
-    private double eps = 0.01;
-    public Node root = new Node(1, 1, 1); //Root node of the tree.
+    private double eps = 0.1;
+    public Node root = new Node(0, 0, 1); //Root node of the tree.
 
 
     private class Node {
@@ -21,17 +23,28 @@ public class OctTree {
         }
     }
 
-    private double distance (Point3D a, double x, double y, double z){ // Todo: Implement distance function for hyperbolic case
-        double dist = a.distance(x,y,z);
-        return dist;
+    public static double distance (FDomain.Geometry geom, Point3D a, double x, double y, double z){
+
+        if (geom == FDomain.Geometry.Euclidean || geom == FDomain.Geometry.Spherical) {
+            double dist = a.distance(x, y, z);
+            return dist;
+        }
+        else {
+            double scalar = a.getZ()*z - a.getX()*x - a.getY()*y;
+            double dist = Math.log(Math.abs(scalar + Math.sqrt(Math.abs(scalar * scalar - 1))));
+            //System.out.println(dist);
+            return dist;
+        }
+
     }
 
-    public boolean insert (double x, double y, double z){   //Returns true if (x,y,z) is added to the tree structure.
+
+    public boolean insert (FDomain.Geometry geom, double x, double y, double z){   //Returns true if (x,y,z) is added to the tree structure.
         Node h = root;
         Point3D point = new Point3D(x,y,z);
 
         while (h != null){
-            if (point.distance(h.x,h.y,h.z) > eps) {
+            if (distance(geom, point, h.x, h.y, h.z) > eps) {
                 if (x >= h.x && y >= h.y && z >= h.z) {
                     if (h.ppp == null) {
                         h.ppp = new Node(x, y, z);
