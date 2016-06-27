@@ -369,22 +369,22 @@ public class Tiling {
         final Group group = new Group();
 
         // add a huge sphere for debugging:
-        if (true) {
+        if (false) {
             if (fDomain.getGeometry() == FDomain.Geometry.Spherical) {
-                Sphere sphere = new Sphere(99);
+                /*Sphere sphere = new Sphere(99);
                 sphere.setDrawMode(DrawMode.LINE);
-                group.getChildren().add(sphere);
+                group.getChildren().add(sphere);*/
             } else if (fDomain.getGeometry() == FDomain.Geometry.Hyperbolic) {
-                Sphere sphere = new Sphere(1);
+                /*Sphere sphere = new Sphere(1);
                 sphere.setDrawMode(DrawMode.LINE);
-                group.getChildren().add(sphere);
+                group.getChildren().add(sphere);*/
 
-                Hyperboloid hyperboloid = new Hyperboloid(500, 50);
+                /*Hyperboloid hyperboloid = new Hyperboloid(500, 50);
                 MeshView meshView = new MeshView(hyperboloid);
                 meshView.setDrawMode(DrawMode.LINE);
-                group.getChildren().add(meshView);
+                group.getChildren().add(meshView);*/
 
-                double height = 700;
+                double height = 2000;
                 Circle circle = new Circle(100 * Math.sqrt(height*height/10000.0 - 1));
                 circle.setTranslateZ(height);
                 circle.setStroke(Color.RED);
