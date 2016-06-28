@@ -384,13 +384,16 @@ public class Tiling {
                 meshView.setDrawMode(DrawMode.LINE);
                 group.getChildren().add(meshView);*/
 
-                double height = 2000;
-                Circle circle = new Circle(100 * Math.sqrt(height*height/10000.0 - 1));
+                /*double height = 4000;
+                Circle circle = new Circle(100 * Math.sqrt((height/100.0)*(height/100.0) - 1));
                 circle.setTranslateZ(height);
                 circle.setStroke(Color.RED);
                 circle.setFill(Color.TRANSPARENT);
-
-                group.getChildren().add(circle);
+                group.getChildren().add(circle);*/
+            } else if (fDomain.getGeometry() == FDomain.Geometry.Euclidean){
+                Sphere sphereEucl = new Sphere(50);
+                sphereEucl.setDrawMode(DrawMode.FILL);
+                group.getChildren().add(sphereEucl);
             }
         }
 
@@ -407,22 +410,38 @@ public class Tiling {
             }*/
         }
 
+
+
         // Make copies of fundamental domain.
         if (true) {
-            final double maxDistance = 300; // Distances: Euclidean 600, Hyperbolic 300, Spherical 2
+            //double radius = 0.1;
+            Point3D refPoint = new Point3D(0,0,1);
+            //Compute radius and midpoint of incircle
+            /*Point3D vert1 = fDomain.getVertex3D(0,1);
+            Point3D vert2 = fDomain.getVertex3D(1,1);
+            Point3D vert3 = fDomain.getVertex3D(2,1);
+            if (fDomain.getGeometry() == FDomain.Geometry.Euclidean || fDomain.getGeometry() == FDomain.Geometry.Spherical) {
+                double c = vert1.distance(vert2);
+                double b = vert1.distance(vert3);
+                double a = vert2.distance(vert3);
+                double s = 0.5 * (a + b + c);
+                radius = Math.sqrt(Math.abs((s - a) * (s - b) * (s - c) / s));
+                refPoint = vert1.multiply(a).add(vert2.multiply(b).add(vert3.multiply(c))).multiply(1/(2*s));
+            }*/
 
-            final OctTree seen = new OctTree(); // todo: find appropriate class
-            final Point3D refPoint = new Point3D(0, 0, 1); // todo: better choice
+            final double maxDistance = 300; // Todo: Distances: Euclidean 600, Hyperbolic 300, Spherical 2
 
+            final OctTree seen = new OctTree();
             final Queue<Transform> queue = new LinkedList<>();
             queue.addAll(generators.getTransforms());
 
             for (Transform g : generators.getTransforms()){  // Makes copies of fundamental domain by using generators
                 Point3D genRef = g.transform(refPoint);
-                if (seen.insert(fDomain.getGeometry(), genRef.getX(),genRef.getY(),genRef.getZ())){    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
+                if (seen.insert(fDomain, genRef)){    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                     group2.getTransforms().add(g);
-                    group.getChildren().add(group2);                }
+                    group.getChildren().add(group2);
+                }
             }
 
             while (queue.size() > 0 && queue.size() < 800) {
@@ -434,7 +453,8 @@ public class Tiling {
                     Transform tg = t.createConcatenation(g);
                     Point3D bpt = tg.transform(refPoint);
                     //System.out.println(seen.insert(bpt.getX(),bpt.getY(),bpt.getZ()));
-                    if (seen.insert(fDomain.getGeometry(), bpt.getX(),bpt.getY(),bpt.getZ())&& refPoint.distance(bpt) < maxDistance) {
+                    if (seen.insert(fDomain, bpt)&& bpt.magnitude() < maxDistance) {
+                        //System.out.println(bpt);
                         Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                         group2.getTransforms().add(tg);
                         group.getChildren().add(group2);
@@ -443,7 +463,7 @@ public class Tiling {
 
                     Transform gt = g.createConcatenation(t);
                     bpt = gt.transform(refPoint);
-                    if (seen.insert(fDomain.getGeometry(), bpt.getX(),bpt.getY(),bpt.getZ())&& refPoint.distance(bpt) < maxDistance) {
+                    if (seen.insert(fDomain, bpt)&& bpt.magnitude() < maxDistance) {
                         Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                         group2.getTransforms().add(gt);
                         group.getChildren().add(group2);

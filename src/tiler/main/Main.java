@@ -38,6 +38,7 @@ public class Main extends Application {
         final PerspectiveCamera camera = new PerspectiveCamera(true);
         camera.setNearClip(0.1);
         camera.setFarClip(10000.0);
+
         camera.setTranslateZ(-500);
         camera.setFieldOfView(35);
 

@@ -9,81 +9,77 @@ import tiler.core.dsymbols.FDomain;
  */
 public class OctTree {
     private double eps = 0.1;
-    public Node root = new Node(0, 0, 1); //Root node of the tree.
+    private Point3D rootPoint = new Point3D(0,0,1);
+    private Node root = new Node(rootPoint); //Root node of the tree.
 
 
     private class Node {
-        double x, y, z;
+        Point3D a;
         Node ppp, mpp, pmp, ppm, mmp, mpm, pmm, mmm; // Eight nodes for each direction in space
 
-        Node (double x, double y, double z){
-            this.x = x;
-            this.y = y;
-            this.z = z;
+        Node (Point3D a){
+            this.a = a;
         }
     }
 
-    public static double distance (FDomain.Geometry geom, Point3D a, double x, double y, double z){
 
-        if (geom == FDomain.Geometry.Euclidean || geom == FDomain.Geometry.Spherical) {
-            double dist = a.distance(x, y, z);
+    public static double distance (FDomain geom, Point3D a, Point3D b){
+        if (geom.getGeometry() == FDomain.Geometry.Euclidean || geom.getGeometry() == FDomain.Geometry.Spherical) {
+            double dist = a.distance(b); // Euclidean distance
             return dist;
         }
         else {
-            double scalar = a.getZ()*z - a.getX()*x - a.getY()*y;
-            double dist = Math.log(Math.abs(scalar + Math.sqrt(Math.abs(scalar * scalar - 1))));
-            //System.out.println(dist);
+            double scalar = a.getZ()*b.getZ() - a.getX()*b.getX() - a.getY()*b.getY();
+            double dist = Math.log(Math.abs(scalar + Math.sqrt(Math.abs(scalar * scalar - 1)))); // Hyperbolic distance on hyperbploid (not scaled with factor 100): dist(x,y) = arcosh(-<x,y>), where <x,y> = x1y1 + x2y2 - x3y3.
             return dist;
         }
-
     }
 
 
-    public boolean insert (FDomain.Geometry geom, double x, double y, double z){   //Returns true if (x,y,z) is added to the tree structure.
+    public boolean insert (FDomain geom, Point3D b){   //Returns true if (x,y,z) is added to the tree structure.
         Node h = root;
-        Point3D point = new Point3D(x,y,z);
 
         while (h != null){
-            if (distance(geom, point, h.x, h.y, h.z) > eps) {
-                if (x >= h.x && y >= h.y && z >= h.z) {
+            if (distance(geom, b, h.a) > eps) {
+                if (b.getX() >= h.a.getX() && b.getY() >= h.a.getY() && b.getZ() >= h.a.getZ()) {
                     if (h.ppp == null) {
-                        h.ppp = new Node(x, y, z);
+                        h.ppp = new Node(b);
                         h = null;
                     } else h = h.ppp;
-                } else if (x < h.x && y >= h.y && z >= h.z) {
+                } else if (b.getX() < h.a.getX() && b.getY() >= h.a.getY() && b.getZ() >= h.a.getZ()) {
                     if (h.mpp == null) {
-                        h.mpp = new Node(x, y, z);
+                        h.mpp = new Node(b);
                         h = null;
                     } else h = h.mpp;
-                } else if (x >= h.x && y < h.y && z >= h.z) {
+                } else if (b.getX() >= h.a.getX() && b.getY() < h.a.getY() && b.getZ() >= h.a.getZ()) {
                     if (h.pmp == null) {
-                        h.pmp = new Node(x, y, z);
+                        h.pmp = new Node(b);
                         h = null;
                     } else h = h.pmp;
-                } else if (x >= h.x && y >= h.y && z < h.z) {
+                } else if (b.getX() >= h.a.getX() && b.getY() >= h.a.getY() && b.getZ() < h.a.getZ()) {
                     if (h.ppm == null) {
-                        h.ppm = new Node(x, y, z);
+                        h.ppm = new Node(b);
                         h = null;
                     } else h = h.ppm;
-                } else if (x < h.x && y < h.y && z >= h.z) {
+                } else if (b.getX() < h.a.getX() && b.getY() < h.a.getY() && b.getZ() >= h.a.getZ()) {
                     if (h.mmp == null) {
-                        h.mmp = new Node(x, y, z);
+                        h.mmp = new Node(b);
                         h = null;
                     } else h = h.mmp;
-                } else if (x < h.x && y >= h.y && z < h.z) {
+                } else if (b.getX() < h.a.getX() && b.getY() >= h.a.getY() && b.getZ() < h.a.getZ()) {
                     if (h.mpm == null) {
 
-                        h.mpm = new Node(x, y, z);
+                        h.mpm = new Node(b);
                         h = null;
                     } else h = h.mpm;
-                } else if (x >= h.x && y < h.y && z < h.z) {
+                } else if (b.getX() >= h.a.getX() && b.getY() < h.a.getY() && b.getZ() < h.a.getZ()) {
                     if (h.pmm == null) {
-                        h.pmm = new Node(x, y, z);
+                        h.pmm = new Node(b);
                         h = null;
                     } else h = h.pmm;
-                } else if (x < h.x && y < h.y && z < h.z) {
+                } else if (b.getX() < h.a.getX() && b.getY() < h.a.getY() && b.getZ() < h.a.getZ()) {
                     if (h.mmm == null) {
-                        h.mmm = new Node(x, y, z);
+                        h.mmm = new Node(b);
                         h = null;
                     } else h = h.mmm;
                 }
