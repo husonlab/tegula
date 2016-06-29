@@ -93,11 +93,11 @@ public class Main extends Application {
         document.read(new StringReader("<23.1:20:2 4 6 8 10 12 14 16 18 20,2 10 5 9 8 20 13 15 17 19,11 12 13 14 15 16 17 18 19 20:3 3 5 5,4 4 4>"));
         document.update();
 
-        controller.getFieldOfViewSlider().valueProperty().addListener(new ChangeListener<Number>() {
+        /*controller.getFieldOfViewSlider().valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
                 document.getCamera().setFieldOfView(new_val.intValue());
             }
-        });
+        });*/
 
 
 

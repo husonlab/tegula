@@ -149,8 +149,8 @@ public class Controller implements Initializable {
     @FXML
     private Label labelV8;
 
-    @FXML
-    private Slider fieldOfViewSlider;
+    /*@FXML
+    private Slider fieldOfViewSlider;*/
 
     @FXML
     private Button btnPoincare = new Button();
@@ -209,7 +209,7 @@ public class Controller implements Initializable {
         return statusTextField;
     }
 
-    public Slider getFieldOfViewSlider() { return fieldOfViewSlider;}
+    //public Slider getFieldOfViewSlider() { return fieldOfViewSlider;}
 
     public Button getBtnPoincare() { return btnPoincare; }
 

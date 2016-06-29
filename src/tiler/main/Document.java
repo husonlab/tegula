@@ -27,12 +27,15 @@ import javafx.scene.PerspectiveCamera;
 import javafx.scene.SubScene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.fundamental.SphericalGeometry;
 import tiler.tiling.Tiling;
 
+import javax.lang.model.type.NullType;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -149,14 +152,20 @@ public class Document {
         if (tiling.getGeometry() == FDomain.Geometry.Euclidean){
             Point3D refPoint = new Point3D(0,0,0); double width=800, height=800;
             tiles = tiling.createTiling(refPoint,width,height);
+
+            camera.setTranslateZ(-500);
+            camera.setFieldOfView(35);
         }
         else if (tiling.getGeometry() == FDomain.Geometry.Spherical){
             tiles = tiling.createTiling();
+            camera.setTranslateZ(-500);
+            camera.setFieldOfView(35);
         }
         else if (tiling.getGeometry() == FDomain.Geometry.Hyperbolic){
-            double maxDist = 300;
+            double maxDist = 200;  // Must be greater than 1
             tiles = tiling.createTiling(maxDist);
-            camera.setFarClip(70*Math.sqrt((maxDist*maxDist+1)/2));
+
+            camera.setFarClip(70*(Math.sqrt((maxDist*maxDist+1)/2)+1));
             camera.setFieldOfView(90);
             camera.setTranslateZ(-100);
 
@@ -167,6 +176,7 @@ public class Document {
             controller.getBtnPoincare().setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
+                    camera.setFarClip(70*(Math.sqrt((maxDist*maxDist+1)/2)+1));
                     camera.setTranslateZ(-100);
                 }
             });
@@ -175,6 +185,7 @@ public class Document {
                 @Override
                 public void handle(ActionEvent event) {
                     camera.setTranslateZ(0);
+                    camera.setFarClip(70*Math.sqrt((maxDist*maxDist+1)/2));
                 }
             });
         }
