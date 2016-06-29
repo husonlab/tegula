@@ -5,9 +5,12 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.*;
+import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.transform.Rotate;
@@ -15,6 +18,7 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
+import tiler.tiling.Tiling;
 
 import java.io.StringReader;
 import java.util.Properties;
@@ -31,6 +35,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+
         System.err.println("Drag mouse to drag");
         System.err.println("Shift-drag mouse to rotate");
         System.err.println("Mouse-wheel to zoom");
@@ -78,6 +83,7 @@ public class Main extends Application {
         final Scene scene = new Scene(root, 800, 800);
         MouseHandler.addMouseHandler(scene, worldTranslate, worldScale, worldRotateProperty);
 
+
         stage.setScene(scene);
         stage.sizeToScene();
         stage.show();
@@ -92,6 +98,7 @@ public class Main extends Application {
                 document.getCamera().setFieldOfView(new_val.intValue());
             }
         });
+
 
 
 

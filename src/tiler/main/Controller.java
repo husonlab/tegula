@@ -152,6 +152,12 @@ public class Controller implements Initializable {
     @FXML
     private Slider fieldOfViewSlider;
 
+    @FXML
+    private Button btnPoincare = new Button();
+
+    @FXML
+    private Button btnKlein = new Button();
+
     private Document document;
     private Stage stage;
 
@@ -203,9 +209,11 @@ public class Controller implements Initializable {
         return statusTextField;
     }
 
-    public Slider getFieldOfViewSlider() {
-        return fieldOfViewSlider;
-    }
+    public Slider getFieldOfViewSlider() { return fieldOfViewSlider;}
+
+    public Button getBtnPoincare() { return btnPoincare; }
+
+    public Button getBtnKlein() { return btnKlein; }
 
     @FXML
     void fireAbout(ActionEvent event) {

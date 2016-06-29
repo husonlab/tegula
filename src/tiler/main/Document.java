@@ -19,13 +19,18 @@
 
 package tiler.main;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SubScene;
+import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
+import tiler.core.fundamental.SphericalGeometry;
 import tiler.tiling.Tiling;
 
 import java.io.BufferedReader;
@@ -136,9 +141,44 @@ public class Document {
         tilings.set(current, tiling);
     }
 
+
     public void update() {
         final Tiling tiling = tilings.get(current);
-        Group tiles = tiling.createTiling(100);
+
+        Group tiles = new Group();
+        if (tiling.getGeometry() == FDomain.Geometry.Euclidean){
+            Point3D refPoint = new Point3D(0,0,0); double width=800, height=800;
+            tiles = tiling.createTiling(refPoint,width,height);
+        }
+        else if (tiling.getGeometry() == FDomain.Geometry.Spherical){
+            tiles = tiling.createTiling();
+        }
+        else if (tiling.getGeometry() == FDomain.Geometry.Hyperbolic){
+            double maxDist = 300;
+            tiles = tiling.createTiling(maxDist);
+            camera.setFarClip(70*Math.sqrt((maxDist*maxDist+1)/2));
+            camera.setFieldOfView(90);
+            camera.setTranslateZ(-100);
+
+            controller.getTopPane().getChildren().addAll(controller.getBtnPoincare(),controller.getBtnKlein());
+            controller.getBtnPoincare().setText("Poincare model");
+            controller.getBtnKlein().setText("Klein model"); controller.getBtnKlein().setLayoutX(110);
+
+            controller.getBtnPoincare().setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    camera.setTranslateZ(-100);
+                }
+            });
+
+            controller.getBtnKlein().setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    camera.setTranslateZ(0);
+                }
+            });
+        }
+
         setUseDepthBuffer(!tiling.getGeometry().equals(FDomain.Geometry.Euclidean));
 
         getWorld().getChildren().clear();
