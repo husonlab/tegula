@@ -192,7 +192,6 @@ public class Document {
             controller.getBtnPoincare().setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    //camera.setFarClip(70*(Math.sqrt((maxDist*maxDist+1)/2)+1));
                     camera.setFarClip(100*(maxDist+1));
                     camera.setTranslateZ(-100);
                 }
@@ -203,7 +202,6 @@ public class Document {
                 public void handle(ActionEvent event) {
                     camera.setTranslateZ(0);
                     camera.setFarClip(100*maxDist);
-                    //camera.setFarClip(70*Math.sqrt((maxDist*maxDist+1)/2));
                 }
             });
         }
