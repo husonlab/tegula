@@ -483,7 +483,7 @@ public class Tiling {
             for (Transform g : generators.getTransforms()) {
                 Transform tg = t.createConcatenation(g);
                 Point3D bpt = tg.transform(refPoint);
-                if (seen.insert(fDomain, bpt) && bpt.magnitude() < maxDist) {
+                if (seen.insert(fDomain, bpt) && bpt.getZ() < maxDist) {
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                     group2.getTransforms().add(tg);
                     group.getChildren().add(group2);
@@ -492,7 +492,7 @@ public class Tiling {
 
                 Transform gt = g.createConcatenation(t);
                 bpt = gt.transform(refPoint);
-                if (seen.insert(fDomain, bpt) && bpt.magnitude() < maxDist) {
+                if (seen.insert(fDomain, bpt) && bpt.getZ() < maxDist) {
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                     group2.getTransforms().add(gt);
                     group.getChildren().add(group2);

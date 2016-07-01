@@ -149,13 +149,9 @@ public class Controller implements Initializable {
     @FXML
     private Label labelV8;
 
-    /*@FXML
-    private Slider fieldOfViewSlider;*/
-
     @FXML
     private Button btnPoincare = new Button();
 
-    @FXML
     private Button btnKlein = new Button();
 
     private Document document;
@@ -208,8 +204,6 @@ public class Controller implements Initializable {
     public TextField getStatusTextField() {
         return statusTextField;
     }
-
-    //public Slider getFieldOfViewSlider() { return fieldOfViewSlider;}
 
     public Button getBtnPoincare() { return btnPoincare; }
 
@@ -310,6 +304,7 @@ public class Controller implements Initializable {
             }
         }
     }
+
 
     @FXML
     void firePaste(ActionEvent event) {
@@ -478,5 +473,4 @@ public class Controller implements Initializable {
                 return increaseV8;
         }
     }
-
 }
