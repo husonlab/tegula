@@ -1,5 +1,6 @@
 package tiler.tiling;
 
+import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import tiler.core.dsymbols.FDomain;
 
@@ -9,8 +10,8 @@ import tiler.core.dsymbols.FDomain;
  */
 public class OctTree {
     private double eps = 0.1;
-    private Point3D rootPoint = new Point3D(0,0,1);
-    private Node root = new Node(rootPoint); //Root node of the tree.
+    //public static Point3D rootPoint = new Point3D(0,0,1); //Todo: better choice
+    private Node root; //Root node of the tree.
 
 
     private class Node {
@@ -24,9 +25,15 @@ public class OctTree {
 
 
     public static double distance (FDomain geom, Point3D a, Point3D b){
-        if (geom.getGeometry() == FDomain.Geometry.Euclidean || geom.getGeometry() == FDomain.Geometry.Spherical) {
+        if (geom.getGeometry() == FDomain.Geometry.Spherical) {
             double dist = a.distance(b); // Euclidean distance
             return dist;
+        }
+        else if (geom.getGeometry() == FDomain.Geometry.Euclidean){
+            Point2D a2d = new Point2D(a.getX(),a.getY());
+            Point2D b2d = new Point2D(b.getX(),b.getY());
+            double dist = a2d.distance(b2d);
+            return  dist;
         }
         else {
             double scalar = a.getZ()*b.getZ() - a.getX()*b.getX() - a.getY()*b.getY();
@@ -36,9 +43,13 @@ public class OctTree {
     }
 
 
-    public boolean insert (FDomain geom, Point3D b){   //Returns true if (x,y,z) is added to the tree structure.
-        Node h = root;
+    public boolean insert (FDomain geom, Point3D b){   //Returns true if point b is added to the tree structure.
 
+        if (root == null) {
+            root = new Node(b);
+            return true;
+        }
+        Node h = root;
         while (h != null){
             if (distance(geom, b, h.a) > eps) {
                 if (b.getX() >= h.a.getX() && b.getY() >= h.a.getY() && b.getZ() >= h.a.getZ()) {
@@ -68,7 +79,6 @@ public class OctTree {
                     } else h = h.mmp;
                 } else if (b.getX() < h.a.getX() && b.getY() >= h.a.getY() && b.getZ() < h.a.getZ()) {
                     if (h.mpm == null) {
-
                         h.mpm = new Node(b);
                         h = null;
                     } else h = h.mpm;

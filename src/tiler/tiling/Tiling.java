@@ -374,9 +374,10 @@ public class Tiling {
 
         // Make copies of fundamental domain.
         if (true) {
-            Point3D refPoint = new Point3D(0,0,1);
-
             final OctTree seen = new OctTree();
+            final Point3D refPoint = new Point3D(0,0,1);  //Todo better choice
+            seen.insert(fDomain, refPoint); //root node of OctTree is point of reference.
+
             final Queue<Transform> queue = new LinkedList<>();
             queue.addAll(generators.getTransforms());
 
@@ -450,6 +451,8 @@ public class Tiling {
     //Create tiling in hyperbolic case
     public Group createTiling(double maxDist) {
         final OctTree seen = new OctTree();
+        Point3D refPoint = new Point3D(0, 0, 1);
+        seen.insert(fDomain, refPoint); // root of OctTree is point of reference
 
         final Group group = new Group();
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
@@ -459,8 +462,6 @@ public class Tiling {
         computeConstraintsAndGenerators();
 
         // Make copies of fundamental domain.
-        Point3D refPoint = new Point3D(0, 0, 1);
-
 
         final Queue<Transform> queue = new LinkedList<>();
         queue.addAll(generators.getTransforms());
@@ -511,42 +512,58 @@ public class Tiling {
         //Add all generators
         computeConstraintsAndGenerators();
 
-        final OctTree seen = new OctTree();
+        final QuadTree seen = new QuadTree();
+        seen.insert(refPoint.getX(),refPoint.getY());
+
         final Queue<Transform> queue = new LinkedList<>();
         queue.addAll(generators.getTransforms());
 
+        int j = 0;
+
         for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
             Point3D genRef = g.transform(refPoint);
-            if (seen.insert(fDomain, genRef)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
+            if (seen.insert(genRef.getX(),genRef.getY())) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
                 Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                 group2.getTransforms().add(g);
                 group.getChildren().add(group2);
+                j++;
             }
         }
 
-        while (queue.size() > 0 && queue.size() < 50) {
+        while (queue.size() > 0 && j < 1000) {
             final Transform t = queue.poll(); // remove t from queue
 
             for (Transform g : generators.getTransforms()) {
                 Transform tg = t.createConcatenation(g);
-                Point3D bpt = tg.transform(refPoint);
-                if (seen.insert(fDomain, bpt) && -width/8<=bpt.getX()-refPoint.getX() && bpt.getX()-refPoint.getX()<=width && -width/8<=-refPoint.getY()+bpt.getY() && -refPoint.getY()+bpt.getY()<=height) {
+                Point3D apt = tg.transform(refPoint);
+                apt = new Point3D(apt.getX(),apt.getY(),1);
+                boolean inserted = seen.insert(apt.getX(),apt.getY());
+                //System.out.println(inserted);
+                if (inserted && -width/8<=apt.getX()-refPoint.getX() && apt.getX()-refPoint.getX()<=width && -height/8<=-refPoint.getY()+apt.getY() && -refPoint.getY()+apt.getY()<=height) {
+                    System.out.println(apt);
+
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                     group2.getTransforms().add(tg);
                     group.getChildren().add(group2);
                     queue.add(tg);
+                    j++;
                 }
 
+
                 Transform gt = g.createConcatenation(t);
-                bpt = gt.transform(refPoint);
-                if (seen.insert(fDomain, bpt) && -20<=bpt.getX()-refPoint.getX() && bpt.getX()-refPoint.getX()<=width && -20<=-refPoint.getY()+bpt.getY() && -refPoint.getY()+bpt.getY()<=height) {
+                Point3D bpt = gt.transform(refPoint);
+                bpt = new Point3D(bpt.getX(),bpt.getZ(),1);
+                if (seen.insert(bpt.getX(),bpt.getY()) && -width/8<=bpt.getX()-refPoint.getX() && bpt.getX()-refPoint.getX()<=width && -height/8<=-refPoint.getY()+bpt.getY() && -refPoint.getY()+bpt.getY()<=height) {
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                     group2.getTransforms().add(gt);
                     group.getChildren().add(group2);
                     queue.add(gt);
+                    j++;
+                    //System.out.println(j);
                 }
             }
         }
+        System.out.println(j);
         return group;
     }
 
