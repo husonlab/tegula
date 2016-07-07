@@ -390,7 +390,6 @@ public class Tiling {
             }
 
             while (queue.size() > 0 && queue.size() < 800) {
-                System.out.println(queue.size());
                 final Transform t = queue.poll(); // remove t from queue
 
                 for (Transform g : generators.getTransforms()) {
@@ -468,7 +467,6 @@ public class Tiling {
 
         for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
             Point3D genRef = g.transform(refPoint);
-            //System.out.println(genRef);
             if (seen.insert(fDomain, genRef)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
                 Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                 group2.getTransforms().add(g);
@@ -476,8 +474,7 @@ public class Tiling {
             }
         }
 
-        while (queue.size() > 0 && queue.size() < 800) {
-            //System.out.println(queue.size());
+        while (queue.size() > 0 && queue.size() < 10000) {
             final Transform t = queue.poll(); // remove t from queue
 
             for (Transform g : generators.getTransforms()) {
@@ -528,13 +525,11 @@ public class Tiling {
         }
 
         while (queue.size() > 0 && queue.size() < 50) {
-            System.out.println(queue.size());
             final Transform t = queue.poll(); // remove t from queue
 
             for (Transform g : generators.getTransforms()) {
                 Transform tg = t.createConcatenation(g);
                 Point3D bpt = tg.transform(refPoint);
-                System.out.println(-bpt.getX()+refPoint.getX());
                 if (seen.insert(fDomain, bpt) && -width/8<=bpt.getX()-refPoint.getX() && bpt.getX()-refPoint.getX()<=width && -width/8<=-refPoint.getY()+bpt.getY() && -refPoint.getY()+bpt.getY()<=height) {
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                     group2.getTransforms().add(tg);

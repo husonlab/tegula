@@ -149,10 +149,15 @@ public class Controller implements Initializable {
     @FXML
     private Label labelV8;
 
-    @FXML
+
+    // Buttons not defined via FXML code
     private Button btnPoincare = new Button();
 
     private Button btnKlein = new Button();
+
+    private Button btnIncrease = new Button();
+
+    private Button btnDecrease = new Button();
 
     private Document document;
     private Stage stage;
@@ -208,6 +213,10 @@ public class Controller implements Initializable {
     public Button getBtnPoincare() { return btnPoincare; }
 
     public Button getBtnKlein() { return btnKlein; }
+
+    public Button getBtnIncrease() { return btnIncrease; }
+
+    public Button getBtnDecrease() { return btnDecrease; }
 
     @FXML
     void fireAbout(ActionEvent event) {

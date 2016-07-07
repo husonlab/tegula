@@ -27,6 +27,8 @@ import java.util.Properties;
  * main program
  */
 public class Main extends Application {
+    public static int counter = 11;
+    //static Group tiles = new Group();
     private static final Properties properties = new Properties();
 
     public static void main(String[] args) {
