@@ -1,6 +1,8 @@
 package tiler.tiling;
 
 import javafx.geometry.Point2D;
+import javafx.geometry.Point3D;
+
 /**
  * Created by Ruediger on 2016.07.07.
  */
@@ -26,24 +28,27 @@ public class QuadTree {
             return true;
         }
         Node h = root;
+        double posSlope, negSlope;
         while (h != null){
             if (b.distance(h.a) > eps) {
-                if (b.getX() >= h.a.getX() && b.getY() >= h.a.getY()) {
+                posSlope = Math.PI*(b1-h.a.getX())+h.a.getY();
+                negSlope = -1/Math.PI*(b1-h.a.getX())+h.a.getY();
+                if (b2 >= posSlope && b2 >= negSlope) {
                     if (h.NE == null) {
                         h.NE = new Node(b);
                         h = null;
                     } else h = h.NE;
-                } else if (b.getX() < h.a.getX() && b.getY() >= h.a.getY()) {
+                } else if (b2 < posSlope && b2 >= negSlope) {
                     if (h.SE == null) {
                         h.SE = new Node(b);
                         h = null;
                     } else h = h.SE;
-                } else if (b.getX() >= h.a.getX() && b.getY() < h.a.getY()) {
+                } else if (b2 >= posSlope && b2 < negSlope) {
                     if (h.NW == null) {
                         h.NW = new Node(b);
                         h = null;
                     } else h = h.NW;
-                } else if (b.getX() < h.a.getX() && b.getY() < h.a.getY()) {
+                } else if (b2 < posSlope && b2 < negSlope) {
                     if (h.SW == null) {
                         h.SW = new Node(b);
                         h = null;

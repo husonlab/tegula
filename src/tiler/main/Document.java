@@ -154,7 +154,7 @@ public class Document {
         Group tiles = new Group();
 
         if (tiling.getGeometry() == FDomain.Geometry.Euclidean){
-            Point3D refPoint = new Point3D(0,0,1); double width=800, height=800;
+            Point3D refPoint = new Point3D(0,0,0); double width=800, height=800;
             tiles = tiling.createTiling(refPoint,width,height);
 
             camera.setTranslateZ(-500);

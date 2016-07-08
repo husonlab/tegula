@@ -535,12 +535,10 @@ public class Tiling {
 
             for (Transform g : generators.getTransforms()) {
                 Transform tg = t.createConcatenation(g);
-                Point3D apt = tg.transform(refPoint);
-                apt = new Point3D(apt.getX(),apt.getY(),1);
-                boolean inserted = seen.insert(apt.getX(),apt.getY());
-                //System.out.println(inserted);
-                if (inserted && -width/8<=apt.getX()-refPoint.getX() && apt.getX()-refPoint.getX()<=width && -height/8<=-refPoint.getY()+apt.getY() && -refPoint.getY()+apt.getY()<=height) {
-                    System.out.println(apt);
+                Point3D bpt = tg.transform(refPoint);
+                bpt = new Point3D(bpt.getX(),bpt.getY(),1);
+                if (seen.insert(bpt.getX(),bpt.getY()) && refPoint.getX()-width/7 <= bpt.getX() && bpt.getX() <= width+refPoint.getX() && refPoint.getY()-height/7 <= bpt.getY() && bpt.getY() <= height+refPoint.getY()) {
+                    System.out.println(bpt);
 
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                     group2.getTransforms().add(tg);
@@ -551,9 +549,11 @@ public class Tiling {
 
 
                 Transform gt = g.createConcatenation(t);
-                Point3D bpt = gt.transform(refPoint);
+                bpt = gt.transform(refPoint);
                 bpt = new Point3D(bpt.getX(),bpt.getZ(),1);
-                if (seen.insert(bpt.getX(),bpt.getY()) && -width/8<=bpt.getX()-refPoint.getX() && bpt.getX()-refPoint.getX()<=width && -height/8<=-refPoint.getY()+bpt.getY() && -refPoint.getY()+bpt.getY()<=height) {
+                if (seen.insert(bpt.getX(),bpt.getY()) && refPoint.getX()-width/7 <= bpt.getX() && bpt.getX() <= width+refPoint.getX() && refPoint.getY()-height/7 <= bpt.getY() && bpt.getY() <= height+refPoint.getY()) {
+                    System.out.println(bpt);
+
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                     group2.getTransforms().add(gt);
                     group.getChildren().add(group2);
