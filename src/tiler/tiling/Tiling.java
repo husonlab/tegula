@@ -503,8 +503,8 @@ public class Tiling {
 
     //Create tiling in Euclidean case
     public Group createTiling(Point3D refPoint, double width, double height) {
-        width = width + width/8;
-        height = height + height/8;
+        width = width + width/4;
+        height = height + height/4;
         final Group group = new Group();
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
         group.getChildren().addAll(fund);
@@ -518,7 +518,7 @@ public class Tiling {
         final Queue<Transform> queue = new LinkedList<>();
         queue.addAll(generators.getTransforms());
 
-        int j = 0;
+        int j = 1;
 
         for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
             Point3D genRef = g.transform(refPoint);
@@ -536,10 +536,8 @@ public class Tiling {
             for (Transform g : generators.getTransforms()) {
                 Transform tg = t.createConcatenation(g);
                 Point3D bpt = tg.transform(refPoint);
-                bpt = new Point3D(bpt.getX(),bpt.getY(),1);
-                if (seen.insert(bpt.getX(),bpt.getY()) && refPoint.getX()-width/7 <= bpt.getX() && bpt.getX() <= width+refPoint.getX() && refPoint.getY()-height/7 <= bpt.getY() && bpt.getY() <= height+refPoint.getY()) {
-                    System.out.println(bpt);
 
+                if (seen.insert(bpt.getX(),bpt.getY()) && refPoint.getX()-width/5 <= bpt.getX() && bpt.getX() <= width+refPoint.getX() && refPoint.getY()-height/5 <= bpt.getY() && bpt.getY() <= height+refPoint.getY()) {
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                     group2.getTransforms().add(tg);
                     group.getChildren().add(group2);
@@ -550,10 +548,8 @@ public class Tiling {
 
                 Transform gt = g.createConcatenation(t);
                 bpt = gt.transform(refPoint);
-                bpt = new Point3D(bpt.getX(),bpt.getZ(),1);
-                if (seen.insert(bpt.getX(),bpt.getY()) && refPoint.getX()-width/7 <= bpt.getX() && bpt.getX() <= width+refPoint.getX() && refPoint.getY()-height/7 <= bpt.getY() && bpt.getY() <= height+refPoint.getY()) {
-                    System.out.println(bpt);
 
+                if (seen.insert(bpt.getX(),bpt.getY()) && refPoint.getX()-width/5 <= bpt.getX() && bpt.getX() <= width+refPoint.getX() && refPoint.getY()-height/5 <= bpt.getY() && bpt.getY() <= height+refPoint.getY()) {
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                     group2.getTransforms().add(gt);
                     group.getChildren().add(group2);
@@ -563,7 +559,7 @@ public class Tiling {
                 }
             }
         }
-        System.out.println(j);
+        System.out.println("Number of copies: " + j);
         return group;
     }
 

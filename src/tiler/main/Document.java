@@ -24,6 +24,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Point3D;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SubScene;
@@ -31,6 +32,8 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
@@ -148,17 +151,24 @@ public class Document {
     }
 
     boolean needButtons = true;
+    boolean camPoincare = true;
 
     public void update() {
         final Tiling tiling = tilings.get(current);
         Group tiles = new Group();
 
         if (tiling.getGeometry() == FDomain.Geometry.Euclidean){
-            Point3D refPoint = new Point3D(0,0,0); double width=800, height=800;
+            Point3D refPoint = new Point3D(0,0,0); double width=800, height=600;
             tiles = tiling.createTiling(refPoint,width,height);
 
+            //Add rectangle for debugging
+            Rectangle rect = new Rectangle(width, height);
+            rect.setFill(Color.TRANSPARENT);
+            rect.setStroke(Color.BLACK);
+            tiles.getChildren().addAll(rect);
+
             camera.setTranslateZ(-500);
-            camera.setFarClip(600);
+            camera.setFarClip(10000);
 
             if (!needButtons) {
                 controller.getTopPane().getChildren().removeAll(controller.getBtnPoincare(), controller.getBtnKlein(), controller.getBtnIncrease(),controller.getBtnDecrease());
@@ -178,14 +188,19 @@ public class Document {
         }
         else if (tiling.getGeometry() == FDomain.Geometry.Hyperbolic){
             double maxDist = Math.cosh(0.5*Main.counter);  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
-            System.out.println(maxDist);
-            System.out.println(Main.counter);
+            System.out.println("Height of hperboloid " + 100*maxDist);
             tiles = tiling.createTiling(maxDist);
 
-            //camera.setFarClip(70*(Math.sqrt((maxDist*maxDist+1)/2)+1));
-            camera.setFarClip(100*(maxDist+1));
             camera.setFieldOfView(90);
-            camera.setTranslateZ(-100);
+            if (camPoincare){
+                camera.setFarClip(100*(maxDist+1));
+                camera.setTranslateZ(-100);
+            }
+            else{
+                camera.setTranslateZ(0);
+                camera.setFarClip(100*maxDist);
+            }
+
 
 
 
@@ -203,6 +218,7 @@ public class Document {
                 public void handle(ActionEvent event) {
                     camera.setFarClip(100*(maxDist+1));
                     camera.setTranslateZ(-100);
+                    camPoincare = true;
                 }
             });
 
@@ -211,6 +227,7 @@ public class Document {
                 public void handle(ActionEvent event) {
                     camera.setTranslateZ(0);
                     camera.setFarClip(100*maxDist);
+                    camPoincare = false;
                 }
             });
 

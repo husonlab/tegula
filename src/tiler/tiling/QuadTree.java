@@ -31,8 +31,8 @@ public class QuadTree {
         double posSlope, negSlope;
         while (h != null){
             if (b.distance(h.a) > eps) {
-                posSlope = Math.PI*(b1-h.a.getX())+h.a.getY();
-                negSlope = -1/Math.PI*(b1-h.a.getX())+h.a.getY();
+                posSlope = Math.E*(b1-h.a.getX())+h.a.getY();
+                negSlope = -1/Math.E*(b1-h.a.getX())+h.a.getY();
                 if (b2 >= posSlope && b2 >= negSlope) {
                     if (h.NE == null) {
                         h.NE = new Node(b);
