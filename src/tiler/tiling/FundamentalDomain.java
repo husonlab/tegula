@@ -86,7 +86,7 @@ public class FundamentalDomain {
                         2, 0, 6, 1, 4, 2, // v2 cc e1
                         0, 0, 4, 1, 6, 2,  // v0 e1 cc
 
-                        0, 0, 5, 1, 6, 2, // v0 cc e2
+                       0, 0, 5, 1, 6, 2, // v0 cc e2
                         1, 0, 6, 1, 5, 2, // v1 e2 cc
                         1, 0, 3, 1, 6, 2, // v1 cc e0
                         2, 0, 6, 0, 3, 2, // v2 e0 cc
@@ -96,7 +96,7 @@ public class FundamentalDomain {
                 };
                 smoothing = new int[]{1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2};
             } else { // one sided mesh:
-                if (fDomain.getOrientation(a) == 1) {
+                if (fDomain.getOrientation(a) == 1) { //Todo: Condition wrong?
                     faces = new int[]{
                             0, 0, 6, 1, 5, 2, // v0 cc e2
                             1, 0, 5, 1, 6, 2, // v1 e2 cc

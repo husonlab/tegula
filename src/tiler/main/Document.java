@@ -65,6 +65,9 @@ public class Document {
     private final Controller controller;
     private PerspectiveCamera camera;
 
+    private static boolean needButtons = true; // Variable for adding and removing all additional buttons in hyperbolic case
+    private static boolean camPoincare = true; // Variable saving camera settings
+
     /**
      * constructor
      */
@@ -150,8 +153,6 @@ public class Document {
         tilings.set(current, tiling);
     }
 
-    boolean needButtons = true;
-    boolean camPoincare = true;
 
     public void update() {
         final Tiling tiling = tilings.get(current);
