@@ -27,7 +27,7 @@ import java.util.Properties;
  * main program
  */
 public class Main extends Application {
-    public static int counter = 11; // Counter for increasing and decreasing the maximal height of hyperboloid.
+    public static int counter = 4; // Counter for increasing and decreasing the maximal height of hyperboloid.
 
     private static final Properties properties = new Properties();
 

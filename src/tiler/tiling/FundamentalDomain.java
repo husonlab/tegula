@@ -1,5 +1,10 @@
 package tiler.tiling;
 
+import com.sun.javafx.geom.BaseBounds;
+import com.sun.javafx.geom.transform.BaseTransform;
+import com.sun.javafx.jmx.MXNodeAlgorithm;
+import com.sun.javafx.jmx.MXNodeAlgorithmContext;
+import com.sun.javafx.sg.prism.NGNode;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -14,6 +19,8 @@ import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 
 import java.util.BitSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -96,7 +103,7 @@ public class FundamentalDomain {
                 };
                 smoothing = new int[]{1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2};
             } else { // one sided mesh:
-                if (fDomain.getOrientation(a) == 1) { //Todo: Condition wrong?
+                if (fDomain.getOrientation(a) == -1) { //Todo: Condition wrong? Must be 1 or -1, depending on tiling.
                     faces = new int[]{
                             0, 0, 6, 1, 5, 2, // v0 cc e2
                             1, 0, 5, 1, 6, 2, // v1 e2 cc
@@ -106,7 +113,8 @@ public class FundamentalDomain {
                             0, 0, 4, 1, 6, 2  // v0 e1 cc
 
                     };
-                } else {
+                }
+                else {
                     faces = new int[]{0, 0, 5, 1, 6, 2,
                             1, 0, 6, 1, 5, 2,
                             1, 0, 3, 1, 6, 2,
@@ -149,6 +157,26 @@ public class FundamentalDomain {
                 group.getChildren().add(makeLine(fDomain.getGeometry(), v0, e2, v1, Color.BLACK, 1));
             }
         }
+        else {
+            for (int a = 1; a <= fDomain.size(); a++) {
+                group.getChildren().add(makeLine(fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a)));
+
+                group.getChildren().add(makeLine(fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a)));
+
+                group.getChildren().add(makeLine(fDomain.getVertex3D(0, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a)));
+                group.getChildren().add(makeLine(fDomain.getVertex3D(1, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a)));
+                group.getChildren().add(makeLine(fDomain.getVertex3D(2, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(2, a)));
+
+            }
+            for (int a = 1; a <= fDomain.size(); a++) {
+                final Point3D v0 = fDomain.getVertex3D(0, a);
+                final Point3D e2 = fDomain.getEdgeCenter3D(2, a);
+                final Point3D v1 = fDomain.getVertex3D(1, a);
+                group.getChildren().add(makeLine(v0, e2, v1));
+            }
+        }
+
+
         // add numbers:
         if (false)
         {
@@ -220,6 +248,8 @@ public class FundamentalDomain {
      * @param width
      * @return a line
      */
+
+    // Line in Euclidean case:
     private static Node makeLine(FDomain.Geometry geometry, Point3D a, Point3D b, Point3D c, Color color, float width) {
         if (geometry == FDomain.Geometry.Euclidean) {
             Polyline polyLine = new Polyline(a.getX(), a.getY(), b.getX(), b.getY(), c.getX(), c.getY());
@@ -227,7 +257,19 @@ public class FundamentalDomain {
             polyLine.setStrokeWidth(width);
             polyLine.setStrokeLineCap(StrokeLineCap.ROUND);
             return polyLine;
-        } else //         // todo: implement for three-dimensions
+        } else {
             return null;
+
+        }
+    }
+
+    // Line in spherical and hyperbolic case:
+    private static Node makeLine(Point3D a, Point3D b, Point3D c){
+        List<Point3D> points = new LinkedList<>();
+        points.add(a); points.add(b); points.add(c);
+        PolyLine3D polyLine3D = new PolyLine3D(points);
+        MeshView mesh = new MeshView(polyLine3D);
+        mesh.setDrawMode(DrawMode.LINE);
+        return mesh; // todo: implement for three-dimensions
     }
 }
