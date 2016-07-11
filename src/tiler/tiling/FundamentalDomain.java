@@ -154,20 +154,20 @@ public class FundamentalDomain {
         }
         else {
             for (int a = 1; a <= fDomain.size(); a++) {
-                group.getChildren().add(makeLine(fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a)));
+                group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a)));
 
-                group.getChildren().add(makeLine(fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a)));
+                group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a)));
 
-                group.getChildren().add(makeLine(fDomain.getVertex3D(0, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a)));
-                group.getChildren().add(makeLine(fDomain.getVertex3D(1, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a)));
-                group.getChildren().add(makeLine(fDomain.getVertex3D(2, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(2, a)));
+                group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a)));
+                group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(1, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a)));
+                group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(2, a)));
 
             }
             for (int a = 1; a <= fDomain.size(); a++) {
                 final Point3D v0 = fDomain.getVertex3D(0, a);
                 final Point3D e2 = fDomain.getEdgeCenter3D(2, a);
                 final Point3D v1 = fDomain.getVertex3D(1, a);
-                group.getChildren().add(makeLine(v0, e2, v1));
+                group.getChildren().add(makeLine(fDomain.getGeometry(), v0, e2, v1));
             }
         }
 
@@ -259,9 +259,18 @@ public class FundamentalDomain {
     }
 
     // Line in spherical and hyperbolic case:
-    private static Node makeLine(Point3D a, Point3D b, Point3D c){
+    private static Node makeLine(FDomain.Geometry geometry, Point3D a, Point3D b, Point3D c){
         List<Point3D> points = new LinkedList<>();
-        points.add(a); points.add(b); points.add(c);
+        if (geometry == FDomain.Geometry.Spherical) {
+            points.add(a.multiply(1.005));
+            points.add(b.multiply(1.005));
+            points.add(c.multiply(1.005));
+        }
+        else {
+            points.add(a.multiply(0.995));
+            points.add(b.multiply(0.995));
+            points.add(c.multiply(0.995));
+        }
         PolyLine3D polyLine3D = new PolyLine3D(points);
         MeshView mesh = new MeshView(polyLine3D);
         mesh.setDrawMode(DrawMode.LINE);
