@@ -149,15 +149,17 @@ public class Controller implements Initializable {
     @FXML
     private Label labelV8;
 
+    @FXML
+    private Button poincareButton;
 
-    // Buttons not defined via FXML code
-    private Button btnPoincare = new Button();
+    @FXML
+    private Button kleinButton;
 
-    private Button btnKlein = new Button();
+    @FXML
+    private Button increaseButton;
 
-    private Button btnIncrease = new Button();
-
-    private Button btnDecrease = new Button();
+    @FXML
+    private Button decreaseButton;
 
     private Document document;
     private Stage stage;
@@ -210,13 +212,21 @@ public class Controller implements Initializable {
         return statusTextField;
     }
 
-    public Button getBtnPoincare() { return btnPoincare; }
+    public Button getPoincareButton() {
+        return poincareButton;
+    }
 
-    public Button getBtnKlein() { return btnKlein; }
+    public Button getKleinButton() {
+        return kleinButton;
+    }
 
-    public Button getBtnIncrease() { return btnIncrease; }
+    public Button getIncreaseButton() {
+        return increaseButton;
+    }
 
-    public Button getBtnDecrease() { return btnDecrease; }
+    public Button getDecreaseButton() {
+        return decreaseButton;
+    }
 
     @FXML
     void fireAbout(ActionEvent event) {
@@ -369,12 +379,15 @@ public class Controller implements Initializable {
 
     @FXML
     void fireShowLessTiles(ActionEvent event) {
+        Main.counter--;
+        document.update();
 
     }
 
     @FXML
     void fireShowMoreTiles(ActionEvent event) {
-
+        Main.counter++;
+        document.update();
     }
 
     @FXML
@@ -398,6 +411,26 @@ public class Controller implements Initializable {
     @FXML
     void fireStraigthenSelected(ActionEvent event) {
     }
+
+
+    @FXML
+    void fireKlein(ActionEvent event) {
+        double maxDist = Math.cosh(0.5 * Main.counter);  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
+        document.getCamera().setTranslateZ(0);
+        document.getCamera().setFarClip(100 * maxDist);
+        document.setCamPoincare(false);
+
+    }
+
+    @FXML
+    void firePoincare(ActionEvent event) {
+        double maxDist = Math.cosh(0.5 * Main.counter);  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
+        document.getCamera().setFarClip(100 * (maxDist + 1));
+        document.getCamera().setTranslateZ(-100);
+        document.setCamPoincare(true);
+
+    }
+
 
     /**
      * gets a V label

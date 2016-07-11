@@ -1,10 +1,5 @@
 package tiler.tiling;
 
-import com.sun.javafx.geom.BaseBounds;
-import com.sun.javafx.geom.transform.BaseTransform;
-import com.sun.javafx.jmx.MXNodeAlgorithm;
-import com.sun.javafx.jmx.MXNodeAlgorithmContext;
-import com.sun.javafx.sg.prism.NGNode;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -103,7 +98,7 @@ public class FundamentalDomain {
                 };
                 smoothing = new int[]{1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2};
             } else { // one sided mesh:
-                if (fDomain.getOrientation(a) == -1) { //Todo: Condition wrong? Must be 1 or -1, depending on tiling.
+                if (fDomain.getOrientation(a) == fDomain.getOrientation(1)) { //Todo: Condition wrong? Must be 1 or -1, depending on tiling.
                     faces = new int[]{
                             0, 0, 6, 1, 5, 2, // v0 cc e2
                             1, 0, 5, 1, 6, 2, // v1 e2 cc

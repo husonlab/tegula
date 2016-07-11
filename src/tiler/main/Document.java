@@ -19,29 +19,18 @@
 
 package tiler.main;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.fxml.FXML;
 import javafx.geometry.Point3D;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SubScene;
-import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Sphere;
-import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
-import tiler.core.fundamental.SphericalGeometry;
 import tiler.tiling.Tiling;
 
-import javax.lang.model.type.NullType;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -65,8 +54,7 @@ public class Document {
     private final Controller controller;
     private PerspectiveCamera camera;
 
-    private static boolean needButtons = true; // Variable for adding and removing all additional buttons in hyperbolic case
-    private static boolean camPoincare = true; // Variable saving camera settings
+    private boolean camPoincare = true; // Variable saving camera settings
 
     /**
      * constructor
@@ -171,10 +159,10 @@ public class Document {
             camera.setTranslateZ(-500);
             camera.setFarClip(10000);
 
-            if (!needButtons) {
-                controller.getTopPane().getChildren().removeAll(controller.getBtnPoincare(), controller.getBtnKlein(), controller.getBtnIncrease(),controller.getBtnDecrease());
-                needButtons = true;
-            }
+            controller.getPoincareButton().setVisible(false);
+            controller.getKleinButton().setVisible(false);
+            controller.getIncreaseButton().setVisible(false);
+            controller.getDecreaseButton().setVisible(false);
         }
         else if (tiling.getGeometry() == FDomain.Geometry.Spherical){
             tiles = tiling.createTiling();
@@ -182,10 +170,12 @@ public class Document {
             camera.setTranslateZ(-500);
             camera.setFieldOfView(35);
             camera.setFarClip(600);
-            if (!needButtons) {
-                controller.getTopPane().getChildren().removeAll(controller.getBtnPoincare(), controller.getBtnKlein(),controller.getBtnIncrease(),controller.getBtnDecrease());
-                needButtons = true;
-            }
+
+            controller.getPoincareButton().setVisible(false);
+            controller.getKleinButton().setVisible(false);
+            controller.getIncreaseButton().setVisible(false);
+            controller.getDecreaseButton().setVisible(false);
+
         }
         else if (tiling.getGeometry() == FDomain.Geometry.Hyperbolic){
             double maxDist = Math.cosh(0.5*Main.counter);  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
@@ -203,51 +193,10 @@ public class Document {
             }
 
 
-
-
-            if (needButtons) {
-                controller.getTopPane().getChildren().addAll(controller.getBtnPoincare(),controller.getBtnKlein(),controller.getBtnIncrease(),controller.getBtnDecrease());
-                needButtons = false;
-            }
-            controller.getBtnPoincare().setText("Poincaré model");
-            controller.getBtnKlein().setText("Klein model"); controller.getBtnKlein().setLayoutX(110);
-            controller.getBtnIncrease().setText("Increase"); controller.getBtnIncrease().setLayoutY(30);
-            controller.getBtnDecrease().setText("Decrease"); controller.getBtnDecrease().setTranslateY(30); controller.getBtnDecrease().setLayoutX(80);
-
-            controller.getBtnPoincare().setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    camera.setFarClip(100*(maxDist+1));
-                    camera.setTranslateZ(-100);
-                    camPoincare = true;
-                }
-            });
-
-            controller.getBtnKlein().setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    camera.setTranslateZ(0);
-                    camera.setFarClip(100*maxDist);
-                    camPoincare = false;
-                }
-            });
-
-            controller.getBtnIncrease().setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    Main.counter++;
-                    update();
-                }
-            });
-
-            controller.getBtnDecrease().setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    Main.counter--;
-                    if (Main.counter <= 0) {Main.counter = 0;}
-                    update();
-                }
-            });
+            controller.getPoincareButton().setVisible(true);
+            controller.getKleinButton().setVisible(true);
+            controller.getIncreaseButton().setVisible(true);
+            controller.getDecreaseButton().setVisible(true);
         }
 
         setUseDepthBuffer(!tiling.getGeometry().equals(FDomain.Geometry.Euclidean));
@@ -314,5 +263,14 @@ public class Document {
 
     public boolean atLastTiling() {
         return size() == 0 || current == tilings.size() - 1;
+    }
+
+
+    public boolean isCamPoincare() {
+        return camPoincare;
+    }
+
+    public void setCamPoincare(boolean camPoincare) {
+        this.camPoincare = camPoincare;
     }
 }
