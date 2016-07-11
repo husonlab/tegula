@@ -21,6 +21,8 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
+    public static int counter = 4; // Counter for increasing and decreasing the maximal height of hyperboloid.
+
 
     @FXML
     private BorderPane mainPane;
@@ -379,14 +381,14 @@ public class Controller implements Initializable {
 
     @FXML
     void fireShowLessTiles(ActionEvent event) {
-        Main.counter--;
+        counter--;
         document.update();
 
     }
 
     @FXML
     void fireShowMoreTiles(ActionEvent event) {
-        Main.counter++;
+        counter++;
         document.update();
     }
 
@@ -415,7 +417,7 @@ public class Controller implements Initializable {
 
     @FXML
     void fireKlein(ActionEvent event) {
-        double maxDist = Math.cosh(0.5 * Main.counter);  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
+        double maxDist = Math.cosh(0.5 * counter);  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
         document.getCamera().setTranslateZ(0);
         document.getCamera().setFarClip(100 * maxDist);
         document.setCamPoincare(false);
@@ -424,7 +426,7 @@ public class Controller implements Initializable {
 
     @FXML
     void firePoincare(ActionEvent event) {
-        double maxDist = Math.cosh(0.5 * Main.counter);  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
+        double maxDist = Math.cosh(0.5 * counter);  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
         document.getCamera().setFarClip(100 * (maxDist + 1));
         document.getCamera().setTranslateZ(-100);
         document.setCamPoincare(true);

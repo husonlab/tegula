@@ -42,6 +42,7 @@ import java.util.ArrayList;
  * Created by huson on 4/22/16.
  */
 public class Document {
+
     public static final int FIRST = 0;
     public static final int NEXT = -1;
     public static final int PREV = -2;
@@ -178,7 +179,7 @@ public class Document {
 
         }
         else if (tiling.getGeometry() == FDomain.Geometry.Hyperbolic){
-            double maxDist = Math.cosh(0.5*Main.counter);  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
+            double maxDist = Math.cosh(0.5*controller.counter);  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
             System.out.println("Height of hperboloid " + 100*maxDist);
             tiles = tiling.createTiling(maxDist);
 
