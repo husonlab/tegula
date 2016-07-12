@@ -185,12 +185,12 @@ public class Document {
 
             camera.setFieldOfView(90);
             if (camPoincare){
-                camera.setFarClip(100*(maxDist+1));
+                camera.setFarClip((1-2/controller.counter)*100*(maxDist+1));
                 camera.setTranslateZ(-100);
             }
             else{
                 camera.setTranslateZ(0);
-                camera.setFarClip(100*maxDist);
+                camera.setFarClip((1-2/controller.counter)*100*maxDist);
             }
 
 

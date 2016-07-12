@@ -262,14 +262,14 @@ public class FundamentalDomain {
     private static Node makeLine(FDomain.Geometry geometry, Point3D a, Point3D b, Point3D c){
         List<Point3D> points = new LinkedList<>();
         if (geometry == FDomain.Geometry.Spherical) {
-            points.add(a.multiply(1.005));
-            points.add(b.multiply(1.005));
-            points.add(c.multiply(1.005));
+            points.add(a.multiply(1.01));
+            points.add(b.multiply(1.01));
+            points.add(c.multiply(1.01));
         }
         else {
-            points.add(a.multiply(0.995));
-            points.add(b.multiply(0.995));
-            points.add(c.multiply(0.995));
+            points.add(a.multiply(0.99));
+            points.add(b.multiply(0.99));
+            points.add(c.multiply(0.99));
         }
         PolyLine3D polyLine3D = new PolyLine3D(points);
         MeshView mesh = new MeshView(polyLine3D);

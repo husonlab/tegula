@@ -24,7 +24,7 @@ public class OctTree {
     }
 
 
-    public static double distance (FDomain geom, Point3D a, Point3D b){
+    private static double distance (FDomain geom, Point3D a, Point3D b){
         if (geom.getGeometry() == FDomain.Geometry.Spherical) {
             double dist = a.distance(b); // Euclidean distance
             return dist;

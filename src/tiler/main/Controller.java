@@ -419,7 +419,7 @@ public class Controller implements Initializable {
     void fireKlein(ActionEvent event) {
         double maxDist = Math.cosh(0.5 * counter);  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
         document.getCamera().setTranslateZ(0);
-        document.getCamera().setFarClip(100 * maxDist);
+        document.getCamera().setFarClip((1-2/counter)*100 * maxDist);
         document.setCamPoincare(false);
 
     }
@@ -427,7 +427,7 @@ public class Controller implements Initializable {
     @FXML
     void firePoincare(ActionEvent event) {
         double maxDist = Math.cosh(0.5 * counter);  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
-        document.getCamera().setFarClip(100 * (maxDist + 1));
+        document.getCamera().setFarClip((1-2/counter)*100 * (maxDist + 1));
         document.getCamera().setTranslateZ(-100);
         document.setCamPoincare(true);
 
