@@ -15,6 +15,7 @@ import javafx.util.Pair;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.OrbifoldGroupName;
+import tiler.main.Document;
 import tiler.util.JavaFXUtils;
 
 import java.util.LinkedList;
@@ -451,7 +452,7 @@ public class Tiling {
     //Create tiling in hyperbolic case
     public Group createTiling(double maxDist) {
         final OctTree seen = new OctTree();
-        Point3D refPoint = new Point3D(0, 0, 1);
+        Point3D refPoint = Document.refPointHyperbolic;
         seen.insert(fDomain, refPoint); // root of OctTree is point of reference
 
         final Group group = new Group();
@@ -477,6 +478,11 @@ public class Tiling {
 
         while (queue.size() > 0 && queue.size() < 10000) {
             final Transform t = queue.poll(); // remove t from queue
+
+            if (Document.reset && t.transform(refPoint).getZ() < 0.5*(maxDist-100)/100+1 && t.transform(refPoint).getZ() < 8){
+                Document.reset = false;
+                Document.transformFDomain = t;
+            }
 
             for (Transform g : generators.getTransforms()) {
                 Transform tg = t.createConcatenation(g);

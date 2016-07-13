@@ -26,6 +26,8 @@ import javafx.scene.SubScene;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.transform.Affine;
+import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
@@ -142,6 +144,9 @@ public class Document {
         tilings.set(current, tiling);
     }
 
+    public static boolean reset = false;
+    public static Transform transformFDomain;
+    public static Point3D refPointHyperbolic = new Point3D(0,0,1);
 
     public void update() {
         final Tiling tiling = tilings.get(current);
@@ -180,17 +185,39 @@ public class Document {
         }
         else if (tiling.getGeometry() == FDomain.Geometry.Hyperbolic){
             double maxDist = Math.cosh(0.5*controller.counter);  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
-            System.out.println("Height of hperboloid " + 100*maxDist);
-            tiles = tiling.createTiling(maxDist);
+            System.out.println("Height of hyperboloid " + 100*maxDist);
 
+            //Reset Fundamental Domain if necessary:
+            if (refPointHyperbolic.getZ() >= 0.5*(maxDist-100)/100+1 || refPointHyperbolic.getZ() >= 8) {
+                reset = true;
+                tiles = tiling.createTiling(maxDist);
+                //resetFdomain(transformFDomain);  //Todo: find method
+            }
+            else {
+                tiles = tiling.createTiling(maxDist);
+            }
+
+            //Camera:
             camera.setFieldOfView(90);
             if (camPoincare){
-                camera.setFarClip((1-2/controller.counter)*100*(maxDist+1));
+                if (controller.counter < 12) {
+                    camera.setFarClip(65 * (maxDist + 1));
+                }
+                else{
+                    camera.setFarClip(100 * (maxDist + 1));
+
+                }
                 camera.setTranslateZ(-100);
             }
             else{
+                if (controller.counter < 12) {
+                    camera.setFarClip(65 * maxDist);
+                }
+                else {
+                    camera.setFarClip(100 * maxDist);
+                }
                 camera.setTranslateZ(0);
-                camera.setFarClip((1-2/controller.counter)*100*maxDist);
+
             }
 
 
