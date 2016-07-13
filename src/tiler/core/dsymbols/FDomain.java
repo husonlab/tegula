@@ -4,10 +4,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import tiler.core.fundamental.Approximate;
 import tiler.core.fundamental.Glue;
-import tiler.core.fundamental.data.Base;
-import tiler.core.fundamental.data.DELANEY;
-import tiler.core.fundamental.data.ORB;
-import tiler.core.fundamental.data.Util;
+import tiler.core.fundamental.data.*;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -124,7 +121,6 @@ public class FDomain {
 
     public void setEdgeCenter(Point2D apt, int i, int a) {
         int edge = d.getNcr(a - 1).getEc()[i];
-
         d.getEcr()[edge].setPosx(apt.getX());
         d.getEcr()[edge].setPosy(apt.getY());
     }
@@ -140,6 +136,29 @@ public class FDomain {
     public void setChamberCenter(Point2D apt, int a) {
         d.getNcr()[a - 1].setPosx(apt.getX());
         d.getNcr()[a - 1].setPosy(apt.getY());
+    }
+
+    public void translate(double dx, double dy) {
+        dx /= 1000;
+        dy /= 1000;
+
+        for (int z = 0; z < d.getNcrs(); z++) {
+            final NCR ncr = d.getNcr(z);
+            ncr.setPosx(ncr.getPosx() + dx);
+            ncr.setPosy(ncr.getPosy() + dy);
+        }
+
+        for (int z = 0; z < d.getEcrs(); z++) {
+            final ECR ecr = d.getEcr(z);
+            ecr.setPosx(ecr.getPosx() + dx);
+            ecr.setPosy(ecr.getPosy() + dy);
+        }
+
+        for (int z = 0; z < d.getOcrs(); z++) {
+            final OCR ocr = d.getOcr(z);
+            ocr.setPosx(ocr.getPosx() + dx);
+            ocr.setPosy(ocr.getPosy() + dy);
+        }
     }
 
     public boolean isBoundaryEdge(int i, int a) {
@@ -213,7 +232,7 @@ public class FDomain {
         switch (geometry) {
             default:
             case Euclidean: {
-                return new Point3D(100 * apt.getX(), 100 * apt.getY(), 0);
+                return new Point3D(100 + 100 * apt.getX(), 100 + 100 * apt.getY(), 0);
             }
             case Spherical: {
                 final double d = apt.getX() * apt.getX() + apt.getY() * apt.getY();

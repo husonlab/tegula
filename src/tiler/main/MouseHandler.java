@@ -16,7 +16,6 @@ import javafx.scene.transform.Translate;
  * Created by huson on 3/29/16.
  */
 public class MouseHandler {
-
     private double mouseDownX;
     private double mouseDownY;
 
@@ -25,6 +24,8 @@ public class MouseHandler {
     private double cameraTranslateXAtMouseDown;
     private double cameraTranslateYAtMouseDown;
 
+    private boolean mustUpdateWholeTiling = false;
+
     /**
      * add a mouse handler to the scene
      *
@@ -32,8 +33,8 @@ public class MouseHandler {
      * @param worldTranslate
      * @param worldRotateProperty
      */
-    public static void addMouseHandler(final Scene scene, final Translate worldTranslate, final Scale worldScale, final ObjectProperty<Transform> worldRotateProperty) {
-        new MouseHandler(scene, worldTranslate, worldScale, worldRotateProperty);
+    public static void addMouseHandler(final Scene scene, final Translate worldTranslate, final Scale worldScale, final ObjectProperty<Transform> worldRotateProperty, final Document document) {
+        new MouseHandler(scene, worldTranslate, worldScale, worldRotateProperty, document);
     }
 
     /**
@@ -42,13 +43,15 @@ public class MouseHandler {
      * @param worldTranslate
      * @param worldRotateProperty
      */
-    private MouseHandler(final Scene scene, final Translate worldTranslate, final Scale worldScale, final ObjectProperty<Transform> worldRotateProperty) {
+    private MouseHandler(final Scene scene, final Translate worldTranslate, final Scale worldScale, final ObjectProperty<Transform> worldRotateProperty, final Document document) {
         scene.setOnMousePressed((me) -> {
             mouseDownX = me.getSceneX();
             mouseDownY = me.getSceneY();
             rotateAtMouseDown = worldRotateProperty.getValue().clone();
             cameraTranslateXAtMouseDown = worldTranslate.getX();
             cameraTranslateYAtMouseDown = worldTranslate.getY();
+            document.setDrawFundamentalDomainOnly(true);
+            mustUpdateWholeTiling = false;
         });
         scene.setOnMouseDragged((me) -> {
             double mouseDeltaX = me.getSceneX() - mouseDownX;
@@ -57,8 +60,20 @@ public class MouseHandler {
             if (me.isPrimaryButtonDown()) {
                 if (!me.isShiftDown() && !me.isAltDown()) { // slide
                     double modifierFactor = 1;
-                    worldTranslate.setX(cameraTranslateXAtMouseDown + mouseDeltaX * modifierFactor);
-                    worldTranslate.setY(cameraTranslateYAtMouseDown + mouseDeltaY * modifierFactor);
+                    double dx = mouseDeltaX * modifierFactor;
+                    double dy = mouseDeltaY * modifierFactor;
+
+                    if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
+                        mustUpdateWholeTiling = true;
+                        document.translate(dx, dy);
+                        document.update();
+
+                        mouseDownX = me.getSceneX();
+                        mouseDownY = me.getSceneY();
+                    }
+
+                    //  worldTranslate.setX(dx);
+                    //  worldTranslate.setY(dy);
                 } else if (me.isShiftDown() && !me.isAltDown()) { //// rotate
                     double modifierFactor = 0.25;
                     //noinspection SuspiciousNameCombination
@@ -66,6 +81,13 @@ public class MouseHandler {
                     double rotationAngle = modifierFactor * Math.sqrt(mouseDeltaX * mouseDeltaX + mouseDeltaY * mouseDeltaY);
                     worldRotateProperty.setValue(new Rotate(rotationAngle, dragOrthogonalAxis).createConcatenation(rotateAtMouseDown));
                 }
+            }
+        });
+        scene.setOnMouseReleased((me) -> {
+            document.setDrawFundamentalDomainOnly(false);
+            if (mustUpdateWholeTiling) {
+                document.update();
+                mustUpdateWholeTiling = false;
             }
         });
 

@@ -26,7 +26,6 @@ import javafx.scene.SubScene;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
@@ -58,6 +57,8 @@ public class Document {
     private PerspectiveCamera camera;
 
     private boolean camPoincare = true; // Variable saving camera settings
+
+    private boolean drawFundamentalDomainOnly = false;
 
     /**
      * constructor
@@ -154,7 +155,7 @@ public class Document {
 
         if (tiling.getGeometry() == FDomain.Geometry.Euclidean){
             Point3D refPoint = new Point3D(0,0,0); double width=800, height=600;
-            tiles = tiling.createTiling(refPoint,width,height);
+            tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), refPoint, width, height);
 
             //Add rectangle for debugging
             Rectangle rect = new Rectangle(width, height);
@@ -171,7 +172,7 @@ public class Document {
             controller.getDecreaseButton().setVisible(false);
         }
         else if (tiling.getGeometry() == FDomain.Geometry.Spherical){
-            tiles = tiling.createTiling();
+            tiles = tiling.createTilingSpherical(isDrawFundamentalDomainOnly());
 
             camera.setTranslateZ(-500);
             camera.setFieldOfView(35);
@@ -190,11 +191,11 @@ public class Document {
             //Reset Fundamental Domain if necessary:
             if (refPointHyperbolic.getZ() >= 0.5*(maxDist-100)/100+1 || refPointHyperbolic.getZ() >= 8) {
                 reset = true;
-                tiles = tiling.createTiling(maxDist);
+                tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
                 //resetFdomain(transformFDomain);  //Todo: find method
             }
             else {
-                tiles = tiling.createTiling(maxDist);
+                tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
             }
 
             //Camera:
@@ -235,6 +236,10 @@ public class Document {
         GroupEditing.update(this);
 
         controller.updateNavigateTilings();
+    }
+
+    public void translate(double dx, double dy) {
+        tilings.get(current).getfDomain().translate(dx, dy);
     }
 
     public void straightenAll() {
@@ -300,5 +305,13 @@ public class Document {
 
     public void setCamPoincare(boolean camPoincare) {
         this.camPoincare = camPoincare;
+    }
+
+    public boolean isDrawFundamentalDomainOnly() {
+        return drawFundamentalDomainOnly;
+    }
+
+    public void setDrawFundamentalDomainOnly(boolean drawFundamentalDomainOnly) {
+        this.drawFundamentalDomainOnly = drawFundamentalDomainOnly;
     }
 }

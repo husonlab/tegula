@@ -3,14 +3,8 @@ package tiler.tiling;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.DrawMode;
-import javafx.scene.shape.MeshView;
-import javafx.scene.shape.Sphere;
 import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
-import javafx.scene.transform.Translate;
 import javafx.util.Pair;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
@@ -26,7 +20,7 @@ import java.util.Queue;
  * Created by huson on 4/11/16.
  */
 public class Tiling {
-    boolean verbose = true;
+    boolean verbose = false;
 
     private final DSymbol ds;
     private final String groupName;
@@ -361,20 +355,20 @@ public class Tiling {
 
 
     /**
-     * create the set of tiles to be shown
+     * create the set of tiles to be shown in spherical case
      *
      * @return tiles
      */
-    //Create tiling in spherical case
-    public Group createTiling() {
+    public Group createTilingSpherical(boolean drawFundamentalDomainOnly) {
         final Group group = new Group();
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
         group.getChildren().addAll(fund);
 
         computeConstraintsAndGenerators();
 
+
         // Make copies of fundamental domain.
-        if (true) {
+        if (!drawFundamentalDomainOnly) {
             final OctTree seen = new OctTree();
             final Point3D refPoint = new Point3D(0,0,1);  //Todo better choice
             seen.insert(fDomain, refPoint); //root node of OctTree is point of reference.
@@ -382,13 +376,13 @@ public class Tiling {
             final Queue<Transform> queue = new LinkedList<>();
             queue.addAll(generators.getTransforms());
 
-            for (Transform g : generators.getTransforms()){  // Makes copies of fundamental domain by using generators
+            for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
                 Point3D genRef = g.transform(refPoint);
-                if (seen.insert(fDomain, genRef)){    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
-                    Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
+                if (seen.insert(fDomain, genRef)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
+                        Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                     group2.getTransforms().add(g);
-                    group.getChildren().add(group2);
-                }
+                        group.getChildren().add(group2);
+                    }
             }
 
             while (queue.size() > 0 && queue.size() < 800) {
@@ -412,8 +406,8 @@ public class Tiling {
                         group.getChildren().add(group2);
                         queue.add(gt);
                     }
+                    }
                 }
-            }
         }
 
         if (false) {
@@ -449,8 +443,13 @@ public class Tiling {
     }
 
 
-    //Create tiling in hyperbolic case
-    public Group createTiling(double maxDist) {
+    /**
+     * create tiling in hyperbolic case
+     *
+     * @param maxDist
+     * @return group
+     */
+    public Group createTilingHyperbolic(boolean drawFundamentalDomainOnly, double maxDist) {
         final OctTree seen = new OctTree();
         Point3D refPoint = Document.refPointHyperbolic;
         seen.insert(fDomain, refPoint); // root of OctTree is point of reference
@@ -459,113 +458,124 @@ public class Tiling {
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
         group.getChildren().addAll(fund);
 
-        //Add all generators
-        computeConstraintsAndGenerators();
+        if (!drawFundamentalDomainOnly) {
+            //Add all generators
+            computeConstraintsAndGenerators();
 
-        // Make copies of fundamental domain.
+            // Make copies of fundamental domain.
 
-        final Queue<Transform> queue = new LinkedList<>();
-        queue.addAll(generators.getTransforms());
+            final Queue<Transform> queue = new LinkedList<>();
+            queue.addAll(generators.getTransforms());
 
-        for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
-            Point3D genRef = g.transform(refPoint);
-            if (seen.insert(fDomain, genRef)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
-                Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-                group2.getTransforms().add(g);
-                group.getChildren().add(group2);
-            }
-        }
-
-        while (queue.size() > 0 && queue.size() < 10000) {
-            final Transform t = queue.poll(); // remove t from queue
-
-            if (Document.reset && t.transform(refPoint).getZ() < 0.5*(maxDist-100)/100+1 && t.transform(refPoint).getZ() < 8){
-                Document.reset = false;
-                Document.transformFDomain = t;
-            }
-
-            for (Transform g : generators.getTransforms()) {
-                Transform tg = t.createConcatenation(g);
-                Point3D bpt = tg.transform(refPoint);
-                if (seen.insert(fDomain, bpt) && bpt.getZ() < maxDist) {
+            for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
+                Point3D genRef = g.transform(refPoint);
+                if (seen.insert(fDomain, genRef)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-                    group2.getTransforms().add(tg);
+                    group2.getTransforms().add(g);
                     group.getChildren().add(group2);
-                    queue.add(tg);
+                }
+            }
+
+            while (queue.size() > 0 && queue.size() < 10000) {
+                final Transform t = queue.poll(); // remove t from queue
+
+                if (Document.reset && t.transform(refPoint).getZ() < 0.5 * (maxDist - 100) / 100 + 1 && t.transform(refPoint).getZ() < 8) {
+                    Document.reset = false;
+                    Document.transformFDomain = t;
                 }
 
-                Transform gt = g.createConcatenation(t);
-                bpt = gt.transform(refPoint);
-                if (seen.insert(fDomain, bpt) && bpt.getZ() < maxDist) {
-                    Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-                    group2.getTransforms().add(gt);
-                    group.getChildren().add(group2);
-                    queue.add(gt);
+                for (Transform g : generators.getTransforms()) {
+                    Transform tg = t.createConcatenation(g);
+                    Point3D bpt = tg.transform(refPoint);
+                    if (seen.insert(fDomain, bpt) && bpt.getZ() < maxDist) {
+                        Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
+                        group2.getTransforms().add(tg);
+                        group.getChildren().add(group2);
+                        queue.add(tg);
+                    }
+
+                    Transform gt = g.createConcatenation(t);
+                    bpt = gt.transform(refPoint);
+                    if (seen.insert(fDomain, bpt) && bpt.getZ() < maxDist) {
+                        Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
+                        group2.getTransforms().add(gt);
+                        group.getChildren().add(group2);
+                        queue.add(gt);
+                    }
                 }
             }
         }
     return group;
     }
 
-    //Create tiling in Euclidean case
-    public Group createTiling(Point3D refPoint, double width, double height) {
+    /**
+     * create tiling in euclidean case
+     *
+     * @param refPoint
+     * @param width
+     * @param height
+     * @return group
+     */
+    public Group createTilingEuclidean(boolean drawFundamentalDomainOnly, Point3D refPoint, double width, double height) {
         width = width + width/4;
         height = height + height/4;
         final Group group = new Group();
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
         group.getChildren().addAll(fund);
 
-        //Add all generators
-        computeConstraintsAndGenerators();
+        if (!drawFundamentalDomainOnly) {
+            //Add all generators
+            computeConstraintsAndGenerators();
 
-        final QuadTree seen = new QuadTree();
-        seen.insert(refPoint.getX(),refPoint.getY());
+            final QuadTree seen = new QuadTree();
+            seen.insert(refPoint.getX(), refPoint.getY());
 
-        final Queue<Transform> queue = new LinkedList<>();
-        queue.addAll(generators.getTransforms());
+            final Queue<Transform> queue = new LinkedList<>();
+            queue.addAll(generators.getTransforms());
 
-        int j = 1;
+            int j = 1;
 
-        for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
-            Point3D genRef = g.transform(refPoint);
-            if (seen.insert(genRef.getX(),genRef.getY())) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
-                Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-                group2.getTransforms().add(g);
-                group.getChildren().add(group2);
-                j++;
-            }
-        }
-
-        while (queue.size() > 0 && j < 1000) {
-            final Transform t = queue.poll(); // remove t from queue
-
-            for (Transform g : generators.getTransforms()) {
-                Transform tg = t.createConcatenation(g);
-                Point3D bpt = tg.transform(refPoint);
-
-                if (seen.insert(bpt.getX(),bpt.getY()) && refPoint.getX()-width/5 <= bpt.getX() && bpt.getX() <= width+refPoint.getX() && refPoint.getY()-height/5 <= bpt.getY() && bpt.getY() <= height+refPoint.getY()) {
+            for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
+                Point3D genRef = g.transform(refPoint);
+                if (seen.insert(genRef.getX(), genRef.getY())) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-                    group2.getTransforms().add(tg);
+                    group2.getTransforms().add(g);
                     group.getChildren().add(group2);
-                    queue.add(tg);
                     j++;
                 }
+            }
+
+            while (queue.size() > 0 && j < 1000) {
+                final Transform t = queue.poll(); // remove t from queue
+
+                for (Transform g : generators.getTransforms()) {
+                    Transform tg = t.createConcatenation(g);
+                    Point3D bpt = tg.transform(refPoint);
+
+                    if (seen.insert(bpt.getX(), bpt.getY()) && refPoint.getX() - width / 5 <= bpt.getX() && bpt.getX() <= width + refPoint.getX() && refPoint.getY() - height / 5 <= bpt.getY() && bpt.getY() <= height + refPoint.getY()) {
+                        Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
+                        group2.getTransforms().add(tg);
+                        group.getChildren().add(group2);
+                        queue.add(tg);
+                        j++;
+                    }
 
 
-                Transform gt = g.createConcatenation(t);
-                bpt = gt.transform(refPoint);
+                    Transform gt = g.createConcatenation(t);
+                    bpt = gt.transform(refPoint);
 
-                if (seen.insert(bpt.getX(),bpt.getY()) && refPoint.getX()-width/5 <= bpt.getX() && bpt.getX() <= width+refPoint.getX() && refPoint.getY()-height/5 <= bpt.getY() && bpt.getY() <= height+refPoint.getY()) {
-                    Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-                    group2.getTransforms().add(gt);
-                    group.getChildren().add(group2);
-                    queue.add(gt);
-                    j++;
-                    //System.out.println(j);
+                    if (seen.insert(bpt.getX(), bpt.getY()) && refPoint.getX() - width / 5 <= bpt.getX() && bpt.getX() <= width + refPoint.getX() && refPoint.getY() - height / 5 <= bpt.getY() && bpt.getY() <= height + refPoint.getY()) {
+                        Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
+                        group2.getTransforms().add(gt);
+                        group.getChildren().add(group2);
+                        queue.add(gt);
+                        j++;
+                        //System.out.println(j);
+                    }
                 }
             }
+            System.out.println("Number of copies: " + j);
         }
-        System.out.println("Number of copies: " + j);
         return group;
     }
 
@@ -577,6 +587,10 @@ public class Tiling {
     public FDomain.Geometry getGeometry() {
         return fDomain.getGeometry();
     }
+
+    public FDomain getfDomain() {
+        return fDomain;
+   }
 
     /**
      * straigthen all edges

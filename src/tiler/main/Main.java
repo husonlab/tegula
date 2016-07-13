@@ -5,12 +5,9 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.*;
-import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.transform.Rotate;
@@ -18,7 +15,6 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
-import tiler.tiling.Tiling;
 
 import java.io.StringReader;
 import java.util.Properties;
@@ -82,16 +78,18 @@ public class Main extends Application {
         // setup top pane and stacked pane
 
         final Scene scene = new Scene(root, 800, 800);
-        MouseHandler.addMouseHandler(scene, worldTranslate, worldScale, worldRotateProperty);
 
 
         stage.setScene(scene);
         stage.sizeToScene();
         stage.show();
 
-        Document document = new Document(stage, world, controller, camera);
+        final Document document = new Document(stage, world, controller, camera);
         // read in a symbol for debugging:
         document.read(new StringReader("<23.1:20:2 4 6 8 10 12 14 16 18 20,2 10 5 9 8 20 13 15 17 19,11 12 13 14 15 16 17 18 19 20:3 3 5 5,4 4 4>"));
+
+        MouseHandler.addMouseHandler(scene, worldTranslate, worldScale, worldRotateProperty, document);
+
         document.update();
 
         /*controller.getFieldOfViewSlider().valueProperty().addListener(new ChangeListener<Number>() {
