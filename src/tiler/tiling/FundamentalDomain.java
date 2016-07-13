@@ -52,6 +52,7 @@ public class FundamentalDomain {
         final int orientation = (computeWindingNumber(fDomain.getVertex3D(0, 1), fDomain.getVertex3D(1, 1), fDomain.getVertex3D(2, 1)) < 0 ? fDomain.getOrientation(1) :
                 -fDomain.getOrientation(1));
 
+        System.err.println("WInding number: " + computeWindingNumber(fDomain.getVertex3D(0, 1), fDomain.getVertex3D(1, 1), fDomain.getVertex3D(2, 1)));
 
         for (int a = 1; a <= fDomain.size(); a++) {
             final float[] points = new float[21];
