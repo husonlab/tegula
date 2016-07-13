@@ -524,6 +524,7 @@ public class Tiling {
         group.getChildren().addAll(fund);
 
         if (!drawFundamentalDomainOnly) {
+
             //Add all generators
             computeConstraintsAndGenerators();
 
@@ -545,6 +546,7 @@ public class Tiling {
                 }
             }
 
+
             while (queue.size() > 0 && j < 1000) {
                 final Transform t = queue.poll(); // remove t from queue
 
@@ -559,7 +561,6 @@ public class Tiling {
                         queue.add(tg);
                         j++;
                     }
-
 
                     Transform gt = g.createConcatenation(t);
                     bpt = gt.transform(refPoint);

@@ -49,6 +49,10 @@ public class FundamentalDomain {
 
         // construct triangles as meshes:
 
+        final int orientation = (computeWindingNumber(fDomain.getVertex3D(0, 1), fDomain.getVertex3D(1, 1), fDomain.getVertex3D(2, 1)) < 0 ? fDomain.getOrientation(1) :
+                -fDomain.getOrientation(1));
+
+
         for (int a = 1; a <= fDomain.size(); a++) {
             final float[] points = new float[21];
             int p = 0;
@@ -79,7 +83,8 @@ public class FundamentalDomain {
             final int[] faces;
             final int[] smoothing;
 
-            if (true) { // two sided mesh:
+
+            if (false) { // two sided mesh:
                 faces = new int[]{
                         0, 0, 6, 1, 5, 2, // v0 cc e2
                         1, 0, 5, 1, 6, 2, // v1 e2 cc
@@ -98,7 +103,7 @@ public class FundamentalDomain {
                 };
                 smoothing = new int[]{1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2};
             } else { // one sided mesh:
-                if (fDomain.getOrientation(a) == fDomain.getOrientation(1)) { //Todo: Condition wrong? Must be 1 or -1, depending on tiling.
+                if (fDomain.getOrientation(a) == orientation) { //Todo: Condition wrong? Must be 1 or -1, depending on tiling.
                     faces = new int[]{
                             0, 0, 6, 1, 5, 2, // v0 cc e2
                             1, 0, 5, 1, 6, 2, // v1 e2 cc
@@ -231,6 +236,10 @@ public class FundamentalDomain {
                 }
         }
         return group;
+    }
+
+    private static double computeWindingNumber(Point3D a0, Point3D a1, Point3D a2) {
+        return (a1.getX() - a0.getX()) * (a1.getY() + a0.getY()) + (a2.getX() - a1.getX()) * (a2.getY() + a1.getY()) + (a0.getX() - a2.getX()) * (a0.getY() + a2.getY());
     }
 
     /**
