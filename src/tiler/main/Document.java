@@ -26,7 +26,6 @@ import javafx.scene.SubScene;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
@@ -59,6 +58,8 @@ public class Document {
     private boolean camPoincare = true; // Variable saving camera settings
 
     private boolean drawFundamentalDomainOnly = false;
+
+    private int limitHyperbolicGroup = 5;
 
     /**
      * constructor
@@ -145,10 +146,6 @@ public class Document {
         tilings.set(current, tiling);
     }
 
-    public static boolean reset = false;
-    public static Transform transformFDomain;
-    public static Point3D refPointHyperbolic = new Point3D(0,0,1);
-
     public void update() {
         final Tiling tiling = tilings.get(current);
         Group tiles = new Group();
@@ -185,14 +182,14 @@ public class Document {
 
         }
         else if (tiling.getGeometry() == FDomain.Geometry.Hyperbolic){
-            double maxDist = Math.cosh(0.5*controller.counter);  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
+            double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
             System.out.println("Height of hyperboloid " + 100*maxDist);
 
             //Reset Fundamental Domain if necessary:
-            if (refPointHyperbolic.getZ() >= 0.5*(maxDist-100)/100+1 || refPointHyperbolic.getZ() >= 8) {
-                reset = true;
+            if (Tiling.refPointHyperbolic.getZ() >= 0.5 * (maxDist - 100) / 100 + 1 || Tiling.refPointHyperbolic.getZ() >= 8) {
+                tiling.setReset(true);
                 tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
-                //resetFdomain(transformFDomain);  //Todo: find method
+                //tiling.recenterFDomain();
             }
             else {
                 tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
@@ -201,7 +198,7 @@ public class Document {
             //Camera:
             camera.setFieldOfView(90);
             if (camPoincare){
-                if (controller.counter < 12) {
+                if (getLimitHyperbolicGroup() < 12) {
                     camera.setFarClip(65 * (maxDist + 1));
                 }
                 else{
@@ -211,7 +208,7 @@ public class Document {
                 camera.setTranslateZ(-100);
             }
             else{
-                if (controller.counter < 12) {
+                if (getLimitHyperbolicGroup() < 12) {
                     camera.setFarClip(65 * maxDist);
                 }
                 else {
@@ -313,5 +310,14 @@ public class Document {
 
     public void setDrawFundamentalDomainOnly(boolean drawFundamentalDomainOnly) {
         this.drawFundamentalDomainOnly = drawFundamentalDomainOnly;
+    }
+
+    public int getLimitHyperbolicGroup() {
+        return limitHyperbolicGroup;
+    }
+
+    public void setLimitHyperbolicGroup(int limitHyperbolicGroup) {
+        if (limitHyperbolicGroup > 3)
+            this.limitHyperbolicGroup = limitHyperbolicGroup;
     }
 }

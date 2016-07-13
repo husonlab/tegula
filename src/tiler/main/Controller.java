@@ -21,9 +21,6 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
-    public static int counter = 5; // Counter for increasing and decreasing the maximal height of hyperboloid.
-
-
     @FXML
     private BorderPane mainPane;
 
@@ -381,15 +378,14 @@ public class Controller implements Initializable {
 
     @FXML
     void fireShowLessTiles(ActionEvent event) {
-        counter--;
-        if (counter < 3) { counter = 3; }
+        getDocument().setLimitHyperbolicGroup(getDocument().getLimitHyperbolicGroup() - 1);
         document.update();
 
     }
 
     @FXML
     void fireShowMoreTiles(ActionEvent event) {
-        counter++;
+        getDocument().setLimitHyperbolicGroup(getDocument().getLimitHyperbolicGroup() + 1);
         document.update();
     }
 
@@ -418,9 +414,9 @@ public class Controller implements Initializable {
 
     @FXML
     void fireKlein(ActionEvent event) {
-        double maxDist = Math.cosh(0.5 * counter);  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
+        double maxDist = Math.cosh(0.5 * getDocument().getLimitHyperbolicGroup());  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
         document.getCamera().setTranslateZ(0);
-        if (counter < 12){
+        if (getDocument().getLimitHyperbolicGroup() < 12) {
             document.getCamera().setFarClip(65 * maxDist);
         }
         else {
@@ -432,8 +428,8 @@ public class Controller implements Initializable {
 
     @FXML
     void firePoincare(ActionEvent event) {
-        double maxDist = Math.cosh(0.5 * counter);  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
-        if (counter < 12){
+        double maxDist = Math.cosh(0.5 * getDocument().getLimitHyperbolicGroup());  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
+        if (getDocument().getLimitHyperbolicGroup() < 12) {
             document.getCamera().setFarClip(65 * (maxDist + 1));
         }
         else {

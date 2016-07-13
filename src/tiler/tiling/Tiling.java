@@ -9,7 +9,6 @@ import javafx.util.Pair;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.OrbifoldGroupName;
-import tiler.main.Document;
 import tiler.util.JavaFXUtils;
 
 import java.util.LinkedList;
@@ -29,6 +28,10 @@ public class Tiling {
     private final Transforms generators;
     private final Constraints constraints;
 
+    private boolean reset = false;
+
+    public static final Point3D refPointHyperbolic = new Point3D(0, 0, 1);
+
     private final int[] flag2vert;
     private final int[] flag2edge;
     private final int[] flag2tile;
@@ -40,6 +43,7 @@ public class Tiling {
     private final int numbVert;
     private final int numbEdge;
     private final int numbTile;
+
 
     /**
      * constructor
@@ -452,8 +456,7 @@ public class Tiling {
      */
     public Group createTilingHyperbolic(boolean drawFundamentalDomainOnly, double maxDist) {
         final OctTree seen = new OctTree();
-        Point3D refPoint = Document.refPointHyperbolic;
-        seen.insert(fDomain, refPoint); // root of OctTree is point of reference
+        seen.insert(fDomain, refPointHyperbolic); // root of OctTree is point of reference
 
         final Group group = new Group();
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
@@ -469,7 +472,7 @@ public class Tiling {
             queue.addAll(generators.getTransforms());
 
             for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
-                Point3D genRef = g.transform(refPoint);
+                Point3D genRef = g.transform(refPointHyperbolic);
                 if (seen.insert(fDomain, genRef)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                     group2.getTransforms().add(g);
@@ -480,14 +483,13 @@ public class Tiling {
             while (false && queue.size() > 0 && queue.size() < 10000) {
                 final Transform t = queue.poll(); // remove t from queue
 
-                if (Document.reset && t.transform(refPoint).getZ() < 0.5 * (maxDist - 100) / 100 + 1 && t.transform(refPoint).getZ() < 8) {
-                    Document.reset = false;
-                    Document.transformFDomain = t;
+                if (isReset() && t.transform(refPointHyperbolic).getZ() < 0.5 * (maxDist - 100) / 100 + 1 && t.transform(refPointHyperbolic).getZ() < 8) {
+                    setReset(false);
                 }
 
                 for (Transform g : generators.getTransforms()) {
                     Transform tg = t.createConcatenation(g);
-                    Point3D bpt = tg.transform(refPoint);
+                    Point3D bpt = tg.transform(refPointHyperbolic);
                     if (seen.insert(fDomain, bpt) && bpt.getZ() < maxDist) {
                         Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                         group2.getTransforms().add(tg);
@@ -496,7 +498,7 @@ public class Tiling {
                     }
 
                     Transform gt = g.createConcatenation(t);
-                    bpt = gt.transform(refPoint);
+                    bpt = gt.transform(refPointHyperbolic);
                     if (seen.insert(fDomain, bpt) && bpt.getZ() < maxDist) {
                         Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                         group2.getTransforms().add(gt);
@@ -683,5 +685,14 @@ public class Tiling {
                 break;
         }
         return new Point2D(d * (p.getX() + q.getX()), d * (p.getY() + q.getY()));
+    }
+
+
+    public boolean isReset() {
+        return reset;
+    }
+
+    public void setReset(boolean reset) {
+        this.reset = reset;
     }
 }
