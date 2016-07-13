@@ -77,6 +77,7 @@ public class Tiling {
      * set up the constraints and symmetry group generators
      */
     private void computeConstraintsAndGenerators() {
+        generators.getTransforms().clear();
 
         boolean found = false;
         int a0;
@@ -476,7 +477,7 @@ public class Tiling {
                 }
             }
 
-            while (queue.size() > 0 && queue.size() < 10000) {
+            while (false && queue.size() > 0 && queue.size() < 10000) {
                 final Transform t = queue.poll(); // remove t from queue
 
                 if (Document.reset && t.transform(refPoint).getZ() < 0.5 * (maxDist - 100) / 100 + 1 && t.transform(refPoint).getZ() < 8) {
