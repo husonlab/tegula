@@ -480,7 +480,7 @@ public class Tiling {
                 }
             }
 
-            while (false && queue.size() > 0 && queue.size() < 10000) {
+            while (true && queue.size() > 0 && queue.size() < 10000) {
                 final Transform t = queue.poll(); // remove t from queue
 
                 if (isReset() && t.transform(refPointHyperbolic).getZ() < 0.5 * (maxDist - 100) / 100 + 1 && t.transform(refPointHyperbolic).getZ() < 8) {

@@ -1,8 +1,13 @@
 package tiler.core.dsymbols;
 
+import com.sun.javafx.geom.transform.Affine2D;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
+import javafx.scene.transform.Affine;
+import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Transform;
 import tiler.core.fundamental.Approximate;
+import tiler.core.fundamental.EuclideanGeometry;
 import tiler.core.fundamental.Glue;
 import tiler.core.fundamental.data.*;
 
@@ -139,25 +144,48 @@ public class FDomain {
     }
 
     public void translate(double dx, double dy) {
-        dx /= 1000;
-        dy /= 1000;
+        dx /= 300;
+        dy /= 300;
 
-        for (int z = 0; z < d.getNcrs(); z++) {
-            final NCR ncr = d.getNcr(z);
-            ncr.setPosx(ncr.getPosx() + dx);
-            ncr.setPosy(ncr.getPosy() + dy);
-        }
+        if (geometry == Geometry.Euclidean) {
+            for (int z = 0; z < d.getNcrs(); z++) {
+                final NCR ncr = d.getNcr(z);
+                ncr.setPosx(ncr.getPosx() + dx);
+                ncr.setPosy(ncr.getPosy() + dy);
+            }
 
-        for (int z = 0; z < d.getEcrs(); z++) {
-            final ECR ecr = d.getEcr(z);
-            ecr.setPosx(ecr.getPosx() + dx);
-            ecr.setPosy(ecr.getPosy() + dy);
-        }
+            for (int z = 0; z < d.getEcrs(); z++) {
+                final ECR ecr = d.getEcr(z);
+                ecr.setPosx(ecr.getPosx() + dx);
+                ecr.setPosy(ecr.getPosy() + dy);
+            }
 
-        for (int z = 0; z < d.getOcrs(); z++) {
-            final OCR ocr = d.getOcr(z);
-            ocr.setPosx(ocr.getPosx() + dx);
-            ocr.setPosy(ocr.getPosy() + dy);
+            for (int z = 0; z < d.getOcrs(); z++) {
+                final OCR ocr = d.getOcr(z);
+                ocr.setPosx(ocr.getPosx() + dx);
+                ocr.setPosy(ocr.getPosy() + dy);
+            }
+        } else if (geometry == Geometry.Hyperbolic) {
+                for (int z = 0; z < d.getNcrs(); z++) {
+                    final NCR ncr = d.getNcr(z);
+                    Point2D translated = HyperbolicTranslation(dx, dy, ncr.getPosx(), ncr.getPosy());
+                    ncr.setPosx(translated.getX());
+                    ncr.setPosy(translated.getY());
+                }
+
+                for (int z = 0; z < d.getEcrs(); z++) {
+                    final ECR ecr = d.getEcr(z);
+                    Point2D translated = HyperbolicTranslation(dx, dy, ecr.getPosx(), ecr.getPosy());
+                    ecr.setPosx(translated.getX());
+                    ecr.setPosy(translated.getY());
+                }
+
+                for (int z = 0; z < d.getOcrs(); z++) {
+                    final OCR ocr = d.getOcr(z);
+                    Point2D translated = HyperbolicTranslation(dx, dy, ocr.getPosx(),ocr.getPosy());
+                    ocr.setPosx(translated.getX());
+                    ocr.setPosy(translated.getY());
+                }
         }
     }
 
@@ -246,5 +274,37 @@ public class FDomain {
                     return new Point3D(0, 0, 0);
             }
         }
+    }
+
+    /**
+     * Hyperbolic translation of fundamental domain in Poincare model
+     *
+     * @param dx, dy, posX, posY
+     * @return Point2D
+     */
+
+   private Point2D HyperbolicTranslation(double dx, double dy, double posX, double posY){
+       final double distance = Math.sqrt(dx*dx+dy*dy); //Distance for translation along vector (dx,dy)
+       final Point2D Y_AXIS = new Point2D(0,1);  // For definition of hyperbolic translation along y-axis
+       final double angle = Y_AXIS.angle(dx,dy); // Rotation angle
+       final Point3D rotAxis; //Rotation axis
+
+       if (dx <= 0) {
+           rotAxis = Rotate.Z_AXIS;    // Counter-clockwise rotation
+       } else {
+           rotAxis = Rotate.Z_AXIS.multiply(-1);   // Clockwise rotation
+       }
+       final Rotate rotateForward = new Rotate(angle,rotAxis); // Rotates fundamental domain forward to perform translation along y-axis
+       final Rotate rotateBack = new Rotate(-angle,rotAxis); // Rotates backward to original position
+
+
+       final Point2D posRotated = rotateBack.transform(posX,posY); // Rotates a given point of fundamental domain forward
+
+       // Translation of rotated point "posRotated" along y-Axis (calculated from concatenation of translations on hyperboloid and mapping from Poincare to hyperboloid model):
+       final double d = posRotated.getX()*posRotated.getX()+posRotated.getY()*posRotated.getY();
+       final double newPosX = 2*posRotated.getX()/(1-d+Math.sinh(distance)*2*posRotated.getY()+Math.cosh(distance)*(1+d));
+       final double newPosY = (Math.cosh(distance)*2*posRotated.getY()+Math.sinh(distance)*(1+d))/(1-d+Math.sinh(distance)*2*posRotated.getY()+Math.cosh(distance)*(1+d));
+
+       return rotateForward.transform(newPosX,newPosY); //Returns the result of the transform by rotating backward.
     }
 }
