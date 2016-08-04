@@ -152,12 +152,15 @@ public class Document {
         Group tiles = new Group();
 
         if (tiling.getGeometry() == FDomain.Geometry.Euclidean){
-            Point3D windowCorner = new Point3D(0,0,0); double width=800, height=800;
+            Point3D windowCorner = new Point3D(0,0,0); double width=700, height=700;
+            System.out.println(tiling.refPointEuclidean);
 
-            if (windowCorner.getX() >= tiling.refPointEuclidean.getX() || tiling.refPointEuclidean.getX() >= windowCorner.getX()+width || windowCorner.getY() >= tiling.refPointEuclidean.getY() || tiling.refPointHyperbolic.getY() >= windowCorner.getY()+height) {
+            if (windowCorner.getX()-1 >= tiling.refPointEuclidean.getX() || tiling.refPointEuclidean.getX() >= windowCorner.getX()+width || windowCorner.getY()-1 >= tiling.refPointEuclidean.getY() || tiling.refPointEuclidean.getY() >= windowCorner.getY()+height) {
                 tiling.setResetEuclidean(true);
+                System.out.println(tiling.isResetEuclidean());
                 tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
                 recenterFDomain(tiling.transformFDEuclidean);
+                //update();
             }
             else {
                 tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);

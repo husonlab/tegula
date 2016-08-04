@@ -472,7 +472,7 @@ public class Tiling {
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
         group.getChildren().addAll(fund);
 
-        if (!drawFundamentalDomainOnly) {
+        if (true || !drawFundamentalDomainOnly) {
             //Add all generators
             computeConstraintsAndGenerators();
 
@@ -532,13 +532,21 @@ public class Tiling {
 
         //Calculation of point of reference:
         refPointEuclidean = fDomain.getChamberCenter3D(1);
-        width = width + width/4;
-        height = height + height/4;
+        if (width >= 350){
+            width += 250;
+        }
+        else { width = 600; }
+
+        if (height >= 350){
+            height += 250;
+        }
+        else { height = 600;}
+
         final Group group = new Group();
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
         group.getChildren().addAll(fund);
 
-        if (!drawFundamentalDomainOnly) {
+        if (true || !drawFundamentalDomainOnly) {
 
             //Add all generators
             computeConstraintsAndGenerators();
@@ -565,9 +573,9 @@ public class Tiling {
             while (queue.size() > 0 && j < 1000) {
                 final Transform t = queue.poll(); // remove t from queue
 
-                if (isResetEuclidean() && windowCorner.getX()+width/4 < t.transform(refPointEuclidean).getX() && t.transform(refPointEuclidean).getX() < windowCorner.getX()+width/2 && windowCorner.getY()+height/4 < t.transform(refPointEuclidean).getY() && t.transform(refPointEuclidean).getY() < windowCorner.getY()+height/2) {
+                if (isResetEuclidean() && windowCorner.getX()+100 < t.transform(refPointEuclidean).getX() && t.transform(refPointEuclidean).getX() < windowCorner.getX()+500 && windowCorner.getY()+100 < t.transform(refPointEuclidean).getY() && t.transform(refPointEuclidean).getY() < windowCorner.getY()+500) {
                     transformFDEuclidean = t;
-                    System.out.println(isResetEuclidean());
+                    //System.out.println(isResetEuclidean());
                     System.out.println(transformFDEuclidean);
                     setResetEuclidean(false);
                 }
@@ -576,7 +584,7 @@ public class Tiling {
                     Transform tg = t.createConcatenation(g);
                     Point3D bpt = tg.transform(refPointEuclidean);
 
-                    if (seen.insert(bpt.getX(), bpt.getY()) && windowCorner.getX() - width / 5 <= bpt.getX() && bpt.getX() <= width + windowCorner.getX() && windowCorner.getY() - height / 5 <= bpt.getY() && bpt.getY() <= height + windowCorner.getY()) {
+                    if (seen.insert(bpt.getX(), bpt.getY()) && windowCorner.getX() - 200 <= bpt.getX() && bpt.getX() <= width + windowCorner.getX() && windowCorner.getY() - 200 <= bpt.getY() && bpt.getY() <= height + windowCorner.getY()) {
                         Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                         group2.getTransforms().add(tg);
                         group.getChildren().add(group2);
@@ -587,7 +595,7 @@ public class Tiling {
                     Transform gt = g.createConcatenation(t);
                     bpt = gt.transform(refPointEuclidean);
 
-                    if (seen.insert(bpt.getX(), bpt.getY()) && windowCorner.getX() - width / 5 <= bpt.getX() && bpt.getX() <= width + windowCorner.getX() && windowCorner.getY() - height / 5 <= bpt.getY() && bpt.getY() <= height + windowCorner.getY()) {
+                    if (seen.insert(bpt.getX(), bpt.getY()) && windowCorner.getX() - 200 <= bpt.getX() && bpt.getX() <= width + windowCorner.getX() && windowCorner.getY() - 200 <= bpt.getY() && bpt.getY() <= height + windowCorner.getY()) {
                         Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                         group2.getTransforms().add(gt);
                         group.getChildren().add(group2);

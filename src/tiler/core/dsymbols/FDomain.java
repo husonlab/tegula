@@ -148,8 +148,9 @@ public class FDomain {
         if (geometry == Geometry.Euclidean) {
             for (int z = 0; z < d.getNcrs(); z++) {
                 final NCR ncr = d.getNcr(z);
-                Point3D position = new Point3D(100*ncr.getPosx(), 100*ncr.getPosy(), 0);
+                Point3D position = new Point3D(100*ncr.getPosx(),100*ncr.getPosy(), 0);
                 position = t.transform(position);
+                position = new Point3D(position.getX(),position.getY(),0);
                 position = position.multiply(0.01);
                 ncr.setPosx(position.getX());
                 ncr.setPosy(position.getY());
@@ -159,6 +160,7 @@ public class FDomain {
                 final ECR ecr = d.getEcr(z);
                 Point3D position = new Point3D(100*ecr.getPosx(), 100*ecr.getPosy(), 0);
                 position = t.transform(position);
+                position = new Point3D(position.getX(),position.getY(),0);
                 position = position.multiply(0.01);
                 ecr.setPosx(position.getX());
                 ecr.setPosy(position.getY());
@@ -168,6 +170,7 @@ public class FDomain {
                 final OCR ocr = d.getOcr(z);
                 Point3D position = new Point3D(100*ocr.getPosx(), 100*ocr.getPosy(), 0);
                 position = t.transform(position);
+                position = new Point3D(position.getX(),position.getY(),0);
                 position = position.multiply(0.01);
                 ocr.setPosx(position.getX());
                 ocr.setPosy(position.getY());
@@ -176,28 +179,32 @@ public class FDomain {
     }
 
     public void translate(double dx, double dy) {
-        dx /= 300;
-        dy /= 300;
 
         if (geometry == Geometry.Euclidean) {
-            for (int z = 0; z < d.getNcrs(); z++) {
-                final NCR ncr = d.getNcr(z);
-                ncr.setPosx(ncr.getPosx() + dx);
-                ncr.setPosy(ncr.getPosy() + dy);
-            }
+            dx /= 100;
+            dy /= 100;
+            if (dx < 20 && dy < 20) {
+                for (int z = 0; z < d.getNcrs(); z++) {
+                    final NCR ncr = d.getNcr(z);
+                    ncr.setPosx(ncr.getPosx() + dx);
+                    ncr.setPosy(ncr.getPosy() + dy);
+                }
 
-            for (int z = 0; z < d.getEcrs(); z++) {
-                final ECR ecr = d.getEcr(z);
-                ecr.setPosx(ecr.getPosx() + dx);
-                ecr.setPosy(ecr.getPosy() + dy);
-            }
+                for (int z = 0; z < d.getEcrs(); z++) {
+                    final ECR ecr = d.getEcr(z);
+                    ecr.setPosx(ecr.getPosx() + dx);
+                    ecr.setPosy(ecr.getPosy() + dy);
+                }
 
-            for (int z = 0; z < d.getOcrs(); z++) {
-                final OCR ocr = d.getOcr(z);
-                ocr.setPosx(ocr.getPosx() + dx);
-                ocr.setPosy(ocr.getPosy() + dy);
+                for (int z = 0; z < d.getOcrs(); z++) {
+                    final OCR ocr = d.getOcr(z);
+                    ocr.setPosx(ocr.getPosx() + dx);
+                    ocr.setPosy(ocr.getPosy() + dy);
+                }
             }
         } else if (geometry == Geometry.Hyperbolic) {
+            dx /= 300;
+            dy /= 300;
                 for (int z = 0; z < d.getNcrs(); z++) {
                     final NCR ncr = d.getNcr(z);
                     Point2D translated = HyperbolicTranslation(dx, dy, ncr.getPosx(), ncr.getPosy());
@@ -292,7 +299,7 @@ public class FDomain {
         switch (geometry) {
             default:
             case Euclidean: {
-                return new Point3D(100 + 100 * apt.getX(), 100 + 100 * apt.getY(), 0);
+                return new Point3D(100 * apt.getX(), 100 * apt.getY(), 0);
             }
             case Spherical: {
                 final double d = apt.getX() * apt.getX() + apt.getY() * apt.getY();
