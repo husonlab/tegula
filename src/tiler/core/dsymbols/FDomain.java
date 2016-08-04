@@ -143,6 +143,38 @@ public class FDomain {
         d.getNcr()[a - 1].setPosy(apt.getY());
     }
 
+
+    public void recenterFDomain(Transform t) {
+        if (geometry == Geometry.Euclidean) {
+            for (int z = 0; z < d.getNcrs(); z++) {
+                final NCR ncr = d.getNcr(z);
+                Point3D position = new Point3D(100*ncr.getPosx(), 100*ncr.getPosy(), 0);
+                position = t.transform(position);
+                position = position.multiply(0.01);
+                ncr.setPosx(position.getX());
+                ncr.setPosy(position.getY());
+            }
+
+            for (int z = 0; z < d.getEcrs(); z++) {
+                final ECR ecr = d.getEcr(z);
+                Point3D position = new Point3D(100*ecr.getPosx(), 100*ecr.getPosy(), 0);
+                position = t.transform(position);
+                position = position.multiply(0.01);
+                ecr.setPosx(position.getX());
+                ecr.setPosy(position.getY());
+            }
+
+            for (int z = 0; z < d.getOcrs(); z++) {
+                final OCR ocr = d.getOcr(z);
+                Point3D position = new Point3D(100*ocr.getPosx(), 100*ocr.getPosy(), 0);
+                position = t.transform(position);
+                position = position.multiply(0.01);
+                ocr.setPosx(position.getX());
+                ocr.setPosy(position.getY());
+            }
+        }
+    }
+
     public void translate(double dx, double dy) {
         dx /= 300;
         dy /= 300;

@@ -3,12 +3,17 @@ package tiler.tiling;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
+import javafx.scene.transform.Affine;
 import javafx.scene.transform.NonInvertibleTransformException;
+import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.util.Pair;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.OrbifoldGroupName;
+import tiler.core.fundamental.data.ECR;
+import tiler.core.fundamental.data.NCR;
+import tiler.core.fundamental.data.OCR;
 import tiler.util.JavaFXUtils;
 
 import java.util.LinkedList;
@@ -28,9 +33,12 @@ public class Tiling {
     private final Transforms generators;
     private final Constraints constraints;
 
-    private boolean reset = false;
+    private boolean resetHyperbolic = false;
+    private boolean resetEuclidean = false;
+    public Transform transformFDEuclidean, transformFDHyperbolic;
 
-    public static final Point3D refPointHyperbolic = new Point3D(0, 0, 1);
+    public static Point3D refPointHyperbolic = new Point3D(0, 0, 1);
+    public static Point3D refPointEuclidean = new Point3D(1,1,0);
 
     private final int[] flag2vert;
     private final int[] flag2edge;
@@ -455,6 +463,8 @@ public class Tiling {
      * @return group
      */
     public Group createTilingHyperbolic(boolean drawFundamentalDomainOnly, double maxDist) {
+
+        refPointHyperbolic = fDomain.getChamberCenter3D(1).multiply(0.01);
         final OctTree seen = new OctTree();
         seen.insert(fDomain, refPointHyperbolic); // root of OctTree is point of reference
 
@@ -467,7 +477,6 @@ public class Tiling {
             computeConstraintsAndGenerators();
 
             // Make copies of fundamental domain.
-
             final Queue<Transform> queue = new LinkedList<>();
             queue.addAll(generators.getTransforms());
 
@@ -483,8 +492,8 @@ public class Tiling {
             while (true && queue.size() > 0 && queue.size() < 10000) {
                 final Transform t = queue.poll(); // remove t from queue
 
-                if (isReset() && t.transform(refPointHyperbolic).getZ() < 0.5 * (maxDist - 100) / 100 + 1 && t.transform(refPointHyperbolic).getZ() < 8) {
-                    setReset(false);
+                if (isResetHyperbolic() && t.transform(refPointHyperbolic).getZ() < 0.5 * (maxDist - 100) / 100 + 1 && t.transform(refPointHyperbolic).getZ() < 8) {
+                    setResetHyperbolic(false);
                 }
 
                 for (Transform g : generators.getTransforms()) {
@@ -512,14 +521,17 @@ public class Tiling {
     }
 
     /**
-     * create tiling in euclidean case
+     * create tiling in Euclidean case
      *
-     * @param refPoint
+     * @param windowCorner
      * @param width
      * @param height
      * @return group
      */
-    public Group createTilingEuclidean(boolean drawFundamentalDomainOnly, Point3D refPoint, double width, double height) {
+    public Group createTilingEuclidean(boolean drawFundamentalDomainOnly, Point3D windowCorner, double width, double height) {
+
+        //Calculation of point of reference:
+        refPointEuclidean = fDomain.getChamberCenter3D(1);
         width = width + width/4;
         height = height + height/4;
         final Group group = new Group();
@@ -532,7 +544,7 @@ public class Tiling {
             computeConstraintsAndGenerators();
 
             final QuadTree seen = new QuadTree();
-            seen.insert(refPoint.getX(), refPoint.getY());
+            seen.insert(refPointEuclidean.getX(), refPointEuclidean.getY());
 
             final Queue<Transform> queue = new LinkedList<>();
             queue.addAll(generators.getTransforms());
@@ -540,7 +552,7 @@ public class Tiling {
             int j = 1;
 
             for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
-                Point3D genRef = g.transform(refPoint);
+                Point3D genRef = g.transform(refPointEuclidean);
                 if (seen.insert(genRef.getX(), genRef.getY())) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                     group2.getTransforms().add(g);
@@ -553,11 +565,18 @@ public class Tiling {
             while (queue.size() > 0 && j < 1000) {
                 final Transform t = queue.poll(); // remove t from queue
 
+                if (isResetEuclidean() && windowCorner.getX()+width/4 < t.transform(refPointEuclidean).getX() && t.transform(refPointEuclidean).getX() < windowCorner.getX()+width/2 && windowCorner.getY()+height/4 < t.transform(refPointEuclidean).getY() && t.transform(refPointEuclidean).getY() < windowCorner.getY()+height/2) {
+                    transformFDEuclidean = t;
+                    System.out.println(isResetEuclidean());
+                    System.out.println(transformFDEuclidean);
+                    setResetEuclidean(false);
+                }
+
                 for (Transform g : generators.getTransforms()) {
                     Transform tg = t.createConcatenation(g);
-                    Point3D bpt = tg.transform(refPoint);
+                    Point3D bpt = tg.transform(refPointEuclidean);
 
-                    if (seen.insert(bpt.getX(), bpt.getY()) && refPoint.getX() - width / 5 <= bpt.getX() && bpt.getX() <= width + refPoint.getX() && refPoint.getY() - height / 5 <= bpt.getY() && bpt.getY() <= height + refPoint.getY()) {
+                    if (seen.insert(bpt.getX(), bpt.getY()) && windowCorner.getX() - width / 5 <= bpt.getX() && bpt.getX() <= width + windowCorner.getX() && windowCorner.getY() - height / 5 <= bpt.getY() && bpt.getY() <= height + windowCorner.getY()) {
                         Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                         group2.getTransforms().add(tg);
                         group.getChildren().add(group2);
@@ -566,9 +585,9 @@ public class Tiling {
                     }
 
                     Transform gt = g.createConcatenation(t);
-                    bpt = gt.transform(refPoint);
+                    bpt = gt.transform(refPointEuclidean);
 
-                    if (seen.insert(bpt.getX(), bpt.getY()) && refPoint.getX() - width / 5 <= bpt.getX() && bpt.getX() <= width + refPoint.getX() && refPoint.getY() - height / 5 <= bpt.getY() && bpt.getY() <= height + refPoint.getY()) {
+                    if (seen.insert(bpt.getX(), bpt.getY()) && windowCorner.getX() - width / 5 <= bpt.getX() && bpt.getX() <= width + windowCorner.getX() && windowCorner.getY() - height / 5 <= bpt.getY() && bpt.getY() <= height + windowCorner.getY()) {
                         Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                         group2.getTransforms().add(gt);
                         group.getChildren().add(group2);
@@ -687,12 +706,21 @@ public class Tiling {
         return new Point2D(d * (p.getX() + q.getX()), d * (p.getY() + q.getY()));
     }
 
-
-    public boolean isReset() {
-        return reset;
+    public boolean isResetHyperbolic() { return resetHyperbolic; }
+    public void setResetHyperbolic(boolean reset) {
+        this.resetHyperbolic = reset;
     }
 
-    public void setReset(boolean reset) {
-        this.reset = reset;
-    }
+    public boolean isResetEuclidean() { return  resetEuclidean; }
+    public void  setResetEuclidean(boolean reset) { this.resetEuclidean = reset; }
+
+    //public void recenterFDomain(){
+        /*Affine t = new Affine(transformFDEuclidean.getMxx()/100, transformFDEuclidean.getMxy()/100, transformFDEuclidean.getMxz()/100, transformFDEuclidean.getTx()/100,
+                transformFDEuclidean.getMyx()/100, transformFDEuclidean.getMyy()/100, transformFDEuclidean.getMyz()/100, transformFDEuclidean.getTy()/100,
+                transformFDEuclidean.getMzx()/100, transformFDEuclidean.getMzy()/100, transformFDEuclidean.getMzz()/100, transformFDEuclidean.getTz()/100);
+
+        */
+        //System.out.println(t);
+        //fDomain.recenterFDomain(transformFDEuclidean);
+    //}
 }

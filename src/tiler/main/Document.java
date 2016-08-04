@@ -26,6 +26,7 @@ import javafx.scene.SubScene;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
@@ -151,8 +152,16 @@ public class Document {
         Group tiles = new Group();
 
         if (tiling.getGeometry() == FDomain.Geometry.Euclidean){
-            Point3D refPoint = new Point3D(0,0,0); double width=800, height=600;
-            tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), refPoint, width, height);
+            Point3D windowCorner = new Point3D(0,0,0); double width=800, height=800;
+
+            if (windowCorner.getX() >= tiling.refPointEuclidean.getX() || tiling.refPointEuclidean.getX() >= windowCorner.getX()+width || windowCorner.getY() >= tiling.refPointEuclidean.getY() || tiling.refPointHyperbolic.getY() >= windowCorner.getY()+height) {
+                tiling.setResetEuclidean(true);
+                tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
+                recenterFDomain(tiling.transformFDEuclidean);
+            }
+            else {
+                tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
+            }
 
             //Add rectangle for debugging
             Rectangle rect = new Rectangle(width, height);
@@ -187,7 +196,7 @@ public class Document {
 
             //Reset Fundamental Domain if necessary:
             if (Tiling.refPointHyperbolic.getZ() >= 0.5 * (maxDist - 100) / 100 + 1 || Tiling.refPointHyperbolic.getZ() >= 8) {
-                tiling.setReset(true);
+                tiling.setResetHyperbolic(true);
                 tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
                 //tiling.recenterFDomain();
             }
@@ -238,6 +247,8 @@ public class Document {
     public void translate(double dx, double dy) {
         tilings.get(current).getfDomain().translate(dx, dy);
     }
+
+    public void recenterFDomain(Transform t) { tilings.get(current).getfDomain().recenterFDomain(t); }
 
     public void straightenAll() {
         tilings.get(current).straightenAllEdges();
