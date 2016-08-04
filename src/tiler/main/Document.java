@@ -152,7 +152,7 @@ public class Document {
         Group tiles = new Group();
 
         if (tiling.getGeometry() == FDomain.Geometry.Euclidean){
-            Point3D windowCorner = new Point3D(0,0,0); double width=700, height=700;
+            Point3D windowCorner = new Point3D(0,0,0); double width=700, height=500;
             System.out.println(tiling.refPointEuclidean);
 
             if (windowCorner.getX()-1 >= tiling.refPointEuclidean.getX() || tiling.refPointEuclidean.getX() >= windowCorner.getX()+width || windowCorner.getY()-1 >= tiling.refPointEuclidean.getY() || tiling.refPointEuclidean.getY() >= windowCorner.getY()+height) {
