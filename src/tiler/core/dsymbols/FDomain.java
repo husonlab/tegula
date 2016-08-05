@@ -176,6 +176,31 @@ public class FDomain {
                 ocr.setPosy(position.getY());
             }
         }
+        else if (geometry == Geometry.Hyperbolic){
+            for (int z = 0; z < d.getNcrs(); z++) {
+                final NCR ncr = d.getNcr(z);
+                Point2D position = new Point2D(ncr.getPosx(),ncr.getPosy());
+                position = map3Dto2DHyperbolic(t.transform(map2Dto3D(position)).multiply(0.01));
+                ncr.setPosx(position.getX());
+                ncr.setPosy(position.getY());
+            }
+
+            for (int z = 0; z < d.getEcrs(); z++) {
+                final ECR ecr = d.getEcr(z);
+                Point2D position = new Point2D(ecr.getPosx(), ecr.getPosy());
+                position = map3Dto2DHyperbolic(t.transform(map2Dto3D(position)).multiply(0.01));
+                ecr.setPosx(position.getX());
+                ecr.setPosy(position.getY());
+            }
+
+            for (int z = 0; z < d.getOcrs(); z++) {
+                final OCR ocr = d.getOcr(z);
+                Point2D position = new Point2D(ocr.getPosx(), ocr.getPosy());
+                position = map3Dto2DHyperbolic(t.transform(map2Dto3D(position)).multiply(0.01));
+                ocr.setPosx(position.getX());
+                ocr.setPosy(position.getY());
+            }
+        }
     }
 
     public void translate(double dx, double dy) {
@@ -316,9 +341,22 @@ public class FDomain {
     }
 
     /**
+     * Maps a point on hyperboloid model (scaled with factor 100) to Poincare model (non-scaled).
+     * @param bpt
+     * @return
+     */
+
+    private Point2D map3Dto2DHyperbolic(Point3D bpt){
+        return new Point2D(bpt.getX()/(1+bpt.getZ()), bpt.getY()/(1+bpt.getZ()));
+    }
+
+    /**
      * Hyperbolic translation of fundamental domain in Poincare model
      *
-     * @param dx, dy, posX, posY
+     * @param dx
+     * @param dy
+     * @param posX
+     * @param posY
      * @return Point2D
      */
 

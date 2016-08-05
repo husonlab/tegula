@@ -198,10 +198,10 @@ public class Document {
             System.out.println("Height of hyperboloid " + 100*maxDist);
 
             //Reset Fundamental Domain if necessary:
-            if (Tiling.refPointHyperbolic.getZ() >= 0.5 * (maxDist - 100) / 100 + 1 || Tiling.refPointHyperbolic.getZ() >= 8) {
+            if (Tiling.refPointHyperbolic.getZ() >= 0.75 * (maxDist+1) || Tiling.refPointHyperbolic.getZ() >= 8) {
                 tiling.setResetHyperbolic(true);
                 tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
-                //tiling.recenterFDomain();
+                recenterFDomain(tiling.transformFDHyperbolic);
             }
             else {
                 tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
@@ -229,7 +229,6 @@ public class Document {
                 camera.setTranslateZ(0);
 
             }
-
 
             controller.getPoincareButton().setVisible(true);
             controller.getKleinButton().setVisible(true);
