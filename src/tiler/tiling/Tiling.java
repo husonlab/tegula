@@ -383,7 +383,7 @@ public class Tiling {
         // Make copies of fundamental domain.
         if (!drawFundamentalDomainOnly) {
             final OctTree seen = new OctTree();
-            final Point3D refPoint = new Point3D(0,0,1);  //Todo better choice
+            final Point3D refPoint = fDomain.getChamberCenter3D(1).multiply(0.01);
             seen.insert(fDomain, refPoint); //root node of OctTree is point of reference.
 
             final Queue<Transform> queue = new LinkedList<>();
@@ -613,19 +613,6 @@ public class Tiling {
         return group;
     }
 
-
-    public DSymbol getDSymbol() {
-        return ds;
-    }
-
-    public FDomain.Geometry getGeometry() {
-        return fDomain.getGeometry();
-    }
-
-    public FDomain getfDomain() {
-        return fDomain;
-   }
-
     /**
      * straigthen all edges
      */
@@ -717,6 +704,18 @@ public class Tiling {
         return new Point2D(d * (p.getX() + q.getX()), d * (p.getY() + q.getY()));
     }
 
+    public DSymbol getDSymbol() {
+        return ds;
+    }
+
+    public FDomain.Geometry getGeometry() {
+        return fDomain.getGeometry();
+    }
+
+    public FDomain getfDomain() {
+        return fDomain;
+    }
+
     public boolean isResetHyperbolic() { return resetHyperbolic; }
     public void setResetHyperbolic(boolean reset) {
         this.resetHyperbolic = reset;
@@ -724,14 +723,4 @@ public class Tiling {
 
     public boolean isResetEuclidean() { return  resetEuclidean; }
     public void  setResetEuclidean(boolean reset) { this.resetEuclidean = reset; }
-
-    //public void recenterFDomain(){
-        /*Affine t = new Affine(transformFDEuclidean.getMxx()/100, transformFDEuclidean.getMxy()/100, transformFDEuclidean.getMxz()/100, transformFDEuclidean.getTx()/100,
-                transformFDEuclidean.getMyx()/100, transformFDEuclidean.getMyy()/100, transformFDEuclidean.getMyz()/100, transformFDEuclidean.getTy()/100,
-                transformFDEuclidean.getMzx()/100, transformFDEuclidean.getMzy()/100, transformFDEuclidean.getMzz()/100, transformFDEuclidean.getTz()/100);
-
-        */
-        //System.out.println(t);
-        //fDomain.recenterFDomain(transformFDEuclidean);
-    //}
 }
