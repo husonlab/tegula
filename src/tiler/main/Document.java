@@ -198,7 +198,7 @@ public class Document {
             System.out.println("Height of hyperboloid " + 100*maxDist);
 
             //Reset Fundamental Domain if necessary:
-            if (Tiling.refPointHyperbolic.getZ() >= 0.75 * (maxDist+1) || Tiling.refPointHyperbolic.getZ() >= 8) {
+            if (Tiling.refPointHyperbolic.getZ() >= 3 || Tiling.refPointHyperbolic.getZ() >= 0.6 * maxDist) {
                 tiling.setResetHyperbolic(true);
                 tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
                 recenterFDomain(tiling.transformFDHyperbolic);

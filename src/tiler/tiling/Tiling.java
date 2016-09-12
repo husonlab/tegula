@@ -489,12 +489,11 @@ public class Tiling {
                 }
             }
 
-            System.out.println(maxDist);
-
             while (true && queue.size() > 0 && queue.size() < 10000) {
                 final Transform t = queue.poll(); // remove t from queue
 
-                if (isResetHyperbolic() && t.transform(refPointHyperbolic).getZ() < 0.4 * (maxDist + 1) && t.transform(refPointHyperbolic).getZ() < 4) {
+                //t.transform(refPointHyperbolic).getZ() < 0.4 * (maxDist + 1)
+                if (isResetHyperbolic() && t.transform(refPointHyperbolic).getZ() < 2) {
                     transformFDHyperbolic = t;
                     System.out.println(t);
                     setResetHyperbolic(false);
