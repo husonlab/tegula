@@ -1,9 +1,13 @@
 package tiler.tiling;
 
+import com.sun.javafx.sg.prism.NGPhongMaterial;
 import javafx.geometry.Point3D;
+import javafx.scene.AmbientLight;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.effect.Lighting;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Material;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
@@ -102,7 +106,7 @@ public class FundamentalDomain {
                 };
                 smoothing = new int[]{1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2};
             } else { // one sided mesh:
-                if (fDomain.getOrientation(a) == orientation) { //Todo: Condition wrong? Must be 1 or -1, depending on tiling.
+                if (fDomain.getOrientation(a) == orientation) {
                     faces = new int[]{
                             0, 0, 6, 1, 5, 2, // v0 cc e2
                             1, 0, 5, 1, 6, 2, // v1 e2 cc
@@ -114,7 +118,8 @@ public class FundamentalDomain {
                     };
                 }
                 else {
-                    faces = new int[]{0, 0, 5, 1, 6, 2,
+                    faces = new int[]{
+                            0, 0, 5, 1, 6, 2,
                             1, 0, 6, 1, 5, 2,
                             1, 0, 3, 1, 6, 2,
                             2, 0, 6, 0, 3, 2,
@@ -133,8 +138,7 @@ public class FundamentalDomain {
             MeshView meshView = new MeshView(mesh);
             //meshView.setDrawMode(DrawMode.LINE);
             meshView.setMaterial(new PhongMaterial(colors[a]));
-
-            group.getChildren().add(meshView);
+            group.getChildren().addAll(meshView);
         }
 
         // add lines

@@ -20,6 +20,7 @@
 package tiler.main;
 
 import javafx.geometry.Point3D;
+import javafx.scene.AmbientLight;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SubScene;
@@ -55,6 +56,8 @@ public class Document {
     private final Group world;
     private final Controller controller;
     private PerspectiveCamera camera;
+    private AmbientLight light = new AmbientLight();
+
 
     private boolean camPoincare = true; // Variable saving camera settings
 
@@ -238,8 +241,10 @@ public class Document {
 
         setUseDepthBuffer(!tiling.getGeometry().equals(FDomain.Geometry.Euclidean));
 
+
         getWorld().getChildren().clear();
         getWorld().getChildren().addAll(tiles);
+        if (tiling.getGeometry() == FDomain.Geometry.Hyperbolic){ getWorld().getChildren().add(light); }
         getController().getStatusTextField().setText(tilings.get(current).getStatusLine());
         GroupEditing.update(this);
 
