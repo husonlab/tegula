@@ -472,7 +472,7 @@ public class Tiling {
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
         group.getChildren().addAll(fund);
 
-        if (true || !drawFundamentalDomainOnly) {
+        if (!drawFundamentalDomainOnly) {
             //Add all generators
             computeConstraintsAndGenerators();
 
@@ -549,7 +549,7 @@ public class Tiling {
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
         group.getChildren().addAll(fund);
 
-        if (true || !drawFundamentalDomainOnly) {
+        if (!drawFundamentalDomainOnly) {
 
             //Add all generators
             computeConstraintsAndGenerators();
@@ -597,6 +597,7 @@ public class Tiling {
 
                     Transform gt = g.createConcatenation(t);
                     bpt = gt.transform(refPointEuclidean);
+                    //System.out.println(bpt);
 
                     if (seen.insert(bpt.getX(), bpt.getY()) && windowCorner.getX() - 200 <= bpt.getX() && bpt.getX() <= width + windowCorner.getX() && windowCorner.getY() - 200 <= bpt.getY() && bpt.getY() <= height + windowCorner.getY()) {
                         Group group2 = JavaFXUtils.copyFundamentalDomain(fund);

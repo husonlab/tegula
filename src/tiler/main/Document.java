@@ -28,6 +28,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Transform;
+import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
@@ -150,25 +151,25 @@ public class Document {
         tilings.set(current, tiling);
     }
 
+    public Point3D windowCorner = new Point3D(0,0,0); // Upper left corner of window in Euclidean case
+
     public void update() {
         final Tiling tiling = tilings.get(current);
         Group tiles = new Group();
 
         if (tiling.getGeometry() == FDomain.Geometry.Euclidean){
-            Point3D windowCorner = new Point3D(0,0,0); double width=700, height=500;
+            double width=700, height=500;
             System.out.println(tiling.refPointEuclidean);
 
-            if (windowCorner.getX()-1 >= tiling.refPointEuclidean.getX() || tiling.refPointEuclidean.getX() >= windowCorner.getX()+width || windowCorner.getY()-1 >= tiling.refPointEuclidean.getY() || tiling.refPointEuclidean.getY() >= windowCorner.getY()+height) {
+            if (!isDrawFundamentalDomainOnly() && (windowCorner.getX()-1 >= tiling.refPointEuclidean.getX() || tiling.refPointEuclidean.getX() >= windowCorner.getX()+width || windowCorner.getY()-1 >= tiling.refPointEuclidean.getY() || tiling.refPointEuclidean.getY() >= windowCorner.getY()+height)) {
                 tiling.setResetEuclidean(true);
-                System.out.println(tiling.isResetEuclidean());
+                //System.out.println(tiling.isResetEuclidean());
                 tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
                 recenterFDomain(tiling.transformFDEuclidean);
-                //update();
             }
             else {
                 tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
             }
-
             //Add rectangle for debugging
             Rectangle rect = new Rectangle(width, height);
             rect.setFill(Color.TRANSPARENT);
@@ -201,7 +202,7 @@ public class Document {
             System.out.println("Height of hyperboloid " + 100*maxDist);
 
             //Reset Fundamental Domain if necessary:
-            if (Tiling.refPointHyperbolic.getZ() >= 3 || Tiling.refPointHyperbolic.getZ() >= 0.6 * maxDist) {
+            if (!isDrawFundamentalDomainOnly() && (Tiling.refPointHyperbolic.getZ() >= 3 || Tiling.refPointHyperbolic.getZ() >= 0.6 * maxDist)) {
                 tiling.setResetHyperbolic(true);
                 tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
                 recenterFDomain(tiling.transformFDHyperbolic);
@@ -250,6 +251,7 @@ public class Document {
 
         controller.updateNavigateTilings();
     }
+
 
     public void translate(double dx, double dy) {
         tilings.get(current).getfDomain().translate(dx, dy);

@@ -72,8 +72,10 @@ public class MouseHandler {
                         mouseDownY = me.getSceneY();
                     }
 
-                    //  worldTranslate.setX(dx);
-                    //  worldTranslate.setY(dy);
+                    //worldTranslate.setX(dx);
+                    //worldTranslate.setY(dy);
+
+
                 } else if (me.isShiftDown() && !me.isAltDown()) { //// rotate
                     double modifierFactor = 0.25;
                     //noinspection SuspiciousNameCombination
@@ -85,10 +87,11 @@ public class MouseHandler {
         });
         scene.setOnMouseReleased((me) -> {
             document.setDrawFundamentalDomainOnly(false);
-            if (mustUpdateWholeTiling) {
+            document.update();
+            /*if (mustUpdateWholeTiling) {
                 document.update();
                 mustUpdateWholeTiling = false;
-            }
+            }*/
         });
 
         scene.setOnScroll(new EventHandler<ScrollEvent>() {
