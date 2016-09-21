@@ -363,7 +363,7 @@ public class Tiling {
                 ds.getNr1(), ds.getNr2(), numbVert, numbEdge, numbTile, getGroupName());
     }
 
-
+//----------------------------------------------------------------------------------------------------------------------
     /**
      * create the set of tiles to be shown in spherical case
      *
@@ -419,40 +419,10 @@ public class Tiling {
                     }
                 }
         }
-
-        if (false) {
-            Transform transform = getTransform(fDomain.getGeometry(), fDomain.getVertex3D(0, 15), fDomain.getVertex3D(1, 15), fDomain.getVertex3D(0, 5), fDomain.getVertex3D(1, 5), true);
-            Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-            group2.getTransforms().add(transform);
-            group.getChildren().add(group2);
-        }
-
-        if (false) {
-            Transform transform = getTransform(fDomain.getGeometry(), fDomain.getVertex3D(0, 7), fDomain.getVertex3D(2, 7), fDomain.getVertex3D(0, 8), fDomain.getVertex3D(2, 8), true);
-            Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-            group2.getTransforms().add(transform);
-            group.getChildren().add(group2);
-        }
-
-        if (false) {
-            Transform transform = getTransform(fDomain.getGeometry(), fDomain.getVertex3D(0, 15), fDomain.getVertex3D(1, 15), fDomain.getVertex3D(0, 5),
-                    fDomain.getVertex3D(1, 5), true);
-            Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-            group2.getTransforms().add(transform);
-            group.getChildren().add(group2);
-        }
-
-        if (false) {
-            Transform transform = getTransform(fDomain.getGeometry(), fDomain.getVertex3D(0, 7), fDomain.getVertex3D(2, 7), fDomain.getVertex3D(0, 8), fDomain.getVertex3D(2, 8), true);
-            Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-            group2.getTransforms().add(transform);
-            group.getChildren().add(group2);
-        }
-
         return group;
     }
 
-
+//----------------------------------------------------------------------------------------------------------------------
     /**
      * create tiling in hyperbolic case
      *
@@ -492,7 +462,6 @@ public class Tiling {
                 //t.transform(refPointHyperbolic).getZ() < 0.4 * (maxDist + 1)
                 if (isResetHyperbolic() && t.transform(refPointHyperbolic).getZ() < 2) {
                     transformFDHyperbolic = t;
-                    System.out.println(t);
                     setResetHyperbolic(false);
                 }
 
@@ -519,7 +488,7 @@ public class Tiling {
         }
     return group;
     }
-
+//----------------------------------------------------------------------------------------------------------------------
     /**
      * create tiling in Euclidean case
      *
@@ -575,7 +544,6 @@ public class Tiling {
 
                 if (isResetEuclidean() && windowCorner.getX()+100 < t.transform(refPointEuclidean).getX() && t.transform(refPointEuclidean).getX() < windowCorner.getX()+500 && windowCorner.getY()+100 < t.transform(refPointEuclidean).getY() && t.transform(refPointEuclidean).getY() < windowCorner.getY()+500) {
                     transformFDEuclidean = t;
-                    //System.out.println(transformFDEuclidean);
                     setResetEuclidean(false);
                 }
 
@@ -610,13 +578,15 @@ public class Tiling {
         return group;
     }
 
+//----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
     /**
+     * Euclidean case: Transform shifting back fundamental domain if out of bounds
      * @param height
      * @param width
      * @param windowCorner
      * @return transform
-     * Transform shifting back fundamental domain if out of bounds (Euclidean case)
      */
     public Transform calculateBackShiftEuclidean(Point3D windowCorner, double width, double height){
         // Adjust width and height of tiling
@@ -636,11 +606,11 @@ public class Tiling {
         final Queue<Transform> queue = new LinkedList<>();
         queue.addAll(generators.getTransforms());
 
+        refPointEuclidean = fDomain.getChamberCenter3D(1);
         final QuadTree seen = new QuadTree();
         seen.insert(refPointEuclidean.getX(),refPointEuclidean.getY());
 
         Transform backShift = new Translate(), t;
-        refPointEuclidean = fDomain.getChamberCenter3D(1);
         Point3D apt = refPointEuclidean, point;
         double d = apt.distance(windowCorner);
 
@@ -678,6 +648,67 @@ public class Tiling {
         }
         return backShift;
     }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Hyperbolic case: Transform shifting back fundamental domain if out of bounds
+     * @param maxDist
+     * @return transform
+     */
+    public Transform calculateBackShiftHyperbolic(double maxDist){
+
+        //Add all generators
+        computeConstraintsAndGenerators();
+
+        final Queue<Transform> queue = new LinkedList<>();
+        queue.addAll(generators.getTransforms());
+
+
+        refPointHyperbolic = fDomain.getChamberCenter3D(1);
+        final OctTree seen = new OctTree();
+        seen.insert(fDomain, refPointHyperbolic);
+
+        Transform backShift = new Translate(), t;
+        Point3D apt = refPointHyperbolic, point;
+        double d = apt.getZ();
+
+        while (apt.getZ()/100 >= maxDist){ // The loop works as long as the copy of fDomain lies outside the valid range
+
+            t = queue.poll(); // remove t from queue
+            for (Transform g : generators.getTransforms()){
+
+                Transform tg = t.createConcatenation(g);
+                point = tg.transform(refPointHyperbolic);
+
+                if (seen.insert(fDomain, point)) { // Creates a tree of points lying in the copies of fDomain
+                    if (point.getZ() < d){ // Optimizes the choice of the transformation copying fDomain back to the valid range
+                        d = point.getZ();
+                        backShift = tg;
+                        apt = point;
+                    }
+                    queue.add(tg);
+                }
+
+                Transform gt = g.createConcatenation(t);
+                point = gt.transform(refPointHyperbolic);
+
+                if (seen.insert(fDomain, point)) {
+                    if (point.getZ() < d){
+                        d = point.getZ();
+                        backShift = gt;
+                        apt = point;
+                    }
+                    queue.add(gt);
+                }
+            }
+        }
+        return backShift;
+    }
+
+//----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
 
 
     /**

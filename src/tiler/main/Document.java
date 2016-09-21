@@ -157,9 +157,9 @@ public class Document {
         final Tiling tiling = tilings.get(current);
         Group tiles = new Group();
 
+        //Euclidean case -----------------------------------------------------------------------------------------------
         if (tiling.getGeometry() == FDomain.Geometry.Euclidean){
             double width=700, height=500;
-            //System.out.println(tiling.refPointEuclidean);
 
             if (!isDrawFundamentalDomainOnly() && (windowCorner.getX()-200 >= tiling.refPointEuclidean.getX() || // Worst case: fDomain is completely out of range and must be shifted back.
                     tiling.refPointEuclidean.getX() >= windowCorner.getX()+width+250 ||
@@ -182,12 +182,14 @@ public class Document {
                     tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
                 }
             }
+
             //Add rectangle for debugging
             Rectangle rect = new Rectangle(width, height);
             rect.setFill(Color.TRANSPARENT);
             rect.setStroke(Color.BLACK);
             tiles.getChildren().addAll(rect);
 
+            //Camera options
             camera.setTranslateZ(-500);
             camera.setFarClip(10000);
 
@@ -196,6 +198,8 @@ public class Document {
             controller.getIncreaseButton().setVisible(false);
             controller.getDecreaseButton().setVisible(false);
         }
+
+        // Spherical case ----------------------------------------------------------------------------------------------
         else if (tiling.getGeometry() == FDomain.Geometry.Spherical){
             tiles = tiling.createTilingSpherical(isDrawFundamentalDomainOnly());
 
@@ -209,21 +213,31 @@ public class Document {
             controller.getDecreaseButton().setVisible(false);
 
         }
+
+        // Hyperbolic case ---------------------------------------------------------------------------------------------
         else if (tiling.getGeometry() == FDomain.Geometry.Hyperbolic){
             double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
-            System.out.println("Height of hyperboloid " + 100*maxDist);
+            //System.out.println("Height of hyperboloid " + 100*maxDist);
 
             //Reset Fundamental Domain if necessary:
-            if (!isDrawFundamentalDomainOnly() && (Tiling.refPointHyperbolic.getZ() >= 3 || Tiling.refPointHyperbolic.getZ() >= 0.6 * maxDist)) {
-                tiling.setResetHyperbolic(true);
+            if (!isDrawFundamentalDomainOnly() && Tiling.refPointHyperbolic.getZ() >= maxDist){// Worst case: fDomain is out of range and must be translated back
+                recenterFDomain(tiling.calculateBackShiftHyperbolic(maxDist)); // Shifts back fDomain into valid range (slower algorithm)
+                tiling.setResetHyperbolic(true); // Variable to calculate a transform leading back into the visible window
                 tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
-                recenterFDomain(tiling.transformFDHyperbolic);
+                recenterFDomain(tiling.transformFDHyperbolic); // Shifts back fDomain into visible window (faster algorithm)
             }
             else {
-                tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
+                if (!isDrawFundamentalDomainOnly() && (Tiling.refPointHyperbolic.getZ() >= 3 || Tiling.refPointHyperbolic.getZ() >= 0.6 * maxDist)) {
+                    tiling.setResetHyperbolic(true);
+                    tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
+                    recenterFDomain(tiling.transformFDHyperbolic);
+                }
+                else {
+                    tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
+                }
             }
 
-            //Camera:
+            //Camera settings:
             camera.setFieldOfView(90);
             if (camPoincare){
                 if (getLimitHyperbolicGroup() < 12) {
@@ -245,6 +259,7 @@ public class Document {
                 camera.setTranslateZ(0);
 
             }
+            camera.setFarClip(100000);
 
             controller.getPoincareButton().setVisible(true);
             controller.getKleinButton().setVisible(true);
