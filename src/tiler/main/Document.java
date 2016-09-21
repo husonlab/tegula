@@ -159,16 +159,28 @@ public class Document {
 
         if (tiling.getGeometry() == FDomain.Geometry.Euclidean){
             double width=700, height=500;
-            System.out.println(tiling.refPointEuclidean);
+            //System.out.println(tiling.refPointEuclidean);
 
-            if (!isDrawFundamentalDomainOnly() && (windowCorner.getX()-1 >= tiling.refPointEuclidean.getX() || tiling.refPointEuclidean.getX() >= windowCorner.getX()+width || windowCorner.getY()-1 >= tiling.refPointEuclidean.getY() || tiling.refPointEuclidean.getY() >= windowCorner.getY()+height)) {
-                tiling.setResetEuclidean(true);
-                //System.out.println(tiling.isResetEuclidean());
+            if (!isDrawFundamentalDomainOnly() && (windowCorner.getX()-200 >= tiling.refPointEuclidean.getX() || // Worst case: fDomain is completely out of range and must be shifted back.
+                    tiling.refPointEuclidean.getX() >= windowCorner.getX()+width+250 ||
+                    windowCorner.getY()-200 >= tiling.refPointEuclidean.getY() ||
+                    tiling.refPointEuclidean.getY() >= windowCorner.getY()+height+250)) {
+                recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width, height)); // Shifts back fDomain into valid range (slower algorithm)
+                tiling.setResetEuclidean(true); // Variable to calculate a transform leading back into the visible window
                 tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
-                recenterFDomain(tiling.transformFDEuclidean);
+                recenterFDomain(tiling.transformFDEuclidean); // Shifts back fDomain into visible window (faster algorithm)
             }
-            else {
-                tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
+            else { // If fDomain is out of visible window
+                if (!isDrawFundamentalDomainOnly() && (windowCorner.getX() - 1 >= tiling.refPointEuclidean.getX() ||
+                        tiling.refPointEuclidean.getX() >= windowCorner.getX() + width || windowCorner.getY() - 1 >= tiling.refPointEuclidean.getY() ||
+                        tiling.refPointEuclidean.getY() >= windowCorner.getY() + height)) {
+                    tiling.setResetEuclidean(true);
+                    tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
+                    recenterFDomain(tiling.transformFDEuclidean); // Shifts back fDomain into visible window (fast algorithm)
+                }
+                else { // If fDomain is inside visible window
+                    tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
+                }
             }
             //Add rectangle for debugging
             Rectangle rect = new Rectangle(width, height);

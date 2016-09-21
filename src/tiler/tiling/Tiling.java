@@ -3,10 +3,7 @@ package tiler.tiling;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
-import javafx.scene.transform.Affine;
-import javafx.scene.transform.NonInvertibleTransformException;
-import javafx.scene.transform.Scale;
-import javafx.scene.transform.Transform;
+import javafx.scene.transform.*;
 import javafx.util.Pair;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
@@ -578,8 +575,7 @@ public class Tiling {
 
                 if (isResetEuclidean() && windowCorner.getX()+100 < t.transform(refPointEuclidean).getX() && t.transform(refPointEuclidean).getX() < windowCorner.getX()+500 && windowCorner.getY()+100 < t.transform(refPointEuclidean).getY() && t.transform(refPointEuclidean).getY() < windowCorner.getY()+500) {
                     transformFDEuclidean = t;
-                    //System.out.println(isResetEuclidean());
-                    System.out.println(transformFDEuclidean);
+                    //System.out.println(transformFDEuclidean);
                     setResetEuclidean(false);
                 }
 
@@ -613,6 +609,76 @@ public class Tiling {
         }
         return group;
     }
+
+
+    /**
+     * @param height
+     * @param width
+     * @param windowCorner
+     * @return transform
+     * Transform shifting back fundamental domain if out of bounds (Euclidean case)
+     */
+    public Transform calculateBackShiftEuclidean(Point3D windowCorner, double width, double height){
+        // Adjust width and height of tiling
+        if (width >= 350){
+            width += 250;
+        }
+        else { width = 600; }
+
+        if (height >= 350){
+            height += 250;
+        }
+        else { height = 600; }
+
+        //Add all generators
+        computeConstraintsAndGenerators();
+
+        final Queue<Transform> queue = new LinkedList<>();
+        queue.addAll(generators.getTransforms());
+
+        final QuadTree seen = new QuadTree();
+        seen.insert(refPointEuclidean.getX(),refPointEuclidean.getY());
+
+        Transform backShift = new Translate(), t;
+        refPointEuclidean = fDomain.getChamberCenter3D(1);
+        Point3D apt = refPointEuclidean, point;
+        double d = apt.distance(windowCorner);
+
+        while (windowCorner.getX() >= apt.getX() || apt.getX() >= windowCorner.getX()+width || windowCorner.getY() >= apt.getY() ||
+                apt.getY() >= windowCorner.getY()+height){ // The loop works as long as the copy of fDomain lies outside the valid range
+
+            t = queue.poll(); // remove t from queue
+
+            for (Transform g : generators.getTransforms()){
+
+                Transform tg = t.createConcatenation(g);
+                point = tg.transform(refPointEuclidean);
+
+                if (seen.insert(point.getX(), point.getY())) { // Creates a tree of points lieng in the copies of fDomain
+                    if (point.distance(windowCorner) < d){ // Optimizes the choice of the transformation copying fDomain back to the valid range
+                        d = point.distance(windowCorner);
+                        backShift = tg;
+                        apt = point;
+                    }
+                    queue.add(tg);
+                }
+
+                Transform gt = g.createConcatenation(t);
+                point = gt.transform(refPointEuclidean);
+
+                if (seen.insert(point.getX(), point.getY())) {
+                    if (point.distance(windowCorner) < d){
+                        d = point.distance(windowCorner);
+                        backShift = gt;
+                        apt = point;
+                    }
+                    queue.add(gt);
+                }
+            }
+        }
+        return backShift;
+    }
+
 
     /**
      * straigthen all edges
