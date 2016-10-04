@@ -20,10 +20,7 @@
 package tiler.main;
 
 import javafx.geometry.Point3D;
-import javafx.scene.AmbientLight;
-import javafx.scene.Group;
-import javafx.scene.PerspectiveCamera;
-import javafx.scene.SubScene;
+import javafx.scene.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -32,6 +29,7 @@ import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
+import tiler.tiling.QuadTree;
 import tiler.tiling.Tiling;
 
 import java.io.BufferedReader;
@@ -39,6 +37,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * document
@@ -152,42 +152,48 @@ public class Document {
     }
 
     public Point3D windowCorner = new Point3D(0,0,0); // Upper left corner of window in Euclidean case
+    private double width=700, height=500; //Width and height of window
+
+    private Group tiles = new Group();
 
     public void update() {
         final Tiling tiling = tilings.get(current);
-        Group tiles = new Group();
+        tiles.getChildren().clear();
+        Rectangle rect = new Rectangle(), range = new Rectangle(), test = new Rectangle(), test2 = new Rectangle(); //Rectangles for Debugging
 
         //Euclidean case -----------------------------------------------------------------------------------------------
         if (tiling.getGeometry() == FDomain.Geometry.Euclidean){
-            double width=700, height=500;
 
-            if (!isDrawFundamentalDomainOnly() && (windowCorner.getX()-200 >= tiling.refPointEuclidean.getX() || // Worst case: fDomain is completely out of range and must be shifted back.
-                    tiling.refPointEuclidean.getX() >= windowCorner.getX()+width+250 ||
-                    windowCorner.getY()-200 >= tiling.refPointEuclidean.getY() ||
-                    tiling.refPointEuclidean.getY() >= windowCorner.getY()+height+250)) {
+            if (!isDrawFundamentalDomainOnly() && !tiling.isInRangeEuclidean(tiling.refPointEuclidean, windowCorner, width, height)) { // Worst case: refPoint is not in valid range
                 recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width, height)); // Shifts back fDomain into valid range (slower algorithm)
                 tiling.setResetEuclidean(true); // Variable to calculate a transform leading back into the visible window
-                tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
+                tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height, 0, 0);
                 recenterFDomain(tiling.transformFDEuclidean); // Shifts back fDomain into visible window (faster algorithm)
             }
             else { // If fDomain is out of visible window
-                if (!isDrawFundamentalDomainOnly() && (windowCorner.getX() - 1 >= tiling.refPointEuclidean.getX() ||
-                        tiling.refPointEuclidean.getX() >= windowCorner.getX() + width || windowCorner.getY() - 1 >= tiling.refPointEuclidean.getY() ||
-                        tiling.refPointEuclidean.getY() >= windowCorner.getY() + height)) {
+                if (!isDrawFundamentalDomainOnly() && !tiling.isInWindowEuclidean(tiling.refPointEuclidean, windowCorner, width, height)) {
                     tiling.setResetEuclidean(true);
-                    tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
+                    tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height, 0, 0);
                     recenterFDomain(tiling.transformFDEuclidean); // Shifts back fDomain into visible window (fast algorithm)
                 }
                 else { // If fDomain is inside visible window
-                    tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
+                    tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height, 0, 0);
                 }
             }
 
-            //Add rectangle for debugging
-            Rectangle rect = new Rectangle(width, height);
+            //Add rectangles for debugging
+            rect = new Rectangle(width, height);
             rect.setFill(Color.TRANSPARENT);
             rect.setStroke(Color.BLACK);
-            tiles.getChildren().addAll(rect);
+            range = new Rectangle(width+250,height+250);
+            range.setFill(Color.TRANSPARENT);
+            range.setStroke(Color.BLACK);
+            test = new Rectangle(width+200, height+200);
+            test.setFill(Color.TRANSPARENT);
+            test.setStroke(Color.BLACK);
+            test2 = new Rectangle(width+150, height+150);
+            test2.setFill(Color.TRANSPARENT);
+            test2.setStroke(Color.BLACK);
 
             //Camera options
             camera.setTranslateZ(-500);
@@ -271,14 +277,55 @@ public class Document {
 
 
         getWorld().getChildren().clear();
-        getWorld().getChildren().addAll(tiles);
+        getWorld().getChildren().addAll(tiles, rect, range, test, test2);
         if (tiling.getGeometry() == FDomain.Geometry.Hyperbolic){ getWorld().getChildren().add(light); }
         getController().getStatusTextField().setText(tilings.get(current).getStatusLine());
         GroupEditing.update(this);
-
         controller.updateNavigateTilings();
     }
 
+
+    public void translateTile(double dx, double dy) {
+
+        final Tiling tiling = tilings.get(current);
+
+        if (tiling.getGeometry() == FDomain.Geometry.Euclidean) {
+
+            Translate translate = new Translate(dx,dy,0);
+            getRecycler().getChildren().clear();
+
+            translate(dx,dy);
+            final Point3D refPoint = tiling.getfDomain().getChamberCenter3D(1);
+            if (!tiling.isInRangeEuclidean(refPoint, windowCorner, width, height)){
+                recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width, height)); // Shifts back fDomain into valid range
+            }
+
+
+            //First step: Translate tiles by vector (dx,dy) and recycle tiles not needed ---------------
+            int i = 0;
+            while (i < tiles.getChildren().size()){
+                Node node = tiles.getChildren().get(i);
+                Transform nodeTransform = node.getTransforms().get(0);
+                Point3D point = node.getRotationAxis().add(dx, dy, 0);
+
+                if (tiling.isInRangeEuclidean(point, windowCorner, width, height)){ //translateCopyEuclidean(point, windowCorner, width, height, dx, dy)
+                    node.getTransforms().remove(0);
+                    node.getTransforms().add(translate.createConcatenation(nodeTransform));
+                    node.setRotationAxis(point);
+                    i++;
+                }
+                else {
+                    getRecycler().getChildren().add(node); // node is automatically removed from tiles
+                }
+            }
+
+            //Second step: Create new tiles ----------------------------------------------------------
+            Group newTiles = tiling.createTilingEuclidean(false, windowCorner, width, height, dx, dy);
+            tiles.getChildren().addAll(newTiles.getChildren());
+        }
+    }
+
+    private Group getRecycler(){ return Tiling.recycler; }
 
     public void translate(double dx, double dy) {
         tilings.get(current).getfDomain().translate(dx, dy);
@@ -342,7 +389,6 @@ public class Document {
         return size() == 0 || current == tilings.size() - 1;
     }
 
-
     public boolean isCamPoincare() {
         return camPoincare;
     }
@@ -358,6 +404,56 @@ public class Document {
     public void setDrawFundamentalDomainOnly(boolean drawFundamentalDomainOnly) {
         this.drawFundamentalDomainOnly = drawFundamentalDomainOnly;
     }
+
+    /**
+     * Euclidean case: Checks whether a copy must be deleted when translating fundamental domain
+     * @param point
+     * @param windowCorner
+     * @param width
+     * @param height
+     * @param dx
+     * @param dy
+     * @return
+     */
+    private boolean deleteCopyEuclidean(Point3D point, Point3D windowCorner, double width, double height, double dx, double dy){
+        // Adjust width and height of valid range
+        if (width >= 350){ width += 250; }
+        else { width = 600; }
+
+        if (height >= 350){ height += 250; }
+        else { height = 600; }
+
+        if (/*(-250+windowCorner.getX()+dx <= point.getX() && point.getX() <= width+windowCorner.getX() &&
+             height+windowCorner.getY() < point.getY() && point.getY() <= height+windowCorner.getY()+dy) ||*/
+            (width+windowCorner.getX() < point.getX() && point.getX() <= width+windowCorner.getX()+dx &&
+             -250+windowCorner.getY()+dy <= point.getY() && point.getY() <= height+windowCorner.getY()+dy)){
+            return true;
+        } else {return  false;}
+    }
+
+    /**
+     * Euclidean case: Checks whether a copy of a tile must be translated
+     * @param point
+     * @param windowCorner
+     * @param width
+     * @param height
+     * @param dx
+     * @param dy
+     * @return
+     */
+    private boolean translateCopyEuclidean(Point3D point, Point3D windowCorner, double width, double height, double dx, double dy) {
+        // Adjust width and height of valid range
+        if (width >= 350){ width += 250; }
+        else { width = 600; }
+
+        if (height >= 350){ height += 250; }
+        else { height = 600; }
+        if (-250+windowCorner.getX()+dx <= point.getX() && point.getX() <= width+windowCorner.getX() &&
+            -250+windowCorner.getY()+dy <= point.getY() && point.getY() <= height+windowCorner.getY()){
+            return  true;
+        } else {return false;}
+    }
+
 
     public int getLimitHyperbolicGroup() {
         return limitHyperbolicGroup;

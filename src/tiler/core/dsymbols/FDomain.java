@@ -143,7 +143,10 @@ public class FDomain {
         d.getNcr()[a - 1].setPosy(apt.getY());
     }
 
-
+    /**
+     * Transformation t maps fDomain to a copy of itself (for Euclidean and hyperbolic case).
+     * @param t
+     */
     public void recenterFDomain(Transform t) {
         if (geometry == Geometry.Euclidean) {
             for (int z = 0; z < d.getNcrs(); z++) {
@@ -203,55 +206,59 @@ public class FDomain {
         }
     }
 
+
+    /**
+     * Translates fDomain (in Euclidean and hyperbolic case).
+     * @param dx
+     * @param dy
+     */
     public void translate(double dx, double dy) {
 
         if (geometry == Geometry.Euclidean) {
             dx /= 100;
             dy /= 100;
-            if (dx < 20 && dy < 20) {
-                for (int z = 0; z < d.getNcrs(); z++) {
-                    final NCR ncr = d.getNcr(z);
-                    ncr.setPosx(ncr.getPosx() + dx);
-                    ncr.setPosy(ncr.getPosy() + dy);
-                }
 
-                for (int z = 0; z < d.getEcrs(); z++) {
-                    final ECR ecr = d.getEcr(z);
-                    ecr.setPosx(ecr.getPosx() + dx);
-                    ecr.setPosy(ecr.getPosy() + dy);
-                }
-
-                for (int z = 0; z < d.getOcrs(); z++) {
-                    final OCR ocr = d.getOcr(z);
-                    ocr.setPosx(ocr.getPosx() + dx);
-                    ocr.setPosy(ocr.getPosy() + dy);
-                }
+            for (int z = 0; z < d.getNcrs(); z++) {
+                final NCR ncr = d.getNcr(z);
+                ncr.setPosx(ncr.getPosx() + dx);
+                ncr.setPosy(ncr.getPosy() + dy);
+            }
+            for (int z = 0; z < d.getEcrs(); z++) {
+                final ECR ecr = d.getEcr(z);
+                ecr.setPosx(ecr.getPosx() + dx);
+                ecr.setPosy(ecr.getPosy() + dy);
+            }
+            for (int z = 0; z < d.getOcrs(); z++) {
+                final OCR ocr = d.getOcr(z);
+                ocr.setPosx(ocr.getPosx() + dx);
+                ocr.setPosy(ocr.getPosy() + dy);
             }
         } else if (geometry == Geometry.Hyperbolic) {
             dx /= 300;
             dy /= 300;
-                for (int z = 0; z < d.getNcrs(); z++) {
-                    final NCR ncr = d.getNcr(z);
-                    Point2D translated = HyperbolicTranslation(dx, dy, ncr.getPosx(), ncr.getPosy());
-                    ncr.setPosx(translated.getX());
-                    ncr.setPosy(translated.getY());
-                }
+            for (int z = 0; z < d.getNcrs(); z++) {
+                final NCR ncr = d.getNcr(z);
+                Point2D translated = HyperbolicTranslation(dx, dy, ncr.getPosx(), ncr.getPosy());
+                ncr.setPosx(translated.getX());
+                ncr.setPosy(translated.getY());
+            }
+            for (int z = 0; z < d.getEcrs(); z++) {
+                final ECR ecr = d.getEcr(z);
+                Point2D translated = HyperbolicTranslation(dx, dy, ecr.getPosx(), ecr.getPosy());
+                ecr.setPosx(translated.getX());
+                ecr.setPosy(translated.getY());
+            }
 
-                for (int z = 0; z < d.getEcrs(); z++) {
-                    final ECR ecr = d.getEcr(z);
-                    Point2D translated = HyperbolicTranslation(dx, dy, ecr.getPosx(), ecr.getPosy());
-                    ecr.setPosx(translated.getX());
-                    ecr.setPosy(translated.getY());
-                }
-
-                for (int z = 0; z < d.getOcrs(); z++) {
-                    final OCR ocr = d.getOcr(z);
-                    Point2D translated = HyperbolicTranslation(dx, dy, ocr.getPosx(),ocr.getPosy());
-                    ocr.setPosx(translated.getX());
-                    ocr.setPosy(translated.getY());
-                }
+            for (int z = 0; z < d.getOcrs(); z++) {
+                final OCR ocr = d.getOcr(z);
+                Point2D translated = HyperbolicTranslation(dx, dy, ocr.getPosx(),ocr.getPosy());
+                ocr.setPosx(translated.getX());
+                ocr.setPosy(translated.getY());
+            }
         }
     }
+
+
 
     public boolean isBoundaryEdge(int i, int a) {
         int edge = d.getNcr(a - 1).getEc()[i];

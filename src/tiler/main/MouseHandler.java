@@ -50,7 +50,7 @@ public class MouseHandler {
             rotateAtMouseDown = worldRotateProperty.getValue().clone();
             cameraTranslateXAtMouseDown = worldTranslate.getX();
             cameraTranslateYAtMouseDown = worldTranslate.getY();
-            document.setDrawFundamentalDomainOnly(true);
+            //document.setDrawFundamentalDomainOnly(true);
             mustUpdateWholeTiling = false;
         });
         scene.setOnMouseDragged((me) -> {
@@ -63,14 +63,18 @@ public class MouseHandler {
                     double dx = mouseDeltaX * modifierFactor;
                     double dy = mouseDeltaY * modifierFactor;
 
-                    if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
-                        mustUpdateWholeTiling = true;
+                    if (dx != 0 || dy != 0) {
+                        /*mustUpdateWholeTiling = true;
                         document.translate(dx, dy);
                         document.update();
-
+                        mouseDownX = me.getSceneX();
+                        mouseDownY = me.getSceneY();*/
+                        document.translateTile(dx, dy);
                         mouseDownX = me.getSceneX();
                         mouseDownY = me.getSceneY();
                     }
+
+
 
                     //worldTranslate.setX(dx);
                     //worldTranslate.setY(dy);
@@ -86,9 +90,9 @@ public class MouseHandler {
             }
         });
         scene.setOnMouseReleased((me) -> {
-            document.setDrawFundamentalDomainOnly(false);
+            /*document.setDrawFundamentalDomainOnly(false);
             document.update();
-            /*if (mustUpdateWholeTiling) {
+            if (mustUpdateWholeTiling) {
                 document.update();
                 mustUpdateWholeTiling = false;
             }*/
