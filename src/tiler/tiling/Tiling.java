@@ -1,9 +1,11 @@
 package tiler.tiling;
 
+import com.sun.javafx.geom.transform.Affine3D;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.shape.MeshView;
 import javafx.scene.transform.*;
 import javafx.util.Pair;
 import tiler.core.dsymbols.DSymbol;
@@ -41,6 +43,8 @@ public class Tiling {
     public static Point3D refPointEuclidean = new Point3D(1,1,0);
 
     public static Group recycler = new Group();
+    public static Transform transformRecycler = new Translate();
+
 
     private final int[] flag2vert;
     private final int[] flag2edge;
@@ -510,6 +514,7 @@ public class Tiling {
         final Group group = new Group();
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
 
+
         int j = 0;
 
         if (makeCopyEuclidean(refPointEuclidean, windowCorner, width, height, dx, dy)) {
@@ -564,11 +569,32 @@ public class Tiling {
 
                     if (isInRangeEuclidean(bpt, windowCorner, width, height) && seen.insert(bpt.getX(), bpt.getY()) ) {
                         if (makeCopyEuclidean(bpt, windowCorner, width, height, dx, dy)) {
-                            j++;
-                            Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-                            group2.getTransforms().add(tg);
-                            group2.setRotationAxis(bpt);
-                            group.getChildren().add(group2);
+                            /*if (recycler.getChildren().size() > 0){
+                                Node node = recycler.getChildren().get(0);
+                                node.getTransforms().clear();
+
+                                //group.getChildren().add(node);
+
+                                Transform t1 = fund.getLocalToParentTransform();
+                                System.out.println(t1);
+                                double det = t1.getMxx()*t1.getMyy()-t1.getMxy()*t1.getMyx();
+                                Affine t1Inverse = new Affine(t1.getMyy()/det, -t1.getMxy()/det, 0, 0, -t1.getMyx()/det, t1.getMxx()/det, 0, 0, 0, 0, 1, 0);
+                                Point3D tr = t1Inverse.transform(t1.getTx(), t1.getTy(), t1.getTz());
+                                t1Inverse.setTx(-tr.getX()); t1Inverse.setTy(-t1.getTy());
+
+                                Transform t2 = node.getLocalToParentTransform();
+                                //System.out.println(t2);
+
+                                node.getTransforms().add(tg.createConcatenation(t2));
+                                node.setRotationAxis(bpt);
+                            }
+                            else*/ {
+                                j++;
+                                Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
+                                group2.getTransforms().add(tg);
+                                group2.setRotationAxis(bpt);
+                                group.getChildren().add(group2);
+                            }
                         }
                         queue.add(tg);
                     }

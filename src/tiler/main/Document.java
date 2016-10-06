@@ -24,6 +24,8 @@ import javafx.scene.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.transform.Affine;
+import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
@@ -152,7 +154,7 @@ public class Document {
     }
 
     public Point3D windowCorner = new Point3D(0,0,0); // Upper left corner of window in Euclidean case
-    private double width=700, height=500; //Width and height of window
+    private double width=600, height=500; //Width and height of window
 
     private Group tiles = new Group();
 
@@ -240,6 +242,7 @@ public class Document {
                 }
                 else {
                     tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
+                    tiles.getTransforms().add(new Translate()); // Todo: disable
                 }
             }
 
@@ -291,12 +294,16 @@ public class Document {
 
         if (tiling.getGeometry() == FDomain.Geometry.Euclidean) {
 
-            Translate translate = new Translate(dx,dy,0);
-            getRecycler().getChildren().clear();
+            //getRecycler().getChildren().clear();
 
-            translate(dx,dy);
+            Translate translate = new Translate(dx,dy,0);
+            //setTransformRecycler(translate);
+
+            translate(dx,dy); // Translates fDomain by vector (dx,dy).
             final Point3D refPoint = tiling.getfDomain().getChamberCenter3D(1);
+
             if (!tiling.isInRangeEuclidean(refPoint, windowCorner, width, height)){
+                //setTransformRecycler(tiling.calculateBackShiftEuclidean(windowCorner, width, height).createConcatenation(translate));
                 recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width, height)); // Shifts back fDomain into valid range
             }
 
@@ -315,7 +322,8 @@ public class Document {
                     i++;
                 }
                 else {
-                    getRecycler().getChildren().add(node); // node is automatically removed from tiles
+                    //getRecycler().getChildren().add(node); // node is automatically removed from tiles
+                    tiles.getChildren().remove(node);
                 }
             }
 
@@ -323,9 +331,36 @@ public class Document {
             Group newTiles = tiling.createTilingEuclidean(false, windowCorner, width, height, dx, dy);
             tiles.getChildren().addAll(newTiles.getChildren());
         }
+
+        if (tiling.getGeometry() == FDomain.Geometry.Hyperbolic) {
+            dx/=300; dy/=300;
+
+            Rotate rotateForward, rotateBackward;
+            Affine translate;
+            final Point3D X_Axis = new Point3D(1,0,0);
+            double d = Math.sqrt(dx*dx+dy*dy);
+            final Point3D vec = new Point3D(dx,dy,0);
+
+            double rotAngle = vec.angle(X_Axis);
+            Point3D rotAxis = new Point3D(0,0,1);
+
+            if (dy <= 0){ rotAxis = new Point3D(0,0,-1); }
+
+            rotateForward = new Rotate(rotAngle, rotAxis);
+            rotateBackward = new Rotate(-rotAngle, rotAxis);
+
+            translate = new Affine(Math.cosh(d), 0 , Math.sinh(d), 0, 0, 1, 0, 0, Math.sinh(d), 0, Math.cosh(d), 0);
+
+            Transform t = tiles.getTransforms().get(0);
+            tiles.getTransforms().clear();
+            tiles.getTransforms().add(rotateForward.createConcatenation(translate).createConcatenation(rotateBackward).createConcatenation(t));
+
+        }
+
     }
 
-    private Group getRecycler(){ return Tiling.recycler; }
+    //private Group getRecycler(){ return Tiling.recycler;
+    //private void setTransformRecycler(Transform t){ Tiling.transformRecycler = t; }
 
     public void translate(double dx, double dy) {
         tilings.get(current).getfDomain().translate(dx, dy);
