@@ -39,6 +39,10 @@ public class Tiling {
     private boolean resetEuclidean = false;
     public Transform transformFDEuclidean, transformFDHyperbolic;
 
+    public static OctTree seenHyperbolic;
+    //public static Queue<Transform> queue = new LinkedList<>();
+    public boolean translateHyperbolic;
+
     public static Point3D refPointHyperbolic = new Point3D(0, 0, 1);
     public static Point3D refPointEuclidean = new Point3D(1,1,0);
 
@@ -446,7 +450,12 @@ public class Tiling {
 
         final Group group = new Group();
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
-        group.getChildren().addAll(fund);
+        fund.setRotationAxis(refPointHyperbolic);
+        fund.getTransforms().add(new Translate());
+
+        if (seenHyperbolic.insert(fDomain, refPointHyperbolic)) {
+            group.getChildren().addAll(fund);
+        }
 
         if (!drawFundamentalDomainOnly) {
             //Add all generators
@@ -459,16 +468,18 @@ public class Tiling {
             for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
                 Point3D genRef = g.transform(refPointHyperbolic);
                 if (seen.insert(fDomain, genRef)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
-                    Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-                    group2.getTransforms().add(g);
-                    group.getChildren().add(group2);
+                    if (seenHyperbolic.insert(fDomain, genRef)) {
+                        Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
+                        group2.setRotationAxis(genRef);
+                        group2.getTransforms().add(g);
+                        group.getChildren().add(group2);
+                    }
                 }
             }
 
             while (true && queue.size() > 0 && queue.size() < 10000) {
                 final Transform t = queue.poll(); // remove t from queue
 
-                //t.transform(refPointHyperbolic).getZ() < 0.4 * (maxDist + 1)
                 if (isResetHyperbolic() && t.transform(refPointHyperbolic).getZ() < 2) {
                     transformFDHyperbolic = t;
                     setResetHyperbolic(false);
@@ -478,18 +489,24 @@ public class Tiling {
                     Transform tg = t.createConcatenation(g);
                     Point3D bpt = tg.transform(refPointHyperbolic);
                     if (seen.insert(fDomain, bpt) && bpt.getZ() < maxDist) {
-                        Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-                        group2.getTransforms().add(tg);
-                        group.getChildren().add(group2);
+                        if (seenHyperbolic.insert(fDomain, bpt)) {
+                            Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
+                            group2.getTransforms().add(tg);
+                            group2.setRotationAxis(bpt);
+                            group.getChildren().add(group2);
+                        }
                         queue.add(tg);
                     }
 
                     Transform gt = g.createConcatenation(t);
                     bpt = gt.transform(refPointHyperbolic);
                     if (seen.insert(fDomain, bpt) && bpt.getZ() < maxDist) {
-                        Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-                        group2.getTransforms().add(gt);
-                        group.getChildren().add(group2);
+                        if (seenHyperbolic.insert(fDomain, bpt)) {
+                            Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
+                            group2.setRotationAxis(bpt);
+                            group2.getTransforms().add(gt);
+                            group.getChildren().add(group2);
+                        }
                         queue.add(gt);
                     }
                 }

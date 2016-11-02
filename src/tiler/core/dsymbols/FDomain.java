@@ -234,8 +234,8 @@ public class FDomain {
                 ocr.setPosy(ocr.getPosy() + dy);
             }
         } else if (geometry == Geometry.Hyperbolic) {
-            dx /= 300;
-            dy /= 300;
+            //dx /= 300;
+            //dy /= 300;
             for (int z = 0; z < d.getNcrs(); z++) {
                 final NCR ncr = d.getNcr(z);
                 Point2D translated = HyperbolicTranslation(dx, dy, ncr.getPosx(), ncr.getPosy());

@@ -31,6 +31,7 @@ import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
+import tiler.tiling.OctTree;
 import tiler.tiling.QuadTree;
 import tiler.tiling.Tiling;
 
@@ -227,6 +228,8 @@ public class Document {
             double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
             //System.out.println("Height of hyperboloid " + 100*maxDist);
 
+            Tiling.seenHyperbolic = new OctTree();
+
             //Reset Fundamental Domain if necessary:
             if (!isDrawFundamentalDomainOnly() && Tiling.refPointHyperbolic.getZ() >= maxDist){// Worst case: fDomain is out of range and must be translated back
                 recenterFDomain(tiling.calculateBackShiftHyperbolic(maxDist)); // Shifts back fDomain into valid range (slower algorithm)
@@ -308,7 +311,7 @@ public class Document {
             }
 
 
-            //First step: Translate tiles by vector (dx,dy) and recycle tiles not needed ---------------
+            //First step: Translate tiles by vector (dx,dy) ----------------------------------------
             int i = 0;
             while (i < tiles.getChildren().size()){
                 Node node = tiles.getChildren().get(i);
@@ -334,26 +337,68 @@ public class Document {
 
         if (tiling.getGeometry() == FDomain.Geometry.Hyperbolic) {
             dx/=300; dy/=300;
+            double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());
 
-            Rotate rotateForward, rotateBackward;
-            Affine translate;
+            // Calculates hyperbolic translation of group:
+            Rotate rotateForward, rotateBackward; //Rotations to x-axis and back
+            Affine translateX;
             final Point3D X_Axis = new Point3D(1,0,0);
-            double d = Math.sqrt(dx*dx+dy*dy);
+            double d = Math.sqrt(dx*dx+dy*dy);  // Length of translation
             final Point3D vec = new Point3D(dx,dy,0);
 
-            double rotAngle = vec.angle(X_Axis);
-            Point3D rotAxis = new Point3D(0,0,1);
+            double rotAngle = vec.angle(X_Axis); //Rotation angle between direction of translation and x-axis
+            Point3D rotAxis = new Point3D(0,0,1);  // Rotation axis
 
             if (dy <= 0){ rotAxis = new Point3D(0,0,-1); }
 
             rotateForward = new Rotate(rotAngle, rotAxis);
             rotateBackward = new Rotate(-rotAngle, rotAxis);
 
-            translate = new Affine(Math.cosh(d), 0 , Math.sinh(d), 0, 0, 1, 0, 0, Math.sinh(d), 0, Math.cosh(d), 0);
+            translateX = new Affine(Math.cosh(d), 0 , Math.sinh(d), 0, 0, 1, 0, 0, Math.sinh(d), 0, Math.cosh(d), 0); // Translation along x-axis
 
-            Transform t = tiles.getTransforms().get(0);
-            tiles.getTransforms().clear();
-            tiles.getTransforms().add(rotateForward.createConcatenation(translate).createConcatenation(rotateBackward).createConcatenation(t));
+            Transform translate = rotateForward.createConcatenation(translateX).createConcatenation(rotateBackward);
+
+
+
+            Tiling.seenHyperbolic = new OctTree();
+            //Tiling.queue.clear();
+
+            translate(dx,dy); // Translates fDomain by vector (dx,dy).
+            final Point3D refPoint = tiling.getfDomain().getChamberCenter3D(1).multiply(0.01);
+
+            if (refPoint.getZ() >= maxDist){
+                recenterFDomain(tiling.calculateBackShiftHyperbolic(maxDist)); // Shifts back fDomain into valid range
+            }
+
+
+            //First step: Translate tiles by vector (dx,dy) -------------------------------------
+            int i = 0;
+            while (i < tiles.getChildren().size()){
+                Node node = tiles.getChildren().get(i);
+                Transform nodeTransform = node.getTransforms().get(0);
+                Point3D point = translate.transform(node.getRotationAxis());
+
+                if (point.getZ() <= maxDist){ //translateCopyEuclidean(point, windowCorner, width, height, dx, dy)
+                    node.getTransforms().remove(0);
+                    node.getTransforms().add(translate.createConcatenation(nodeTransform));
+                    node.setRotationAxis(point);
+                    Tiling.seenHyperbolic.insert(tiling.getfDomain(), point);
+                    //Tiling.queue.add();
+                    i++;
+                }
+                else {
+                    //getRecycler().getChildren().add(node); // node is automatically removed from tiles
+                    tiles.getChildren().remove(node);
+                }
+            }
+
+            //Second step: Create new tiles ----------------------------------------------------------
+            Group newTiles = tiling.createTilingHyperbolic(false, maxDist);
+            tiles.getChildren().addAll(newTiles.getChildren());
+
+            //Transform t = tiles.getTransforms().get(0);
+            //tiles.getTransforms().clear();
+            //tiles.getTransforms().add(rotateForward.createConcatenation(translate).createConcatenation(rotateBackward).createConcatenation(t));
 
         }
 
