@@ -477,7 +477,7 @@ public class Tiling {
                 }
             }
 
-            while (true && queue.size() > 0 && queue.size() < 10000) {
+            while (queue.size() > 0 && queue.size() < 10000) {
                 final Transform t = queue.poll(); // remove t from queue
 
                 if (isResetHyperbolic() && t.transform(refPointHyperbolic).getZ() < 2) {

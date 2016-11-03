@@ -31,6 +31,7 @@ import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
+import tiler.core.fundamental.HyperbolicGeometry;
 import tiler.tiling.OctTree;
 import tiler.tiling.QuadTree;
 import tiler.tiling.Tiling;
@@ -359,17 +360,21 @@ public class Document {
             Transform translate = rotateForward.createConcatenation(translateX).createConcatenation(rotateBackward);
 
 
-
-            Tiling.seenHyperbolic = new OctTree();
-            //Tiling.queue.clear();
+            setSeenHyperbolic(new OctTree());
 
             translate(dx,dy); // Translates fDomain by vector (dx,dy).
-            final Point3D refPoint = tiling.getfDomain().getChamberCenter3D(1).multiply(0.01);
+            Point3D refPoint = tiling.getfDomain().getChamberCenter3D(1).multiply(0.01);
 
-            if (refPoint.getZ() >= maxDist){
-                recenterFDomain(tiling.calculateBackShiftHyperbolic(maxDist)); // Shifts back fDomain into valid range
+            if (refPoint.getZ() >= 3 || refPoint.getZ() >= 0.6*maxDist){
+                double intoValidRange;
+                if (0.6*maxDist < 3){
+                    intoValidRange = 0.6*maxDist;
+                }
+                else {
+                    intoValidRange = 3;
+                }
+                recenterFDomain(tiling.calculateBackShiftHyperbolic(intoValidRange)); // Shifts back fDomain into valid range
             }
-
 
             //First step: Translate tiles by vector (dx,dy) -------------------------------------
             int i = 0;
@@ -378,34 +383,34 @@ public class Document {
                 Transform nodeTransform = node.getTransforms().get(0);
                 Point3D point = translate.transform(node.getRotationAxis());
 
-                if (point.getZ() <= maxDist){ //translateCopyEuclidean(point, windowCorner, width, height, dx, dy)
+                if (point.getZ() > maxDist){
+                    //getRecycler().getChildren().add(node); // node is automatically removed from tiles
+                    tiles.getChildren().remove(node);
+                }
+                else {
                     node.getTransforms().remove(0);
                     node.getTransforms().add(translate.createConcatenation(nodeTransform));
                     node.setRotationAxis(point);
-                    Tiling.seenHyperbolic.insert(tiling.getfDomain(), point);
-                    //Tiling.queue.add();
+                    insertSeenHyperbolic(point);
+                    //Tiling.seenHyperbolic.insert(tiling.getfDomain(), point);
                     i++;
-                }
-                else {
-                    //getRecycler().getChildren().add(node); // node is automatically removed from tiles
-                    tiles.getChildren().remove(node);
+
                 }
             }
 
             //Second step: Create new tiles ----------------------------------------------------------
             Group newTiles = tiling.createTilingHyperbolic(false, maxDist);
             tiles.getChildren().addAll(newTiles.getChildren());
-
-            //Transform t = tiles.getTransforms().get(0);
-            //tiles.getTransforms().clear();
-            //tiles.getTransforms().add(rotateForward.createConcatenation(translate).createConcatenation(rotateBackward).createConcatenation(t));
-
         }
 
     }
 
     //private Group getRecycler(){ return Tiling.recycler;
     //private void setTransformRecycler(Transform t){ Tiling.transformRecycler = t; }
+
+    private void setSeenHyperbolic(OctTree seen){ Tiling.seenHyperbolic = seen; }
+
+    private void insertSeenHyperbolic(Point3D point){ Tiling.seenHyperbolic.insert(tilings.get(current).getfDomain(), point); }
 
     public void translate(double dx, double dy) {
         tilings.get(current).getfDomain().translate(dx, dy);

@@ -10,7 +10,6 @@ import tiler.core.dsymbols.FDomain;
  */
 public class OctTree {
     private double eps = 0.01;
-    //public static Point3D rootPoint = new Point3D(0,0,1); //Todo: better choice
     private Node root; //Root node of the tree.
 
 
