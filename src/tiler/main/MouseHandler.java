@@ -1,23 +1,24 @@
 package tiler.main;
 
 import javafx.beans.property.ObjectProperty;
-import javafx.event.EventHandler;
 import javafx.geometry.Point3D;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
+import tiler.core.dsymbols.Geometry;
 
 /**
  * mouse handler
  * Created by huson on 3/29/16.
  */
 public class MouseHandler {
+    private double originalMouseDownX;
+    private double originalMouseDownY;
     private double mouseDownX;
     private double mouseDownY;
+    private long mouseDownTime;
 
     private Transform rotateAtMouseDown;
 
@@ -25,6 +26,8 @@ public class MouseHandler {
     private double cameraTranslateYAtMouseDown;
 
     private boolean mustUpdateWholeTiling = false;
+
+    private final TranslationAnimation animation;
 
     /**
      * add a mouse handler to the scene
@@ -44,9 +47,12 @@ public class MouseHandler {
      * @param worldRotateProperty
      */
     private MouseHandler(final Scene scene, final Translate worldTranslate, final Scale worldScale, final ObjectProperty<Transform> worldRotateProperty, final Document document) {
+        animation = new TranslationAnimation(document);
+
         scene.setOnMousePressed((me) -> {
-            mouseDownX = me.getSceneX();
-            mouseDownY = me.getSceneY();
+            originalMouseDownX = mouseDownX = me.getSceneX();
+            originalMouseDownY = mouseDownY = me.getSceneY();
+            mouseDownTime = System.currentTimeMillis();
             rotateAtMouseDown = worldRotateProperty.getValue().clone();
             cameraTranslateXAtMouseDown = worldTranslate.getX();
             cameraTranslateYAtMouseDown = worldTranslate.getY();
@@ -58,29 +64,18 @@ public class MouseHandler {
             double mouseDeltaY = me.getSceneY() - mouseDownY;
 
             if (me.isPrimaryButtonDown()) {
-                if (!me.isShiftDown() && !me.isAltDown()) { // slide
+                if (document.geometryProperty().getValue() != Geometry.Spherical) { // slide
                     double modifierFactor = 1;
                     double dx = mouseDeltaX * modifierFactor;
                     double dy = mouseDeltaY * modifierFactor;
 
                     if (dx != 0 || dy != 0) {
-                        /*mustUpdateWholeTiling = true;
-                        document.translate(dx, dy);
-                        document.update();
-                        mouseDownX = me.getSceneX();
-                        mouseDownY = me.getSceneY();*/
                         document.translateTile(dx, dy);
                         mouseDownX = me.getSceneX();
                         mouseDownY = me.getSceneY();
                     }
 
-
-
-                    //worldTranslate.setX(dx);
-                    //worldTranslate.setY(dy);
-
-
-                } else if (me.isShiftDown() && !me.isAltDown()) { //// rotate
+                } else { //// rotate
                     double modifierFactor = 0.25;
                     //noinspection SuspiciousNameCombination
                     Point3D dragOrthogonalAxis = new Point3D(mouseDeltaY, -mouseDeltaX, 0);
@@ -90,56 +85,56 @@ public class MouseHandler {
             }
         });
         scene.setOnMouseReleased((me) -> {
-            /*document.setDrawFundamentalDomainOnly(false);
-            document.update();
-            if (mustUpdateWholeTiling) {
-                document.update();
-                mustUpdateWholeTiling = false;
-            }*/
+            if (me.isShiftDown()) {
+                if (document.geometryProperty().getValue() != Geometry.Spherical) { // slide
+                    double mouseDeltaX = me.getSceneX() - originalMouseDownX;
+                    double mouseDeltaY = me.getSceneY() - originalMouseDownY;
+
+                    double modifierFactor = 1;
+                    double dx = mouseDeltaX * modifierFactor;
+                    double dy = mouseDeltaY * modifierFactor;
+
+                    animation.set(dx, dy, System.currentTimeMillis() - mouseDownTime);
+
+                    if (dx != 0 || dy != 0) {
+                        animation.play();
+                    } else
+                        animation.pause();
+                }
+            }
         });
 
-        scene.setOnScroll(new EventHandler<ScrollEvent>() {
-                              @Override
-                              public void handle(final ScrollEvent me) {
-                                  if (me.getDeltaY() != 0) {
-                                      double factor = (me.getDeltaY() > 0 ? 1.1 : 0.9);
-                                      worldScale.setX(factor * worldScale.getX());
-                                      worldScale.setY(factor * worldScale.getY());
-                                  }
-                              }
-                          }
+        scene.setOnScroll(me -> {
+                    if (me.getDeltaY() != 0) {
+                        double factor = (me.getDeltaY() > 0 ? 1.1 : 0.9);
+                        worldScale.setX(factor * worldScale.getX());
+                        worldScale.setY(factor * worldScale.getY());
+                    }
+                }
         );
 
-        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(final KeyEvent event) {
-
-                switch (event.getCode()) {
-                    case SPACE:
-                        break;
-                    case LEFT:
-                        worldTranslate.setX(worldTranslate.getX() - 5);
-                        break;
-                    case RIGHT:
-                        worldTranslate.setX(worldTranslate.getX() + 5);
-                        break;
-                    case DOWN:
-                        worldTranslate.setY(worldTranslate.getY() + 5);
-                        break;
-                    case UP:
-                        worldTranslate.setY(worldTranslate.getY() - 5);
-                        break;
-                    case EQUALS:
-                    case PLUS:
-                        if (event.isControlDown()) {
-                        }
-                        break;
-                    case UNDERSCORE:
-                    case MINUS:
-                        if (event.isControlDown()) {
-                        }
-                        break;
-                }
+        scene.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case P:
+                    if (animation.isPlaying())
+                        animation.pause();
+                    else
+                        animation.play();
+                    break;
+                case LEFT:
+                    break;
+                case RIGHT:
+                    break;
+                case DOWN:
+                    break;
+                case UP:
+                    break;
+                case EQUALS:
+                case PLUS:
+                    break;
+                case UNDERSCORE:
+                case MINUS:
+                    break;
             }
         });
 

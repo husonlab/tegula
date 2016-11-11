@@ -19,6 +19,7 @@
 
 package tiler.main;
 
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
 import javafx.scene.layout.StackPane;
@@ -30,10 +31,8 @@ import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
-import tiler.core.dsymbols.FDomain;
-import tiler.core.fundamental.HyperbolicGeometry;
+import tiler.core.dsymbols.Geometry;
 import tiler.tiling.OctTree;
-import tiler.tiling.QuadTree;
 import tiler.tiling.Tiling;
 
 import java.io.BufferedReader;
@@ -41,8 +40,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * document
@@ -63,12 +60,13 @@ public class Document {
     private PerspectiveCamera camera;
     private AmbientLight light = new AmbientLight();
 
-
     private boolean camPoincare = true; // Variable saving camera settings
 
     private boolean drawFundamentalDomainOnly = false;
 
     private int limitHyperbolicGroup = 5;
+
+    private final SimpleObjectProperty<Geometry> geometryProperty = new SimpleObjectProperty<>();
 
     /**
      * constructor
@@ -153,6 +151,7 @@ public class Document {
 
     public void setCurrent(Tiling tiling) {
         tilings.set(current, tiling);
+        geometryProperty.setValue(tiling.getfDomain().getGeometry());
     }
 
     public Point3D windowCorner = new Point3D(0,0,0); // Upper left corner of window in Euclidean case
@@ -162,11 +161,12 @@ public class Document {
 
     public void update() {
         final Tiling tiling = tilings.get(current);
+        geometryProperty().setValue(tiling.getGeometry());
         tiles.getChildren().clear();
         Rectangle rect = new Rectangle(), range = new Rectangle(), test = new Rectangle(), test2 = new Rectangle(); //Rectangles for Debugging
 
         //Euclidean case -----------------------------------------------------------------------------------------------
-        if (tiling.getGeometry() == FDomain.Geometry.Euclidean){
+        if (tiling.getGeometry() == Geometry.Euclidean) {
 
             if (!isDrawFundamentalDomainOnly() && !tiling.isInRangeEuclidean(tiling.refPointEuclidean, windowCorner, width, height)) { // Worst case: refPoint is not in valid range
                 recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width, height)); // Shifts back fDomain into valid range (slower algorithm)
@@ -210,7 +210,7 @@ public class Document {
         }
 
         // Spherical case ----------------------------------------------------------------------------------------------
-        else if (tiling.getGeometry() == FDomain.Geometry.Spherical){
+        else if (tiling.getGeometry() == Geometry.Spherical) {
             tiles = tiling.createTilingSpherical(isDrawFundamentalDomainOnly());
 
             camera.setTranslateZ(-500);
@@ -225,7 +225,7 @@ public class Document {
         }
 
         // Hyperbolic case ---------------------------------------------------------------------------------------------
-        else if (tiling.getGeometry() == FDomain.Geometry.Hyperbolic){
+        else if (tiling.getGeometry() == Geometry.Hyperbolic) {
             double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
             //System.out.println("Height of hyperboloid " + 100*maxDist);
 
@@ -280,23 +280,27 @@ public class Document {
             controller.getDecreaseButton().setVisible(true);
         }
 
-        setUseDepthBuffer(!tiling.getGeometry().equals(FDomain.Geometry.Euclidean));
+        setUseDepthBuffer(!tiling.getGeometry().equals(Geometry.Euclidean));
 
 
         getWorld().getChildren().clear();
         getWorld().getChildren().addAll(tiles, rect, range, test, test2);
-        if (tiling.getGeometry() == FDomain.Geometry.Hyperbolic){ getWorld().getChildren().add(light); }
+        if (tiling.getGeometry() == Geometry.Hyperbolic) {
+            getWorld().getChildren().add(light);
+        }
         getController().getStatusTextField().setText(tilings.get(current).getStatusLine());
         GroupEditing.update(this);
         controller.updateNavigateTilings();
     }
 
+    public void reset() {
+        tilings.set(current, new Tiling(tilings.get(current).getDSymbol()));
+    }
 
     public void translateTile(double dx, double dy) {
-
         final Tiling tiling = tilings.get(current);
 
-        if (tiling.getGeometry() == FDomain.Geometry.Euclidean) {
+        if (tiling.getGeometry() == Geometry.Euclidean) {
 
             //getRecycler().getChildren().clear();
 
@@ -336,7 +340,7 @@ public class Document {
             tiles.getChildren().addAll(newTiles.getChildren());
         }
 
-        if (tiling.getGeometry() == FDomain.Geometry.Hyperbolic) {
+        if (tiling.getGeometry() == Geometry.Hyperbolic) {
             dx/=300; dy/=300;
             double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());
 
@@ -548,4 +552,9 @@ public class Document {
         if (limitHyperbolicGroup > 3)
             this.limitHyperbolicGroup = limitHyperbolicGroup;
     }
+
+    public SimpleObjectProperty<Geometry> geometryProperty() {
+        return geometryProperty;
+    }
+
 }

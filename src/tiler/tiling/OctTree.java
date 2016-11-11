@@ -3,13 +3,14 @@ package tiler.tiling;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import tiler.core.dsymbols.FDomain;
+import tiler.core.dsymbols.Geometry;
 
 /**
  * Computes an OctTree for 3d-points. Returns true if a given point is added to the tree.
  * Created by Ruediger on 2016.06.23.
  */
 public class OctTree {
-    private double eps = 0.01;
+    private final double eps = 0.01;
     private Node root; //Root node of the tree.
 
 
@@ -24,23 +25,18 @@ public class OctTree {
 
 
     private static double distance (FDomain geom, Point3D a, Point3D b){
-        if (geom.getGeometry() == FDomain.Geometry.Spherical) {
-            double dist = a.distance(b); // Euclidean distance
-            return dist;
-        }
-        else if (geom.getGeometry() == FDomain.Geometry.Euclidean){
+        if (geom.getGeometry() == Geometry.Spherical) {
+            return a.distance(b);
+        } else if (geom.getGeometry() == Geometry.Euclidean) {
             Point2D a2d = new Point2D(a.getX(),a.getY());
             Point2D b2d = new Point2D(b.getX(),b.getY());
-            double dist = a2d.distance(b2d);
-            return  dist;
+            return a2d.distance(b2d);
         }
         else {
             double scalar = a.getZ()*b.getZ() - a.getX()*b.getX() - a.getY()*b.getY();
-            double dist = Math.log(Math.abs(scalar + Math.sqrt(Math.abs(scalar * scalar - 1)))); // Hyperbolic distance on hyperbploid (not scaled with factor 100): dist(x,y) = arcosh(-<x,y>), where <x,y> = x1y1 + x2y2 - x3y3.
-            return dist;
+            return Math.log(Math.abs(scalar + Math.sqrt(Math.abs(scalar * scalar - 1))));
         }
     }
-
 
     public boolean insert (FDomain geom, Point3D b){   //Returns true if point b is added to the tree structure.
 

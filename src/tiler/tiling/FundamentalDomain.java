@@ -1,13 +1,9 @@
 package tiler.tiling;
 
-import com.sun.javafx.sg.prism.NGPhongMaterial;
 import javafx.geometry.Point3D;
-import javafx.scene.AmbientLight;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.effect.Lighting;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Material;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
@@ -16,6 +12,7 @@ import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
+import tiler.core.dsymbols.Geometry;
 
 import java.util.BitSet;
 import java.util.LinkedList;
@@ -142,7 +139,7 @@ public class FundamentalDomain {
         }
 
         // add lines
-        if (fDomain.getGeometry() == FDomain.Geometry.Euclidean) {
+        if (fDomain.getGeometry() == Geometry.Euclidean) {
             for (int a = 1; a <= fDomain.size(); a++) {
                 group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
 
@@ -257,8 +254,8 @@ public class FundamentalDomain {
      */
 
     // Line in Euclidean case:
-    private static Node makeLine(FDomain.Geometry geometry, Point3D a, Point3D b, Point3D c, Color color, float width) {
-        if (geometry == FDomain.Geometry.Euclidean) {
+    private static Node makeLine(Geometry geometry, Point3D a, Point3D b, Point3D c, Color color, float width) {
+        if (geometry == Geometry.Euclidean) {
             Polyline polyLine = new Polyline(a.getX(), a.getY(), b.getX(), b.getY(), c.getX(), c.getY());
             polyLine.setStroke(color);
             polyLine.setStrokeWidth(width);
@@ -271,9 +268,9 @@ public class FundamentalDomain {
     }
 
     // Line in spherical and hyperbolic case:
-    private static Node makeLine(FDomain.Geometry geometry, Point3D a, Point3D b, Point3D c){
+    private static Node makeLine(Geometry geometry, Point3D a, Point3D b, Point3D c) {
         List<Point3D> points = new LinkedList<>();
-        if (geometry == FDomain.Geometry.Spherical) {
+        if (geometry == Geometry.Spherical) {
             points.add(a.multiply(1.01));
             points.add(b.multiply(1.01));
             points.add(c.multiply(1.01));
