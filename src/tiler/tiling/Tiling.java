@@ -3,6 +3,7 @@ package tiler.tiling;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
@@ -35,7 +36,7 @@ public class Tiling {
     public Transform transformFDEuclidean, transformFDHyperbolic;
 
     public static OctTree seenHyperbolic;
-    //public static Queue<Transform> queue = new LinkedList<>();
+    public static QuadTree seenEuclidean = new QuadTree();
     public boolean translateHyperbolic;
 
     public static Point3D refPointHyperbolic = new Point3D(0, 0, 1);
@@ -526,7 +527,7 @@ public class Tiling {
         final Group group = new Group();
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain); // Build fundamental domain
 
-        if (makeCopyEuclidean(refPointEuclidean, windowCorner, width, height, dx, dy)) { // Fill empty space with tiles
+        if (makeCopyEuclidean(refPointEuclidean,windowCorner, width, height, dx, dy) && seenEuclidean.insert(refPointEuclidean.getX(), refPointEuclidean.getY())) { // Fill empty space with tiles
             fund.getTransforms().add(new Translate()); // Add transform (= identity)
             fund.setRotationAxis(refPointEuclidean); // Reference point of fundamental domain
             if (recycler.getChildren().size() > 0){ // Uses a recycled copy (is filled after any translation)
@@ -561,7 +562,7 @@ public class Tiling {
             for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
                 Point3D genRef = g.transform(refPointEuclidean); // Reference point for new copy
                 if (isInRangeEuclidean(genRef, windowCorner, width, height) && seen.insert(genRef.getX(), genRef.getY())) { // Checks whether reference point is in valid range and if it is in QuadTree "seen". Adds it if not.
-                    if (makeCopyEuclidean(genRef, windowCorner, width, height, dx, dy)) { // Checks whether copy fills empty space after translation of tiles
+                    if (makeCopyEuclidean(genRef, windowCorner, width, height, dx, dy) && seenEuclidean.insert(genRef.getX(), genRef.getY())) { // Checks whether copy fills empty space after translation of tiles
                         if (recycler.getChildren().size() > 0){ // Reuses a copy from recycler (always filled after translation)
                             if (recycler.getChildren().size() == 1) { // Refills recycler if almost empty
                                 Group recycler2 = JavaFXUtils.copyFundamentalDomain(EuclideanFund); // Make copy of roiginal fDomain
@@ -602,7 +603,7 @@ public class Tiling {
                     Point3D bpt = tg.transform(refPointEuclidean); // Reference point corresponding to transform tg
 
                     if (isInRangeEuclidean(bpt, windowCorner, width, height) && seen.insert(bpt.getX(), bpt.getY()) ) {
-                        if (makeCopyEuclidean(bpt, windowCorner, width, height, dx, dy)) {
+                        if (makeCopyEuclidean(bpt, windowCorner, width, height, dx, dy) && seenEuclidean.insert(bpt.getX(), bpt.getY())) {
                             if (recycler.getChildren().size() > 0){
                                 if (recycler.getChildren().size() == 1) {
                                     Group recycler2 = JavaFXUtils.copyFundamentalDomain(EuclideanFund);
@@ -628,7 +629,7 @@ public class Tiling {
                     bpt = gt.transform(refPointEuclidean);
 
                     if (isInRangeEuclidean(bpt, windowCorner, width, height) && seen.insert(bpt.getX(), bpt.getY())) {
-                        if (makeCopyEuclidean(bpt, windowCorner, width, height, dx, dy)) {
+                        if (makeCopyEuclidean(bpt, windowCorner, width, height, dx, dy) && seenEuclidean.insert(bpt.getX(), bpt.getY())) {
                             if (recycler.getChildren().size() > 0){
                                 if (recycler.getChildren().size() == 1) {
                                     Group recycler2 = JavaFXUtils.copyFundamentalDomain(EuclideanFund);
@@ -908,8 +909,10 @@ public class Tiling {
         if (height >= 350){ height += 250; }
         else { height = 600; }
 
-        if (windowCorner.getX()-250 <= point.getX() && point.getX() <= windowCorner.getX()+width &&
-            windowCorner.getY()-250 <= point.getY() && point.getY() <= windowCorner.getY()+height){
+        double eps = 0;
+
+        if (windowCorner.getX()-250 - eps <= point.getX() && point.getX() <= windowCorner.getX()+width + eps &&
+            windowCorner.getY()-250 - eps <= point.getY() && point.getY() <= windowCorner.getY()+height + eps){
             return true;
         } else{ return false; }
     }
@@ -939,7 +942,7 @@ public class Tiling {
      * @param dy
      * @return
      */
-    private boolean makeCopyEuclidean(Point3D point, Point3D windowCorner, double width, double height, double dx, double dy){
+    public static boolean makeCopyEuclidean(Point3D point, Point3D windowCorner, double width, double height, double dx, double dy){
         // Adjust width and height for a range around visible window. Range has at least dimensions 600 times 600
         if (width >= 350){ width += 250; }
         else { width = 600; }
@@ -949,7 +952,9 @@ public class Tiling {
 
         double left = windowCorner.getX()-250, right = windowCorner.getX()+width, upper = windowCorner.getY()-250, lower = windowCorner.getY()+height;
 
-        if ((dx == 0 && dy == 0) || (point.getX() < left+dx || point.getX() > right+dx || point.getY() > lower+dy || point.getY() < upper+dy)){
+        double eps = 50;
+
+        if ((dx == 0 && dy == 0) || (point.getX() < left+dx+eps || point.getX() > right+dx-eps || point.getY() > lower+dy-eps || point.getY() < upper+dy+eps)){
             return true;
         } else {return  false;}
     }

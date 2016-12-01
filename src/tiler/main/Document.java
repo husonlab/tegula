@@ -20,6 +20,7 @@
 package tiler.main;
 
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
 import javafx.scene.layout.StackPane;
@@ -33,6 +34,7 @@ import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.Geometry;
 import tiler.tiling.OctTree;
+import tiler.tiling.QuadTree;
 import tiler.tiling.Tiling;
 import tiler.util.JavaFXUtils;
 
@@ -310,6 +312,7 @@ public class Document {
 
         if (tiling.getGeometry() == Geometry.Euclidean) {
 
+            setSeenEuclidean(new QuadTree());
             Translate translate = new Translate(dx,dy,0); // Mouse translation (MouseHandler)
 
             translate(dx,dy); // Translates fDomain by vector (dx,dy).
@@ -334,6 +337,9 @@ public class Document {
                     node.getTransforms().remove(0); // remove old transforms
                     node.getTransforms().add(translate.createConcatenation(nodeTransform)); // new transform = (translate)*(old transform)
                     node.setRotationAxis(point); // "point" serves as new reference of copy
+                    if (Tiling.makeCopyEuclidean(point, windowCorner, width, height, dx, dy)){
+                        insertSeenEuclidean(point);
+                    }
                     i++;
                 }
                 else { // when point is out of valid range
@@ -429,6 +435,10 @@ public class Document {
 
     private void insertSeenHyperbolic(Point3D point){ Tiling.seenHyperbolic.insert(tilings.get(current).getfDomain(), point); }
 
+    private void insertSeenEuclidean(Point3D point){ Tiling.seenEuclidean.insert(point.getX(), point.getY()); }
+
+    private void setSeenEuclidean(QuadTree seen){ Tiling.seenEuclidean = seen; }
+
     public void translate(double dx, double dy) {
         tilings.get(current).getfDomain().translate(dx, dy);
     }
@@ -506,56 +516,6 @@ public class Document {
     public void setDrawFundamentalDomainOnly(boolean drawFundamentalDomainOnly) {
         this.drawFundamentalDomainOnly = drawFundamentalDomainOnly;
     }
-
-    /**
-     * Euclidean case: Checks whether a copy must be deleted when translating fundamental domain
-     * @param point
-     * @param windowCorner
-     * @param width
-     * @param height
-     * @param dx
-     * @param dy
-     * @return
-     */
-    private boolean deleteCopyEuclidean(Point3D point, Point3D windowCorner, double width, double height, double dx, double dy){
-        // Adjust width and height of valid range
-        if (width >= 350){ width += 250; }
-        else { width = 600; }
-
-        if (height >= 350){ height += 250; }
-        else { height = 600; }
-
-        if (/*(-250+windowCorner.getX()+dx <= point.getX() && point.getX() <= width+windowCorner.getX() &&
-             height+windowCorner.getY() < point.getY() && point.getY() <= height+windowCorner.getY()+dy) ||*/
-            (width+windowCorner.getX() < point.getX() && point.getX() <= width+windowCorner.getX()+dx &&
-             -250+windowCorner.getY()+dy <= point.getY() && point.getY() <= height+windowCorner.getY()+dy)){
-            return true;
-        } else {return  false;}
-    }
-
-    /**
-     * Euclidean case: Checks whether a copy of a tile must be translated
-     * @param point
-     * @param windowCorner
-     * @param width
-     * @param height
-     * @param dx
-     * @param dy
-     * @return
-     */
-    private boolean translateCopyEuclidean(Point3D point, Point3D windowCorner, double width, double height, double dx, double dy) {
-        // Adjust width and height of valid range
-        if (width >= 350){ width += 250; }
-        else { width = 600; }
-
-        if (height >= 350){ height += 250; }
-        else { height = 600; }
-        if (-250+windowCorner.getX()+dx <= point.getX() && point.getX() <= width+windowCorner.getX() &&
-            -250+windowCorner.getY()+dy <= point.getY() && point.getY() <= height+windowCorner.getY()){
-            return  true;
-        } else {return false;}
-    }
-
 
     public int getLimitHyperbolicGroup() {
         return limitHyperbolicGroup;
