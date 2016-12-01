@@ -20,13 +20,6 @@ public class MouseHandler {
     private double mouseDownY;
     private long mouseDownTime;
 
-    private Transform rotateAtMouseDown;
-
-    private double cameraTranslateXAtMouseDown;
-    private double cameraTranslateYAtMouseDown;
-
-    private boolean mustUpdateWholeTiling = false;
-
     private final TranslationAnimation animation;
 
     /**
@@ -53,11 +46,6 @@ public class MouseHandler {
             originalMouseDownX = mouseDownX = me.getSceneX();
             originalMouseDownY = mouseDownY = me.getSceneY();
             mouseDownTime = System.currentTimeMillis();
-            rotateAtMouseDown = worldRotateProperty.getValue().clone();
-            cameraTranslateXAtMouseDown = worldTranslate.getX();
-            cameraTranslateYAtMouseDown = worldTranslate.getY();
-            //document.setDrawFundamentalDomainOnly(true);
-            mustUpdateWholeTiling = false;
         });
         scene.setOnMouseDragged((me) -> {
             double mouseDeltaX = me.getSceneX() - mouseDownX;
@@ -80,7 +68,7 @@ public class MouseHandler {
                     //noinspection SuspiciousNameCombination
                     Point3D dragOrthogonalAxis = new Point3D(mouseDeltaY, -mouseDeltaX, 0);
                     double rotationAngle = modifierFactor * Math.sqrt(mouseDeltaX * mouseDeltaX + mouseDeltaY * mouseDeltaY);
-                    worldRotateProperty.setValue(new Rotate(rotationAngle, dragOrthogonalAxis).createConcatenation(rotateAtMouseDown));
+                    worldRotateProperty.setValue(new Rotate(rotationAngle, dragOrthogonalAxis));
                 }
             }
         });
