@@ -1,13 +1,10 @@
 package tiler.core.dsymbols;
 
-import com.sun.javafx.geom.transform.Affine2D;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
-import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
 import tiler.core.fundamental.Approximate;
-import tiler.core.fundamental.EuclideanGeometry;
 import tiler.core.fundamental.Glue;
 import tiler.core.fundamental.data.*;
 
@@ -20,9 +17,7 @@ import java.io.Writer;
  * by huson on 3/28/16.
  */
 public class FDomain {
-    public static enum Geometry {Euclidean, Spherical, Hyperbolic}
-
-    private final Geometry geometry;
+    private Geometry geometry;
 
     private final DSymbol dSymbol;
     private final DELANEY d;

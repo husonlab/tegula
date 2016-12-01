@@ -305,8 +305,8 @@ public class Controller implements Initializable {
         final FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open file of tilings");
         fileChooser.setInitialDirectory(
-                new File(Main.getProperties().getProperty("InputDirectory", ".")));
-        fileChooser.setInitialFileName(Main.getProperties().getProperty("InputFile", ""));
+                new File(Main.getProgramPreferences().getProperty("InputDirectory", ".")));
+        fileChooser.setInitialFileName(Main.getProgramPreferences().getProperty("InputFile", ""));
 
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Tilings", "*.tgs"));
 

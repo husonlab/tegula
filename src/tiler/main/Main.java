@@ -15,6 +15,7 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
+import tiler.core.dsymbols.Geometry;
 
 import java.io.StringReader;
 import java.util.Properties;
@@ -24,7 +25,7 @@ import java.util.Properties;
  */
 public class Main extends Application {
 
-    private static final Properties properties = new Properties();
+    private static final Properties programPreferences = new Properties();
 
     public static void main(String[] args) {
         launch(args);
@@ -32,11 +33,6 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-
-        System.err.println("Drag mouse to drag");
-        System.err.println("Shift-drag mouse to rotate");
-        System.err.println("Mouse-wheel to zoom");
-
         final PerspectiveCamera camera = new PerspectiveCamera(true);
         camera.setNearClip(0.1);
         camera.setFarClip(10000.0);
@@ -48,7 +44,7 @@ public class Main extends Application {
         final Translate worldTranslate = new Translate(0, 0, 0);
         final Scale worldScale = new Scale(1, 1);
 
-        stage.setTitle("Tiler");
+        stage.setTitle("TileOScope");
 
         final FXMLLoader fxmlLoader = new FXMLLoader();
         Pane root = fxmlLoader.load(getClass().getResource("View.fxml").openStream());
@@ -79,7 +75,6 @@ public class Main extends Application {
 
         final Scene scene = new Scene(root, 800, 800);
 
-
         stage.setScene(scene);
         stage.sizeToScene();
         stage.show();
@@ -98,13 +93,20 @@ public class Main extends Application {
         });*/
 
 
-
-
         /*
         Box box=new Box(100,100,100);
         box.setMaterial(new PhongMaterial(Color.AQUA));
         world.getChildren().add(box);
         */
+
+        document.geometryProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldValue == Geometry.Spherical && newValue != Geometry.Spherical) {
+                worldRotateProperty.setValue(new Rotate()); // remove any rotations
+            }
+            if (oldValue != Geometry.Hyperbolic && newValue == Geometry.Hyperbolic) {
+                document.reset(); // looks like this helps to avoid the program getting stuck????
+            }
+        });
 
         worldRotateProperty.addListener(new ChangeListener<Transform>() {
             @Override
@@ -115,7 +117,7 @@ public class Main extends Application {
         });
     }
 
-    public static Properties getProperties() {
-        return properties;
+    public static Properties getProgramPreferences() {
+        return programPreferences;
     }
 }

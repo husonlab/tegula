@@ -1,24 +1,19 @@
 package tiler.tiling;
 
-import com.sun.javafx.geom.transform.Affine3D;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.shape.MeshView;
-import javafx.scene.transform.*;
+import javafx.scene.transform.NonInvertibleTransformException;
+import javafx.scene.transform.Transform;
+import javafx.scene.transform.Translate;
 import javafx.util.Pair;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
+import tiler.core.dsymbols.Geometry;
 import tiler.core.dsymbols.OrbifoldGroupName;
-import tiler.core.fundamental.data.ECR;
-import tiler.core.fundamental.data.NCR;
-import tiler.core.fundamental.data.OCR;
-import tiler.main.Document;
 import tiler.util.JavaFXUtils;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 /**
@@ -62,7 +57,6 @@ public class Tiling {
     private final int numbVert;
     private final int numbEdge;
     private final int numbTile;
-
 
     /**
      * constructor
@@ -351,7 +345,7 @@ public class Tiling {
      * @param keepOrientation
      * @return transform
      */
-    public static Transform getTransform(FDomain.Geometry geom, Point3D a1, Point3D b1, Point3D a2, Point3D b2, boolean keepOrientation) {
+    public static Transform getTransform(Geometry geom, Point3D a1, Point3D b1, Point3D a2, Point3D b2, boolean keepOrientation) {
         switch (geom) {
             default:
             case Euclidean:
@@ -856,7 +850,7 @@ public class Tiling {
      * @param q
      * @return middle
      */
-    public static Point2D middle(FDomain.Geometry geometry, Point2D p, Point2D q) {
+    public static Point2D middle(Geometry geometry, Point2D p, Point2D q) {
         double d;
 
         int sign = -1; // hyperbolic
@@ -881,7 +875,7 @@ public class Tiling {
         return ds;
     }
 
-    public FDomain.Geometry getGeometry() {
+    public Geometry getGeometry() {
         return fDomain.getGeometry();
     }
 
