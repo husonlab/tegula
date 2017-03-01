@@ -67,6 +67,8 @@ public class Document {
 
     private boolean drawFundamentalDomainOnly = false;
 
+    public static boolean isBreak = false;
+
     private int limitHyperbolicGroup = 5;
 
     private final SimpleObjectProperty<Geometry> geometryProperty = new SimpleObjectProperty<>();
@@ -158,23 +160,28 @@ public class Document {
     }
 
     public Point3D windowCorner = new Point3D(0,0,0); // Upper left corner of window in Euclidean case
-    private double width=800, height=800; //Width and height of window
+    private double width=600, height=600; //Width and height of window
 
     private Group tiles = new Group();
+    public static int numberOfCopies; //Counts number of copies.
 
     public void update() {
         final Tiling tiling = tilings.get(current);
         geometryProperty().setValue(tiling.getGeometry());
+
         tiles.getChildren().clear();
+
+        // Empty recycler for copies and reset transform for recycled copies.
+        getRecycler().getChildren().clear();
+        setTransformRecycled(new Translate());
+
         Rectangle rect = new Rectangle(), range = new Rectangle(), test = new Rectangle(), test2 = new Rectangle(); //Rectangles for Debugging
 
         //Euclidean case -----------------------------------------------------------------------------------------------
         if (tiling.getGeometry() == Geometry.Euclidean) {
-
-            // Empty recycler for copies, reset Euclidean fundamental domain and transforms for recycled copies.
-            getRecycler().getChildren().clear();
+            // Reset Euclidean fundamental domain and QuadTree
             tiling.EuclideanFund = new Group();
-            setTransformRecycled(new Translate());
+            setSeenEuclidean(new QuadTree());
 
             if (!isDrawFundamentalDomainOnly() && !tiling.isInRangeEuclidean(tiling.refPointEuclidean, windowCorner, width, height)) { // Worst case: refPoint is not in valid range
                 recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width, height)); // Shifts back fDomain into valid range (slower algorithm)
@@ -194,6 +201,8 @@ public class Document {
                     tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height, 0, 0);
                 }
             }
+
+            numberOfCopies = tiles.getChildren().size();
 
             //Add rectangles for debugging
             rect = new Rectangle(width, height);
@@ -239,6 +248,8 @@ public class Document {
             double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
             //System.out.println("Height of hyperboloid " + 100*maxDist);
 
+            // Reset hyperbolic fundamental domain.
+            tiling.HyperbolicFund = new Group();
             Tiling.seenHyperbolic = new OctTree();
 
             //Reset Fundamental Domain if necessary:
@@ -256,9 +267,10 @@ public class Document {
                 }
                 else {
                     tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
-                    tiles.getTransforms().add(new Translate()); // Todo: disable
                 }
             }
+
+            numberOfCopies = tiles.getChildren().size();
 
             //Camera settings:
             camera.setFieldOfView(90);
@@ -321,8 +333,9 @@ public class Document {
             final Point3D refPoint = tiling.getfDomain().getChamberCenter3D(1); // Point of reference in Euclidean fundamental domain
 
             if (!tiling.isInRangeEuclidean(refPoint, windowCorner, width, height)){ // If fundamental domain is out of valid range
-                setTransformRecycled(tiling.calculateBackShiftEuclidean(windowCorner, width, height).createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
-                recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width, height)); // Shifts back fDomain into visible window
+                Transform t = tiling.calculateBackShiftEuclidean(windowCorner, width, height);
+                setTransformRecycled(t.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
+                recenterFDomain(t); // Shifts back fDomain into visible window
             }
 
 
@@ -354,7 +367,9 @@ public class Document {
 
             //Second step: Create new tiles ----------------------------------------------------------
             // Create new tiles to fill empty space of valid range. Add new tiles to the group "tiles"
-            tiles.getChildren().addAll(tiling.createTilingEuclidean(false, windowCorner, width, height, dx, dy).getChildren());
+            Group newTiles = tiling.createTilingEuclidean(false, windowCorner, width, height, dx, dy);
+            tiles.getChildren().addAll(newTiles.getChildren());
+
             System.out.println("Number of copies: " + tiles.getChildren().size());
         }
 
@@ -379,23 +394,29 @@ public class Document {
 
             translateX = new Affine(Math.cosh(d), 0 , Math.sinh(d), 0, 0, 1, 0, 0, Math.sinh(d), 0, Math.cosh(d), 0); // Translation along x-axis
 
-            Transform translate = rotateForward.createConcatenation(translateX).createConcatenation(rotateBackward);
+            Transform translate = rotateForward.createConcatenation(translateX).createConcatenation(rotateBackward); // Hyperbolic translation
 
-
+            // OctTree is used for saving copies which are not deleted
             setSeenHyperbolic(new OctTree());
 
-            translate(dx,dy); // Translates fDomain by vector (dx,dy).
+            // Translates fDomain by vector (dx,dy).
+            translate(dx,dy);
+            setTransformRecycled(translate.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
+
             Point3D refPoint = tiling.getfDomain().getChamberCenter3D(1).multiply(0.01);
 
-            if (refPoint.getZ() >= 3 || refPoint.getZ() >= 0.6*maxDist){
+            // Recenter fDomain if too far away from center
+            if (refPoint.getZ() >= 2.5 || refPoint.getZ() >= 0.6*maxDist){
                 double intoValidRange;
-                if (0.6*maxDist < 3){
+                if (0.6*maxDist < 2.5){
                     intoValidRange = 0.6*maxDist;
                 }
                 else {
-                    intoValidRange = 3;
+                    intoValidRange = 2.5;
                 }
-                recenterFDomain(tiling.calculateBackShiftHyperbolic(intoValidRange)); // Shifts back fDomain into valid range
+                Transform t = tiling.calculateBackShiftHyperbolic(intoValidRange);
+                recenterFDomain(t); // Shifts back fDomain into valid range
+                setTransformRecycled(t.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
             }
 
             //First step: Translate tiles by vector (dx,dy) -------------------------------------
@@ -403,26 +424,34 @@ public class Document {
             while (i < tiles.getChildren().size()){
                 Node node = tiles.getChildren().get(i);
                 Transform nodeTransform = node.getTransforms().get(0);
-                Point3D point = translate.transform(node.getRotationAxis());
+                Point3D point = translate.transform(node.getRotationAxis()); // point = translated reference point of node
 
                 if (point.getZ() > maxDist){
-                    //getRecycler().getChildren().add(node); // node is automatically removed from tiles
-                    tiles.getChildren().remove(node);
+                    getRecycler().getChildren().add(node); // node is automatically removed from tiles
                 }
                 else {
                     node.getTransforms().remove(0);
                     node.getTransforms().add(translate.createConcatenation(nodeTransform));
                     node.setRotationAxis(point);
                     insertSeenHyperbolic(point);
-                    //Tiling.seenHyperbolic.insert(tiling.getfDomain(), point);
                     i++;
-
                 }
+            }
+
+            if (getRecycler().getChildren().size() == 0){ // Fill recycler if necessary
+                Group recycler2 = JavaFXUtils.copyFundamentalDomain(tiling.HyperbolicFund); // Copy original fundamental domain which was used to build "tiles"
+                getRecycler().getChildren().addAll(recycler2); // Add copy to recycler
             }
 
             //Second step: Create new tiles ----------------------------------------------------------
             Group newTiles = tiling.createTilingHyperbolic(false, maxDist);
             tiles.getChildren().addAll(newTiles.getChildren());
+            if (isBreak == true){
+                isBreak = false;
+                System.out.println("NOW");
+                update();
+            }
+            //System.out.println("Number of copies: " + tiles.getChildren().size());
         }
 
     }

@@ -12,6 +12,7 @@ import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
 import tiler.core.dsymbols.OrbifoldGroupName;
+import tiler.main.Document;
 import tiler.util.JavaFXUtils;
 
 import java.util.LinkedList;
@@ -26,7 +27,7 @@ public class Tiling {
 
     private final DSymbol ds;
     private final String groupName;
-    private final FDomain fDomain;
+    private FDomain fDomain;
 
     private final Transforms generators;
     private final Constraints constraints;
@@ -45,6 +46,7 @@ public class Tiling {
     public static Group recycler = new Group();
     public static Transform transformRecycled = new Translate();
     public static Group EuclideanFund = new Group();
+    public static Group HyperbolicFund = new Group();
 
 
     private final int[] flag2vert;
@@ -446,11 +448,25 @@ public class Tiling {
 
         final Group group = new Group();
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
-        fund.setRotationAxis(refPointHyperbolic);
-        fund.getTransforms().add(new Translate());
 
         if (seenHyperbolic.insert(fDomain, refPointHyperbolic)) {
-            group.getChildren().addAll(fund);
+            fund.setRotationAxis(refPointHyperbolic);
+            fund.getTransforms().add(new Translate());
+            if (recycler.getChildren().size() > 0){ // Uses a recycled copy (is filled after any translation)
+                if (recycler.getChildren().size() == 1) { // Refills recycler if almost empty
+                    Group recycler2 = JavaFXUtils.copyFundamentalDomain(HyperbolicFund); // Copies original fundamental domain used to build up "tiles"
+                    recycler.getChildren().addAll(recycler2);
+                }
+                Node node = recycler.getChildren().get(0); // Reuses a copy of recycler
+                node.getTransforms().clear(); // Clear all transforms
+                node.getTransforms().add(transformRecycled); // Add transform (maps original fundamental domain to actual fundamental domain)
+                node.setRotationAxis(refPointHyperbolic); // Set new point of reference
+                group.getChildren().add(node);
+            }
+            else { // Builds up tile from fundamental domain (Recycler is only empty when tile is updated)
+                group.getChildren().addAll(fund);
+                HyperbolicFund = fund; // Saves the original fundamental domain
+            }
         }
 
         if (!drawFundamentalDomainOnly) {
@@ -465,16 +481,36 @@ public class Tiling {
                 Point3D genRef = g.transform(refPointHyperbolic);
                 if (seen.insert(fDomain, genRef)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
                     if (seenHyperbolic.insert(fDomain, genRef)) {
-                        Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-                        group2.setRotationAxis(genRef);
-                        group2.getTransforms().add(g);
-                        group.getChildren().add(group2);
+                        if (recycler.getChildren().size() > 0){
+                            if (recycler.getChildren().size() == 1) { // Refills recycler if almost empty
+                                Group recycler2 = JavaFXUtils.copyFundamentalDomain(HyperbolicFund); // Copies original fundamental domain used to build up "tiles"
+                                recycler.getChildren().addAll(recycler2);
+                            }
+                            Node node = recycler.getChildren().get(0); // Reuses a copy of recycler
+                            node.getTransforms().clear(); // Clear all transforms
+                            node.getTransforms().add(g.createConcatenation(transformRecycled)); // Add transform (maps original fundamental domain to actual fundamental domain)
+                            node.setRotationAxis(genRef); // Set new point of reference
+                            group.getChildren().add(node);
+                        }
+                        else {
+                            Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
+                            group2.setRotationAxis(genRef);
+                            group2.getTransforms().add(g);
+                            group.getChildren().add(group2);
+                        }
+
                     }
                 }
             }
 
             while (queue.size() > 0 && queue.size() < 10000) {
                 final Transform t = queue.poll(); // remove t from queue
+
+                if (recycler.getChildren().size() > 0 && queue.size() >= 1.5*getNumberOfCopies()){
+                    this.fDomain = new FDomain(ds);
+                    setBreak(true);
+                    break;
+                }
 
                 if (isResetHyperbolic() && t.transform(refPointHyperbolic).getZ() < 2) {
                     transformFDHyperbolic = t;
@@ -485,25 +521,49 @@ public class Tiling {
                     Transform tg = t.createConcatenation(g);
                     Point3D bpt = tg.transform(refPointHyperbolic);
                     if (seen.insert(fDomain, bpt) && bpt.getZ() < maxDist) {
-                        if (seenHyperbolic.insert(fDomain, bpt)) {
-                            Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-                            group2.getTransforms().add(tg);
-                            group2.setRotationAxis(bpt);
-                            group.getChildren().add(group2);
-                        }
                         queue.add(tg);
+                        if (seenHyperbolic.insert(fDomain, bpt)) {
+                            if (recycler.getChildren().size() > 0) {
+                                if (recycler.getChildren().size() == 1) { // Refills recycler if almost empty
+                                    Group recycler2 = JavaFXUtils.copyFundamentalDomain(HyperbolicFund); // Copies original fundamental domain used to build up "tiles"
+                                    recycler.getChildren().addAll(recycler2);
+                                }
+                                Node node = recycler.getChildren().get(0); // Reuses a copy of recycler
+                                node.getTransforms().clear(); // Clear all transforms
+                                node.getTransforms().add(tg.createConcatenation(transformRecycled)); // Add transform (maps original fundamental domain to actual fundamental domain)
+                                node.setRotationAxis(bpt); // Set new point of reference
+                                group.getChildren().add(node);
+                            } else {
+                                Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
+                                group2.setRotationAxis(bpt);
+                                group2.getTransforms().add(tg);
+                                group.getChildren().add(group2);
+                            }
+                        }
                     }
 
                     Transform gt = g.createConcatenation(t);
                     bpt = gt.transform(refPointHyperbolic);
                     if (seen.insert(fDomain, bpt) && bpt.getZ() < maxDist) {
-                        if (seenHyperbolic.insert(fDomain, bpt)) {
-                            Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-                            group2.setRotationAxis(bpt);
-                            group2.getTransforms().add(gt);
-                            group.getChildren().add(group2);
-                        }
                         queue.add(gt);
+                        if (seenHyperbolic.insert(fDomain, bpt)) {
+                            if (recycler.getChildren().size() > 0) {
+                                if (recycler.getChildren().size() == 1) { // Refills recycler if almost empty
+                                    Group recycler2 = JavaFXUtils.copyFundamentalDomain(HyperbolicFund); // Copies original fundamental domain used to build up "tiles"
+                                    recycler.getChildren().addAll(recycler2);
+                                }
+                                Node node = recycler.getChildren().get(0); // Reuses a copy of recycler
+                                node.getTransforms().clear(); // Clear all transforms
+                                node.getTransforms().add(gt.createConcatenation(transformRecycled)); // Add transform (maps original fundamental domain to actual fundamental domain)
+                                node.setRotationAxis(bpt); // Set new point of reference
+                                group.getChildren().add(node);
+                            } else {
+                                Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
+                                group2.setRotationAxis(bpt);
+                                group2.getTransforms().add(gt);
+                                group.getChildren().add(group2);
+                            }
+                        }
                     }
                 }
             }
@@ -565,7 +625,7 @@ public class Tiling {
                     if (makeCopyEuclidean(genRef, windowCorner, width, height, dx, dy) && seenEuclidean.insert(genRef.getX(), genRef.getY())) { // Checks whether copy fills empty space after translation of tiles
                         if (recycler.getChildren().size() > 0){ // Reuses a copy from recycler (always filled after translation)
                             if (recycler.getChildren().size() == 1) { // Refills recycler if almost empty
-                                Group recycler2 = JavaFXUtils.copyFundamentalDomain(EuclideanFund); // Make copy of roiginal fDomain
+                                Group recycler2 = JavaFXUtils.copyFundamentalDomain(EuclideanFund); // Make copy of original fDomain
                                 recycler.getChildren().addAll(recycler2);
                             }
                             Node node = recycler.getChildren().get(0); // Reuses copy with index 0 in recycler
@@ -958,5 +1018,9 @@ public class Tiling {
             return true;
         } else {return  false;}
     }
+
+    private static int getNumberOfCopies () { return Document.numberOfCopies; }
+
+    private void setBreak (boolean b) { Document.isBreak = true; }
 
 }
