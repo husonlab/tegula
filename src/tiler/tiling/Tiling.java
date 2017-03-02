@@ -36,9 +36,8 @@ public class Tiling {
     private boolean resetEuclidean = false;
     public Transform transformFDEuclidean, transformFDHyperbolic;
 
-    public static OctTree seenHyperbolic;
+    public static OctTree keptHyperbolicCopy;
     public static QuadTree seenEuclidean = new QuadTree();
-    public boolean translateHyperbolic;
 
     public static Point3D refPointHyperbolic = new Point3D(0, 0, 1);
     public static Point3D refPointEuclidean = new Point3D(1,1,0);
@@ -453,7 +452,7 @@ public class Tiling {
             fund.setRotationAxis(refPointHyperbolic);
             fund.getTransforms().add(new Translate());
             if (translateTiling()){// Translate mode of tiling
-                useRecycler(group, new Translate(), refPointHyperbolic);
+                useRecycler(group, new Translate(), refPointHyperbolic, HyperbolicFund);
             }
             else { // Builds up tiling from fundamental domain
                 group.getChildren().addAll(fund);
@@ -474,7 +473,7 @@ public class Tiling {
                 if (seen.insert(fDomain, genRef)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
                     if (makeCopyHyperbolic(genRef)) {
                         if (translateTiling()){
-                            useRecycler(group,g,genRef);
+                            useRecycler(group,g,genRef,HyperbolicFund);
                         }
                         else {
                             generateNewCopy(group,g,genRef,fund);
@@ -485,13 +484,15 @@ public class Tiling {
             }
 
             while (queue.size() > 0 && queue.size() < 10000) {
-                final Transform t = queue.poll(); // remove t from queue
 
+                // Beaks while loop if too many copies (rounding errors)
                 if (recycler.getChildren().size() > 0 && queue.size() >= 1.5*getNumberOfCopies()){
                     this.fDomain = new FDomain(ds);
                     setBreak(true);
                     break;
                 }
+
+                final Transform t = queue.poll(); // remove t from queue
 
                 if (isResetHyperbolic() && t.transform(refPointHyperbolic).getZ() < 2) {
                     transformFDHyperbolic = t;
@@ -505,7 +506,7 @@ public class Tiling {
                         queue.add(tg);
                         if (makeCopyHyperbolic(bpt)) {
                             if (translateTiling()) {
-                                useRecycler(group,tg,bpt);
+                                useRecycler(group,tg,bpt,HyperbolicFund);
                             } else {
                                 generateNewCopy(group,tg,bpt,fund);
                             }
@@ -518,7 +519,7 @@ public class Tiling {
                         queue.add(gt);
                         if (makeCopyHyperbolic(bpt)) {
                             if (translateTiling()) {
-                                useRecycler(group,gt,bpt);
+                                useRecycler(group,gt,bpt,HyperbolicFund);
                             } else {
                                 generateNewCopy(group,gt,bpt,fund);
                             }
@@ -546,19 +547,11 @@ public class Tiling {
         final Group group = new Group();
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain); // Build fundamental domain
 
-        if (makeCopyEuclidean(refPointEuclidean,windowCorner, width, height, dx, dy) && seenEuclidean.insert(refPointEuclidean.getX(), refPointEuclidean.getY())) { // Fill empty space with tiles
+        if (makeCopyEuclidean(refPointEuclidean)) { // Fill empty space with tiles
             fund.getTransforms().add(new Translate()); // Add transform (= identity)
             fund.setRotationAxis(refPointEuclidean); // Reference point of fundamental domain
-            if (recycler.getChildren().size() > 0){ // Uses a recycled copy (is filled after any translation)
-                if (recycler.getChildren().size() == 1) { // Refills recycler if almost empty
-                    Group recycler2 = JavaFXUtils.copyFundamentalDomain(EuclideanFund); // Copies original fundamental domain used to build up "tiles"
-                    recycler.getChildren().addAll(recycler2);
-                }
-                Node node = recycler.getChildren().get(0); // Reuses a copy of recycler
-                node.getTransforms().clear(); // Clear all transforms
-                node.getTransforms().add(transformRecycled); // Add transform (maps original fundamental domain to actual fundamental domain)
-                node.setRotationAxis(refPointEuclidean); // Set new point of reference
-                group.getChildren().add(node);
+            if (translateTiling()){ // Translate mode of tiling
+                useRecycler(group,new Translate(),refPointEuclidean,EuclideanFund);
             }
             else { // Builds up tile from fundamental domain (Recycler is only empty when tile is updated)
                 group.getChildren().addAll(fund);
@@ -581,23 +574,12 @@ public class Tiling {
             for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
                 Point3D genRef = g.transform(refPointEuclidean); // Reference point for new copy
                 if (isInRangeEuclidean(genRef, windowCorner, width, height) && seen.insert(genRef.getX(), genRef.getY())) { // Checks whether reference point is in valid range and if it is in QuadTree "seen". Adds it if not.
-                    if (makeCopyEuclidean(genRef, windowCorner, width, height, dx, dy) && seenEuclidean.insert(genRef.getX(), genRef.getY())) { // Checks whether copy fills empty space after translation of tiles
-                        if (recycler.getChildren().size() > 0){ // Reuses a copy from recycler (always filled after translation)
-                            if (recycler.getChildren().size() == 1) { // Refills recycler if almost empty
-                                Group recycler2 = JavaFXUtils.copyFundamentalDomain(EuclideanFund); // Make copy of original fDomain
-                                recycler.getChildren().addAll(recycler2);
-                            }
-                            Node node = recycler.getChildren().get(0); // Reuses copy with index 0 in recycler
-                            node.getTransforms().clear();
-                            node.getTransforms().add(g.createConcatenation(transformRecycled)); // set new transform
-                            node.setRotationAxis(genRef); // set new point of reference
-                            group.getChildren().add(node);
+                    if (makeCopyEuclidean(genRef)) { // Checks whether copy fills empty space after translation of tiles
+                        if (translateTiling()){ // Translate mode of tiling
+                            useRecycler(group,g,genRef,EuclideanFund);
                         }
-                        else { // Recycler is always empty before updating a tiling
-                            Group group2 = JavaFXUtils.copyFundamentalDomain(fund); // Copy actual fDomain
-                            group2.getTransforms().add(g);
-                            group2.setRotationAxis(genRef);
-                            group.getChildren().add(group2);
+                        else {
+                            generateNewCopy(group,g,genRef,fund);
                         }
                     }
 
@@ -606,6 +588,14 @@ public class Tiling {
 
 
             while (queue.size() > 0 && group.getChildren().size() < 1000) {
+
+                // Breaks while loop if too many copies (rounding errors)
+                if (recycler.getChildren().size() > 0 && queue.size() >= 1.5*getNumberOfCopies()){
+                    this.fDomain = new FDomain(ds);
+                    setBreak(true);
+                    break;
+                }
+
                 final Transform t = queue.poll(); // remove t from queue
 
                 // Transform t copies fundamental domain back into a range of 400 times 400 (for reset of fDomain)
@@ -622,57 +612,32 @@ public class Tiling {
                     Point3D bpt = tg.transform(refPointEuclidean); // Reference point corresponding to transform tg
 
                     if (isInRangeEuclidean(bpt, windowCorner, width, height) && seen.insert(bpt.getX(), bpt.getY()) ) {
-                        if (makeCopyEuclidean(bpt, windowCorner, width, height, dx, dy) && seenEuclidean.insert(bpt.getX(), bpt.getY())) {
-                            if (recycler.getChildren().size() > 0){
-                                if (recycler.getChildren().size() == 1) {
-                                    Group recycler2 = JavaFXUtils.copyFundamentalDomain(EuclideanFund);
-                                    recycler.getChildren().addAll(recycler2);
-                                }
-                                Node node = recycler.getChildren().get(0);
-                                node.getTransforms().clear();
-                                node.getTransforms().add(tg.createConcatenation(transformRecycled));
-                                group.getChildren().add(node);
-                                node.setRotationAxis(bpt);
+                        queue.add(tg);
+                        if (makeCopyEuclidean(bpt)) {
+                            if (translateTiling()){
+                                useRecycler(group,tg,bpt,EuclideanFund);
                             }
                             else {
-                                Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-                                group2.getTransforms().add(tg);
-                                group2.setRotationAxis(bpt);
-                                group.getChildren().add(group2);
+                                generateNewCopy(group,tg,bpt,fund);
                             }
                         }
-                        queue.add(tg);
                     }
 
                     Transform gt = g.createConcatenation(t);
                     bpt = gt.transform(refPointEuclidean);
 
                     if (isInRangeEuclidean(bpt, windowCorner, width, height) && seen.insert(bpt.getX(), bpt.getY())) {
-                        if (makeCopyEuclidean(bpt, windowCorner, width, height, dx, dy) && seenEuclidean.insert(bpt.getX(), bpt.getY())) {
-                            if (recycler.getChildren().size() > 0){
-                                if (recycler.getChildren().size() == 1) {
-                                    Group recycler2 = JavaFXUtils.copyFundamentalDomain(EuclideanFund);
-                                    recycler.getChildren().addAll(recycler2);
-                                }
-                                Node node = recycler.getChildren().get(0);
-                                node.getTransforms().clear();
-                                node.getTransforms().add(gt.createConcatenation(transformRecycled));
-                                group.getChildren().add(node);
-                                node.setRotationAxis(bpt);
+                        queue.add(gt);
+                        if (makeCopyEuclidean(bpt)) {
+                            if (translateTiling()){
+                                useRecycler(group,gt,bpt,EuclideanFund);
                             }
                             else {
-                                Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
-                                group2.getTransforms().add(gt);
-                                group2.setRotationAxis(bpt);
-                                group.getChildren().add(group2);
+                                generateNewCopy(group,gt,bpt,fund);
                             }
                         }
-                        queue.add(gt);
                     }
                 }
-            }
-            if (recycler.getChildren().size() == 0){
-                System.out.println("Number of copies: " + group.getChildren().size());
             }
         }
         return group;
@@ -951,17 +916,8 @@ public class Tiling {
         } else { return false;}
     }
 
-    /**
-     * Euclidean case: Decides whether to make copy or not when tiling is translated.
-     * @param point
-     * @param windowCorner
-     * @param width
-     * @param height
-     * @param dx
-     * @param dy
-     * @return
-     */
-    public static boolean makeCopyEuclidean(Point3D point, Point3D windowCorner, double width, double height, double dx, double dy){
+
+    /*public static boolean makeCopyEuclidean(Point3D point, Point3D windowCorner, double width, double height, double dx, double dy){
         // Adjust width and height for a range around visible window. Range has at least dimensions 600 times 600
         if (width >= 350){ width += 250; }
         else { width = 600; }
@@ -976,13 +932,15 @@ public class Tiling {
         if ((dx == 0 && dy == 0) || (point.getX() < left+dx+eps || point.getX() > right+dx-eps || point.getY() > lower+dy-eps || point.getY() < upper+dy+eps)){
             return true;
         } else {return  false;}
-    }
+    }*/
 
     private static int getNumberOfCopies () { return Document.numberOfCopies; }
 
     private void setBreak (boolean b) { Document.isBreak = b; }
 
-    private boolean makeCopyHyperbolic(Point3D p){ return seenHyperbolic.insert(fDomain, p); }
+    private boolean makeCopyHyperbolic(Point3D p){ return keptHyperbolicCopy.insert(fDomain, p); }
+
+    private boolean makeCopyEuclidean(Point3D p) { return seenEuclidean.insert(p.getX(),p.getY()); }
 
     private boolean translateTiling() {
         if (recycler.getChildren().size() > 0) {
@@ -992,9 +950,9 @@ public class Tiling {
         }
     }
 
-    private void useRecycler(Group g, Transform t, Point3D p){
+    private void useRecycler(Group g, Transform t, Point3D p, Group domain){
         if (recycler.getChildren().size() == 1) { // Refills recycler if almost empty
-            Group recycler2 = JavaFXUtils.copyFundamentalDomain(HyperbolicFund); // Copies original fundamental domain used to build up "tiles"
+            Group recycler2 = JavaFXUtils.copyFundamentalDomain(domain); // Copies original fundamental domain used to build up "tiles"
             recycler.getChildren().addAll(recycler2);
         }
         Node node = recycler.getChildren().get(0); // Reuses a copy of recycler

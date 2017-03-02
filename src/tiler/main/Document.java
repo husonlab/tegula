@@ -32,6 +32,7 @@ import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
+import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
 import tiler.tiling.OctTree;
 import tiler.tiling.QuadTree;
@@ -160,7 +161,7 @@ public class Document {
     }
 
     public Point3D windowCorner = new Point3D(0,0,0); // Upper left corner of window in Euclidean case
-    private double width=600, height=600; //Width and height of window
+    private double width=1000, height=1000; //Width and height of window
 
     private Group tiles = new Group();
     public static int numberOfCopies; //Counts number of copies.
@@ -180,7 +181,7 @@ public class Document {
         //Euclidean case -----------------------------------------------------------------------------------------------
         if (tiling.getGeometry() == Geometry.Euclidean) {
             // Reset Euclidean fundamental domain and QuadTree
-            tiling.EuclideanFund = new Group();
+            setEuclideanFund(new Group());
             setSeenEuclidean(new QuadTree());
 
             if (!isDrawFundamentalDomainOnly() && !tiling.isInRangeEuclidean(tiling.refPointEuclidean, windowCorner, width, height)) { // Worst case: refPoint is not in valid range
@@ -249,9 +250,8 @@ public class Document {
             //System.out.println("Height of hyperboloid " + 100*maxDist);
 
             // Reset hyperbolic fundamental domain.
-            tiling.HyperbolicFund = new Group();
-            Tiling.seenHyperbolic = new OctTree();
-
+            setHyperbolicFund(new Group());
+            setKeptHyperbolicCopy(new OctTree());
             //Reset Fundamental Domain if necessary:
             if (!isDrawFundamentalDomainOnly() && Tiling.refPointHyperbolic.getZ() >= maxDist){// Worst case: fDomain is out of range and must be translated back
                 recenterFDomain(tiling.calculateBackShiftHyperbolic(maxDist)); // Shifts back fDomain into valid range (slower algorithm)
@@ -350,9 +350,7 @@ public class Document {
                     node.getTransforms().remove(0); // remove old transforms
                     node.getTransforms().add(translate.createConcatenation(nodeTransform)); // new transform = (translate)*(old transform)
                     node.setRotationAxis(point); // "point" serves as new reference of copy
-                    if (Tiling.makeCopyEuclidean(point, windowCorner, width, height, dx, dy)){
-                        insertSeenEuclidean(point);
-                    }
+                    insertSeenEuclidean(point);
                     i++;
                 }
                 else { // when point is out of valid range
@@ -361,16 +359,23 @@ public class Document {
             }
 
             if (getRecycler().getChildren().size() == 0){ // Fill recycler if necessary
-                Group recycler2 = JavaFXUtils.copyFundamentalDomain(tiling.EuclideanFund); // Copy original fundamental domain which was used to build "tiles"
+                Group recycler2 = JavaFXUtils.copyFundamentalDomain(getEuclideanFund()); // Copy original fundamental domain which was used to build "tiles"
                 getRecycler().getChildren().addAll(recycler2); // Add copy to recycler
             }
 
             //Second step: Create new tiles ----------------------------------------------------------
             // Create new tiles to fill empty space of valid range. Add new tiles to the group "tiles"
             Group newTiles = tiling.createTilingEuclidean(false, windowCorner, width, height, dx, dy);
-            tiles.getChildren().addAll(newTiles.getChildren());
 
-            System.out.println("Number of copies: " + tiles.getChildren().size());
+            if (isBreak){ // creates tiling new if too much rounding errors
+                isBreak = false;
+                update();
+            }
+            else {
+                tiles.getChildren().addAll(newTiles.getChildren());
+                System.out.println("Number of copies: " + tiles.getChildren().size());
+            }
+
         }
 
         if (tiling.getGeometry() == Geometry.Hyperbolic) {
@@ -397,7 +402,7 @@ public class Document {
             Transform translate = rotateForward.createConcatenation(translateX).createConcatenation(rotateBackward); // Hyperbolic translation
 
             // OctTree is used for saving copies which are not deleted
-            setSeenHyperbolic(new OctTree());
+            setKeptHyperbolicCopy(new OctTree());
 
             // Translates fDomain by vector (dx,dy).
             translate(dx,dy);
@@ -433,13 +438,13 @@ public class Document {
                     node.getTransforms().remove(0);
                     node.getTransforms().add(translate.createConcatenation(nodeTransform));
                     node.setRotationAxis(point);
-                    insertSeenHyperbolic(point);
+                    insertKeptHyperbolicCopy(point);
                     i++;
                 }
             }
 
             if (getRecycler().getChildren().size() == 0){ // Fill recycler if necessary
-                Group recycler2 = JavaFXUtils.copyFundamentalDomain(tiling.HyperbolicFund); // Copy original fundamental domain which was used to build "tiles"
+                Group recycler2 = JavaFXUtils.copyFundamentalDomain(getHyperbolicFund()); // Copy original fundamental domain which was used to build "tiles"
                 getRecycler().getChildren().addAll(recycler2); // Add copy to recycler
             }
 
@@ -447,25 +452,32 @@ public class Document {
             Group newTiles = tiling.createTilingHyperbolic(false, maxDist, dx, dy);
             if (isBreak){ // creates tiling new if too much rounding errors
                 isBreak = false;
-                System.out.println("NOW");
                 update();
             }
             else {
                 tiles.getChildren().addAll(newTiles.getChildren());
             }
-
-            //System.out.println("Number of copies: " + tiles.getChildren().size());
         }
 
     }
 
+    private void setHyperbolicFund(Group g){ Tiling.HyperbolicFund = g; }
+
+    private Group getHyperbolicFund(){ return Tiling.HyperbolicFund; }
+
+    private void setEuclideanFund(Group g){ Tiling.EuclideanFund = g; }
+
+    private Group getEuclideanFund(){ return Tiling.EuclideanFund; }
+
     private Group getRecycler(){ return Tiling.recycler; }
+
     private void setTransformRecycled(Transform t){ Tiling.transformRecycled = t; }
+
     private Transform getTransformRecycled(){ return Tiling.transformRecycled; }
 
-    private void setSeenHyperbolic(OctTree seen){ Tiling.seenHyperbolic = seen; }
+    private void setKeptHyperbolicCopy(OctTree o){ Tiling.keptHyperbolicCopy = o; }
 
-    private void insertSeenHyperbolic(Point3D point){ Tiling.seenHyperbolic.insert(tilings.get(current).getfDomain(), point); }
+    private void insertKeptHyperbolicCopy(Point3D point){ Tiling.keptHyperbolicCopy.insert(tilings.get(current).getfDomain(), point); }
 
     private void insertSeenEuclidean(Point3D point){ Tiling.seenEuclidean.insert(point.getX(), point.getY()); }
 
