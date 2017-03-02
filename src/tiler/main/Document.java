@@ -256,17 +256,17 @@ public class Document {
             if (!isDrawFundamentalDomainOnly() && Tiling.refPointHyperbolic.getZ() >= maxDist){// Worst case: fDomain is out of range and must be translated back
                 recenterFDomain(tiling.calculateBackShiftHyperbolic(maxDist)); // Shifts back fDomain into valid range (slower algorithm)
                 tiling.setResetHyperbolic(true); // Variable to calculate a transform leading back into the visible window
-                tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
+                tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist, 0, 0);
                 recenterFDomain(tiling.transformFDHyperbolic); // Shifts back fDomain into visible window (faster algorithm)
             }
             else {
                 if (!isDrawFundamentalDomainOnly() && (Tiling.refPointHyperbolic.getZ() >= 3 || Tiling.refPointHyperbolic.getZ() >= 0.6 * maxDist)) {
                     tiling.setResetHyperbolic(true);
-                    tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
+                    tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist, 0, 0);
                     recenterFDomain(tiling.transformFDHyperbolic);
                 }
                 else {
-                    tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
+                    tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist, 0, 0);
                 }
             }
 
@@ -444,13 +444,16 @@ public class Document {
             }
 
             //Second step: Create new tiles ----------------------------------------------------------
-            Group newTiles = tiling.createTilingHyperbolic(false, maxDist);
-            tiles.getChildren().addAll(newTiles.getChildren());
-            if (isBreak == true){
+            Group newTiles = tiling.createTilingHyperbolic(false, maxDist, dx, dy);
+            if (isBreak){ // creates tiling new if too much rounding errors
                 isBreak = false;
                 System.out.println("NOW");
                 update();
             }
+            else {
+                tiles.getChildren().addAll(newTiles.getChildren());
+            }
+
             //System.out.println("Number of copies: " + tiles.getChildren().size());
         }
 
