@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.input.*?>
-<?import javafx.scene.layout.*?>
-<BorderPane fx:id="mainPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.40"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="tiler.main.Controller">
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="mainPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tiler.main.Controller">
     <top>
         <VBox prefHeight="69.0" prefWidth="600.0" BorderPane.alignment="CENTER">
             <children>
@@ -180,6 +192,7 @@
                         <Button fx:id="previousTilingButton" layoutX="211.0" layoutY="11.0" mnemonicParsing="false" onAction="#firePreviousTiling" text="Previous" />
                         <Button fx:id="lastTilingButton" layoutX="278.0" layoutY="11.0" mnemonicParsing="false" onAction="#fireLastTiling" text="Last" />
                         <ToggleButton fx:id="editSymmetryGroupButton" mnemonicParsing="false" onAction="#fireEditSymmetryGroup" text="Edit Group..." />
+                  <CheckBox fx:id="cbPullFDomain" mnemonicParsing="false" onAction="#setCbPullFDomain" text="Pull FDomain only" />
                     </items>
                 </ToolBar>
             </children>
@@ -285,19 +298,12 @@
                                 </BorderPane>
                             </children>
                         </VBox>
-                        <VBox prefHeight="200.0" prefWidth="123.0" spacing="10.0" AnchorPane.leftAnchor="10.0"
-                              AnchorPane.topAnchor="10.0">
+                        <VBox prefHeight="200.0" prefWidth="123.0" spacing="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
                             <children>
-                                <Button fx:id="poincareButton" mnemonicParsing="false" onAction="#firePoincare"
-                                        text="Poincare model"/>
-                                <Button fx:id="kleinButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false"
-                                        onAction="#fireKlein" prefHeight="27.0" prefWidth="112.0" text="Klein model"/>
-                                <Button fx:id="increaseButton" layoutX="10.0" layoutY="37.0" mnemonicParsing="false"
-                                        onAction="#fireShowMoreTiles" prefHeight="27.0" prefWidth="112.0"
-                                        text="Increase"/>
-                                <Button fx:id="decreaseButton" layoutX="10.0" layoutY="64.0" mnemonicParsing="false"
-                                        onAction="#fireShowLessTiles" prefHeight="27.0" prefWidth="112.0"
-                                        text="Decrease"/>
+                                <Button fx:id="poincareButton" mnemonicParsing="false" onAction="#firePoincare" text="Poincare model" />
+                                <Button fx:id="kleinButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#fireKlein" prefHeight="27.0" prefWidth="112.0" text="Klein model" />
+                                <Button fx:id="increaseButton" layoutX="10.0" layoutY="37.0" mnemonicParsing="false" onAction="#fireShowMoreTiles" prefHeight="27.0" prefWidth="112.0" text="Increase" />
+                                <Button fx:id="decreaseButton" layoutX="10.0" layoutY="64.0" mnemonicParsing="false" onAction="#fireShowLessTiles" prefHeight="27.0" prefWidth="112.0" text="Decrease" />
                             </children>
                         </VBox>
                     </children>

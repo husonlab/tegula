@@ -14,6 +14,7 @@ import tiler.core.dsymbols.Geometry;
  * Created by huson on 3/29/16.
  */
 public class MouseHandler {
+    public static boolean cbPull = true;
     private double originalMouseDownX;
     private double originalMouseDownY;
     private double mouseDownX;
@@ -58,9 +59,11 @@ public class MouseHandler {
                     double dy = mouseDeltaY * modifierFactor;
 
                     if (dx != 0 || dy != 0) {
-                        document.translateTile(dx, dy);
-                        mouseDownX = me.getSceneX();
-                        mouseDownY = me.getSceneY();
+                        if (cbPull) {
+                            document.translateTile(dx, dy);
+                            mouseDownX = me.getSceneX();
+                            mouseDownY = me.getSceneY();
+                        }
                     }
 
                 } else { //// rotate

@@ -160,8 +160,12 @@ public class Controller implements Initializable {
     @FXML
     private Button decreaseButton;
 
+    @FXML
+    private CheckBox cbPullFDomain;
+
     private Document document;
     private Stage stage;
+
 
     /**
      * initialize
@@ -226,6 +230,15 @@ public class Controller implements Initializable {
     public Button getDecreaseButton() {
         return decreaseButton;
     }
+
+
+    @FXML
+    void setCbPullFDomain(ActionEvent event){
+        if (cbPullFDomain.isSelected()){setCBPull(false);}
+        else{setCBPull(true);}
+    }
+
+    private void setCBPull(boolean b){ MouseHandler.cbPull = b; }
 
     @FXML
     void fireAbout(ActionEvent event) {
