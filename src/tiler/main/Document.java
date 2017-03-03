@@ -161,7 +161,7 @@ public class Document {
     }
 
     public Point3D windowCorner = new Point3D(0,0,0); // Upper left corner of window in Euclidean case
-    private double width=1000, height=1000; //Width and height of window
+    private double width=600, height=600; //Width and height of window
 
     private Group tiles = new Group();
     public static int numberOfCopies; //Counts number of copies.
@@ -182,7 +182,7 @@ public class Document {
         if (tiling.getGeometry() == Geometry.Euclidean) {
             // Reset Euclidean fundamental domain and QuadTree
             setEuclideanFund(new Group());
-            setSeenEuclidean(new QuadTree());
+            setKeptEuclideanCopy(new QuadTree());
 
             if (!isDrawFundamentalDomainOnly() && !tiling.isInRangeEuclidean(tiling.refPointEuclidean, windowCorner, width, height)) { // Worst case: refPoint is not in valid range
                 recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width, height)); // Shifts back fDomain into valid range (slower algorithm)
@@ -322,9 +322,11 @@ public class Document {
     public void translateTile(double dx, double dy) {
         final Tiling tiling = tilings.get(current);
 
+        // Translation in Euclidean case
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         if (tiling.getGeometry() == Geometry.Euclidean) {
 
-            setSeenEuclidean(new QuadTree());
+            setKeptEuclideanCopy(new QuadTree()); // Saves copies which are kept under translation
             Translate translate = new Translate(dx,dy,0); // Mouse translation (MouseHandler)
 
             translate(dx,dy); // Translates fDomain by vector (dx,dy).
@@ -339,7 +341,7 @@ public class Document {
             }
 
 
-            //First step: Translate tiles by vector (dx,dy) ----------------------------------------
+            //First step: Translate tiles by vector (dx,dy) ------------------------------------------------------------
             int i = 0;
             while (i < tiles.getChildren().size()){
                 Node node = tiles.getChildren().get(i); // Copy with index i in tile. Each copy is a node of the group "tile".
@@ -350,11 +352,11 @@ public class Document {
                     node.getTransforms().remove(0); // remove old transforms
                     node.getTransforms().add(translate.createConcatenation(nodeTransform)); // new transform = (translate)*(old transform)
                     node.setRotationAxis(point); // "point" serves as new reference of copy
-                    insertSeenEuclidean(point);
+                    insertKeptEuclideanCopy(point); // Save copy as a kept one
                     i++;
                 }
                 else { // when point is out of valid range
-                    getRecycler().getChildren().add(node); // add node to recycler (node is automatically removed from group "tiles")
+                    getRecycler().getChildren().add(node); // Remove node and add to recycler
                 }
             }
 
@@ -363,26 +365,29 @@ public class Document {
                 getRecycler().getChildren().addAll(recycler2); // Add copy to recycler
             }
 
-            //Second step: Create new tiles ----------------------------------------------------------
+            //Second step: Create new tiles ----------------------------------------------------------------------------
             // Create new tiles to fill empty space of valid range. Add new tiles to the group "tiles"
             Group newTiles = tiling.createTilingEuclidean(false, windowCorner, width, height, dx, dy);
 
-            if (isBreak){ // creates tiling new if too much rounding errors
+            if (isBreak){ // Generates new tiling if too much rounding errors
                 isBreak = false;
                 update();
             }
-            else {
+            else { // No rounding errors: add new tiles
                 tiles.getChildren().addAll(newTiles.getChildren());
                 System.out.println("Number of copies: " + tiles.getChildren().size());
             }
 
         }
 
+        // Translation ind hyperbolic case
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         if (tiling.getGeometry() == Geometry.Hyperbolic) {
             dx/=300; dy/=300;
             double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());
 
-            // Calculates hyperbolic translation of group:
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // Calculate hyperbolic translation of group:
             Rotate rotateForward, rotateBackward; //Rotations to x-axis and back
             Affine translateX;
             final Point3D X_Axis = new Point3D(1,0,0);
@@ -400,17 +405,17 @@ public class Document {
             translateX = new Affine(Math.cosh(d), 0 , Math.sinh(d), 0, 0, 1, 0, 0, Math.sinh(d), 0, Math.cosh(d), 0); // Translation along x-axis
 
             Transform translate = rotateForward.createConcatenation(translateX).createConcatenation(rotateBackward); // Hyperbolic translation
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            // OctTree is used for saving copies which are not deleted
+            // OctTree is used for saving copies which are kept under translation
             setKeptHyperbolicCopy(new OctTree());
 
             // Translates fDomain by vector (dx,dy).
             translate(dx,dy);
             setTransformRecycled(translate.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
 
-            Point3D refPoint = tiling.getfDomain().getChamberCenter3D(1).multiply(0.01);
-
             // Recenter fDomain if too far away from center
+            Point3D refPoint = tiling.getfDomain().getChamberCenter3D(1).multiply(0.01);
             if (refPoint.getZ() >= 2.5 || refPoint.getZ() >= 0.6*maxDist){
                 double intoValidRange;
                 if (0.6*maxDist < 2.5){
@@ -424,7 +429,7 @@ public class Document {
                 setTransformRecycled(t.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
             }
 
-            //First step: Translate tiles by vector (dx,dy) -------------------------------------
+            //First step: Translate tiles by vector (dx,dy) ------------------------------------------------------------
             int i = 0;
             while (i < tiles.getChildren().size()){
                 Node node = tiles.getChildren().get(i);
@@ -432,13 +437,13 @@ public class Document {
                 Point3D point = translate.transform(node.getRotationAxis()); // point = translated reference point of node
 
                 if (point.getZ() > maxDist){
-                    getRecycler().getChildren().add(node); // node is automatically removed from tiles
+                    getRecycler().getChildren().add(node); // Remove node and add to recycler
                 }
                 else {
                     node.getTransforms().remove(0);
                     node.getTransforms().add(translate.createConcatenation(nodeTransform));
                     node.setRotationAxis(point);
-                    insertKeptHyperbolicCopy(point);
+                    insertKeptHyperbolicCopy(point); // Save kept copy
                     i++;
                 }
             }
@@ -448,13 +453,13 @@ public class Document {
                 getRecycler().getChildren().addAll(recycler2); // Add copy to recycler
             }
 
-            //Second step: Create new tiles ----------------------------------------------------------
+            //Second step: Create new tiles ----------------------------------------------------------------------------
             Group newTiles = tiling.createTilingHyperbolic(false, maxDist, dx, dy);
-            if (isBreak){ // creates tiling new if too much rounding errors
+            if (isBreak){ // Generates new tiling if too much rounding errors
                 isBreak = false;
                 update();
             }
-            else {
+            else { // No rounding errors: add new tiles
                 tiles.getChildren().addAll(newTiles.getChildren());
             }
         }
@@ -479,9 +484,9 @@ public class Document {
 
     private void insertKeptHyperbolicCopy(Point3D point){ Tiling.keptHyperbolicCopy.insert(tilings.get(current).getfDomain(), point); }
 
-    private void insertSeenEuclidean(Point3D point){ Tiling.seenEuclidean.insert(point.getX(), point.getY()); }
+    private void insertKeptEuclideanCopy(Point3D point){ Tiling.keptEuclideanCopy.insert(point.getX(), point.getY()); }
 
-    private void setSeenEuclidean(QuadTree seen){ Tiling.seenEuclidean = seen; }
+    private void setKeptEuclideanCopy(QuadTree seen){ Tiling.keptEuclideanCopy = seen; }
 
     public void translate(double dx, double dy) {
         tilings.get(current).getfDomain().translate(dx, dy);

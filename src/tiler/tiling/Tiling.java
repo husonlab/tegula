@@ -37,7 +37,7 @@ public class Tiling {
     public Transform transformFDEuclidean, transformFDHyperbolic;
 
     public static OctTree keptHyperbolicCopy;
-    public static QuadTree seenEuclidean = new QuadTree();
+    public static QuadTree keptEuclideanCopy = new QuadTree();
 
     public static Point3D refPointHyperbolic = new Point3D(0, 0, 1);
     public static Point3D refPointEuclidean = new Point3D(1,1,0);
@@ -485,8 +485,8 @@ public class Tiling {
 
             while (queue.size() > 0 && queue.size() < 10000) {
 
-                // Beaks while loop if too many copies (rounding errors)
-                if (recycler.getChildren().size() > 0 && queue.size() >= 1.5*getNumberOfCopies()){
+                // Breaks while loop if too many copies (rounding errors)
+                if (translateTiling() && queue.size() >= 1.5*getNumberOfCopies()){
                     this.fDomain = new FDomain(ds);
                     setBreak(true);
                     break;
@@ -590,7 +590,7 @@ public class Tiling {
             while (queue.size() > 0 && group.getChildren().size() < 1000) {
 
                 // Breaks while loop if too many copies (rounding errors)
-                if (recycler.getChildren().size() > 0 && queue.size() >= 1.5*getNumberOfCopies()){
+                if (translateTiling() && queue.size() >= 1.5*getNumberOfCopies()){
                     this.fDomain = new FDomain(ds);
                     setBreak(true);
                     break;
@@ -760,6 +760,99 @@ public class Tiling {
         return backShift;
     }
 
+
+    /**
+     * Euclidean case: Checks whether "point" is in valid range
+     * @param point
+     * @param windowCorner
+     * @param width
+     * @param height
+     * @return
+     */
+    public boolean isInRangeEuclidean(Point3D point, Point3D windowCorner, double width, double height){
+        // Adjust width and height for a range around visible window. Range around window has at least dimensions 600 times 600
+        if (width >= 350){ width += 250; }
+        else { width = 600; }
+
+        if (height >= 350){ height += 250; }
+        else { height = 600; }
+
+        double eps = 0;
+
+        if (windowCorner.getX()-250 - eps <= point.getX() && point.getX() <= windowCorner.getX()+width + eps &&
+                windowCorner.getY()-250 - eps <= point.getY() && point.getY() <= windowCorner.getY()+height + eps){
+            return true;
+        } else{ return false; }
+    }
+
+    /**
+     * Euclidean case: Checks whether "point" is in visible window
+     * @param point
+     * @param windowCorner
+     * @param width
+     * @param height
+     * @return
+     */
+    public boolean isInWindowEuclidean(Point3D point, Point3D windowCorner, double width, double height){ //Checks whether point is in visible window
+        if (windowCorner.getX() <= point.getX() && point.getX() <= windowCorner.getX() + width &&
+                windowCorner.getY() <= point.getY() && point.getY() <= windowCorner.getY() + height){
+            return true;
+        } else { return false;}
+    }
+
+    private void useRecycler(Group g, Transform t, Point3D p, Group domain){
+        if (recycler.getChildren().size() == 1) { // Refills recycler if almost empty
+            Group recycler2 = JavaFXUtils.copyFundamentalDomain(domain); // Copies original fundamental domain used to build up "tiles"
+            recycler.getChildren().addAll(recycler2);
+        }
+        Node node = recycler.getChildren().get(0); // Reuses a copy of recycler
+        node.getTransforms().clear(); // Clear all transforms
+        node.getTransforms().add(t.createConcatenation(transformRecycled)); // Add transform (maps original fundamental domain to actual fundamental domain)
+        node.setRotationAxis(p); // Set new point of reference
+        g.getChildren().add(node);
+    }
+
+    private void generateNewCopy(Group g, Transform t, Point3D p, Group f){
+        Group group2 = JavaFXUtils.copyFundamentalDomain(f);
+        group2.setRotationAxis(p);
+        group2.getTransforms().add(t);
+        g.getChildren().add(group2);
+    }
+
+    private static int getNumberOfCopies () { return Document.numberOfCopies; }
+
+    private void setBreak (boolean b) { Document.isBreak = b; }
+
+    private boolean makeCopyHyperbolic(Point3D p){ return keptHyperbolicCopy.insert(fDomain, p); }
+
+    private boolean makeCopyEuclidean(Point3D p) { return keptEuclideanCopy.insert(p.getX(),p.getY()); }
+
+    private boolean translateTiling() {
+        if (recycler.getChildren().size() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /*public static boolean makeCopyEuclidean(Point3D point, Point3D windowCorner, double width, double height, double dx, double dy){
+        // Adjust width and height for a range around visible window. Range has at least dimensions 600 times 600
+        if (width >= 350){ width += 250; }
+        else { width = 600; }
+
+        if (height >= 350){ height += 250; }
+        else { height = 600; }
+
+        double left = windowCorner.getX()-250, right = windowCorner.getX()+width, upper = windowCorner.getY()-250, lower = windowCorner.getY()+height;
+
+        double eps = 50;
+
+        if ((dx == 0 && dy == 0) || (point.getX() < left+dx+eps || point.getX() > right+dx-eps || point.getY() > lower+dy-eps || point.getY() < upper+dy+eps)){
+            return true;
+        } else {return  false;}
+    }*/
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -875,98 +968,5 @@ public class Tiling {
 
     public boolean isResetEuclidean() { return  resetEuclidean; }
     public void  setResetEuclidean(boolean reset) { this.resetEuclidean = reset; }
-
-
-    /**
-     * Euclidean case: Checks whether "point" is in valid range
-     * @param point
-     * @param windowCorner
-     * @param width
-     * @param height
-     * @return
-     */
-    public boolean isInRangeEuclidean(Point3D point, Point3D windowCorner, double width, double height){
-        // Adjust width and height for a range around visible window. Range has at least dimensions 600 times 600
-        if (width >= 350){ width += 250; }
-        else { width = 600; }
-
-        if (height >= 350){ height += 250; }
-        else { height = 600; }
-
-        double eps = 0;
-
-        if (windowCorner.getX()-250 - eps <= point.getX() && point.getX() <= windowCorner.getX()+width + eps &&
-            windowCorner.getY()-250 - eps <= point.getY() && point.getY() <= windowCorner.getY()+height + eps){
-            return true;
-        } else{ return false; }
-    }
-
-    /**
-     * Euclidean case: Checks whether "point" is in visible window
-     * @param point
-     * @param windowCorner
-     * @param width
-     * @param height
-     * @return
-     */
-    public boolean isInWindowEuclidean(Point3D point, Point3D windowCorner, double width, double height){ //Checks whether point is in visible window
-        if (windowCorner.getX() <= point.getX() && point.getX() <= windowCorner.getX() + width &&
-            windowCorner.getY() <= point.getY() && point.getY() <= windowCorner.getY() + height){
-            return true;
-        } else { return false;}
-    }
-
-
-    /*public static boolean makeCopyEuclidean(Point3D point, Point3D windowCorner, double width, double height, double dx, double dy){
-        // Adjust width and height for a range around visible window. Range has at least dimensions 600 times 600
-        if (width >= 350){ width += 250; }
-        else { width = 600; }
-
-        if (height >= 350){ height += 250; }
-        else { height = 600; }
-
-        double left = windowCorner.getX()-250, right = windowCorner.getX()+width, upper = windowCorner.getY()-250, lower = windowCorner.getY()+height;
-
-        double eps = 50;
-
-        if ((dx == 0 && dy == 0) || (point.getX() < left+dx+eps || point.getX() > right+dx-eps || point.getY() > lower+dy-eps || point.getY() < upper+dy+eps)){
-            return true;
-        } else {return  false;}
-    }*/
-
-    private static int getNumberOfCopies () { return Document.numberOfCopies; }
-
-    private void setBreak (boolean b) { Document.isBreak = b; }
-
-    private boolean makeCopyHyperbolic(Point3D p){ return keptHyperbolicCopy.insert(fDomain, p); }
-
-    private boolean makeCopyEuclidean(Point3D p) { return seenEuclidean.insert(p.getX(),p.getY()); }
-
-    private boolean translateTiling() {
-        if (recycler.getChildren().size() > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private void useRecycler(Group g, Transform t, Point3D p, Group domain){
-        if (recycler.getChildren().size() == 1) { // Refills recycler if almost empty
-            Group recycler2 = JavaFXUtils.copyFundamentalDomain(domain); // Copies original fundamental domain used to build up "tiles"
-            recycler.getChildren().addAll(recycler2);
-        }
-        Node node = recycler.getChildren().get(0); // Reuses a copy of recycler
-        node.getTransforms().clear(); // Clear all transforms
-        node.getTransforms().add(t.createConcatenation(transformRecycled)); // Add transform (maps original fundamental domain to actual fundamental domain)
-        node.setRotationAxis(p); // Set new point of reference
-        g.getChildren().add(node);
-    }
-
-    private void generateNewCopy(Group g, Transform t, Point3D p, Group f){
-        Group group2 = JavaFXUtils.copyFundamentalDomain(f);
-        group2.setRotationAxis(p);
-        group2.getTransforms().add(t);
-        g.getChildren().add(group2);
-    }
 
 }
