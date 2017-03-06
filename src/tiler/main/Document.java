@@ -368,7 +368,7 @@ public class Document {
             // Insert a boarder so that fundamental domain is not pulled away too far
             Point3D refPoint = tiling.getfDomain().getChamberCenter3D(1).multiply(0.01);
             double a = refPoint.getX(); double b = refPoint.getY();
-            if (refPoint.getZ() >= 8 && a*dx+b*dy >= 0) { // Left condition: boarder. Right condition: Calculates whether (dx,dy) points into unit circle (scalar product).
+            if (refPoint.getZ() >= 7 && a*dx+b*dy >= 0) { // Left condition: boarder. Right condition: Calculates whether (dx,dy) points into unit circle (scalar product).
                 // Change (dx,dy) to tangent vector.
                 dx = b*(b*dx-a*dy)/(a*a+b*b);
                 dy = a*(a*dy-b*dx)/(a*a+b*b);
@@ -377,10 +377,14 @@ public class Document {
                 changeDirection = true;
                 vec = new Point2D(a*(a*dx+b*dy)/(a*a+b*b),b*(a*dx+b*dy)/(a*a+b*b)); // Difference between actual mouse position and tangent vector
             }
+            else if (refPoint.getZ() >= 10){
+                reset();
+            }
             else {
                 translate(dx, dy); // Translates fDomain by vector (dx,dy).
                 changeDirection = false;
             }
+
 
             tiles.getChildren().clear();
             tiles.getChildren().addAll(tiling.createTilingHyperbolic(true,maxDist,dx,dy));
