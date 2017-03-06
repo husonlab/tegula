@@ -234,11 +234,13 @@ public class Controller implements Initializable {
 
     @FXML
     void setCbPullFDomain(ActionEvent event){
-        if (cbPullFDomain.isSelected()){setCBPull(false);}
-        else{setCBPull(true);}
+        if (cbPullFDomain.isSelected()){setCBPullFDomain(true);}
+        else{setCBPullFDomain(false);}
     }
 
-    private void setCBPull(boolean b){ MouseHandler.cbPull = b; }
+    private void setCBPullFDomain(boolean b){ MouseHandler.cbPullFDomain = b; }
+
+    public CheckBox getCBPullFDomain(){ return cbPullFDomain; }
 
     @FXML
     void fireAbout(ActionEvent event) {

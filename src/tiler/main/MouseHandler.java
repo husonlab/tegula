@@ -8,13 +8,14 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import tiler.core.dsymbols.Geometry;
+import tiler.tiling.Tiling;
 
 /**
  * mouse handler
  * Created by huson on 3/29/16.
  */
 public class MouseHandler {
-    public static boolean cbPull = true;
+    public static boolean cbPullFDomain = false;
     private double originalMouseDownX;
     private double originalMouseDownY;
     private double mouseDownX;
@@ -52,6 +53,7 @@ public class MouseHandler {
             double mouseDeltaX = me.getSceneX() - mouseDownX;
             double mouseDeltaY = me.getSceneY() - mouseDownY;
 
+
             if (me.isPrimaryButtonDown()) {
                 if (document.geometryProperty().getValue() != Geometry.Spherical) { // slide
                     double modifierFactor = 1;
@@ -59,11 +61,24 @@ public class MouseHandler {
                     double dy = mouseDeltaY * modifierFactor;
 
                     if (dx != 0 || dy != 0) {
-                        if (cbPull) {
-                            document.translateTile(dx, dy);
+                        if (cbPullFDomain){
+                            document.translateFDomain(dx, dy);
+                        }
+                        else {
+                            document.translateTiling(dx, dy);
+                        }
+
+                        // Checks whether (dx,dy) has been modified.
+                        if (document.directionChanged()){
+                            // Modify mouse position.
+                            mouseDownX = me.getSceneX() - document.getTranslation().getX();
+                            mouseDownY = me.getSceneY() - document.getTranslation().getY();
+                        }
+                        else {
                             mouseDownX = me.getSceneX();
                             mouseDownY = me.getSceneY();
                         }
+
                     }
 
                 } else { //// rotate
@@ -76,6 +91,9 @@ public class MouseHandler {
             }
         });
         scene.setOnMouseReleased((me) -> {
+            if (cbPullFDomain){
+                document.update();
+            }
             if (me.isShiftDown()) {
                 if (document.geometryProperty().getValue() != Geometry.Spherical) { // slide
                     double mouseDeltaX = me.getSceneX() - originalMouseDownX;

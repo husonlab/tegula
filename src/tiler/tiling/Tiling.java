@@ -553,7 +553,7 @@ public class Tiling {
             if (translateTiling()){ // Translate mode of tiling
                 useRecycler(group,new Translate(),refPointEuclidean,EuclideanFund);
             }
-            else { // Builds up tile from fundamental domain (Recycler is only empty when tile is updated)
+            else { // Builds up tile from fundamental domain
                 group.getChildren().addAll(fund);
                 EuclideanFund = fund; // Saves the original fundamental domain
             }

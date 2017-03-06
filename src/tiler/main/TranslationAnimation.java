@@ -52,7 +52,7 @@ public class TranslationAnimation {
         timeline.stop();
         timeline.getKeyFrames().clear();
         final KeyFrame keyFrame = new KeyFrame(Duration.millis(100), (e) -> {
-            document.translateTile(dx, dy);
+            document.translateTiling(dx, dy);
         });
         timeline.getKeyFrames().add(keyFrame);
         timeline.playFromStart();

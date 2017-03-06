@@ -19,6 +19,8 @@
 
 package tiler.main;
 
+import com.sun.javafx.geom.Vec2d;
+import com.sun.javafx.geom.transform.Affine2D;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
@@ -69,6 +71,10 @@ public class Document {
     private boolean drawFundamentalDomainOnly = false;
 
     public static boolean isBreak = false;
+
+    private boolean changeDirection;
+
+    private Point2D vec = new Point2D(0,0);
 
     private int limitHyperbolicGroup = 5;
 
@@ -175,6 +181,7 @@ public class Document {
         // Empty recycler for copies and reset transform for recycled copies.
         getRecycler().getChildren().clear();
         setTransformRecycled(new Translate());
+        changeDirection = false; // No direction has to be changed
 
         Rectangle rect = new Rectangle(), range = new Rectangle(), test = new Rectangle(), test2 = new Rectangle(); //Rectangles for Debugging
 
@@ -227,6 +234,7 @@ public class Document {
             controller.getKleinButton().setVisible(false);
             controller.getIncreaseButton().setVisible(false);
             controller.getDecreaseButton().setVisible(false);
+            controller.getCBPullFDomain().setVisible(true);
         }
 
         // Spherical case ----------------------------------------------------------------------------------------------
@@ -241,6 +249,7 @@ public class Document {
             controller.getKleinButton().setVisible(false);
             controller.getIncreaseButton().setVisible(false);
             controller.getDecreaseButton().setVisible(false);
+            controller.getCBPullFDomain().setVisible(false);
 
         }
 
@@ -252,6 +261,7 @@ public class Document {
             // Reset hyperbolic fundamental domain.
             setHyperbolicFund(new Group());
             setKeptHyperbolicCopy(new OctTree());
+
             //Reset Fundamental Domain if necessary:
             if (!isDrawFundamentalDomainOnly() && Tiling.refPointHyperbolic.getZ() >= maxDist){// Worst case: fDomain is out of range and must be translated back
                 recenterFDomain(tiling.calculateBackShiftHyperbolic(maxDist)); // Shifts back fDomain into valid range (slower algorithm)
@@ -260,7 +270,7 @@ public class Document {
                 recenterFDomain(tiling.transformFDHyperbolic); // Shifts back fDomain into visible window (faster algorithm)
             }
             else {
-                if (!isDrawFundamentalDomainOnly() && (Tiling.refPointHyperbolic.getZ() >= 3 || Tiling.refPointHyperbolic.getZ() >= 0.6 * maxDist)) {
+                if (!isDrawFundamentalDomainOnly() && (Tiling.refPointHyperbolic.getZ() >= 2.5 || Tiling.refPointHyperbolic.getZ() >= 0.6 * maxDist)) {
                     tiling.setResetHyperbolic(true);
                     tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist, 0, 0);
                     recenterFDomain(tiling.transformFDHyperbolic);
@@ -300,6 +310,7 @@ public class Document {
             controller.getKleinButton().setVisible(true);
             controller.getIncreaseButton().setVisible(true);
             controller.getDecreaseButton().setVisible(true);
+            controller.getCBPullFDomain().setVisible(true);
         }
 
         setUseDepthBuffer(!tiling.getGeometry().equals(Geometry.Euclidean));
@@ -319,7 +330,67 @@ public class Document {
         tilings.set(current, new Tiling(tilings.get(current).getDSymbol()));
     }
 
-    public void translateTile(double dx, double dy) {
+    public void translateFDomain(double dx, double dy){
+        final Tiling tiling = tilings.get(current);
+
+        // Translation of fundamental domain in Euclidean case
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        if (tiling.getGeometry() == Geometry.Euclidean) {
+
+            changeDirection = false;
+
+            // A filled recycler is a criterion for translation of whole tiling (see tiling.translateTiling)
+            if (getRecycler().getChildren().size() > 0){
+                getRecycler().getChildren().clear();
+            }
+
+            setKeptEuclideanCopy(new QuadTree()); // Reset Tree (see tiling.makeCopyEuclidean())
+
+            translate(dx, dy); // Translates fDomain by vector (dx,dy).
+
+            tiles.getChildren().clear();
+            tiles.getChildren().addAll(tiling.createTilingEuclidean(true,windowCorner,width,height,dx,dy));
+        }
+
+        // Translation of fundamental domain in hyperbolic case
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        if (tiling.getGeometry() == Geometry.Hyperbolic){
+            double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());
+            dx /= 300; dy /= 300;
+
+            // A filled recycler is a criterion for translation of whole tiling (see tiling.translateTiling)
+            if (getRecycler().getChildren().size() > 0){
+                getRecycler().getChildren().clear();
+            }
+
+            setKeptHyperbolicCopy(new OctTree()); // Reset Tree (see tiling.makeCopyEuclidean())
+
+            // Insert a boarder so that fundamental domain is not pulled away too far
+            Point3D refPoint = tiling.getfDomain().getChamberCenter3D(1).multiply(0.01);
+            double a = refPoint.getX(); double b = refPoint.getY();
+            if (refPoint.getZ() >= 8 && a*dx+b*dy >= 0) { // Left condition: boarder. Right condition: Calculates whether (dx,dy) points into unit circle (scalar product).
+                // Change (dx,dy) to tangent vector.
+                dx = b*(b*dx-a*dy)/(a*a+b*b);
+                dy = a*(a*dy-b*dx)/(a*a+b*b);
+                translate(dx,dy);
+                // Change direction in MouseHandler
+                changeDirection = true;
+                vec = new Point2D(a*(a*dx+b*dy)/(a*a+b*b),b*(a*dx+b*dy)/(a*a+b*b)); // Difference between actual mouse position and tangent vector
+            }
+            else {
+                translate(dx, dy); // Translates fDomain by vector (dx,dy).
+                changeDirection = false;
+            }
+
+            tiles.getChildren().clear();
+            tiles.getChildren().addAll(tiling.createTilingHyperbolic(true,maxDist,dx,dy));
+        }
+    }
+
+    public void translateTiling(double dx, double dy) {
+
+        changeDirection = false;
+
         final Tiling tiling = tilings.get(current);
 
         // Translation in Euclidean case
@@ -380,9 +451,12 @@ public class Document {
 
         }
 
-        // Translation ind hyperbolic case
+        // Translation in hyperbolic case
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         if (tiling.getGeometry() == Geometry.Hyperbolic) {
+
+            changeDirection = false;
+
             dx/=300; dy/=300;
             double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());
 
@@ -465,6 +539,10 @@ public class Document {
         }
 
     }
+
+    public boolean directionChanged(){ return changeDirection; }
+
+    public Point2D getTranslation(){ return vec;  }
 
     private void setHyperbolicFund(Group g){ Tiling.HyperbolicFund = g; }
 
