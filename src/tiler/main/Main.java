@@ -73,7 +73,7 @@ public class Main extends Application {
 
         // setup top pane and stacked pane
 
-        final Scene scene = new Scene(root, 800, 800);
+        final Scene scene = new Scene(root, 800, 600);
 
         stage.setScene(scene);
         stage.sizeToScene();

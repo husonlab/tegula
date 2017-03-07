@@ -3,6 +3,8 @@ package tiler.main;
 import javafx.beans.property.ObjectProperty;
 import javafx.geometry.Point3D;
 import javafx.scene.Scene;
+import javafx.scene.SubScene;
+import javafx.scene.layout.StackPane;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
@@ -118,6 +120,11 @@ public class MouseHandler {
                         double factor = (me.getDeltaY() > 0 ? 1.1 : 0.9);
                         worldScale.setX(factor * worldScale.getX());
                         worldScale.setY(factor * worldScale.getY());
+                        document.width *= 1/factor;
+                        document.height *= 1/factor;
+                        if (document.geometryProperty().getValue() == Geometry.Euclidean) {
+                            document.update();
+                        }
                     }
                 }
         );

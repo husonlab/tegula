@@ -166,8 +166,10 @@ public class Document {
         geometryProperty.setValue(tiling.getfDomain().getGeometry());
     }
 
+
     public Point3D windowCorner = new Point3D(0,0,0); // Upper left corner of window in Euclidean case
-    private double width=600, height=600; //Width and height of window
+    public double width=800, height=506; //Width and height of window
+
 
     private Group tiles = new Group();
     public static int numberOfCopies; //Counts number of copies.

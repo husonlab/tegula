@@ -586,7 +586,7 @@ public class Tiling {
             }
 
 
-            while (queue.size() > 0 && group.getChildren().size() < 1000) {
+            while (queue.size() > 0) {
 
                 // Breaks while loop if too many copies (rounding errors)
                 if (translateTiling() && queue.size() >= 1.5*getNumberOfCopies()){
