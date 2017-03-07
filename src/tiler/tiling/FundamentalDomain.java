@@ -52,7 +52,7 @@ public class FundamentalDomain {
 
         final int orientation = (computeWindingNumber(fDomain.getVertex3D(0, 1), fDomain.getVertex3D(1, 1), fDomain.getVertex3D(2, 1)) < 0 ? fDomain.getOrientation(1) :
                 -fDomain.getOrientation(1));
-        
+
         for (int a = 1; a <= fDomain.size(); a++) {
             final float[] points = new float[21];
             int p = 0;
@@ -139,40 +139,41 @@ public class FundamentalDomain {
         }
 
         // add lines
-        if (fDomain.getGeometry() == Geometry.Euclidean) {
-            for (int a = 1; a <= fDomain.size(); a++) {
-                group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+        if(false) {
+            if (fDomain.getGeometry() == Geometry.Euclidean) {
+                for (int a = 1; a <= fDomain.size(); a++) {
+                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
 
-                group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
 
-                group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a), Color.WHITE.deriveColor(0, 1, 1, 0.2), 0.5f));
-                group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(1, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a), Color.WHITE.deriveColor(0, 1, 1, 0.2), 0.5f));
-                group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(2, a), Color.WHITE.deriveColor(0, 1, 1, 0.2), 0.5f));
+                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a), Color.WHITE.deriveColor(0, 1, 1, 0.2), 0.5f));
+                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(1, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a), Color.WHITE.deriveColor(0, 1, 1, 0.2), 0.5f));
+                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(2, a), Color.WHITE.deriveColor(0, 1, 1, 0.2), 0.5f));
 
-            }
-            for (int a = 1; a <= fDomain.size(); a++) {
-                final Point3D v0 = fDomain.getVertex3D(0, a);
-                final Point3D e2 = fDomain.getEdgeCenter3D(2, a);
-                final Point3D v1 = fDomain.getVertex3D(1, a);
-                group.getChildren().add(makeLine(fDomain.getGeometry(), v0, e2, v1, Color.BLACK, 1));
-            }
-        }
-        else {
-            for (int a = 1; a <= fDomain.size(); a++) {
-                group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a)));
+                }
+                for (int a = 1; a <= fDomain.size(); a++) {
+                    final Point3D v0 = fDomain.getVertex3D(0, a);
+                    final Point3D e2 = fDomain.getEdgeCenter3D(2, a);
+                    final Point3D v1 = fDomain.getVertex3D(1, a);
+                    group.getChildren().add(makeLine(fDomain.getGeometry(), v0, e2, v1, Color.BLACK, 1));
+                }
+            } else {
+                for (int a = 1; a <= fDomain.size(); a++) {
+                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a)));
 
-                group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a)));
+                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a)));
 
-                group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a)));
-                group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(1, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a)));
-                group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(2, a)));
+                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a)));
+                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(1, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a)));
+                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(2, a)));
 
-            }
-            for (int a = 1; a <= fDomain.size(); a++) {
-                final Point3D v0 = fDomain.getVertex3D(0, a);
-                final Point3D e2 = fDomain.getEdgeCenter3D(2, a);
-                final Point3D v1 = fDomain.getVertex3D(1, a);
-                group.getChildren().add(makeLine(fDomain.getGeometry(), v0, e2, v1));
+                }
+                for (int a = 1; a <= fDomain.size(); a++) {
+                    final Point3D v0 = fDomain.getVertex3D(0, a);
+                    final Point3D e2 = fDomain.getEdgeCenter3D(2, a);
+                    final Point3D v1 = fDomain.getVertex3D(1, a);
+                    group.getChildren().add(makeLine(fDomain.getGeometry(), v0, e2, v1));
+                }
             }
         }
 
@@ -274,15 +275,20 @@ public class FundamentalDomain {
             points.add(a.multiply(1.01));
             points.add(b.multiply(1.01));
             points.add(c.multiply(1.01));
+            PolyLine3D polyLine3D = new PolyLine3D(points);
+            MeshView mesh = new MeshView(polyLine3D);
+            mesh.setDrawMode(DrawMode.LINE);
+            return mesh; // todo: implement for three-dimensions
         }
         else {
             points.add(a.multiply(0.99));
             points.add(b.multiply(0.99));
             points.add(c.multiply(0.99));
+            PolyLine3D polyLine3D = new PolyLine3D(points);
+            MeshView mesh = new MeshView(polyLine3D);
+            mesh.setDrawMode(DrawMode.LINE);
+            return mesh; // todo: implement for three-dimensions
         }
-        PolyLine3D polyLine3D = new PolyLine3D(points);
-        MeshView mesh = new MeshView(polyLine3D);
-        mesh.setDrawMode(DrawMode.LINE);
-        return mesh; // todo: implement for three-dimensions
+
     }
 }
