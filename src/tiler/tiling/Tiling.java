@@ -27,7 +27,7 @@ public class Tiling {
 
     private final DSymbol ds;
     private final String groupName;
-    private FDomain fDomain;
+    private final FDomain fDomain;
 
     private final Transforms generators;
     private final Constraints constraints;
@@ -487,7 +487,6 @@ public class Tiling {
 
                 // Breaks while loop if too many copies (rounding errors)
                 if (translateTiling() && queue.size() >= 1.5*getNumberOfCopies()){
-                    this.fDomain = new FDomain(ds);
                     setBreak(true);
                     break;
                 }
@@ -591,7 +590,6 @@ public class Tiling {
 
                 // Breaks while loop if too many copies (rounding errors)
                 if (translateTiling() && queue.size() >= 1.5*getNumberOfCopies()){
-                    this.fDomain = new FDomain(ds);
                     setBreak(true);
                     break;
                 }

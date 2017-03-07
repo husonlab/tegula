@@ -61,7 +61,7 @@ public class MouseHandler {
                     double dy = mouseDeltaY * modifierFactor;
 
                     if (dx != 0 || dy != 0) {
-                        if (cbPullFDomain){
+                        if (cbPullFDomain && !animation.isPlaying()){
                             document.translateFDomain(dx, dy);
                         }
                         else {
@@ -70,7 +70,7 @@ public class MouseHandler {
 
                         // Checks whether (dx,dy) has been modified.
                         if (document.directionChanged()){
-                            // Modify mouse position.
+                            // Modify mouse position in hyperbolic case.
                             mouseDownX = me.getSceneX() - document.getTranslation().getX();
                             mouseDownY = me.getSceneY() - document.getTranslation().getY();
                         }

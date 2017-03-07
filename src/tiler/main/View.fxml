@@ -192,6 +192,7 @@
                         <Button fx:id="previousTilingButton" layoutX="211.0" layoutY="11.0" mnemonicParsing="false" onAction="#firePreviousTiling" text="Previous" />
                         <Button fx:id="lastTilingButton" layoutX="278.0" layoutY="11.0" mnemonicParsing="false" onAction="#fireLastTiling" text="Last" />
                         <ToggleButton fx:id="editSymmetryGroupButton" mnemonicParsing="false" onAction="#fireEditSymmetryGroup" text="Edit Group..." />
+                  <Button fx:id="resetButton" mnemonicParsing="false" onAction="#fireReset" text="Reset" />
                   <CheckBox fx:id="cbPullFDomain" mnemonicParsing="false" onAction="#setCbPullFDomain" text="Pull FDomain only" />
                     </items>
                 </ToolBar>

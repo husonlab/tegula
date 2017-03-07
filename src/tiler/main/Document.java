@@ -326,6 +326,7 @@ public class Document {
         controller.updateNavigateTilings();
     }
 
+    // Reset fundamental domain (without updating tiling)
     public void reset() {
         tilings.set(current, new Tiling(tilings.get(current).getDSymbol()));
     }
@@ -377,7 +378,7 @@ public class Document {
                 changeDirection = true;
                 vec = new Point2D(a*(a*dx+b*dy)/(a*a+b*b),b*(a*dx+b*dy)/(a*a+b*b)); // Difference between actual mouse position and tangent vector
             }
-            else if (refPoint.getZ() >= 10){
+            else if (refPoint.getZ() >= 9){
                 reset();
             }
             else {
@@ -446,7 +447,8 @@ public class Document {
 
             if (isBreak){ // Generates new tiling if too much rounding errors
                 isBreak = false;
-                update();
+                reset(); // Reset fundamental domain
+                update(); // Update tiling
             }
             else { // No rounding errors: add new tiles
                 tiles.getChildren().addAll(newTiles.getChildren());
@@ -535,7 +537,8 @@ public class Document {
             Group newTiles = tiling.createTilingHyperbolic(false, maxDist, dx, dy);
             if (isBreak){ // Generates new tiling if too much rounding errors
                 isBreak = false;
-                update();
+                reset(); // Reset fundamental domain
+                update(); // Update tiling
             }
             else { // No rounding errors: add new tiles
                 tiles.getChildren().addAll(newTiles.getChildren());

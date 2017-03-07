@@ -161,6 +161,9 @@ public class Controller implements Initializable {
     private Button decreaseButton;
 
     @FXML
+    private Button resetButton;
+
+    @FXML
     private CheckBox cbPullFDomain;
 
     private Document document;
@@ -453,6 +456,12 @@ public class Controller implements Initializable {
         document.getCamera().setTranslateZ(-100);
         document.setCamPoincare(true);
 
+    }
+
+    @FXML
+    void fireReset(ActionEvent event){
+        document.reset();
+        document.update();
     }
 
 
