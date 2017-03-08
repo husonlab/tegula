@@ -301,7 +301,8 @@
                         </VBox>
                         <VBox prefHeight="200.0" prefWidth="123.0" spacing="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
                             <children>
-                                <Button fx:id="poincareButton" mnemonicParsing="false" onAction="#firePoincare" text="Poincare model" />
+                        <CheckBox fx:id="cbShowLines" mnemonicParsing="false" onAction="#setCbShowLines" prefHeight="17.0" prefWidth="111.0" text="Show Lines" />
+                                <Button fx:id="poincareButton" mnemonicParsing="false" onAction="#firePoincare" prefHeight="25.0" prefWidth="112.0" text="Poincare model" />
                                 <Button fx:id="kleinButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#fireKlein" prefHeight="27.0" prefWidth="112.0" text="Klein model" />
                                 <Button fx:id="increaseButton" layoutX="10.0" layoutY="37.0" mnemonicParsing="false" onAction="#fireShowMoreTiles" prefHeight="27.0" prefWidth="112.0" text="Increase" />
                                 <Button fx:id="decreaseButton" layoutX="10.0" layoutY="64.0" mnemonicParsing="false" onAction="#fireShowLessTiles" prefHeight="27.0" prefWidth="112.0" text="Decrease" />

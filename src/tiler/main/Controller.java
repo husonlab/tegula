@@ -12,6 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import tiler.tiling.Tiling;
 
 import java.io.File;
 import java.io.FileReader;
@@ -166,6 +167,9 @@ public class Controller implements Initializable {
     @FXML
     private CheckBox cbPullFDomain;
 
+    @FXML
+    private CheckBox cbShowLines;
+
     private Document document;
     private Stage stage;
 
@@ -244,6 +248,20 @@ public class Controller implements Initializable {
     private void setCBPullFDomain(boolean b){ MouseHandler.cbPullFDomain = b; }
 
     public CheckBox getCBPullFDomain(){ return cbPullFDomain; }
+
+    @FXML
+    void setCbShowLines(ActionEvent event){
+        if (cbShowLines.isSelected()){
+            document.addLinesToFDomain();
+        }
+        else {
+            document.removeLinesFromFDomain();
+        }
+    }
+
+    public CheckBox getCbShowLines() {
+        return cbShowLines;
+    }
 
     @FXML
     void fireAbout(ActionEvent event) {

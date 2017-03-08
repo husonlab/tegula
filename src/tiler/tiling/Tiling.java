@@ -4,6 +4,9 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Polyline;
+import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
@@ -33,8 +36,7 @@ public class Tiling {
     private final Constraints constraints;
 
     private boolean resetHyperbolic = false;
-    private boolean resetEuclidean = false;
-    public Transform transformFDEuclidean, transformFDHyperbolic;
+    public Transform transformFDHyperbolic;
 
     public static OctTree keptHyperbolicCopy;
     public static QuadTree keptEuclideanCopy = new QuadTree();
@@ -596,15 +598,6 @@ public class Tiling {
 
                 final Transform t = queue.poll(); // remove t from queue
 
-                // Transform t copies fundamental domain back into a range of 400 times 400 (for reset of fDomain)
-                if (isResetEuclidean() && windowCorner.getX()+100 < t.transform(refPointEuclidean).getX() &&
-                        t.transform(refPointEuclidean).getX() < windowCorner.getX()+500 &&
-                        windowCorner.getY()+100 < t.transform(refPointEuclidean).getY() &&
-                        t.transform(refPointEuclidean).getY() < windowCorner.getY()+500) {
-                    transformFDEuclidean = t;
-                    setResetEuclidean(false);
-                }
-
                 for (Transform g : generators.getTransforms()) { // Creates new transforms for copies
                     Transform tg = t.createConcatenation(g);
                     Point3D bpt = tg.transform(refPointEuclidean); // Reference point corresponding to transform tg
@@ -667,9 +660,10 @@ public class Tiling {
         Point3D apt = refPointEuclidean, point;
         double d = apt.distance(windowCorner);
 
-        while (!isInRangeEuclidean(apt, windowCorner, width, height)){ // The loop works as long as the copy of fDomain lies outside the valid range
-
+        while (!isInRangeForFDomainEuclidean(apt, windowCorner, width, height)){ // The loop works as long as the copy of fDomain lies outside the valid range for FDomain
             t = queue.poll(); // remove t from queue
+
+            Point3D midpoint = new Point3D(windowCorner.getX() + width/2, windowCorner.getY() + height/2, 0);
 
             for (Transform g : generators.getTransforms()){
 
@@ -677,7 +671,7 @@ public class Tiling {
                 point = tg.transform(refPointEuclidean);
 
                 if (seen.insert(point.getX(), point.getY())) { // Creates a tree of points lying in the copies of fDomain
-                    if (point.distance(windowCorner) < d){ // Optimizes the choice of the transformation copying fDomain back to the valid range
+                    if (point.distance(midpoint) < d){ // Optimizes the choice of the transformation copying fDomain back to the valid range
                         d = point.distance(windowCorner);
                         backShift = tg;
                         apt = point;
@@ -689,8 +683,8 @@ public class Tiling {
                 point = gt.transform(refPointEuclidean);
 
                 if (seen.insert(point.getX(), point.getY())) {
-                    if (point.distance(windowCorner) < d){
-                        d = point.distance(windowCorner);
+                    if (point.distance(midpoint) < d){
+                        d = point.distance(midpoint);
                         backShift = gt;
                         apt = point;
                     }
@@ -792,8 +786,32 @@ public class Tiling {
      * @return
      */
     public boolean isInWindowEuclidean(Point3D point, Point3D windowCorner, double width, double height){ //Checks whether point is in visible window
+        if (width < 350){ width = 350; }
+        if (height < 350){ height = 350; }
+
         if (windowCorner.getX() <= point.getX() && point.getX() <= windowCorner.getX() + width &&
                 windowCorner.getY() <= point.getY() && point.getY() <= windowCorner.getY() + height){
+            return true;
+        } else { return false;}
+    }
+
+    /**
+     * Euclidean case: checks whether fundamental domain lies in its valid range which is inside visible window.
+     * @param point
+     * @param windowCorner
+     * @param width
+     * @param height
+     * @return
+     */
+    public boolean isInRangeForFDomainEuclidean(Point3D point, Point3D windowCorner, double width, double height){
+        if (width < 350){ width = 450; }
+        if (height < 350){ height = 450; }
+
+        double left = windowCorner.getX() + 50, right = windowCorner.getX() + width - 50;
+        double up = windowCorner.getY() + 50, down = windowCorner.getY() + height - 50;
+
+        if (left <= point.getX() && point.getX() <= right &&
+                up <= point.getY() && point.getY() <= down){
             return true;
         } else { return false;}
     }
@@ -853,8 +871,6 @@ public class Tiling {
 
 //----------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
-
-
 
     /**
      * straigthen all edges
@@ -963,8 +979,4 @@ public class Tiling {
     public void setResetHyperbolic(boolean reset) {
         this.resetHyperbolic = reset;
     }
-
-    public boolean isResetEuclidean() { return  resetEuclidean; }
-    public void  setResetEuclidean(boolean reset) { this.resetEuclidean = reset; }
-
 }

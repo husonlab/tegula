@@ -27,7 +27,9 @@ import javafx.geometry.Point3D;
 import javafx.scene.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
@@ -36,6 +38,7 @@ import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
+import tiler.tiling.Cylinderline;
 import tiler.tiling.OctTree;
 import tiler.tiling.QuadTree;
 import tiler.tiling.Tiling;
@@ -171,7 +174,7 @@ public class Document {
     public double width=800, height=506; //Width and height of window
 
 
-    private Group tiles = new Group();
+    private Group tiles = new Group(), linesInFDomain = new Group();
     public static int numberOfCopies; //Counts number of copies.
 
     public void update() {
@@ -193,24 +196,14 @@ public class Document {
             setEuclideanFund(new Group());
             setKeptEuclideanCopy(new QuadTree());
 
-            if (!isDrawFundamentalDomainOnly() && !tiling.isInRangeEuclidean(tiling.refPointEuclidean, windowCorner, width, height)) { // Worst case: refPoint is not in valid range
-                recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width, height)); // Shifts back fDomain into valid range (slower algorithm)
-                tiling.setResetEuclidean(true); // Variable to calculate a transform leading back into the visible window
+            if (!isDrawFundamentalDomainOnly() && !tiling.isInWindowEuclidean(tiling.refPointEuclidean, windowCorner, width, height)) { // Fund. domain is not in visible window
+                recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width, height)); // Shifts back fDomain into valid range for fund. domain
                 tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height, 0, 0);
-                recenterFDomain(tiling.transformFDEuclidean); // Shifts back fDomain into visible window (faster algorithm)
-                setTransformRecycled(tiling.transformFDEuclidean); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
             }
-            else { // If fDomain is out of visible window
-                if (!isDrawFundamentalDomainOnly() && !tiling.isInWindowEuclidean(tiling.refPointEuclidean, windowCorner, width, height)) {
-                    tiling.setResetEuclidean(true);
-                    tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height, 0, 0);
-                    recenterFDomain(tiling.transformFDEuclidean); // Shifts back fDomain into visible window (fast algorithm)
-                    setTransformRecycled(tiling.transformFDEuclidean); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
-                }
-                else { // If fDomain is inside visible window
-                    tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height, 0, 0);
-                }
+            else { // If fDomain is inside visible window
+                tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height, 0, 0);
             }
+
 
             numberOfCopies = tiles.getChildren().size();
 
@@ -317,12 +310,18 @@ public class Document {
 
         setUseDepthBuffer(!tiling.getGeometry().equals(Geometry.Euclidean));
 
-
+        // Build up world
         getWorld().getChildren().clear();
         getWorld().getChildren().addAll(tiles, rect, range, test, test2);
         if (tiling.getGeometry() == Geometry.Hyperbolic) {
             getWorld().getChildren().add(light);
         }
+        if (controller.getCbShowLines().isSelected()){
+            linesInFDomain.getChildren().clear();
+            linesInFDomain.getTransforms().add(new Translate());
+            addLinesToFDomain();
+        }
+
         getController().getStatusTextField().setText(tilings.get(current).getStatusLine());
         GroupEditing.update(this);
         controller.updateNavigateTilings();
@@ -350,6 +349,13 @@ public class Document {
             setKeptEuclideanCopy(new QuadTree()); // Reset Tree (see tiling.makeCopyEuclidean())
 
             translate(dx, dy); // Translates fDomain by vector (dx,dy).
+            if (controller.getCbShowLines().isSelected()){
+                Translate t = new Translate(dx, dy);
+                Transform lineTrans = linesInFDomain.getTransforms().get(0);
+                lineTrans = t.createConcatenation(lineTrans);
+                linesInFDomain.getTransforms().clear();
+                linesInFDomain.getTransforms().add(lineTrans);
+            }
 
             tiles.getChildren().clear();
             tiles.getChildren().addAll(tiling.createTilingEuclidean(true,windowCorner,width,height,dx,dy));
@@ -409,13 +415,26 @@ public class Document {
 
             translate(dx,dy); // Translates fDomain by vector (dx,dy).
             setTransformRecycled(translate.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
+            if (controller.getCbShowLines().isSelected()){
+                Transform lineTrans = linesInFDomain.getTransforms().get(0);
+                lineTrans = translate.createConcatenation(lineTrans);
+                linesInFDomain.getTransforms().clear();
+                linesInFDomain.getTransforms().add(lineTrans);
+            }
+
 
             final Point3D refPoint = tiling.getfDomain().getChamberCenter3D(1); // Point of reference in Euclidean fundamental domain
 
-            if (!tiling.isInRangeEuclidean(refPoint, windowCorner, width, height)){ // If fundamental domain is out of valid range
+            if (!tiling.isInWindowEuclidean(refPoint, windowCorner, width, height)){ // If fundamental domain is out of visible window
                 Transform t = tiling.calculateBackShiftEuclidean(windowCorner, width, height);
                 setTransformRecycled(t.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
                 recenterFDomain(t); // Shifts back fDomain into visible window
+                if (controller.getCbShowLines().isSelected()){
+                    Transform lineTrans = linesInFDomain.getTransforms().get(0);
+                    lineTrans = t.createConcatenation(lineTrans);
+                    linesInFDomain.getTransforms().clear();
+                    linesInFDomain.getTransforms().add(lineTrans);
+                }
             }
 
 
@@ -456,7 +475,6 @@ public class Document {
                 tiles.getChildren().addAll(newTiles.getChildren());
                 System.out.println("Number of copies: " + tiles.getChildren().size());
             }
-
         }
 
         // Translation in hyperbolic case
@@ -547,6 +565,59 @@ public class Document {
             }
         }
 
+    }
+
+
+    public void addLinesToFDomain(){
+        final Tiling tiling = tilings.get(current);
+
+        for (int k = 1; k <= tiling.getfDomain().size(); k++) {
+            linesInFDomain.getChildren().add(makeLine(tiling.getfDomain().getGeometry(), tiling.getfDomain().getVertex3D(0, k), tiling.getfDomain().getEdgeCenter3D(1, k), tiling.getfDomain().getVertex3D(2, k), Color.BLACK, 1));
+
+            linesInFDomain.getChildren().add(makeLine(tiling.getfDomain().getGeometry(), tiling.getfDomain().getVertex3D(2, k), tiling.getfDomain().getEdgeCenter3D(0, k), tiling.getfDomain().getVertex3D(1, k), Color.BLACK, 1));
+
+            linesInFDomain.getChildren().add(makeLine(tiling.getfDomain().getGeometry(), tiling.getfDomain().getVertex3D(0, k), tiling.getfDomain().getChamberCenter3D(k), tiling.getfDomain().getEdgeCenter3D(0, k), Color.BLACK, 0.5f));
+            linesInFDomain.getChildren().add(makeLine(tiling.getfDomain().getGeometry(), tiling.getfDomain().getVertex3D(1, k), tiling.getfDomain().getChamberCenter3D(k), tiling.getfDomain().getEdgeCenter3D(1, k), Color.BLACK, 0.5f));
+            linesInFDomain.getChildren().add(makeLine(tiling.getfDomain().getGeometry(), tiling.getfDomain().getVertex3D(2, k), tiling.getfDomain().getChamberCenter3D(k), tiling.getfDomain().getEdgeCenter3D(2, k), Color.BLACK, 0.5f));
+
+        }
+        for (int k = 1; k <= tiling.getfDomain().size(); k++) {
+            final Point3D v0 = tiling.getfDomain().getVertex3D(0, k);
+            final Point3D e2 = tiling.getfDomain().getEdgeCenter3D(2, k);
+            final Point3D v1 = tiling.getfDomain().getVertex3D(1, k);
+            linesInFDomain.getChildren().add(makeLine(tiling.getfDomain().getGeometry(), v0, e2, v1, Color.BLACK, 1));
+        }
+        linesInFDomain.getTransforms().clear();
+        linesInFDomain.getTransforms().add(new Translate());
+        getWorld().getChildren().add(linesInFDomain);
+    }
+
+    public void removeLinesFromFDomain(){
+        linesInFDomain.getChildren().clear();
+        getWorld().getChildren().remove(linesInFDomain);
+    }
+
+    private static Node makeLine(Geometry geometry, Point3D a, Point3D b, Point3D c, Color color, float width) {
+        switch (geometry) {
+            default:
+            case Euclidean: {
+                Polyline polyLine = new Polyline(a.getX(), a.getY(), b.getX(), b.getY(), c.getX(), c.getY());
+                polyLine.setStroke(color);
+                polyLine.setStrokeWidth(width);
+                polyLine.setStrokeLineCap(StrokeLineCap.ROUND);
+                return polyLine;
+
+            }
+            case Hyperbolic: {
+                Group g = new Group();
+                g.getChildren().add(Cylinderline.createConnection(a,b));
+                g.getChildren().addAll(Cylinderline.createConnection(b,c));
+                return g;
+            }
+            case Spherical: {
+                return null;
+            }
+        }
     }
 
     public boolean directionChanged(){ return changeDirection; }
