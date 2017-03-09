@@ -26,7 +26,7 @@ public class Cylinderline {
         double angle = Math.acos(diff.normalize().dotProduct(yAxis));
         Rotate rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRotation);
 
-        Cylinder line = new Cylinder(width, height);
+        Cylinder line = new Cylinder(width, height, 8);
         line.setMaterial(new PhongMaterial(color));
 
         line.getTransforms().addAll(moveToMidpoint, rotateAroundCenter);

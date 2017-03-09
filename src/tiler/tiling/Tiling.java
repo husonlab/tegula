@@ -407,7 +407,7 @@ public class Tiling {
                     }
             }
 
-            while (queue.size() > 0 && queue.size() < 800) {
+            while (queue.size() > 0) {
                 final Transform t = queue.poll(); // remove t from queue
 
                 for (Transform g : generators.getTransforms()) {
@@ -485,7 +485,7 @@ public class Tiling {
                 }
             }
 
-            while (queue.size() > 0 && queue.size() < 10000) {
+            while (queue.size() > 0) {
 
                 // Breaks while loop if too many copies (rounding errors)
                 if (translateTiling() && queue.size() >= 1.5*getNumberOfCopies()){
@@ -655,40 +655,48 @@ public class Tiling {
         final Queue<Transform> queue = new LinkedList<>();
         queue.addAll(generators.getTransforms());
 
-        refPointEuclidean = fDomain.getChamberCenter3D(1);
+        Point3D refPoint = fDomain.getChamberCenter3D(1);
         final QuadTree seen = new QuadTree();
-        seen.insert(refPointEuclidean.getX(),refPointEuclidean.getY());
+        seen.insert(refPoint.getX(),refPoint.getY());
 
         Transform backShift = new Translate(), t;
-        Point3D apt = refPointEuclidean, point;
+        Point3D point = refPoint;
         Point3D midpoint = new Point3D(windowCorner.getX() + width/2, windowCorner.getY() + height/2, 0);
-        double d = apt.distance(midpoint);
+        double d = point.distance(midpoint);
 
-        while (!isInRangeForFDomainEuclidean(apt, windowCorner, width, height)){ // The loop works as long as the copy of fDomain lies outside the valid range for FDomain
+        for (Transform g : generators.getTransforms()){
+            point = g.transform(refPoint);
+            if (seen.insert(point.getX(), point.getY())) { // Creates a tree of points lying in the copies of fDomain
+                if (point.distance(midpoint) < d){ // Optimizes the choice of the transformation copying fDomain back to the valid range
+                    d = point.distance(windowCorner);
+                    backShift = g;
+                }
+            }
+        }
+
+        while (!isInRangeForFDomainEuclidean(point, windowCorner, width, height)){ // The loop works as long as the copy of fDomain lies outside the valid range for FDomain
             t = queue.poll(); // remove t from queue
 
             for (Transform g : generators.getTransforms()){
 
                 Transform tg = t.createConcatenation(g);
-                point = tg.transform(refPointEuclidean);
+                point = tg.transform(refPoint);
 
                 if (seen.insert(point.getX(), point.getY())) { // Creates a tree of points lying in the copies of fDomain
                     if (point.distance(midpoint) < d){ // Optimizes the choice of the transformation copying fDomain back to the valid range
                         d = point.distance(windowCorner);
                         backShift = tg;
-                        apt = point;
                     }
                     queue.add(tg);
                 }
 
                 Transform gt = g.createConcatenation(t);
-                point = gt.transform(refPointEuclidean);
+                point = gt.transform(refPoint);
 
                 if (seen.insert(point.getX(), point.getY())) {
                     if (point.distance(midpoint) < d){
                         d = point.distance(midpoint);
                         backShift = gt;
-                        apt = point;
                     }
                     queue.add(gt);
                 }

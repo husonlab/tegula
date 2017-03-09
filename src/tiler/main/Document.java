@@ -27,6 +27,7 @@ import javafx.geometry.Point3D;
 import javafx.scene.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeLineCap;
@@ -297,7 +298,6 @@ public class Document {
                     camera.setFarClip(100 * maxDist);
                 }
                 camera.setTranslateZ(0);
-
             }
             camera.setFarClip(100000);
 
@@ -317,8 +317,7 @@ public class Document {
             getWorld().getChildren().add(light);
         }
         if (controller.getCbShowLines().isSelected()){
-            linesInFDomain.getChildren().clear();
-            linesInFDomain.getTransforms().add(new Translate());
+            removeLinesFromFDomain();
             addLinesToFDomain();
         }
 
@@ -367,34 +366,6 @@ public class Document {
             double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());
             dx /= 300; dy /= 300;
 
-            if (controller.getCbShowLines().isSelected()){
-                ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                // Calculate hyperbolic translation of group:
-                Rotate rotateForward, rotateBackward; //Rotations to x-axis and back
-                Affine translateX;
-                final Point3D X_Axis = new Point3D(1,0,0);
-                double d = Math.sqrt(dx*dx+dy*dy);  // Length of translation
-                final Point3D vec = new Point3D(dx,dy,0);
-
-                double rotAngle = vec.angle(X_Axis); //Rotation angle between direction of translation and x-axis
-                Point3D rotAxis = new Point3D(0,0,1);  // Rotation axis
-
-                if (dy <= 0){ rotAxis = new Point3D(0,0,-1); }
-
-                rotateForward = new Rotate(rotAngle, rotAxis);
-                rotateBackward = new Rotate(-rotAngle, rotAxis);
-
-                translateX = new Affine(Math.cosh(d), 0 , Math.sinh(d), 0, 0, 1, 0, 0, Math.sinh(d), 0, Math.cosh(d), 0); // Translation along x-axis
-
-                Transform translate = rotateForward.createConcatenation(translateX).createConcatenation(rotateBackward); // Hyperbolic translation
-                ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-                Transform lineTrans = linesInFDomain.getTransforms().get(0);
-                lineTrans = translate.createConcatenation(lineTrans);
-                linesInFDomain.getTransforms().clear();
-                linesInFDomain.getTransforms().add(lineTrans);
-            }
-
             // A filled recycler is a criterion for translation of whole tiling (see tiling.translateTiling)
             if (getRecycler().getChildren().size() > 0){
                 getRecycler().getChildren().clear();
@@ -410,15 +381,38 @@ public class Document {
                 dx = b*(b*dx-a*dy)/(a*a+b*b);
                 dy = a*(a*dy-b*dx)/(a*a+b*b);
                 translate(dx,dy);
+                if (controller.getCbShowLines().isSelected()){
+                    // Hyperbolic translation
+                    Transform translate = hyperbolicTranslation(dx,dy);
+
+                    // Transformation of lines in fundamental domain
+                    Transform lineTrans = linesInFDomain.getTransforms().get(0);
+                    lineTrans = translate.createConcatenation(lineTrans);
+                    linesInFDomain.getTransforms().clear();
+                    linesInFDomain.getTransforms().add(lineTrans);
+                }
+
                 // Change direction in MouseHandler
                 changeDirection = true;
                 vec = new Point2D(a*(a*dx+b*dy)/(a*a+b*b),b*(a*dx+b*dy)/(a*a+b*b)); // Difference between actual mouse position and tangent vector
             }
             else if (refPoint.getZ() >= 9){
                 reset();
+                removeLinesFromFDomain();
+                addLinesToFDomain();
             }
             else {
                 translate(dx, dy); // Translates fDomain by vector (dx,dy).
+                if (controller.getCbShowLines().isSelected()){
+                    // Hyperbolic translation
+                    Transform translate = hyperbolicTranslation(dx,dy);
+
+                    // Transformation of lines in fundamental domain
+                    Transform lineTrans = linesInFDomain.getTransforms().get(0);
+                    lineTrans = translate.createConcatenation(lineTrans);
+                    linesInFDomain.getTransforms().clear();
+                    linesInFDomain.getTransforms().add(lineTrans);
+                }
                 changeDirection = false;
             }
 
@@ -514,26 +508,8 @@ public class Document {
             dx/=300; dy/=300;
             double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());
 
-            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
             // Calculate hyperbolic translation of group:
-            Rotate rotateForward, rotateBackward; //Rotations to x-axis and back
-            Affine translateX;
-            final Point3D X_Axis = new Point3D(1,0,0);
-            double d = Math.sqrt(dx*dx+dy*dy);  // Length of translation
-            final Point3D vec = new Point3D(dx,dy,0);
-
-            double rotAngle = vec.angle(X_Axis); //Rotation angle between direction of translation and x-axis
-            Point3D rotAxis = new Point3D(0,0,1);  // Rotation axis
-
-            if (dy <= 0){ rotAxis = new Point3D(0,0,-1); }
-
-            rotateForward = new Rotate(rotAngle, rotAxis);
-            rotateBackward = new Rotate(-rotAngle, rotAxis);
-
-            translateX = new Affine(Math.cosh(d), 0 , Math.sinh(d), 0, 0, 1, 0, 0, Math.sinh(d), 0, Math.cosh(d), 0); // Translation along x-axis
-
-            Transform translate = rotateForward.createConcatenation(translateX).createConcatenation(rotateBackward); // Hyperbolic translation
-            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            Transform translate = hyperbolicTranslation(dx,dy);
 
             // OctTree is used for saving copies which are kept under translation
             setKeptHyperbolicCopy(new OctTree());
@@ -608,6 +584,10 @@ public class Document {
     }
 
 
+
+    /**
+     * Adds lines to fundamental domain
+     */
     public void addLinesToFDomain(){
         final Tiling tiling = tilings.get(current);
 
@@ -653,6 +633,33 @@ public class Document {
             return g;
         }
     }
+
+    /**
+     * Calculate hyperbolic translation along vector (dx,dy)
+     * @param dx
+     * @param dy
+     * @return transform
+     */
+    private Transform hyperbolicTranslation(double dx, double dy){
+        Rotate rotateForward, rotateBackward; //Rotations to x-axis and back
+        Affine translateX;
+        final Point3D X_Axis = new Point3D(1,0,0);
+        double d = Math.sqrt(dx*dx+dy*dy);  // Length of translation
+        final Point3D vec = new Point3D(dx,dy,0);
+
+        double rotAngle = vec.angle(X_Axis); //Rotation angle between direction of translation and x-axis
+        Point3D rotAxis = new Point3D(0,0,1);  // Rotation axis
+
+        if (dy <= 0){ rotAxis = new Point3D(0,0,-1); }
+
+        rotateForward = new Rotate(rotAngle, rotAxis);
+        rotateBackward = new Rotate(-rotAngle, rotAxis);
+
+        translateX = new Affine(Math.cosh(d), 0 , Math.sinh(d), 0, 0, 1, 0, 0, Math.sinh(d), 0, Math.cosh(d), 0); // Translation along x-axis
+
+        return rotateForward.createConcatenation(translateX).createConcatenation(rotateBackward); // Hyperbolic translation
+    }
+
 
     public boolean directionChanged(){ return changeDirection; }
 
