@@ -646,6 +646,9 @@ public class Tiling {
      */
     public Transform calculateBackShiftEuclidean(Point3D windowCorner, double width, double height){
 
+        if (width < 450){ width = 450; }
+        if (height < 450){ height = 450; }
+
         //Add all generators
         computeConstraintsAndGenerators();
 
@@ -658,12 +661,11 @@ public class Tiling {
 
         Transform backShift = new Translate(), t;
         Point3D apt = refPointEuclidean, point;
-        double d = apt.distance(windowCorner);
+        Point3D midpoint = new Point3D(windowCorner.getX() + width/2, windowCorner.getY() + height/2, 0);
+        double d = apt.distance(midpoint);
 
         while (!isInRangeForFDomainEuclidean(apt, windowCorner, width, height)){ // The loop works as long as the copy of fDomain lies outside the valid range for FDomain
             t = queue.poll(); // remove t from queue
-
-            Point3D midpoint = new Point3D(windowCorner.getX() + width/2, windowCorner.getY() + height/2, 0);
 
             for (Transform g : generators.getTransforms()){
 
@@ -786,8 +788,8 @@ public class Tiling {
      * @return
      */
     public boolean isInWindowEuclidean(Point3D point, Point3D windowCorner, double width, double height){ //Checks whether point is in visible window
-        if (width < 350){ width = 350; }
-        if (height < 350){ height = 350; }
+        if (width < 450){ width = 450; }
+        if (height < 450){ height = 450; }
 
         if (windowCorner.getX() <= point.getX() && point.getX() <= windowCorner.getX() + width &&
                 windowCorner.getY() <= point.getY() && point.getY() <= windowCorner.getY() + height){
@@ -804,8 +806,8 @@ public class Tiling {
      * @return
      */
     public boolean isInRangeForFDomainEuclidean(Point3D point, Point3D windowCorner, double width, double height){
-        if (width < 350){ width = 450; }
-        if (height < 350){ height = 450; }
+        if (width < 450){ width = 450; }
+        if (height < 450){ height = 450; }
 
         double left = windowCorner.getX() + 50, right = windowCorner.getX() + width - 50;
         double up = windowCorner.getY() + 50, down = windowCorner.getY() + height - 50;

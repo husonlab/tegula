@@ -14,7 +14,7 @@ public class Cylinderline {
     /**
      * Created by Ruediger on 2017.03.08.
      */
-    public static Cylinder createConnection(Point3D origin, Point3D target) {
+    public static Cylinder createConnection(Point3D origin, Point3D target, Color color, double width) {
         Point3D yAxis = new Point3D(0, 1, 0);
         Point3D diff = target.subtract(origin);
         double height = diff.magnitude();
@@ -26,8 +26,8 @@ public class Cylinderline {
         double angle = Math.acos(diff.normalize().dotProduct(yAxis));
         Rotate rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRotation);
 
-        Cylinder line = new Cylinder(1, height);
-        line.setMaterial(new PhongMaterial(Color.BLACK));
+        Cylinder line = new Cylinder(width, height);
+        line.setMaterial(new PhongMaterial(color));
 
         line.getTransforms().addAll(moveToMidpoint, rotateAroundCenter);
 

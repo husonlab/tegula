@@ -367,6 +367,34 @@ public class Document {
             double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());
             dx /= 300; dy /= 300;
 
+            if (controller.getCbShowLines().isSelected()){
+                ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                // Calculate hyperbolic translation of group:
+                Rotate rotateForward, rotateBackward; //Rotations to x-axis and back
+                Affine translateX;
+                final Point3D X_Axis = new Point3D(1,0,0);
+                double d = Math.sqrt(dx*dx+dy*dy);  // Length of translation
+                final Point3D vec = new Point3D(dx,dy,0);
+
+                double rotAngle = vec.angle(X_Axis); //Rotation angle between direction of translation and x-axis
+                Point3D rotAxis = new Point3D(0,0,1);  // Rotation axis
+
+                if (dy <= 0){ rotAxis = new Point3D(0,0,-1); }
+
+                rotateForward = new Rotate(rotAngle, rotAxis);
+                rotateBackward = new Rotate(-rotAngle, rotAxis);
+
+                translateX = new Affine(Math.cosh(d), 0 , Math.sinh(d), 0, 0, 1, 0, 0, Math.sinh(d), 0, Math.cosh(d), 0); // Translation along x-axis
+
+                Transform translate = rotateForward.createConcatenation(translateX).createConcatenation(rotateBackward); // Hyperbolic translation
+                ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                Transform lineTrans = linesInFDomain.getTransforms().get(0);
+                lineTrans = translate.createConcatenation(lineTrans);
+                linesInFDomain.getTransforms().clear();
+                linesInFDomain.getTransforms().add(lineTrans);
+            }
+
             // A filled recycler is a criterion for translation of whole tiling (see tiling.translateTiling)
             if (getRecycler().getChildren().size() > 0){
                 getRecycler().getChildren().clear();
@@ -513,6 +541,12 @@ public class Document {
             // Translates fDomain by vector (dx,dy).
             translate(dx,dy);
             setTransformRecycled(translate.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
+            if (controller.getCbShowLines().isSelected()){
+                Transform lineTrans = linesInFDomain.getTransforms().get(0);
+                lineTrans = translate.createConcatenation(lineTrans);
+                linesInFDomain.getTransforms().clear();
+                linesInFDomain.getTransforms().add(lineTrans);
+            }
 
             // Recenter fDomain if too far away from center
             Point3D refPoint = tiling.getfDomain().getChamberCenter3D(1).multiply(0.01);
@@ -527,6 +561,12 @@ public class Document {
                 Transform t = tiling.calculateBackShiftHyperbolic(intoValidRange);
                 recenterFDomain(t); // Shifts back fDomain into valid range
                 setTransformRecycled(t.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
+                if (controller.getCbShowLines().isSelected()){
+                    Transform lineTrans = linesInFDomain.getTransforms().get(0);
+                    lineTrans = t.createConcatenation(lineTrans);
+                    linesInFDomain.getTransforms().clear();
+                    linesInFDomain.getTransforms().add(lineTrans);
+                }
             }
 
             //First step: Translate tiles by vector (dx,dy) ------------------------------------------------------------
@@ -598,9 +638,7 @@ public class Document {
     }
 
     private static Node makeLine(Geometry geometry, Point3D a, Point3D b, Point3D c, Color color, float width) {
-        switch (geometry) {
-            default:
-            case Euclidean: {
+        if (geometry == Geometry.Euclidean) {
                 Polyline polyLine = new Polyline(a.getX(), a.getY(), b.getX(), b.getY(), c.getX(), c.getY());
                 polyLine.setStroke(color);
                 polyLine.setStrokeWidth(width);
@@ -608,15 +646,11 @@ public class Document {
                 return polyLine;
 
             }
-            case Hyperbolic: {
-                Group g = new Group();
-                g.getChildren().add(Cylinderline.createConnection(a,b));
-                g.getChildren().addAll(Cylinderline.createConnection(b,c));
-                return g;
-            }
-            case Spherical: {
-                return null;
-            }
+        else {
+            Group g = new Group();
+            g.getChildren().add(Cylinderline.createConnection(a,b,color,width));
+            g.getChildren().addAll(Cylinderline.createConnection(b,c,color,width));
+            return g;
         }
     }
 
