@@ -197,12 +197,12 @@ public class Document {
             setEuclideanFund(new Group());
             setKeptEuclideanCopy(new QuadTree());
 
-            if (!isDrawFundamentalDomainOnly() && !tiling.isInWindowEuclidean(tiling.refPointEuclidean, windowCorner, width, height)) { // Fund. domain is not in visible window
+            if (!tiling.isInWindowEuclidean(tiling.refPointEuclidean, windowCorner, width, height)) { // Fund. domain is not in visible window
                 recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width, height)); // Shifts back fDomain into valid range for fund. domain
-                tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height, 0, 0);
+                tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
             }
             else { // If fDomain is inside visible window
-                tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height, 0, 0);
+                tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
             }
 
 
@@ -235,7 +235,7 @@ public class Document {
 
         // Spherical case ----------------------------------------------------------------------------------------------
         else if (tiling.getGeometry() == Geometry.Spherical) {
-            tiles = tiling.createTilingSpherical(isDrawFundamentalDomainOnly());
+            tiles = tiling.createTilingSpherical();
 
             camera.setTranslateZ(-500);
             camera.setFieldOfView(35);
@@ -259,21 +259,12 @@ public class Document {
             setKeptHyperbolicCopy(new OctTree());
 
             //Reset Fundamental Domain if necessary:
-            if (!isDrawFundamentalDomainOnly() && Tiling.refPointHyperbolic.getZ() >= maxDist){// Worst case: fDomain is out of range and must be translated back
-                recenterFDomain(tiling.calculateBackShiftHyperbolic(maxDist)); // Shifts back fDomain into valid range (slower algorithm)
-                tiling.setResetHyperbolic(true); // Variable to calculate a transform leading back into the visible window
-                tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist, 0, 0);
-                recenterFDomain(tiling.transformFDHyperbolic); // Shifts back fDomain into visible window (faster algorithm)
+            if (Tiling.refPointHyperbolic.getZ() >= 4.8){// Fundamental domain is shifted back
+                recenterFDomain(tiling.calculateBackShiftHyperbolic()); // Shifts back fDomain into valid range (slower algorithm)
+                tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
             }
             else {
-                if (!isDrawFundamentalDomainOnly() && (Tiling.refPointHyperbolic.getZ() >= 2.5 || Tiling.refPointHyperbolic.getZ() >= 0.6 * maxDist)) {
-                    tiling.setResetHyperbolic(true);
-                    tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist, 0, 0);
-                    recenterFDomain(tiling.transformFDHyperbolic);
-                }
-                else {
-                    tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist, 0, 0);
-                }
+                tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
             }
 
             numberOfCopies = tiles.getChildren().size();
@@ -357,7 +348,7 @@ public class Document {
             }
 
             tiles.getChildren().clear();
-            tiles.getChildren().addAll(tiling.createTilingEuclidean(true,windowCorner,width,height,dx,dy));
+            tiles.getChildren().addAll(tiling.createTilingEuclidean(true,windowCorner,width,height));
         }
 
         // Translation of fundamental domain in hyperbolic case
@@ -418,7 +409,7 @@ public class Document {
 
 
             tiles.getChildren().clear();
-            tiles.getChildren().addAll(tiling.createTilingHyperbolic(true,maxDist,dx,dy));
+            tiles.getChildren().addAll(tiling.createTilingHyperbolic(true,maxDist));
         }
     }
 
@@ -486,7 +477,7 @@ public class Document {
 
             //Second step: Create new tiles ----------------------------------------------------------------------------
             // Create new tiles to fill empty space of valid range. Add new tiles to the group "tiles"
-            Group newTiles = tiling.createTilingEuclidean(false, windowCorner, width, height, dx, dy);
+            Group newTiles = tiling.createTilingEuclidean(false, windowCorner, width, height);
 
             if (isBreak){ // Generates new tiling if too much rounding errors
                 isBreak = false;
@@ -526,15 +517,8 @@ public class Document {
 
             // Recenter fDomain if too far away from center
             Point3D refPoint = tiling.getfDomain().getChamberCenter3D(1).multiply(0.01);
-            if (refPoint.getZ() >= 2.5 || refPoint.getZ() >= 0.6*maxDist){
-                double intoValidRange;
-                if (0.6*maxDist < 2.5){
-                    intoValidRange = 0.6*maxDist;
-                }
-                else {
-                    intoValidRange = 2.5;
-                }
-                Transform t = tiling.calculateBackShiftHyperbolic(intoValidRange);
+            if (refPoint.getZ() >= 4.8){
+                Transform t = tiling.calculateBackShiftHyperbolic();
                 recenterFDomain(t); // Shifts back fDomain into valid range
                 setTransformRecycled(t.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
                 if (controller.getCbShowLines().isSelected()){
@@ -570,7 +554,7 @@ public class Document {
             }
 
             //Second step: Create new tiles ----------------------------------------------------------------------------
-            Group newTiles = tiling.createTilingHyperbolic(false, maxDist, dx, dy);
+            Group newTiles = tiling.createTilingHyperbolic(false, maxDist);
             if (isBreak){ // Generates new tiling if too much rounding errors
                 isBreak = false;
                 reset(); // Reset fundamental domain
@@ -770,7 +754,7 @@ public class Document {
     }
 
     public void setLimitHyperbolicGroup(int limitHyperbolicGroup) {
-        if (limitHyperbolicGroup > 3)
+        if (limitHyperbolicGroup >= 5)
             this.limitHyperbolicGroup = limitHyperbolicGroup;
     }
 
