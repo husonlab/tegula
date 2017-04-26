@@ -6,6 +6,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polyline;
+import javafx.scene.shape.Sphere;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
@@ -390,7 +391,7 @@ public class Tiling {
         // Make copies of fundamental domain.
 
         final OctTree seen = new OctTree();
-        final Point3D refPoint = fDomain.getChamberCenter3D(1).multiply(0.01);
+        final Point3D refPoint = fDomain.getChamberCenter3D(Document.getChamberIndex()).multiply(0.01); // refPoint lies on unit sphere
         seen.insert(fDomain, refPoint); //root node of OctTree is point of reference.
 
         final Queue<Transform> queue = new LinkedList<>();
@@ -440,7 +441,7 @@ public class Tiling {
      */
     public Group createTilingHyperbolic(boolean drawFundamentalDomainOnly, double maxDist) {
 
-        refPointHyperbolic = fDomain.getChamberCenter3D(1).multiply(0.01);
+        refPointHyperbolic = fDomain.getChamberCenter3D(Document.getChamberIndex()).multiply(0.01);
         final OctTree seen = new OctTree();
         seen.insert(fDomain, refPointHyperbolic); // root of OctTree is point of reference
 
@@ -480,13 +481,19 @@ public class Tiling {
                 }
             }
 
+            int countChildren = 0;
             while (queue.size() > 0) {
-
                 // Breaks while loop if too many copies (rounding errors)
-                if (translateTiling() && queue.size() >= 1.5 * getNumberOfCopies()) {
+                if (translateTiling() && countChildren >= 1.5 * getNumberOfCopies()) {
                     setBreak(true);
+                    System.out.println(countChildren + " children and " + getNumberOfCopies() + " copies");
                     break;
                 }
+
+                /*if (!translateTiling() && countChildren > 500){
+                    System.out.println("Count children greater 500");
+                    break;
+                }*/
 
                 final Transform t = queue.poll(); // remove t from queue
 
@@ -494,6 +501,7 @@ public class Tiling {
                     Transform tg = t.createConcatenation(g);
                     Point3D bpt = tg.transform(refPointHyperbolic);
                     if (seen.insert(fDomain, bpt) && bpt.getZ() < maxDist) {
+                        countChildren++;
                         queue.add(tg);
                         if (makeCopyHyperbolic(bpt)) {
                             if (translateTiling()) {
@@ -507,6 +515,7 @@ public class Tiling {
                     Transform gt = g.createConcatenation(t);
                     bpt = gt.transform(refPointHyperbolic);
                     if (seen.insert(fDomain, bpt) && bpt.getZ() < maxDist) {
+                        countChildren++;
                         queue.add(gt);
                         if (makeCopyHyperbolic(bpt)) {
                             if (translateTiling()) {
@@ -534,7 +543,7 @@ public class Tiling {
     public Group createTilingEuclidean(boolean drawFundamentalDomainOnly, Point3D windowCorner, double width, double height) {
 
         //Calculation of point of reference:
-        refPointEuclidean = fDomain.getChamberCenter3D(1); // Reference point of actual fundamental domain
+        refPointEuclidean = fDomain.getChamberCenter3D(Document.getChamberIndex()); // Reference point of actual fundamental domain
 
         final Group group = new Group();
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain); // Build fundamental domain
@@ -647,7 +656,7 @@ public class Tiling {
         final Queue<Transform> queue = new LinkedList<>();
         queue.addAll(generators.getTransforms());
 
-        Point3D refPoint = fDomain.getChamberCenter3D(1);
+        Point3D refPoint = fDomain.getChamberCenter3D(Document.getChamberIndex());
         final QuadTree seen = new QuadTree();
         seen.insert(refPoint.getX(), refPoint.getY());
 
@@ -716,7 +725,7 @@ public class Tiling {
         queue.addAll(generators.getTransforms());
 
 
-        Point3D refPoint = fDomain.getChamberCenter3D(1);
+        Point3D refPoint = fDomain.getChamberCenter3D(Document.getChamberIndex());
         final OctTree seen = new OctTree();
         seen.insert(fDomain, refPoint);
 
@@ -724,8 +733,14 @@ public class Tiling {
         Point3D apt = refPoint, point = refPoint;
         double d = apt.getZ();
 
-        while (apt.getZ() >= 450) { // The loop works as long as the copy of fDomain lies outside the valid range
-
+        double limiter = Document.getValidHyperbolicRange()*100-30;
+        int counter = 0;
+        while (apt.getZ() >= limiter) { // The loop works as long as the copy of fDomain lies outside the valid range
+            counter++;
+            if (counter >= 250){
+                System.out.println("Loop back shift. BREAK");
+                break;
+            }
             t = queue.poll(); // remove t from queue
             for (Transform g : generators.getTransforms()) {
 
@@ -756,26 +771,6 @@ public class Tiling {
         }
         return backShift;
     }
-
-    private double calculateDiameter(FDomain f){
-        LinkedList<Point2D> vertices = new LinkedList<>();
-
-        for (int k = 1; k <= f.size(); k++){
-            vertices.add(f.getVertex(0,k));
-            vertices.add(f.getVertex(1,k));
-            vertices.add(f.getVertex(2,k));
-        }
-        double d = vertices.get(0).distance(vertices.get(1));
-        for (Point2D p : vertices){
-            for (Point2D q : vertices){
-                if (p.distance(q) < d){
-                    d = p.distance(q);
-                }
-            }
-        }
-        return d;
-    }
-
 
     /**
      * Euclidean case: Checks whether "point" is in valid range

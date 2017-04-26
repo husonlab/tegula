@@ -8,7 +8,7 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 
 /**
- * Created by Ruediger on 2017.03.08.
+ * Created by Ruediger on 2017.03.08. Slightly modified code from Rahel Lüthy (http://netzwerg.ch/blog/2015/03/22/javafx-3d-line/).
  */
 public class Cylinderline {
     /**

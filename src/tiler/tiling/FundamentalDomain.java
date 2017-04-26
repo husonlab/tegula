@@ -53,6 +53,7 @@ public class FundamentalDomain {
         final int orientation = (computeWindingNumber(fDomain.getVertex3D(0, 1), fDomain.getVertex3D(1, 1), fDomain.getVertex3D(2, 1)) < 0 ? fDomain.getOrientation(1) :
                 -fDomain.getOrientation(1));
 
+
         for (int a = 1; a <= fDomain.size(); a++) {
             final float[] points = new float[21];
             int p = 0;
@@ -91,9 +92,9 @@ public class FundamentalDomain {
                         1, 0, 6, 1, 3, 2, // v1 cc e0
                         2, 0, 3, 0, 6, 2, // v2 e0 cc
                         2, 0, 6, 1, 4, 2, // v2 cc e1
-                        0, 0, 4, 1, 6, 2,  // v0 e1 cc
+                        0, 0, 4, 1, 6, 2, // v0 e1 cc
 
-                       0, 0, 5, 1, 6, 2, // v0 cc e2
+                        0, 0, 5, 1, 6, 2, // v0 cc e2
                         1, 0, 6, 1, 5, 2, // v1 e2 cc
                         1, 0, 3, 1, 6, 2, // v1 cc e0
                         2, 0, 6, 0, 3, 2, // v2 e0 cc
@@ -132,8 +133,9 @@ public class FundamentalDomain {
             mesh.getTexCoords().addAll(texCoords);
             mesh.getFaces().addAll(faces);
             mesh.getFaceSmoothingGroups().addAll(smoothing);
-            MeshView meshView = new MeshView(mesh);
             //meshView.setDrawMode(DrawMode.LINE);
+            MeshView meshView = new MeshView(mesh);
+            meshView.setMesh(mesh);
             meshView.setMaterial(new PhongMaterial(colors[a]));
             group.getChildren().addAll(meshView);
         }

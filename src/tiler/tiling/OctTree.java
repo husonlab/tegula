@@ -23,14 +23,16 @@ public class OctTree {
         }
     }
 
-
+    /**
+     *
+     * @param geom
+     * @param a Point (on unit sphere or hyperboloid z^2=x^2+y^2+1)
+     * @param b Point (on unit sphere or hyperboloid z^2=x^2+y^2+1)
+     * @return Euclidean distance (spherical case) or hyperbolic distance between a and b
+     */
     private static double distance (FDomain geom, Point3D a, Point3D b){
         if (geom.getGeometry() == Geometry.Spherical) {
             return a.distance(b);
-        } else if (geom.getGeometry() == Geometry.Euclidean) {
-            Point2D a2d = new Point2D(a.getX(),a.getY());
-            Point2D b2d = new Point2D(b.getX(),b.getY());
-            return a2d.distance(b2d);
         }
         else {
             double scalar = a.getZ()*b.getZ() - a.getX()*b.getX() - a.getY()*b.getY();
