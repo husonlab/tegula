@@ -10,7 +10,7 @@ import tiler.core.dsymbols.Geometry;
  * Created by Ruediger on 2016.06.23.
  */
 public class OctTree {
-    private final double eps = 0.01;
+    private final double eps = 0.1;
     private Node root; //Root node of the tree.
 
 

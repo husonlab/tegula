@@ -27,10 +27,7 @@ import javafx.geometry.Point3D;
 import javafx.scene.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Polyline;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.*;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
@@ -211,8 +208,6 @@ public class Document {
             else { // If fDomain is inside visible window
                 tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
             }
-
-
             numberOfCopies = tiles.getChildren().size();
 
             //Add rectangles for debugging
@@ -265,16 +260,6 @@ public class Document {
             }
 
             double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
-
-            /* (1.3 * diameterFDomain > 2.2) {
-                validHyperbolicRange = 4.8;
-            }
-            else {
-                validHyperbolicRange = 4.8;
-            }*/
-            System.out.println("Reset domain: " + validHyperbolicRange);
-            System.out.println("Maximal distance: " + maxDist);
-
 
             // Reset hyperbolic fundamental domain.
             setHyperbolicFund(new Group());
@@ -725,7 +710,6 @@ public class Document {
         }
         return d;
     }
-
 
     public boolean directionChanged(){ return changeDirection; }
 

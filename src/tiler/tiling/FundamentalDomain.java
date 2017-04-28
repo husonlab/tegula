@@ -133,10 +133,10 @@ public class FundamentalDomain {
             mesh.getTexCoords().addAll(texCoords);
             mesh.getFaces().addAll(faces);
             mesh.getFaceSmoothingGroups().addAll(smoothing);
-            //meshView.setDrawMode(DrawMode.LINE);
             MeshView meshView = new MeshView(mesh);
             meshView.setMesh(mesh);
             meshView.setMaterial(new PhongMaterial(colors[a]));
+            //meshView.setDrawMode(DrawMode.LINE);
             group.getChildren().addAll(meshView);
         }
 
