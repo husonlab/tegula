@@ -7,8 +7,7 @@ import javafx.geometry.Point3D;
  * Created by Ruediger on 2016.07.07.
  */
 public class QuadTree {
-    private double eps = 1;
-    //public static Point3D rootPoint = new Point3D(0,0,1); //Todo: better choice
+    private double eps = 0.1;
     private Node root; //Root node of the tree.
 
 
