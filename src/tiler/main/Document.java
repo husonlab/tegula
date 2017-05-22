@@ -36,10 +36,7 @@ import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
-import tiler.tiling.Cylinderline;
-import tiler.tiling.OctTree;
-import tiler.tiling.QuadTree;
-import tiler.tiling.Tiling;
+import tiler.tiling.*;
 import tiler.util.JavaFXUtils;
 
 import java.io.BufferedReader;
@@ -180,9 +177,18 @@ public class Document {
 
     private static int chamberIndex = 0;
 
+    private static double tol = 10;
+
     public void update() {
+
         final Tiling tiling = tilings.get(current);
         geometryProperty().setValue(tiling.getGeometry());
+
+        chamberIndex = optimalChamber(tiling.getfDomain());
+        tiling.computeConstraintsAndGenerators();
+        tol = tiling.computeTolerance();
+
+        System.out.println(tol);
 
         tiles.getChildren().clear();
 
@@ -193,7 +199,6 @@ public class Document {
 
         Rectangle rect = new Rectangle(), range = new Rectangle(), test = new Rectangle(), test2 = new Rectangle(); //Rectangles for Debugging
 
-        chamberIndex = optimalChamber(tiling.getfDomain());
 
         //Euclidean case -----------------------------------------------------------------------------------------------
         if (tiling.getGeometry() == Geometry.Euclidean) {
@@ -237,7 +242,7 @@ public class Document {
 
         // Spherical case ----------------------------------------------------------------------------------------------
         else if (tiling.getGeometry() == Geometry.Spherical) {
-            tiles = tiling.createTilingSpherical();
+            tiles = tiling.createTilingSpherical(tol);
 
             camera.setTranslateZ(-500);
             camera.setFieldOfView(35);
@@ -267,11 +272,11 @@ public class Document {
 
             //Reset Fundamental Domain if necessary:
             if (Tiling.refPointHyperbolic.getZ() >= validHyperbolicRange){// Fundamental domain is shifted back
-                recenterFDomain(tiling.calculateBackShiftHyperbolic()); // Shifts back fDomain into valid range (slower algorithm)
-                tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
+                recenterFDomain(tiling.calculateBackShiftHyperbolic(tol)); // Shifts back fDomain into valid range (slower algorithm)
+                tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist, tol);
             }
             else {
-                tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist);
+                tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist, tol);
             }
 
             numberOfCopies = tiles.getChildren().size();
@@ -417,7 +422,7 @@ public class Document {
             }
 
             tiles.getChildren().clear();
-            tiles.getChildren().addAll(tiling.createTilingHyperbolic(true,maxDist));
+            tiles.getChildren().addAll(tiling.createTilingHyperbolic(true, maxDist, tol));
         }
     }
 
@@ -526,7 +531,7 @@ public class Document {
             // Recenter fDomain if too far away from center
             Point3D refPoint = tiling.getfDomain().getChamberCenter3D(chamberIndex).multiply(0.01);
             if (refPoint.getZ() >= validHyperbolicRange){
-                Transform t = tiling.calculateBackShiftHyperbolic();
+                Transform t = tiling.calculateBackShiftHyperbolic(tol);
                 recenterFDomain(t); // Shifts back fDomain into valid range
                 setTransformRecycled(t.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
                 if (controller.getCbShowLines().isSelected()){
@@ -562,7 +567,7 @@ public class Document {
             }
 
             //Second step: Create new tiles ----------------------------------------------------------------------------
-            Group newTiles = tiling.createTilingHyperbolic(false, maxDist);
+            Group newTiles = tiling.createTilingHyperbolic(false, maxDist, tol);
             if (isBreak){ // Generates new tiling if too much rounding errors
                 isBreak = false;
                 reset(); // Reset fundamental domain
@@ -652,34 +657,29 @@ public class Document {
         return rotateForward.createConcatenation(translateX).createConcatenation(rotateBackward); // Hyperbolic translation
     }
 
-    private double distance (FDomain f, Point3D a, Point3D b){
-        if (f.getGeometry() == Geometry.Hyperbolic){
-            double scalar = a.getZ()*b.getZ() - a.getX()*b.getX() - a.getY()*b.getY();
-            return Math.log(Math.abs(scalar + Math.sqrt(Math.abs(scalar * scalar - 1))));
-        }
-        else{
-            return a.distance(b);
-        }
-    }
-
     private int optimalChamber(FDomain f){
-        double d = 100, dist; int index = 1;
-        if (f.size() > 2) {
+        double dMax = 0, dMin = 1000, dist; int index = 1;
+        //if (f.size() > 2) {
             for (int i = 1; i <= f.size(); i++) {
                 Point3D a = f.getChamberCenter3D(i).multiply(0.01);
-                dist = 0;
+                //dist = 0;
                 for (int j = 1; j <= f.size(); j++) {
                     if (j != i) {
-                        dist += distance(f, a, f.getChamberCenter3D(j).multiply(0.01));
+                        dist = Tools.distance(f,a,f.getChamberCenter3D(j).multiply(0.01));
+                        if (dist > dMax){
+                            dMax = dist;
+                        }
+                        //dist += distance(f, a, f.getChamberCenter3D(j).multiply(0.01));
                     }
                 }
-                dist /= f.size() - 1;
-                if (dist < d) {
-                    d = dist;
+                //dist /= f.size() - 1;
+                if (dMax < dMin) {
+                    dMin = dMax;
                     index = i;
                 }
+                dMax = 0;
             }
-        }
+        //}
         System.out.println(index);
         return index;
     }
@@ -703,7 +703,7 @@ public class Document {
                 // Calculate hyperbolic distance between a and b:
                 double scalar = (a.getZ()*b.getZ() - a.getX()*b.getX() - a.getY()*b.getY())/10000;
                 double dist = Math.log(Math.abs(scalar + Math.sqrt(Math.abs(scalar * scalar - 1)))); // Inverse function of cosh
-                if (dist > d){ // Find maximal dinstance
+                if (dist > d){ // Find maximal distance
                     d = dist;
                 }
             }
@@ -731,7 +731,10 @@ public class Document {
 
     private void setKeptHyperbolicCopy(OctTree o){ Tiling.keptHyperbolicCopy = o; }
 
-    private void insertKeptHyperbolicCopy(Point3D point){ Tiling.keptHyperbolicCopy.insert(tilings.get(current).getfDomain(), point); }
+    private void insertKeptHyperbolicCopy(Point3D point){
+        Tiling  t = tilings.get(current);
+        Tiling.keptHyperbolicCopy.insert(t.getfDomain(), point, tol);
+    }
 
     private void insertKeptEuclideanCopy(Point3D point){ Tiling.keptEuclideanCopy.insert(point.getX(), point.getY()); }
 
@@ -825,6 +828,8 @@ public class Document {
         if (limitHyperbolicGroup >= 5)
             this.limitHyperbolicGroup = limitHyperbolicGroup;
     }
+
+    public static double getTol(){return tol;}
 
     public static double getValidHyperbolicRange() { return validHyperbolicRange; }
 

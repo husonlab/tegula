@@ -2,18 +2,17 @@ package tiler.tiling;
 
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
+import javafx.scene.transform.Transform;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
+import tiler.main.Document;
 
 /**
  * Computes an OctTree for 3d-points. Returns true if a given point is added to the tree.
  * Created by Ruediger on 2016.06.23.
  */
 public class OctTree {
-    private final double eps = 0.1;
     private Node root; //Root node of the tree.
-
-
     private class Node {
         Point3D a;
         Node ppp, mpp, pmp, ppm, mmp, mpm, pmm, mmm; // Eight nodes for each direction in space
@@ -23,24 +22,8 @@ public class OctTree {
         }
     }
 
-    /**
-     *
-     * @param geom
-     * @param a Point (on unit sphere or hyperboloid z^2=x^2+y^2+1)
-     * @param b Point (on unit sphere or hyperboloid z^2=x^2+y^2+1)
-     * @return Euclidean distance (spherical case) or hyperbolic distance between a and b
-     */
-    private static double distance (FDomain geom, Point3D a, Point3D b){
-        if (geom.getGeometry() == Geometry.Spherical) {
-            return a.distance(b);
-        }
-        else {
-            double scalar = a.getZ()*b.getZ() - a.getX()*b.getX() - a.getY()*b.getY();
-            return Math.log(Math.abs(scalar + Math.sqrt(Math.abs(scalar * scalar - 1))));
-        }
-    }
 
-    public boolean insert (FDomain geom, Point3D b){   //Returns true if point b is added to the tree structure.
+    public boolean insert (FDomain geom, Point3D b, double tol){   //Returns true if point b is added to the tree structure.
 
         if (root == null) {
             root = new Node(b);
@@ -48,7 +31,7 @@ public class OctTree {
         }
         Node h = root;
         while (h != null){
-            if (distance(geom, b, h.a) > eps) {
+            if (Tools.distance(geom, b, h.a) > tol) {
                 if (b.getX() >= h.a.getX() && b.getY() >= h.a.getY() && b.getZ() >= h.a.getZ()) {
                     if (h.ppp == null) {
                         h.ppp = new Node(b);
