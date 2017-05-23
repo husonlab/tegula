@@ -7,7 +7,6 @@ import javafx.geometry.Point3D;
  * Created by Ruediger on 2016.07.07.
  */
 public class QuadTree {
-    private double eps = 0.1;
     private Node root; //Root node of the tree.
 
 
@@ -20,7 +19,7 @@ public class QuadTree {
         }
     }
 
-    public boolean insert (double b1, double b2){   //Returns true if point b is added to the tree structure.
+    public boolean insert (double b1, double b2, double tol){   //Returns true if point b is added to the tree structure.
         Point2D b = new Point2D(b1,b2);
         if (root == null) {
             root = new Node(b);
@@ -29,7 +28,7 @@ public class QuadTree {
         Node h = root;
         double posSlope, negSlope;
         while (h != null){
-            if (b.distance(h.a) > eps) {
+            if (b.distance(h.a) > tol) {
                 posSlope = Math.E*(b1-h.a.getX())+h.a.getY();
                 negSlope = -1/Math.E*(b1-h.a.getX())+h.a.getY();
                 if (b2 >= posSlope && b2 >= negSlope) {

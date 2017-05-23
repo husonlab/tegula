@@ -177,18 +177,18 @@ public class Document {
 
     private static int chamberIndex = 0;
 
-    private static double tol = 10;
+    private static double tol;
 
     public void update() {
 
         final Tiling tiling = tilings.get(current);
         geometryProperty().setValue(tiling.getGeometry());
 
+        // Calculate optimal chamber, where chamber center is as far away from boundary as possible
         chamberIndex = optimalChamber(tiling.getfDomain());
+        // Compute tolerance for rounding errors (depends on shape of fundamental domain):
         tiling.computeConstraintsAndGenerators();
         tol = tiling.computeTolerance();
-
-        System.out.println(tol);
 
         tiles.getChildren().clear();
 
@@ -207,11 +207,11 @@ public class Document {
             setKeptEuclideanCopy(new QuadTree());
 
             if (!tiling.isInWindowEuclidean(tiling.refPointEuclidean, windowCorner, width, height)) { // Fund. domain is not in visible window
-                recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width, height)); // Shifts back fDomain into valid range for fund. domain
-                tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
+                recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width, height, tol)); // Shifts back fDomain into valid range for fund. domain
+                tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height, tol);
             }
             else { // If fDomain is inside visible window
-                tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height);
+                tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height, tol);
             }
             numberOfCopies = tiles.getChildren().size();
 
@@ -360,7 +360,7 @@ public class Document {
             }
 
             tiles.getChildren().clear();
-            tiles.getChildren().addAll(tiling.createTilingEuclidean(true,windowCorner,width,height));
+            tiles.getChildren().addAll(tiling.createTilingEuclidean(true,windowCorner,width,height, tol));
         }
 
         // Translation of fundamental domain in hyperbolic case
@@ -386,7 +386,7 @@ public class Document {
                 translate(dx,dy);
                 if (controller.getCbShowLines().isSelected()){
                     // Hyperbolic translation
-                    Transform translate = hyperbolicTranslation(dx,dy);
+                    Transform translate = Tools.hyperbolicTranslation(dx,dy);
 
                     // Transformation of lines in fundamental domain
                     Transform lineTrans = linesInFDomain.getTransforms().get(0);
@@ -410,7 +410,7 @@ public class Document {
                 translate(dx, dy); // Translates fDomain by vector (dx,dy).
                 if (controller.getCbShowLines().isSelected()){
                     // Hyperbolic translation
-                    Transform translate = hyperbolicTranslation(dx,dy);
+                    Transform translate = Tools.hyperbolicTranslation(dx,dy);
 
                     // Transformation of lines in fundamental domain
                     Transform lineTrans = linesInFDomain.getTransforms().get(0);
@@ -432,7 +432,7 @@ public class Document {
 
         final Tiling tiling = tilings.get(current);
 
-        // Translation in Euclidean case
+        // Translation of whole tiling in Euclidean case
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         if (tiling.getGeometry() == Geometry.Euclidean) {
 
@@ -452,7 +452,7 @@ public class Document {
             final Point3D refPoint = tiling.getfDomain().getChamberCenter3D(chamberIndex); // Point of reference in Euclidean fundamental domain
 
             if (!tiling.isInWindowEuclidean(refPoint, windowCorner, width, height)){ // If fundamental domain is out of visible window
-                Transform t = tiling.calculateBackShiftEuclidean(windowCorner, width, height);
+                Transform t = tiling.calculateBackShiftEuclidean(windowCorner, width, height, tol);
                 setTransformRecycled(t.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
                 recenterFDomain(t); // Shifts back fDomain into visible window
                 if (controller.getCbShowLines().isSelected()){
@@ -490,7 +490,7 @@ public class Document {
 
             //Second step: Create new tiles ----------------------------------------------------------------------------
             // Create new tiles to fill empty space of valid range. Add new tiles to the group "tiles"
-            Group newTiles = tiling.createTilingEuclidean(false, windowCorner, width, height);
+            Group newTiles = tiling.createTilingEuclidean(false, windowCorner, width, height, tol);
 
             if (isBreak){ // Generates new tiling if too much rounding errors
                 isBreak = false;
@@ -503,7 +503,7 @@ public class Document {
             }
         }
 
-        // Translation in hyperbolic case
+        // Translation of whole tiling in hyperbolic case
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         if (tiling.getGeometry() == Geometry.Hyperbolic) {
 
@@ -513,7 +513,7 @@ public class Document {
             double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());
 
             // Calculate hyperbolic translation of group:
-            Transform translate = hyperbolicTranslation(dx,dy);
+            Transform translate = Tools.hyperbolicTranslation(dx,dy);
 
             // OctTree is used for saving copies which are kept under translation
             setKeptHyperbolicCopy(new OctTree());
@@ -631,56 +631,24 @@ public class Document {
         }
     }
 
-    /**
-     * Calculate hyperbolic translation along vector (dx,dy)
-     * @param dx
-     * @param dy
-     * @return transform
-     */
-    private Transform hyperbolicTranslation(double dx, double dy){
-        Rotate rotateForward, rotateBackward; //Rotations to x-axis and back
-        Affine translateX;
-        final Point3D X_Axis = new Point3D(1,0,0);
-        double d = Math.sqrt(dx*dx+dy*dy);  // Length of translation
-        final Point3D vec = new Point3D(dx,dy,0);
-
-        double rotAngle = vec.angle(X_Axis); //Rotation angle between direction of translation and x-axis
-        Point3D rotAxis = new Point3D(0,0,1);  // Rotation axis
-
-        if (dy <= 0){ rotAxis = new Point3D(0,0,-1); }
-
-        rotateForward = new Rotate(rotAngle, rotAxis);
-        rotateBackward = new Rotate(-rotAngle, rotAxis);
-
-        translateX = new Affine(Math.cosh(d), 0 , Math.sinh(d), 0, 0, 1, 0, 0, Math.sinh(d), 0, Math.cosh(d), 0); // Translation along x-axis
-
-        return rotateForward.createConcatenation(translateX).createConcatenation(rotateBackward); // Hyperbolic translation
-    }
-
     private int optimalChamber(FDomain f){
         double dMax = 0, dMin = 1000, dist; int index = 1;
-        //if (f.size() > 2) {
             for (int i = 1; i <= f.size(); i++) {
                 Point3D a = f.getChamberCenter3D(i).multiply(0.01);
-                //dist = 0;
                 for (int j = 1; j <= f.size(); j++) {
                     if (j != i) {
                         dist = Tools.distance(f,a,f.getChamberCenter3D(j).multiply(0.01));
                         if (dist > dMax){
                             dMax = dist;
                         }
-                        //dist += distance(f, a, f.getChamberCenter3D(j).multiply(0.01));
                     }
                 }
-                //dist /= f.size() - 1;
                 if (dMax < dMin) {
                     dMin = dMax;
                     index = i;
                 }
                 dMax = 0;
             }
-        //}
-        System.out.println(index);
         return index;
     }
 
@@ -693,10 +661,7 @@ public class Document {
             vertices.add(f.getVertex3D(2,k));
         }
         double d = 0;
-        /*for (int i=0; i <= vertices.size()-1; i++){
-            double height = vertices.get(i).getZ();
-            if (d < height){ d = height; }
-        }*/
+
         for (int i = 0; i <= vertices.size()-1; i++){
             for (int j = i+1; j <= vertices.size()-1; j++){
                 Point3D a = vertices.get(i), b = vertices.get(j);
@@ -736,7 +701,7 @@ public class Document {
         Tiling.keptHyperbolicCopy.insert(t.getfDomain(), point, tol);
     }
 
-    private void insertKeptEuclideanCopy(Point3D point){ Tiling.keptEuclideanCopy.insert(point.getX(), point.getY()); }
+    private void insertKeptEuclideanCopy(Point3D point){ Tiling.keptEuclideanCopy.insert(point.getX(), point.getY(), tol); }
 
     private void setKeptEuclideanCopy(QuadTree seen){ Tiling.keptEuclideanCopy = seen; }
 
