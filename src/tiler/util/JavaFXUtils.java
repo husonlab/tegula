@@ -24,6 +24,7 @@ import javafx.scene.Node;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Sphere;
+import javafx.scene.shape.Cylinder;
 import javafx.scene.text.Text;
 
 /**
@@ -60,7 +61,16 @@ public class JavaFXUtils {
                 target.setMaterial(src.getMaterial());
                 target.getTransforms().addAll(src.getTransforms());
                 result.getChildren().add(target);
-            } else if (node instanceof Text) {
+            } else if (node instanceof Cylinder) {
+                Cylinder src = (Cylinder) node;
+                Cylinder target = new Cylinder(src.getRadius(), src.getHeight(), src.getDivisions());
+                target.setCullFace(src.getCullFace());
+                target.setDrawMode(src.getDrawMode());
+                target.setMaterial(src.getMaterial());
+                target.getTransforms().addAll(src.getTransforms());
+                result.getChildren().add(target);
+            }
+            else if (node instanceof Text) {
                 Text src = (Text) node;
                 Text target = new Text(src.getText());
                 target.setFont(src.getFont());

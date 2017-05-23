@@ -1,5 +1,10 @@
 package tiler.tiling;
 
+import com.sun.javafx.geom.BaseBounds;
+import com.sun.javafx.geom.transform.BaseTransform;
+import com.sun.javafx.jmx.MXNodeAlgorithm;
+import com.sun.javafx.jmx.MXNodeAlgorithmContext;
+import com.sun.javafx.sg.prism.NGNode;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -8,6 +13,7 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import tiler.core.dsymbols.DSymbol;
@@ -140,42 +146,51 @@ public class FundamentalDomain {
             group.getChildren().addAll(meshView);
         }
 
-        // add lines
-        if(false) {
-            if (fDomain.getGeometry() == Geometry.Euclidean) {
-                for (int a = 1; a <= fDomain.size(); a++) {
-                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+        // Add lines
+        if(true) {
+            //Lines for subdivision of chambers (barycentric coordinates)
+            /*for (int a = 1; a <= fDomain.size(); a++) {
+                group.getChildren().add(Cylinderline.createConnection(fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+                group.getChildren().add(Cylinderline.createConnection(fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
 
-                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+                group.getChildren().add(Cylinderline.createConnection(fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+                group.getChildren().add(Cylinderline.createConnection(fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
 
-                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a), Color.WHITE.deriveColor(0, 1, 1, 0.2), 0.5f));
-                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(1, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a), Color.WHITE.deriveColor(0, 1, 1, 0.2), 0.5f));
-                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(2, a), Color.WHITE.deriveColor(0, 1, 1, 0.2), 0.5f));
+                group.getChildren().add(Cylinderline.createConnection(fDomain.getVertex3D(0, a), fDomain.getChamberCenter3D(a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+                group.getChildren().add(Cylinderline.createConnection(fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
 
+                group.getChildren().add(Cylinderline.createConnection(fDomain.getVertex3D(1, a), fDomain.getChamberCenter3D(a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+                group.getChildren().add(Cylinderline.createConnection(fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+
+                group.getChildren().add(Cylinderline.createConnection(fDomain.getVertex3D(2, a), fDomain.getChamberCenter3D(a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+                group.getChildren().add(Cylinderline.createConnection(fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(2, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+            }*/
+
+            // Vertices of Tiling:
+            for (int a = 1; a <= fDomain.size(); a++) {
+                final Point3D v0 = fDomain.getVertex3D(0, a);
+                final Point3D e2 = fDomain.getEdgeCenter3D(2, a);
+                final Point3D v1 = fDomain.getVertex3D(1, a);
+
+                double width = 1;
+                switch (fDomain.getGeometry()){
+                    case Hyperbolic:
+                        Point3D refPoint = fDomain.getChamberCenter3D(1).multiply(0.01);
+                        Point3D origin = new Point3D(0,0,1);
+                        double t = Tools.distance(fDomain, refPoint, origin); //Length of translation
+                        System.out.println(t);
+                        Affine translateX = new Affine(Math.cosh(t), 0 , Math.sinh(t), 0, 0, 1, 0, 0, Math.sinh(t), 0, Math.cosh(t), 0); // Translation along x-axis
+                        Affine translateX2 = new Affine(Math.cosh(t+0.5), 0 , Math.sinh(t+0.5), 0, 0, 1, 0, 0, Math.sinh(t+0.5), 0, Math.cosh(t+0.5), 0); // Translation along x-axis
+
+                        System.out.println(Tools.distance(fDomain, translateX.transform(origin), translateX2.transform(origin)));
+
+                        width = Math.tanh(t+0.5)-Math.tanh(t); //+(Math.cosh(t+0.5)-Math.cosh(t))*(Math.cosh(t+0.5)-Math.cosh(t))
+                        System.out.println("Width: " + width);
+                    case Spherical:
+                        width = 0.5;
                 }
-                for (int a = 1; a <= fDomain.size(); a++) {
-                    final Point3D v0 = fDomain.getVertex3D(0, a);
-                    final Point3D e2 = fDomain.getEdgeCenter3D(2, a);
-                    final Point3D v1 = fDomain.getVertex3D(1, a);
-                    group.getChildren().add(makeLine(fDomain.getGeometry(), v0, e2, v1, Color.BLACK, 1));
-                }
-            } else {
-                for (int a = 1; a <= fDomain.size(); a++) {
-                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a)));
-
-                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a)));
-
-                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a)));
-                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(1, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a)));
-                    group.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(2, a)));
-
-                }
-                for (int a = 1; a <= fDomain.size(); a++) {
-                    final Point3D v0 = fDomain.getVertex3D(0, a);
-                    final Point3D e2 = fDomain.getEdgeCenter3D(2, a);
-                    final Point3D v1 = fDomain.getVertex3D(1, a);
-                    group.getChildren().add(makeLine(fDomain.getGeometry(), v0, e2, v1));
-                }
+                group.getChildren().add(Cylinderline.createConnection(v0, e2, Color.BLACK, width));
+                group.getChildren().add(Cylinderline.createConnection(e2, v1, Color.BLACK, width));
             }
         }
 
@@ -243,54 +258,5 @@ public class FundamentalDomain {
 
     private static double computeWindingNumber(Point3D a0, Point3D a1, Point3D a2) {
         return (a1.getX() - a0.getX()) * (a1.getY() + a0.getY()) + (a2.getX() - a1.getX()) * (a2.getY() + a1.getY()) + (a0.getX() - a2.getX()) * (a0.getY() + a2.getY());
-    }
-
-    /**
-     * construct a line
-     *
-     * @param a
-     * @param b
-     * @param c
-     * @param color
-     * @param width
-     * @return a line
-     */
-
-    // Line in Euclidean case:
-    private static Node makeLine(Geometry geometry, Point3D a, Point3D b, Point3D c, Color color, float width) {
-        if (geometry == Geometry.Euclidean) {
-            Polyline polyLine = new Polyline(a.getX(), a.getY(), b.getX(), b.getY(), c.getX(), c.getY());
-            polyLine.setStroke(color);
-            polyLine.setStrokeWidth(width);
-            polyLine.setStrokeLineCap(StrokeLineCap.ROUND);
-            return polyLine;
-        } else {
-            return null;
-
-        }
-    }
-
-    // Line in spherical and hyperbolic case:
-    private static Node makeLine(Geometry geometry, Point3D a, Point3D b, Point3D c) {
-        List<Point3D> points = new LinkedList<>();
-        if (geometry == Geometry.Spherical) {
-            points.add(a.multiply(1.01));
-            points.add(b.multiply(1.01));
-            points.add(c.multiply(1.01));
-            PolyLine3D polyLine3D = new PolyLine3D(points);
-            MeshView mesh = new MeshView(polyLine3D);
-            mesh.setDrawMode(DrawMode.LINE);
-            return mesh; // todo: implement for three-dimensions
-        }
-        else {
-            points.add(a.multiply(0.99));
-            points.add(b.multiply(0.99));
-            points.add(c.multiply(0.99));
-            PolyLine3D polyLine3D = new PolyLine3D(points);
-            MeshView mesh = new MeshView(polyLine3D);
-            mesh.setDrawMode(DrawMode.LINE);
-            return mesh; // todo: implement for three-dimensions
-        }
-
     }
 }
