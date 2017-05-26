@@ -5,6 +5,7 @@ import com.sun.javafx.geom.transform.BaseTransform;
 import com.sun.javafx.jmx.MXNodeAlgorithm;
 import com.sun.javafx.jmx.MXNodeAlgorithmContext;
 import com.sun.javafx.sg.prism.NGNode;
+import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -142,13 +143,12 @@ public class FundamentalDomain {
             MeshView meshView = new MeshView(mesh);
             meshView.setMesh(mesh);
             meshView.setMaterial(new PhongMaterial(colors[a]));
-            //meshView.setDrawMode(DrawMode.LINE);
             group.getChildren().addAll(meshView);
         }
 
         // Add lines
         if(true) {
-            //Lines for subdivision of chambers (barycentric coordinates)
+            //Lines for barycentric subdivision of chambers:
             /*for (int a = 1; a <= fDomain.size(); a++) {
                 group.getChildren().add(Cylinderline.createConnection(fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
                 group.getChildren().add(Cylinderline.createConnection(fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
@@ -166,29 +166,36 @@ public class FundamentalDomain {
                 group.getChildren().add(Cylinderline.createConnection(fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(2, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
             }*/
 
+
+            double width = 0;
+            if (fDomain.getGeometry() == Geometry.Hyperbolic){
+                Point3D refPoint = fDomain.getChamberCenter3D(1).multiply(0.01);
+                Point3D origin = new Point3D(0, 0, 1);
+                double w = 0.01;
+                double h = (1+w*w)/(1-w*w);
+                //Length of translation
+                double t = Tools.distance(fDomain, refPoint, origin);
+                // Affine translation:
+                Affine translateT = new Affine(Math.cosh(t), Math.sinh(t), 0, Math.sinh(t), Math.cosh(t), 0); // Translation along x-axis
+                Point2D x = translateT.transform(0,1);
+                Point2D y = translateT.transform((1+h)*w, h);
+
+                width = 100*(y.getX()/(1+y.getY())-x.getX()/(1+x.getY()));
+            }
+            else if (fDomain.getGeometry() == Geometry.Euclidean){
+                width = 1;
+            }
+            else if (fDomain.getGeometry() == Geometry.Spherical){
+                width = 0.5;
+            }
+
+            System.out.println("Width: " + width);
+
             // Vertices of Tiling:
             for (int a = 1; a <= fDomain.size(); a++) {
                 final Point3D v0 = fDomain.getVertex3D(0, a);
                 final Point3D e2 = fDomain.getEdgeCenter3D(2, a);
                 final Point3D v1 = fDomain.getVertex3D(1, a);
-
-                double width = 1;
-                switch (fDomain.getGeometry()){
-                    case Hyperbolic:
-                        Point3D refPoint = fDomain.getChamberCenter3D(1).multiply(0.01);
-                        Point3D origin = new Point3D(0,0,1);
-                        double t = Tools.distance(fDomain, refPoint, origin); //Length of translation
-                        System.out.println(t);
-                        Affine translateX = new Affine(Math.cosh(t), 0 , Math.sinh(t), 0, 0, 1, 0, 0, Math.sinh(t), 0, Math.cosh(t), 0); // Translation along x-axis
-                        Affine translateX2 = new Affine(Math.cosh(t+0.5), 0 , Math.sinh(t+0.5), 0, 0, 1, 0, 0, Math.sinh(t+0.5), 0, Math.cosh(t+0.5), 0); // Translation along x-axis
-
-                        System.out.println(Tools.distance(fDomain, translateX.transform(origin), translateX2.transform(origin)));
-
-                        width = Math.tanh(t+0.5)-Math.tanh(t); //+(Math.cosh(t+0.5)-Math.cosh(t))*(Math.cosh(t+0.5)-Math.cosh(t))
-                        System.out.println("Width: " + width);
-                    case Spherical:
-                        width = 0.5;
-                }
                 group.getChildren().add(Cylinderline.createConnection(v0, e2, Color.BLACK, width));
                 group.getChildren().add(Cylinderline.createConnection(e2, v1, Color.BLACK, width));
             }

@@ -178,7 +178,7 @@ public class FDomain {
             for (int z = 0; z < d.getNcrs(); z++) {
                 final NCR ncr = d.getNcr(z);
                 Point2D position = new Point2D(ncr.getPosx(),ncr.getPosy());
-                position = map3Dto2DHyperbolic(t.transform(map2Dto3D(position)).multiply(0.01));
+                position = map3Dto2D(t.transform(map2Dto3D(position)).multiply(0.01));
                 ncr.setPosx(position.getX());
                 ncr.setPosy(position.getY());
             }
@@ -186,7 +186,7 @@ public class FDomain {
             for (int z = 0; z < d.getEcrs(); z++) {
                 final ECR ecr = d.getEcr(z);
                 Point2D position = new Point2D(ecr.getPosx(), ecr.getPosy());
-                position = map3Dto2DHyperbolic(t.transform(map2Dto3D(position)).multiply(0.01));
+                position = map3Dto2D(t.transform(map2Dto3D(position)).multiply(0.01));
                 ecr.setPosx(position.getX());
                 ecr.setPosy(position.getY());
             }
@@ -194,7 +194,7 @@ public class FDomain {
             for (int z = 0; z < d.getOcrs(); z++) {
                 final OCR ocr = d.getOcr(z);
                 Point2D position = new Point2D(ocr.getPosx(), ocr.getPosy());
-                position = map3Dto2DHyperbolic(t.transform(map2Dto3D(position)).multiply(0.01));
+                position = map3Dto2D(t.transform(map2Dto3D(position)).multiply(0.01));
                 ocr.setPosx(position.getX());
                 ocr.setPosy(position.getY());
             }
@@ -322,7 +322,7 @@ public class FDomain {
      * @param apt
      * @return 3D point
      */
-    private Point3D map2Dto3D(Point2D apt) {
+    public Point3D map2Dto3D(Point2D apt) {
         switch (geometry) {
             default:
             case Euclidean: {
@@ -343,13 +343,28 @@ public class FDomain {
     }
 
     /**
-     * Maps a point on hyperboloid model (scaled with factor 100) to Poincare model (non-scaled).
+     * Spherical case: Calculates inverse of stereographic projection
+     * Hyperbolic case: Maps a point on hyperboloid model (scaled with factor 100) to Poincare model (non-scaled).
      * @param bpt
      * @return
      */
 
-    private Point2D map3Dto2DHyperbolic(Point3D bpt){
-        return new Point2D(bpt.getX()/(1+bpt.getZ()), bpt.getY()/(1+bpt.getZ()));
+    public Point2D map3Dto2D(Point3D bpt){
+        switch (geometry) {
+            default:
+            case Euclidean: {
+                return new Point2D(bpt.getX(), bpt.getX());
+            }
+            case Spherical: {
+                double d = (1+bpt.getZ())/(1-bpt.getZ());
+                return new Point2D((bpt.getX()*(d+1)/2), (bpt.getY()*(d+1)/2));
+            }
+            case Hyperbolic: {
+                return new Point2D(bpt.getX()/(1+bpt.getZ()), bpt.getY()/(1+bpt.getZ()));
+            }
+        }
+
+
     }
 
     /**

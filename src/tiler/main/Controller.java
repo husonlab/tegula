@@ -415,14 +415,13 @@ public class Controller implements Initializable {
     @FXML
     void fireShowLessTiles(ActionEvent event) {
         getDocument().setLimitHyperbolicGroup(getDocument().getLimitHyperbolicGroup() - 1);
-        document.update();
-
+        document.decreaseTiling();
     }
 
     @FXML
     void fireShowMoreTiles(ActionEvent event) {
         getDocument().setLimitHyperbolicGroup(getDocument().getLimitHyperbolicGroup() + 1);
-        document.update();
+        document.increaseTiling();
     }
 
     @FXML

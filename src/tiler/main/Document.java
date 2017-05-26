@@ -581,6 +581,40 @@ public class Document {
     }
 
 
+    /**
+     * Deletes copies of fundamental domain in hyperbolic case when less tiles are shown.
+     */
+    public void decreaseTiling(){
+        double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());
+        int bound = tiles.getChildren().size();
+        for (int i = 1; i <= bound; i++){
+            Node node = tiles.getChildren().get(bound-i);
+            if (node.getRotationAxis().getZ() > maxDist){
+                tiles.getChildren().remove(node);
+            }
+        }
+    }
+
+    /**
+     * Adds copies of fundamental domain in hyperbolic case when more tiles are shown
+     */
+    public void increaseTiling(){
+        final Tiling tiling = tilings.get(current);
+        double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());
+        setKeptHyperbolicCopy(new OctTree());
+        for (int i = 0; i < tiles.getChildren().size(); i++){
+            insertKeptHyperbolicCopy(tiles.getChildren().get(i).getRotationAxis()); // Add existing tiles to tree structure
+        }
+
+        // Empty recycler (because not in translate mode).
+        getRecycler().getChildren().clear();
+
+        // Add new tiles
+        Group newTiles = tiling.createTilingHyperbolic(false, maxDist, tol);
+        tiles.getChildren().addAll(newTiles.getChildren());
+    }
+
+
 
     /**
      * Adds lines to fundamental domain

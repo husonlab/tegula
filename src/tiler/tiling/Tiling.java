@@ -966,7 +966,10 @@ public class Tiling {
                 if (fDomain.isBoundaryEdge(0, a[i])) {
                     try {
                         Transform transform = generators.get(0, a[i]);
-                        bPt = transform.inverseTransform(bPt); // todo: this needs fixing because saved transforms are 3D
+                        Point3D bPt3D = fDomain.map2Dto3D(bPt);
+                        bPt3D = transform.inverseTransform(bPt3D); // todo: this needs fixing because saved transforms are 3D
+                        bPt = fDomain.map3Dto2D(bPt3D).multiply(0.01);
+                        //bPt = transform.inverseTransform(bPt);
 
                     } catch (NonInvertibleTransformException e) {
                         throw new RuntimeException(e);
