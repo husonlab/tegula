@@ -477,7 +477,7 @@ public class Tiling {
         if (makeCopyHyperbolic(refPointHyperbolic)) {
             fund.setRotationAxis(refPointHyperbolic);
             fund.getTransforms().add(new Translate());
-            if (translateTiling()) {// Translate mode of tiling
+            if (translateOrIncreaseTiling()) {// Translate mode of tiling
                 useRecycler(group, new Translate(), refPointHyperbolic, HyperbolicFund);
             } else { // Builds up tiling from fundamental domain
                 group.getChildren().addAll(fund);
@@ -494,7 +494,7 @@ public class Tiling {
                 Point3D genRef = g.transform(refPointHyperbolic);
                 if (seen.insert(fDomain, genRef, tol)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
                     if (makeCopyHyperbolic(genRef)) {
-                        if (translateTiling()) {
+                        if (translateOrIncreaseTiling()) {
                             useRecycler(group, g, genRef, HyperbolicFund);
                         } else {
                             generateNewCopy(group, g, genRef, fund);
@@ -507,7 +507,7 @@ public class Tiling {
             int countChildren = 0;
             while (queue.size() > 0) {
                 // Breaks while loop if too many copies (rounding errors)
-                if (translateTiling() && countChildren >= 1.5 * getNumberOfCopies()) {
+                if (translateOrIncreaseTiling() && getNumberOfCopies() > 0 && countChildren >= 1.5 * getNumberOfCopies()) {
                     setBreak(true);
                     System.out.println(countChildren + " children and " + getNumberOfCopies() + " copies");
                     break;
@@ -522,7 +522,7 @@ public class Tiling {
                         countChildren++;
                         queue.add(tg);
                         if (makeCopyHyperbolic(bpt)) {
-                            if (translateTiling()) {
+                            if (translateOrIncreaseTiling()) {
                                 useRecycler(group, tg, bpt, HyperbolicFund);
                             } else {
                                 generateNewCopy(group, tg, bpt, fund);
@@ -536,7 +536,7 @@ public class Tiling {
                         countChildren++;
                         queue.add(gt);
                         if (makeCopyHyperbolic(bpt)) {
-                            if (translateTiling()) {
+                            if (translateOrIncreaseTiling()) {
                                 useRecycler(group, gt, bpt, HyperbolicFund);
                             } else {
                                 generateNewCopy(group, gt, bpt, fund);
@@ -569,7 +569,7 @@ public class Tiling {
         if (makeCopyEuclidean(refPointEuclidean)) { // Fill empty space with tiles
             fund.getTransforms().add(new Translate()); // Add transform (= identity)
             fund.setRotationAxis(refPointEuclidean); // Reference point of fundamental domain
-            if (translateTiling()) { // Translate mode of tiling
+            if (translateOrIncreaseTiling()) { // Translate mode of tiling
                 useRecycler(group, new Translate(), refPointEuclidean, EuclideanFund);
             } else { // Builds up tile from fundamental domain
                 group.getChildren().addAll(fund);
@@ -593,7 +593,7 @@ public class Tiling {
                 Point3D genRef = g.transform(refPointEuclidean); // Reference point for new copy
                 if (isInRangeEuclidean(genRef, windowCorner, width, height) && seen.insert(genRef.getX(), genRef.getY(), tol)) { // Checks whether reference point is in valid range and if it is in QuadTree "seen". Adds it if not.
                     if (makeCopyEuclidean(genRef)) { // Checks whether copy fills empty space after translation of tiles
-                        if (translateTiling()) { // Translate mode of tiling
+                        if (translateOrIncreaseTiling()) { // Translate mode of tiling
                             useRecycler(group, g, genRef, EuclideanFund);
                         } else {
                             generateNewCopy(group, g, genRef, fund);
@@ -607,7 +607,7 @@ public class Tiling {
             while (queue.size() > 0) {
 
                 // Breaks while loop if too many copies (rounding errors)
-                if (translateTiling() && queue.size() >= 1.5 * getNumberOfCopies()) {
+                if (translateOrIncreaseTiling() && queue.size() >= 1.5 * getNumberOfCopies()) {
                     setBreak(true);
                     break;
                 }
@@ -621,7 +621,7 @@ public class Tiling {
                     if (isInRangeEuclidean(bpt, windowCorner, width, height) && seen.insert(bpt.getX(), bpt.getY(), tol)) {
                         queue.add(tg);
                         if (makeCopyEuclidean(bpt)) {
-                            if (translateTiling()) {
+                            if (translateOrIncreaseTiling()) {
                                 useRecycler(group, tg, bpt, EuclideanFund);
                             } else {
                                 generateNewCopy(group, tg, bpt, fund);
@@ -635,7 +635,7 @@ public class Tiling {
                     if (isInRangeEuclidean(bpt, windowCorner, width, height) && seen.insert(bpt.getX(), bpt.getY(), tol)) {
                         queue.add(gt);
                         if (makeCopyEuclidean(bpt)) {
-                            if (translateTiling()) {
+                            if (translateOrIncreaseTiling()) {
                                 useRecycler(group, gt, bpt, EuclideanFund);
                             } else {
                                 generateNewCopy(group, gt, bpt, fund);
@@ -911,7 +911,7 @@ public class Tiling {
         return keptEuclideanCopy.insert(p.getX(), p.getY(), Document.getTol());
     }
 
-    private boolean translateTiling() {
+    private boolean translateOrIncreaseTiling() {
         if (recycler.getChildren().size() > 0) {
             return true;
         } else {

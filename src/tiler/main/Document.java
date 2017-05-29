@@ -189,7 +189,6 @@ public class Document {
         // Compute tolerance for rounding errors (depends on shape of fundamental domain):
         tiling.computeConstraintsAndGenerators();
         tol = tiling.computeTolerance();
-
         tiles.getChildren().clear();
 
         // Empty recycler for copies and reset transform for recycled copies.
@@ -590,7 +589,8 @@ public class Document {
         for (int i = 1; i <= bound; i++){
             Node node = tiles.getChildren().get(bound-i);
             if (node.getRotationAxis().getZ() > maxDist){
-                tiles.getChildren().remove(node);
+                //tiles.getChildren().remove(node);
+                getRecycler().getChildren().add(node);
             }
         }
     }
@@ -607,11 +607,18 @@ public class Document {
         }
 
         // Empty recycler (because not in translate mode).
-        getRecycler().getChildren().clear();
+        //getRecycler().getChildren().clear();
 
+        if (getRecycler().getChildren().size() == 0){ // Fill recycler if necessary
+            Group recycler2 = JavaFXUtils.copyFundamentalDomain(getHyperbolicFund()); // Copy original fundamental domain which was used to build "tiles"
+            getRecycler().getChildren().addAll(recycler2); // Add copy to recycler
+        }
+
+        numberOfCopies = 0;
         // Add new tiles
         Group newTiles = tiling.createTilingHyperbolic(false, maxDist, tol);
         tiles.getChildren().addAll(newTiles.getChildren());
+        numberOfCopies = tiles.getChildren().size();
     }
 
 
