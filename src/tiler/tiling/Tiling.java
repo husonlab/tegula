@@ -964,8 +964,8 @@ public class Tiling {
             {
                 Point2D aPt = fDomain.getVertex(0, a[i]);
                 Point2D bPt = fDomain.getVertex(0, ds.getSi(0, a[i]));
-                Point3D aPt3d = fDomain.map2Dto3D(aPt);
-                Point3D bPt3d = fDomain.map2Dto3D(bPt);
+                Point3D aPt3d = Tools.map2Dto3D(fDomain.getGeometry(), aPt);
+                Point3D bPt3d = Tools.map2Dto3D(fDomain.getGeometry(), bPt);
                 if (fDomain.isBoundaryEdge(0, a[i])) {
 
                     //Transform gen = generators.get(0, a[i]);
@@ -987,13 +987,13 @@ public class Tiling {
                 // Set new edge and vertex to straighten line
                 //Point2D cPt = middle(fDomain.getGeometry(), aPt, bPt);
                 //Point3D cPt3d = fDomain.map2Dto3D(cPt);  // For debugging
-                Point3D cPt3d = Tools.midpoint3D(fDomain, aPt3d, bPt3d);
-                Point2D cPt = fDomain.map3Dto2D(cPt3d);
+                Point3D cPt3d = Tools.midpoint3D(fDomain.getGeometry(), aPt3d, bPt3d);
+                Point2D cPt = Tools.map3Dto2D(fDomain.getGeometry(), cPt3d);
                 fDomain.setVertex(cPt, 1, a[i]);
 
                 //cPt = middle(fDomain.getGeometry(), aPt, cPt);
-                cPt3d = Tools.midpoint3D(fDomain, aPt3d, cPt3d);
-                cPt = fDomain.map3Dto2D(cPt3d);
+                cPt3d = Tools.midpoint3D(fDomain.getGeometry(), aPt3d, cPt3d);
+                cPt = Tools.map3Dto2D(fDomain.getGeometry(), cPt3d);
                 fDomain.setEdgeCenter(cPt, 2, a[i]);
 
                 Sphere s3 = new Sphere(3);
@@ -1009,9 +1009,9 @@ public class Tiling {
             Point3D A = fDomain.getVertex3D(0, j);
             Point3D B = fDomain.getVertex3D(1, j);
             Point3D C = fDomain.getVertex3D(2, j);
-            Point2D AB = fDomain.map3Dto2D(Tools.midpoint3D(fDomain, A, B));
-            Point2D AC = fDomain.map3Dto2D(Tools.midpoint3D(fDomain, A, C));
-            Point2D BC = fDomain.map3Dto2D(Tools.midpoint3D(fDomain, B, C));
+            Point2D AB = Tools.map3Dto2D(fDomain.getGeometry(), Tools.midpoint3D(fDomain.getGeometry(), A, B));
+            Point2D AC = Tools.map3Dto2D(fDomain.getGeometry(), Tools.midpoint3D(fDomain.getGeometry(), A, C));
+            Point2D BC = Tools.map3Dto2D(fDomain.getGeometry(), Tools.midpoint3D(fDomain.getGeometry(), B, C));
 
             fDomain.setEdgeCenter(BC, 0, j);
             fDomain.setEdgeCenter(AC, 1, j);

@@ -7,6 +7,7 @@ import javafx.scene.transform.Transform;
 import tiler.core.fundamental.Approximate;
 import tiler.core.fundamental.Glue;
 import tiler.core.fundamental.data.*;
+import tiler.tiling.Tools;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -101,7 +102,7 @@ public class FDomain {
     }
 
     public Point3D getVertex3D(int i, int a) {
-        return map2Dto3D(getVertex(i, a));
+        return Tools.map2Dto3D(geometry, getVertex(i, a));
     }
 
     public void setVertex(Point2D apt, int i, int a) {
@@ -116,7 +117,7 @@ public class FDomain {
     }
 
     public Point3D getEdgeCenter3D(int i, int a) {
-        return map2Dto3D(getEdgeCenter(i, a));
+        return Tools.map2Dto3D(geometry, getEdgeCenter(i, a));
     }
 
     public void setEdgeCenter(Point2D apt, int i, int a) {
@@ -130,7 +131,7 @@ public class FDomain {
     }
 
     public Point3D getChamberCenter3D(int a) {
-        return map2Dto3D(getChamberCenter(a));
+        return Tools.map2Dto3D(geometry, getChamberCenter(a));
     }
 
     public void setChamberCenter(Point2D apt, int a) {
@@ -178,7 +179,7 @@ public class FDomain {
             for (int z = 0; z < d.getNcrs(); z++) {
                 final NCR ncr = d.getNcr(z);
                 Point2D position = new Point2D(ncr.getPosx(),ncr.getPosy());
-                position = map3Dto2D(t.transform(map2Dto3D(position)));
+                position = Tools.map3Dto2D(geometry, t.transform(Tools.map2Dto3D(geometry, position)));
                 ncr.setPosx(position.getX());
                 ncr.setPosy(position.getY());
             }
@@ -186,7 +187,7 @@ public class FDomain {
             for (int z = 0; z < d.getEcrs(); z++) {
                 final ECR ecr = d.getEcr(z);
                 Point2D position = new Point2D(ecr.getPosx(), ecr.getPosy());
-                position = map3Dto2D(t.transform(map2Dto3D(position)));
+                position = Tools.map3Dto2D(geometry, t.transform(Tools.map2Dto3D(geometry, position)));
                 ecr.setPosx(position.getX());
                 ecr.setPosy(position.getY());
             }
@@ -194,7 +195,7 @@ public class FDomain {
             for (int z = 0; z < d.getOcrs(); z++) {
                 final OCR ocr = d.getOcr(z);
                 Point2D position = new Point2D(ocr.getPosx(), ocr.getPosy());
-                position = map3Dto2D(t.transform(map2Dto3D(position)));
+                position = Tools.map3Dto2D(geometry, t.transform(Tools.map2Dto3D(geometry, position)));
                 ocr.setPosx(position.getX());
                 ocr.setPosy(position.getY());
             }
@@ -314,59 +315,6 @@ public class FDomain {
 
     public Geometry getGeometry() {
         return geometry;
-    }
-
-    /**
-     * map 2D point to 3D point, depending on set geometry
-     *
-     * @param apt
-     * @return 3D point
-     */
-    public Point3D map2Dto3D(Point2D apt) {
-        switch (geometry) {
-            default:
-            case Euclidean: {
-                return new Point3D(100 * apt.getX(), 100 * apt.getY(), 0);
-            }
-            case Spherical: {
-                final double d = apt.getX() * apt.getX() + apt.getY() * apt.getY();
-                return new Point3D(100 * (2 * apt.getX() / (1 + d)), 100 * (2 * apt.getY() / (1 + d)), 100 * ((d - 1) / (d + 1)));
-            }
-            case Hyperbolic: {
-                final double d = apt.getX() * apt.getX() + apt.getY() * apt.getY();
-                if (d < 1)
-                    return new Point3D(100 * (2 * apt.getX() / (1 - d)), 100 * (2 * apt.getY() / (1 - d)), 100 * ((1 + d) / (1 - d)));
-                else
-                    return new Point3D(0, 0, 0);
-            }
-        }
-    }
-
-    /**
-     * Euclidean case: Scaling by 0.01 and drop coordinate z = 0.
-     * Spherical case: Calculates inverse of stereographic projection. Maps from sphere with radius 100 to Euclidean plane in unit scale.
-     * Hyperbolic case: Maps a point on hyperboloid model (scaled with factor 100) to Poincare disk model (open unit disk).
-     * @param bpt
-     * @return
-     */
-
-    public Point2D map3Dto2D(Point3D bpt){
-        bpt = bpt.multiply(0.01); //scale by 0.01
-        switch (geometry) {
-            default:
-            case Euclidean: {
-                return new Point2D(bpt.getX(), bpt.getY());
-            }
-            case Spherical: { // Inverse of stereographic projection
-                double d = (1+bpt.getZ())/(1-bpt.getZ());
-                return new Point2D((bpt.getX()*(d+1)/2), (bpt.getY()*(d+1)/2));
-            }
-            case Hyperbolic: { // Transforms hyperboloid model to Poincare disk model
-                return new Point2D(bpt.getX()/(1+bpt.getZ()), bpt.getY()/(1+bpt.getZ()));
-            }
-        }
-
-
     }
 
     /**

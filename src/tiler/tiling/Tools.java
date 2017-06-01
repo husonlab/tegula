@@ -1,9 +1,11 @@
 package tiler.tiling;
 
+import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
+import sun.misc.FDBigInteger;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
 
@@ -32,11 +34,11 @@ public class Tools {
     }
 
 
-    public static Point3D midpoint3D(FDomain f, Point3D a, Point3D b){
-        if (f.getGeometry() == Geometry.Euclidean) {
+    public static Point3D midpoint3D(Geometry geometry, Point3D a, Point3D b){
+        if (geometry == Geometry.Euclidean) {
             return a.midpoint(b);
         }
-        else if (f.getGeometry() == Geometry.Spherical) {
+        else if (geometry == Geometry.Spherical) {
             return (a.midpoint(b)).normalize().multiply(100);
         }
         else return null;
@@ -68,5 +70,58 @@ public class Tools {
         translateX = new Affine(Math.cosh(d), 0 , Math.sinh(d), 0, 0, 1, 0, 0, Math.sinh(d), 0, Math.cosh(d), 0); // Translation along x-axis
 
         return rotateForward.createConcatenation(translateX).createConcatenation(rotateBackward); // Hyperbolic translation
+    }
+
+
+    /**
+     * map 2D point (unit model) to 3D point (scaled with 100), depending on set geometry
+     *
+     * @param apt
+     * @return 3D point
+     */
+    public static Point3D map2Dto3D(Geometry geometry, Point2D apt) {
+        switch (geometry) {
+            default:
+            case Euclidean: {
+                return new Point3D(100 * apt.getX(), 100 * apt.getY(), 0);
+            }
+            case Spherical: {
+                final double d = apt.getX() * apt.getX() + apt.getY() * apt.getY();
+                return new Point3D(100 * (2 * apt.getX() / (1 + d)), 100 * (2 * apt.getY() / (1 + d)), 100 * ((d - 1) / (d + 1)));
+            }
+            case Hyperbolic: {
+                final double d = apt.getX() * apt.getX() + apt.getY() * apt.getY();
+                if (d < 1)
+                    return new Point3D(100 * (2 * apt.getX() / (1 - d)), 100 * (2 * apt.getY() / (1 - d)), 100 * ((1 + d) / (1 - d)));
+                else
+                    return new Point3D(0, 0, 0);
+            }
+        }
+    }
+
+
+    /**
+     * Euclidean case: Scaling by 0.01 and drop coordinate z = 0.
+     * Spherical case: Calculates inverse of stereographic projection. Maps from sphere with radius 100 to Euclidean plane in unit scale.
+     * Hyperbolic case: Maps a point on hyperboloid model (scaled with factor 100) to Poincare disk model (open unit disk).
+     * @param bpt
+     * @return
+     */
+
+    public static Point2D map3Dto2D(Geometry geometry, Point3D bpt){
+        bpt = bpt.multiply(0.01); //scale by 0.01
+        switch (geometry) {
+            default:
+            case Euclidean: {
+                return new Point2D(bpt.getX(), bpt.getY());
+            }
+            case Spherical: { // Inverse of stereographic projection
+                double d = (1+bpt.getZ())/(1-bpt.getZ());
+                return new Point2D((bpt.getX()*(d+1)/2), (bpt.getY()*(d+1)/2));
+            }
+            case Hyperbolic: { // Transforms hyperboloid model to Poincare disk model
+                return new Point2D(bpt.getX()/(1+bpt.getZ()), bpt.getY()/(1+bpt.getZ()));
+            }
+        }
     }
 }
