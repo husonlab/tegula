@@ -937,6 +937,7 @@ public class Tiling {
      * @param edge
      */
     public void straightenEdge(int edge) {
+
         int i;
         int[] a = new int[5];
 
@@ -959,33 +960,68 @@ public class Tiling {
             a[3] = 0;
 
         for (i = 0; i < 4; i++) {
-            if (a[i] != 0) // todo: this is broken: we probably need to calculate 2D transforms
+            if (a[i] != 0)
             {
                 Point2D aPt = fDomain.getVertex(0, a[i]);
                 Point2D bPt = fDomain.getVertex(0, ds.getSi(0, a[i]));
+                Point3D aPt3d = fDomain.map2Dto3D(aPt);
+                Point3D bPt3d = fDomain.map2Dto3D(bPt);
                 if (fDomain.isBoundaryEdge(0, a[i])) {
-                    try {
-                        Transform transform = generators.get(0, a[i]);
-                        Point3D bPt3D = fDomain.map2Dto3D(bPt);
-                        bPt3D = transform.inverseTransform(bPt3D); // todo: this needs fixing because saved transforms are 3D
-                        bPt = fDomain.map3Dto2D(bPt3D).multiply(0.01);
-                        //bPt = transform.inverseTransform(bPt);
 
-                    } catch (NonInvertibleTransformException e) {
-                        throw new RuntimeException(e);
-                    }
+                    //Transform gen = generators.get(0, a[i]);
+                    Transform gen = generators.get(0, ds.getSi(0, a[i]));
+                    bPt3d = gen.transform(bPt3d);
                 }
-                Point2D app = new Point2D(aPt.getX(), aPt.getY());
-                Point2D bpp = new Point2D(bPt.getX(), bPt.getY());
-                Point2D cpp = middle(fDomain.getGeometry(), app, bpp);
 
-                fDomain.setVertex(cpp, 1, a[i]);
+                Sphere s1 = new Sphere(3);
+                Translate t1 = new Translate(aPt3d.getX(), aPt3d.getY(), aPt3d.getZ());
+                s1.setMaterial(new PhongMaterial(Color.RED));
+                s1.getTransforms().add(t1);
 
-                cpp = middle(fDomain.getGeometry(), app, cpp);
-                fDomain.setEdgeCenter(cpp, 2, a[i]);
+                Sphere s2 = new Sphere(3);
+                Translate t2 = new Translate(bPt3d.getX(), bPt3d.getY(), bPt3d.getZ());
+                s2.setMaterial(new PhongMaterial(Color.BLACK));
+                s2.getTransforms().add(t2);
+
+
+                // Set new edge and vertex to straighten line
+                //Point2D cPt = middle(fDomain.getGeometry(), aPt, bPt);
+                //Point3D cPt3d = fDomain.map2Dto3D(cPt);  // For debugging
+                Point3D cPt3d = Tools.midpoint3D(fDomain, aPt3d, bPt3d);
+                Point2D cPt = fDomain.map3Dto2D(cPt3d);
+                fDomain.setVertex(cPt, 1, a[i]);
+
+                //cPt = middle(fDomain.getGeometry(), aPt, cPt);
+                cPt3d = Tools.midpoint3D(fDomain, aPt3d, cPt3d);
+                cPt = fDomain.map3Dto2D(cPt3d);
+                fDomain.setEdgeCenter(cPt, 2, a[i]);
+
+                Sphere s3 = new Sphere(3);
+                Translate t3 = new Translate(cPt3d.getX(), cPt3d.getY(), cPt3d.getZ());
+                s3.setMaterial(new PhongMaterial(Color.BLUE));
+                s3.getTransforms().add(t3);
+
+                //Document.tiles.getChildren().addAll(s1,s2,s3);
             }
         }
+        // Straighten all edges of chambers and recompute chamber centers (= mass point of chamber):
+        for (int j = 1; j <= fDomain.size(); j++){
+            Point3D A = fDomain.getVertex3D(0, j);
+            Point3D B = fDomain.getVertex3D(1, j);
+            Point3D C = fDomain.getVertex3D(2, j);
+            Point2D AB = fDomain.map3Dto2D(Tools.midpoint3D(fDomain, A, B));
+            Point2D AC = fDomain.map3Dto2D(Tools.midpoint3D(fDomain, A, C));
+            Point2D BC = fDomain.map3Dto2D(Tools.midpoint3D(fDomain, B, C));
+
+            fDomain.setEdgeCenter(BC, 0, j);
+            fDomain.setEdgeCenter(AC, 1, j);
+            fDomain.setEdgeCenter(AB, 2, j);
+
+            Point2D vec = (fDomain.getVertex(2, j).subtract(AB)).multiply(0.33333);
+            fDomain.setChamberCenter(AB.add(vec), j);
+        }
     }
+
 
 
     /**

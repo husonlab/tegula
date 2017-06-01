@@ -32,6 +32,16 @@ public class Tools {
     }
 
 
+    public static Point3D midpoint3D(FDomain f, Point3D a, Point3D b){
+        if (f.getGeometry() == Geometry.Euclidean) {
+            return a.midpoint(b);
+        }
+        else if (f.getGeometry() == Geometry.Spherical) {
+            return (a.midpoint(b)).normalize().multiply(100);
+        }
+        else return null;
+    }
+
 
 
     /**

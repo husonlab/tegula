@@ -178,7 +178,7 @@ public class FDomain {
             for (int z = 0; z < d.getNcrs(); z++) {
                 final NCR ncr = d.getNcr(z);
                 Point2D position = new Point2D(ncr.getPosx(),ncr.getPosy());
-                position = map3Dto2D(t.transform(map2Dto3D(position)).multiply(0.01));
+                position = map3Dto2D(t.transform(map2Dto3D(position)));
                 ncr.setPosx(position.getX());
                 ncr.setPosy(position.getY());
             }
@@ -186,7 +186,7 @@ public class FDomain {
             for (int z = 0; z < d.getEcrs(); z++) {
                 final ECR ecr = d.getEcr(z);
                 Point2D position = new Point2D(ecr.getPosx(), ecr.getPosy());
-                position = map3Dto2D(t.transform(map2Dto3D(position)).multiply(0.01));
+                position = map3Dto2D(t.transform(map2Dto3D(position)));
                 ecr.setPosx(position.getX());
                 ecr.setPosy(position.getY());
             }
@@ -194,7 +194,7 @@ public class FDomain {
             for (int z = 0; z < d.getOcrs(); z++) {
                 final OCR ocr = d.getOcr(z);
                 Point2D position = new Point2D(ocr.getPosx(), ocr.getPosy());
-                position = map3Dto2D(t.transform(map2Dto3D(position)).multiply(0.01));
+                position = map3Dto2D(t.transform(map2Dto3D(position)));
                 ocr.setPosx(position.getX());
                 ocr.setPosy(position.getY());
             }
@@ -343,23 +343,25 @@ public class FDomain {
     }
 
     /**
-     * Spherical case: Calculates inverse of stereographic projection
-     * Hyperbolic case: Maps a point on hyperboloid model (scaled with factor 100) to Poincare model (non-scaled).
+     * Euclidean case: Scaling by 0.01 and drop coordinate z = 0.
+     * Spherical case: Calculates inverse of stereographic projection. Maps from sphere with radius 100 to Euclidean plane in unit scale.
+     * Hyperbolic case: Maps a point on hyperboloid model (scaled with factor 100) to Poincare disk model (open unit disk).
      * @param bpt
      * @return
      */
 
     public Point2D map3Dto2D(Point3D bpt){
+        bpt = bpt.multiply(0.01); //scale by 0.01
         switch (geometry) {
             default:
             case Euclidean: {
-                return new Point2D(bpt.getX(), bpt.getX());
+                return new Point2D(bpt.getX(), bpt.getY());
             }
-            case Spherical: {
+            case Spherical: { // Inverse of stereographic projection
                 double d = (1+bpt.getZ())/(1-bpt.getZ());
                 return new Point2D((bpt.getX()*(d+1)/2), (bpt.getY()*(d+1)/2));
             }
-            case Hyperbolic: {
+            case Hyperbolic: { // Transforms hyperboloid model to Poincare disk model
                 return new Point2D(bpt.getX()/(1+bpt.getZ()), bpt.getY()/(1+bpt.getZ()));
             }
         }

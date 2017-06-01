@@ -172,7 +172,7 @@ public class Document {
     public double width=800, height=506; //Width and height of window
 
 
-    private Group tiles = new Group(), linesInFDomain = new Group();
+    public static Group tiles = new Group(), linesInFDomain = new Group();  // todo: set to private Group tiles...
     public static int numberOfCopies; //Counts number of copies.
 
     private static int chamberIndex = 0;
@@ -257,6 +257,7 @@ public class Document {
 
         // Hyperbolic case ---------------------------------------------------------------------------------------------
         else if (tiling.getGeometry() == Geometry.Hyperbolic) {
+
 
             double diameterFDomain = calculateDiameter(tiling.getfDomain());
             if (2.8 * diameterFDomain > getLimitHyperbolicGroup()){
