@@ -34,6 +34,13 @@ public class Tools {
     }
 
 
+    /**
+     * Calculates midpoint between points a and b on 3d-models
+     * @param geometry
+     * @param a
+     * @param b
+     * @return midpoint between a and b
+     */
     public static Point3D midpoint3D(Geometry geometry, Point3D a, Point3D b){
         if (geometry == Geometry.Euclidean) {
             return a.midpoint(b);
@@ -41,7 +48,48 @@ public class Tools {
         else if (geometry == Geometry.Spherical) {
             return (a.midpoint(b)).normalize().multiply(100);
         }
-        else return null;
+        else {
+            // TODO Refactoren: Namen etc.
+            // die Distanzen werden hier mometan nur uber den Z-Wert berechnet
+
+            Point3D point1 = a.multiply(0.01);
+            Point3D point2 = b.multiply(0.01);
+
+            Point3D xAxis = new Point3D(1, 0, 0);
+            Point3D ursprung = new Point3D(0, 0 ,1);
+
+            double rotAngle = xAxis.angle(point1.getX(), point1.getY(), 0);
+
+            Point3D rotAxis = null;
+            if (point1.getY() >= 0)
+                rotAxis = new Point3D(0,0,-1);
+            else
+                rotAxis = new Point3D(0,0,1);
+
+            Rotate rotateToX = new Rotate(rotAngle, rotAxis);
+            Rotate rotateToOr = new Rotate(-rotAngle, rotAxis);
+
+            double dist = Math.log(Math.abs(point1.getZ() + Math.sqrt(Math.abs(point1.getZ() * point1.getZ() - 1))));
+
+            Affine translate1 = new Affine(Math.cosh(-dist), 0 , Math.sinh(-dist), 0, 0, 1, 0, 0, Math.sinh(-dist), 0, Math.cosh(-dist), 0);
+            Affine translate1inv = new Affine(Math.cosh(dist), 0 , Math.sinh(dist), 0, 0, 1, 0, 0, Math.sinh(dist), 0, Math.cosh(dist), 0);
+
+            Point3D p2moved = translate1.transform(rotateToX.transform(point2));
+
+            rotAngle = xAxis.angle(p2moved.getX(), p2moved.getY(), 0);
+            if (p2moved.getY() >= 0)
+                rotAxis = new Point3D(0,0,-1);
+            else
+                rotAxis = new Point3D(0,0,1);
+
+            Rotate rotat2 = new Rotate(-rotAngle, rotAxis);
+
+            dist = 0.5 * Math.log(Math.abs(p2moved.getZ() + Math.sqrt(Math.abs(p2moved.getZ() * p2moved.getZ() - 1))));
+
+            Affine translate2 = new Affine(Math.cosh(dist), 0 , Math.sinh(dist), 0, 0, 1, 0, 0, Math.sinh(dist), 0, Math.cosh(dist), 0);
+
+            return rotateToOr.transform(translate1inv.transform(rotat2.transform(translate2.transform(ursprung)))).multiply(100);
+        }
     }
 
 
