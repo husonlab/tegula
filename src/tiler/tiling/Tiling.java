@@ -6,10 +6,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Sphere;
-import javafx.scene.shape.StrokeLineCap;
-import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.util.Pair;
@@ -47,6 +44,8 @@ public class Tiling {
     public static Transform transformRecycled = new Translate();
     public static Group EuclideanFund = new Group();
     public static Group HyperbolicFund = new Group();
+
+    public static Group handles = new Group();
 
 
     private final int[] flag2vert;
@@ -151,7 +150,6 @@ public class Tiling {
 
         if (!found && verbose)
             System.err.println("Can't find boundary corner");
-
 
         boolean circle_boundary = false;
         if (!found) {
@@ -407,7 +405,7 @@ public class Tiling {
      */
     public Group createTilingSpherical(double tol) {
         final Group group = new Group();
-        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
+        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain, handles);
         group.getChildren().addAll(fund);
         //computeConstraintsAndGenerators();
 
@@ -472,7 +470,7 @@ public class Tiling {
         seen.insert(fDomain, refPointHyperbolic, tol); // root of OctTree is point of reference
 
         final Group group = new Group();
-        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
+        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain, handles);
 
         if (makeCopyHyperbolic(refPointHyperbolic)) {
             fund.setRotationAxis(refPointHyperbolic);
@@ -564,7 +562,7 @@ public class Tiling {
         refPointEuclidean = fDomain.getChamberCenter3D(Document.getChamberIndex()); // Reference point of actual fundamental domain
 
         final Group group = new Group();
-        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain); // Build fundamental domain
+        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain, handles); // Build fundamental domain
 
         if (makeCopyEuclidean(refPointEuclidean)) { // Fill empty space with tiles
             fund.getTransforms().add(new Translate()); // Add transform (= identity)
@@ -1062,6 +1060,10 @@ public class Tiling {
 
     public FDomain getfDomain() {
         return fDomain;
+    }
+
+    public Group getHandles() {
+        return handles;
     }
 
     //public Transforms getGenerators(){return generators;}

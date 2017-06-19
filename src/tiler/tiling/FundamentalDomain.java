@@ -1,17 +1,14 @@
 package tiler.tiling;
 
-import com.sun.javafx.geom.BaseBounds;
-import com.sun.javafx.geom.transform.BaseTransform;
-import com.sun.javafx.jmx.MXNodeAlgorithm;
-import com.sun.javafx.jmx.MXNodeAlgorithmContext;
-import com.sun.javafx.sg.prism.NGNode;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.*;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.MeshView;
+import javafx.scene.shape.Sphere;
+import javafx.scene.shape.TriangleMesh;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
@@ -20,10 +17,9 @@ import javafx.scene.transform.Translate;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
+import tiler.util.ShapeHandler;
 
 import java.util.BitSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -38,7 +34,9 @@ public class FundamentalDomain {
      * @param fDomain domain computed by KW
      * @return fundamental domain
      */
-    public static Group buildFundamentalDomain(final DSymbol dsymbol, final FDomain fDomain) {
+    public static Group buildFundamentalDomain(final DSymbol dsymbol, final FDomain fDomain, final Group handles) {
+        handles.getChildren().clear();
+
         final Group group = new Group();
 
         final Color[] colors = new Color[fDomain.size() + 1];
@@ -71,13 +69,34 @@ public class FundamentalDomain {
                 points[p++] = (float) apt.getX();
                 points[p++] = (float) apt.getY();
                 points[p++] = (float) apt.getZ();
+
+                if (i == 0 || i == 1) { // todo: one per orbit
+                    Circle handle = new Circle(4);
+                    handle.setTranslateX((float) apt.getX());
+                    handle.setTranslateY((float) apt.getY());
+                    handle.setFill(Color.WHITE);
+                    handle.setStroke(Color.DARKGRAY);
+                    handles.getChildren().add(handle);
+                    ShapeHandler.setHandler(handle);
+                }
             }
+
             // chamber edge centers:
             for (int i = 0; i <= 2; i++) { // points 3, 4, 5
                 final Point3D apt = fDomain.getEdgeCenter3D(i, a);
                 points[p++] = (float) apt.getX();
                 points[p++] = (float) apt.getY();
                 points[p++] = (float) apt.getZ();
+
+                if (i == 2) { // // todo: one per orbit
+                    Circle handle = new Circle(4);
+                    handle.setTranslateX((float) apt.getX());
+                    handle.setTranslateY((float) apt.getY());
+                    handle.setFill(Color.WHITE);
+                    handle.setStroke(Color.DARKGRAY);
+                    handles.getChildren().add(handle);
+                    ShapeHandler.setHandler(handle);
+                }
             }
             // chamber center:
             { // point 6

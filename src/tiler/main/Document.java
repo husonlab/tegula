@@ -19,17 +19,15 @@
 
 package tiler.main;
 
-import com.sun.javafx.geom.Vec2d;
-import com.sun.javafx.geom.transform.Affine2D;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.*;
-import javafx.scene.transform.Affine;
-import javafx.scene.transform.Rotate;
+import javafx.scene.shape.Polyline;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
@@ -184,6 +182,7 @@ public class Document {
         final Tiling tiling = tilings.get(current);
         geometryProperty().setValue(tiling.getGeometry());
 
+
         // Calculate optimal chamber, where chamber center is as far away from boundary as possible
         chamberIndex = optimalChamber(tiling.getfDomain());
         // Compute tolerance for rounding errors (depends on shape of fundamental domain):
@@ -323,6 +322,8 @@ public class Document {
             removeLinesFromFDomain();
             addLinesToFDomain();
         }
+
+        getWorld().getChildren().add(tiling.getHandles());
 
         getController().getStatusTextField().setText(tilings.get(current).getStatusLine());
         GroupEditing.update(this);
