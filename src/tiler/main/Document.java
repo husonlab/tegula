@@ -170,7 +170,7 @@ public class Document {
     public double width=800, height=506; //Width and height of window
 
 
-    public static Group tiles = new Group(), linesInFDomain = new Group();  // todo: set to private Group tiles...
+    private Group tiles = new Group(), linesInFDomain = new Group();
     public static int numberOfCopies; //Counts number of copies.
 
     private static int chamberIndex = 0;

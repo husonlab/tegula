@@ -965,41 +965,17 @@ public class Tiling {
                 Point3D aPt3d = Tools.map2Dto3D(fDomain.getGeometry(), aPt);
                 Point3D bPt3d = Tools.map2Dto3D(fDomain.getGeometry(), bPt);
                 if (fDomain.isBoundaryEdge(0, a[i])) {
-
-                    //Transform gen = generators.get(0, a[i]);
                     Transform gen = generators.get(0, ds.getSi(0, a[i]));
                     bPt3d = gen.transform(bPt3d);
                 }
 
-                Sphere s1 = new Sphere(3);
-                Translate t1 = new Translate(aPt3d.getX(), aPt3d.getY(), aPt3d.getZ());
-                s1.setMaterial(new PhongMaterial(Color.RED));
-                s1.getTransforms().add(t1);
-
-                Sphere s2 = new Sphere(3);
-                Translate t2 = new Translate(bPt3d.getX(), bPt3d.getY(), bPt3d.getZ());
-                s2.setMaterial(new PhongMaterial(Color.BLACK));
-                s2.getTransforms().add(t2);
-
-
-                // Set new edge and vertex to straighten line
-                //Point2D cPt = middle(fDomain.getGeometry(), aPt, bPt);
-                //Point3D cPt3d = fDomain.map2Dto3D(cPt);  // For debugging
                 Point3D cPt3d = Tools.midpoint3D(fDomain.getGeometry(), aPt3d, bPt3d);
                 Point2D cPt = Tools.map3Dto2D(fDomain.getGeometry(), cPt3d);
                 fDomain.setVertex(cPt, 1, a[i]);
 
-                //cPt = middle(fDomain.getGeometry(), aPt, cPt);
                 cPt3d = Tools.midpoint3D(fDomain.getGeometry(), aPt3d, cPt3d);
                 cPt = Tools.map3Dto2D(fDomain.getGeometry(), cPt3d);
                 fDomain.setEdgeCenter(cPt, 2, a[i]);
-
-                Sphere s3 = new Sphere(3);
-                Translate t3 = new Translate(cPt3d.getX(), cPt3d.getY(), cPt3d.getZ());
-                s3.setMaterial(new PhongMaterial(Color.BLUE));
-                s3.getTransforms().add(t3);
-
-                //Document.tiles.getChildren().addAll(s1,s2,s3);
             }
         }
         // Straighten all edges of chambers and recompute chamber centers (= mass point of chamber):

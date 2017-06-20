@@ -69,16 +69,6 @@ public class FundamentalDomain {
                 points[p++] = (float) apt.getX();
                 points[p++] = (float) apt.getY();
                 points[p++] = (float) apt.getZ();
-
-                if (i == 0 || i == 1) { // todo: one per orbit
-                    Circle handle = new Circle(4);
-                    handle.setTranslateX((float) apt.getX());
-                    handle.setTranslateY((float) apt.getY());
-                    handle.setFill(Color.WHITE);
-                    handle.setStroke(Color.DARKGRAY);
-                    handles.getChildren().add(handle);
-                    ShapeHandler.setHandler(handle);
-                }
             }
 
             // chamber edge centers:
@@ -87,16 +77,6 @@ public class FundamentalDomain {
                 points[p++] = (float) apt.getX();
                 points[p++] = (float) apt.getY();
                 points[p++] = (float) apt.getZ();
-
-                if (i == 2) { // // todo: one per orbit
-                    Circle handle = new Circle(4);
-                    handle.setTranslateX((float) apt.getX());
-                    handle.setTranslateY((float) apt.getY());
-                    handle.setFill(Color.WHITE);
-                    handle.setStroke(Color.DARKGRAY);
-                    handles.getChildren().add(handle);
-                    ShapeHandler.setHandler(handle);
-                }
             }
             // chamber center:
             { // point 6
@@ -163,6 +143,33 @@ public class FundamentalDomain {
             meshView.setMesh(mesh);
             meshView.setMaterial(new PhongMaterial(colors[a]));
             group.getChildren().addAll(meshView);
+        }
+
+        // Add handles
+        if (true){
+            for (int a = 1; a <= fDomain.size(); a++) {
+                final Point3D v0 = fDomain.getVertex3D(0, a);
+                final Point3D e2 = fDomain.getEdgeCenter3D(2, a);
+                final Point3D v1 = fDomain.getVertex3D(1, a);
+
+                Circle v0handle = new Circle(4), e2handle = new Circle(4), v1handle = new Circle(4); //Todo: one per orbit
+                v0handle.setTranslateX(v0.getX());
+                v0handle.setTranslateY(v0.getY());
+                e2handle.setTranslateX(e2.getX());
+                e2handle.setTranslateY(e2.getY());
+                v1handle.setTranslateX(v1.getX());
+                v1handle.setTranslateY(v1.getY());
+                v0handle.setFill(Color.WHITE);
+                v0handle.setStroke(Color.DARKGRAY);
+                e2handle.setFill(Color.WHITE);
+                e2handle.setStroke(Color.DARKGRAY);
+                v1handle.setFill(Color.WHITE);
+                v1handle.setStroke(Color.DARKGRAY);
+                handles.getChildren().addAll(v0handle, e2handle, v1handle);
+                ShapeHandler.setHandler(v0handle);
+                ShapeHandler.setHandler(e2handle);
+                ShapeHandler.setHandler(v1handle);
+            }
         }
 
         // Add lines
