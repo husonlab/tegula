@@ -19,7 +19,15 @@
 
 package tiler.util;
 
-import javafx.scene.shape.Shape;
+import javafx.geometry.Point3D;
+import javafx.scene.transform.Translate;
+import tiler.core.dsymbols.FDomain;
+import tiler.main.Document;
+import tiler.tiling.FundamentalDomain;
+import tiler.tiling.Handle;
+import tiler.tiling.Tools;
+
+import java.awt.geom.Point2D;
 
 /**
  * handles mouse events on handles
@@ -32,37 +40,46 @@ public class ShapeHandler {
     /**
      * set the handler
      *
-     * @param shape
+     * @param handle
      */
-    public static void setHandler(Shape shape) {
-        new ShapeHandler(shape);
+    public static void setHandler(Handle handle, FDomain fDomain) {
+        new ShapeHandler(handle, fDomain);
     }
 
     /**
      * constructor
      *
-     * @param shape
+     * @param handle
      */
-    private ShapeHandler(Shape shape) {
+    private ShapeHandler(Handle handle, FDomain fDomain) {
 
-        shape.setOnMousePressed((e) -> {
+        handle.getShape().setOnMousePressed((e) -> {
             mouseX = e.getSceneX();
             mouseY = e.getSceneY();
             e.consume();
         });
 
-        shape.setOnMouseDragged((e) -> {
+        handle.getShape().setOnMouseDragged((e) -> {
             double deltaX = e.getSceneX() - mouseX;
             double deltaY = e.getSceneY() - mouseY;
 
             mouseX = e.getSceneX();
             mouseY = e.getSceneY();
 
-            shape.setTranslateX(shape.getTranslateX() + deltaX);
-            shape.setTranslateY(shape.getTranslateY() + deltaY);
+            handle.setTransX(handle.getTransX() + deltaX);
+            handle.setTransY(handle.getTransY() + deltaY);
+            Translate t = new Translate(deltaX/100, deltaY/100);
+
+            int i = handle.getType();
+            javafx.geometry.Point2D pt = fDomain.getVertex(i, handle.getFlag());
+            pt = t.transform(pt);
+
+            for (int a = 1; a <= fDomain.size(); a++){
+                if (handle.getBitSet().get(a)){
+                    fDomain.setVertex(pt, i, a);
+                }
+            }
             e.consume();
-
         });
-
     }
 }

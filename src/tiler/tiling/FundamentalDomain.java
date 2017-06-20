@@ -17,6 +17,7 @@ import javafx.scene.transform.Translate;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
+import tiler.main.Document;
 import tiler.util.ShapeHandler;
 
 import java.util.BitSet;
@@ -156,13 +157,20 @@ public class FundamentalDomain {
                 for (int k = 1; k <= m; k++) {
                     v = fDomain.getVertex3D(1-i, a);
                     // Add handles
-                    Circle handle = new Circle(4);
-                    handle.setTranslateX(v.getX());
-                    handle.setTranslateY(v.getY());
-                    handle.setFill(Color.WHITE);
-                    handle.setStroke(Color.DARKGRAY);
-                    handles.getChildren().add(handle);
-                    ShapeHandler.setHandler(handle);
+                    Handle handle = new Handle();
+                    Circle circle = new Circle(4);
+                    circle.setTranslateX(v.getX());
+                    circle.setTranslateY(v.getY());
+                    circle.setFill(Color.WHITE);
+                    circle.setStroke(Color.DARKGRAY);
+                    handle.setShape(circle);
+                    BitSet orbit = new BitSet();
+                    dsymbol.markOrbit(1-i, 2, a, orbit);
+                    handle.setBitSet(orbit);
+                    handle.setType(1-i);
+                    handle.setFlag(a);
+                    handles.getChildren().add(handle.getShape());
+                    ShapeHandler.setHandler(handle, fDomain);
 
                     a = dsymbol.nextOrbit(i, 2, a, visited);
                 }
@@ -177,13 +185,15 @@ public class FundamentalDomain {
                 if (!visited.get(a)){
                     e = fDomain.getEdgeCenter3D(2,a);
                     // Add handles
-                    Circle handle = new Circle(4);
-                    handle.setTranslateX(e.getX());
-                    handle.setTranslateY(e.getY());
-                    handle.setFill(Color.WHITE);
-                    handle.setStroke(Color.DARKGRAY);
-                    handles.getChildren().add(handle);
-                    ShapeHandler.setHandler(handle);
+                    Handle handle = new Handle();
+                    Circle circle = new Circle(4);
+                    circle.setTranslateX(e.getX());
+                    circle.setTranslateY(e.getY());
+                    circle.setFill(Color.WHITE);
+                    circle.setStroke(Color.DARKGRAY);
+                    handle.setShape(circle);
+                    handles.getChildren().add(handle.getShape());
+                    ShapeHandler.setHandler(handle, fDomain);
                     visited.set(dsymbol.getS2(a));
                 }
                 a++;

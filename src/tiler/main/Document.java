@@ -37,6 +37,7 @@ import tiler.core.dsymbols.Geometry;
 import tiler.tiling.*;
 import tiler.util.JavaFXUtils;
 
+import javax.print.Doc;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -844,5 +845,4 @@ public class Document {
     public SimpleObjectProperty<Geometry> geometryProperty() {
         return geometryProperty;
     }
-
 }
