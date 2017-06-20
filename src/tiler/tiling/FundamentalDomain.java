@@ -147,11 +147,40 @@ public class FundamentalDomain {
 
         // Add handles
         if (true){
-            for (int a = 1; a <= fDomain.size(); a++) {
-                final Point3D v0 = fDomain.getVertex3D(0, a);
-                final Point3D e2 = fDomain.getEdgeCenter3D(2, a);
-                final Point3D v1 = fDomain.getVertex3D(1, a);
 
+            // Compute handles for 0- and 1-vertices
+            for (int i = 0; i <= 1; i++) {
+                Point3D v;
+                int a = 1;
+                int m = dsymbol.countOrbits(i, 2);
+                BitSet visited = new BitSet(m);
+                for (int k = 1; k <= m; k++) {
+                    v = fDomain.getVertex3D(1-i, a);
+                    // Add handles
+                    Circle handle = new Circle(4);
+                    handle.setTranslateX(v.getX());
+                    handle.setTranslateY(v.getY());
+                    handle.setFill(Color.WHITE);
+                    handle.setStroke(Color.DARKGRAY);
+                    handles.getChildren().add(handle);
+                    ShapeHandler.setHandler(handle);
+
+                    a = dsymbol.nextOrbit(i, 2, a, visited);
+                }
+            }
+
+            // Compute handles for 2-edge-centers
+            int m = fDomain.size();
+            BitSet visited = new BitSet(m);
+            for (int k = 1; k <= m; k++){
+                
+            }
+
+
+            /*for (int a = 1; a <= fDomain.size(); a++) {
+                v0 = fDomain.getVertex3D(0, a);
+                e2 = fDomain.getEdgeCenter3D(2, a);
+                v1 = fDomain.getVertex3D(1, a);
                 Circle v0handle = new Circle(4), e2handle = new Circle(4), v1handle = new Circle(4); //Todo: one per orbit
                 v0handle.setTranslateX(v0.getX());
                 v0handle.setTranslateY(v0.getY());
@@ -169,7 +198,7 @@ public class FundamentalDomain {
                 ShapeHandler.setHandler(v0handle);
                 ShapeHandler.setHandler(e2handle);
                 ShapeHandler.setHandler(v1handle);
-            }
+            }*/
         }
 
         // Add lines
