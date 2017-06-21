@@ -66,19 +66,18 @@ public class ShapeHandler {
             mouseX = e.getSceneX();
             mouseY = e.getSceneY();
 
+            // Move handles
             handle.setTransX(handle.getTransX() + deltaX);
             handle.setTransY(handle.getTransY() + deltaY);
-            Translate t = new Translate(deltaX/100, deltaY/100);
 
-            int i = handle.getType();
-            javafx.geometry.Point2D pt = fDomain.getVertex(i, handle.getFlag());
+            // Reset Point in fundamental domain
+            Translate t = new Translate(deltaX, deltaY);
+            int i = handle.getType(), a = handle.getFlag();
+            Point3D pt = fDomain.getVertex3D(i, a);
             pt = t.transform(pt);
+            javafx.geometry.Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt);
+            fDomain.setVertex(pt2d, i, a); // Todo: Consider all chambers of orbit
 
-            for (int a = 1; a <= fDomain.size(); a++){
-                if (handle.getBitSet().get(a)){
-                    fDomain.setVertex(pt, i, a);
-                }
-            }
             e.consume();
         });
     }
