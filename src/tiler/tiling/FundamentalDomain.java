@@ -19,313 +19,527 @@ import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
 import tiler.main.Document;
 import tiler.util.ShapeHandler;
+import tiler.core.fundamental.utils.WrapInt;
 
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Random;
 
 /**
- * builds fundamental domain in JavaFX
- * Created by huson on 4/5/16.
+ * builds fundamental domain in JavaFX Created by huson on 4/5/16.
  */
 public class FundamentalDomain {
-    /**
-     * construct a fundamental domain
-     *
-     * @param dsymbol Delaney symbol from old DH code
-     * @param fDomain domain computed by KW
-     * @return fundamental domain
-     */
-    public static Group buildFundamentalDomain(final DSymbol dsymbol, final FDomain fDomain, final Group handles) {
-        handles.getChildren().clear();
+	/**
+	 * construct a fundamental domain
+	 *
+	 * @param dsymbol
+	 *            Delaney symbol from old DH code
+	 * @param fDomain
+	 *            domain computed by KW
+	 * @return fundamental domain
+	 */
+	public static Group buildFundamentalDomain(final DSymbol dsymbol, final FDomain fDomain, final Group handles) {
+		handles.getChildren().clear();
 
-        final Group group = new Group();
+		final Group group = new Group();
 
-        final Color[] colors = new Color[fDomain.size() + 1];
+		final Color[] colors = new Color[fDomain.size() + 1];
 
-        final BitSet set = new BitSet();
-        final Random random = new Random(666);
-        // set colors
-        for (int a = 1; a <= dsymbol.size(); a = dsymbol.nextOrbit(0, 1, a, set)) {
-            final Color color = new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1);
-            dsymbol.visitOrbit(0, 1, a, new DSymbol.OrbitVisitor() {
-                public void visit(int a) {
-                    colors[a] = color;
-                }
-            });
-        }
+		final BitSet set = new BitSet();
+		final Random random = new Random(666);
+		// set colors
+		for (int a = 1; a <= dsymbol.size(); a = dsymbol.nextOrbit(0, 1, a, set)) {
+			final Color color = new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1);
+			dsymbol.visitOrbit(0, 1, a, new DSymbol.OrbitVisitor() {
+				public void visit(int a) {
+					colors[a] = color;
+				}
+			});
+		}
 
-        // construct triangles as meshes:
+		// construct triangles as meshes:
 
-        final int orientation = (computeWindingNumber(fDomain.getVertex3D(0, 1), fDomain.getVertex3D(1, 1), fDomain.getVertex3D(2, 1)) < 0 ? fDomain.getOrientation(1) :
-                -fDomain.getOrientation(1));
+		final int orientation = (computeWindingNumber(fDomain.getVertex3D(0, 1), fDomain.getVertex3D(1, 1),
+				fDomain.getVertex3D(2, 1)) < 0 ? fDomain.getOrientation(1) : -fDomain.getOrientation(1));
+		
+		Geometry geom = fDomain.getGeometry();
 
+		for (int a = 1; a <= fDomain.size(); a++) {
+			final float[] points;
+			final Point3D[] points3d;
 
-        for (int a = 1; a <= fDomain.size(); a++) {
-            final float[] points = new float[21];
-            int p = 0;
+			final int[] faces;
+			final int[] fac;
 
-            // chamber vertices:
-            for (int i = 0; i <= 2; i++) { // points 0, 1, 2
-                final Point3D apt = fDomain.getVertex3D(i, a);
-                points[p++] = (float) apt.getX();
-                points[p++] = (float) apt.getY();
-                points[p++] = (float) apt.getZ();
-            }
+			final int[] smoothing;
 
-            // chamber edge centers:
-            for (int i = 0; i <= 2; i++) { // points 3, 4, 5
-                final Point3D apt = fDomain.getEdgeCenter3D(i, a);
-                points[p++] = (float) apt.getX();
-                points[p++] = (float) apt.getY();
-                points[p++] = (float) apt.getZ();
-            }
-            // chamber center:
-            { // point 6
-                final Point3D apt = fDomain.getChamberCenter3D(a);
-                points[p++] = (float) apt.getX();
-                points[p++] = (float) apt.getY();
-                points[p] = (float) apt.getZ();
-            }
-            final float[] texCoords = {0.5f, 0, 0, 1, 1, 1};
+			if (geom ==  Geometry.Spherical) {
 
-            final int[] faces;
-            final int[] smoothing;
+				int depth = 5; // mehr als 5 nicht sinnvoll..... 4^5 = 2^10 =
+								// 1024 faces
 
+				fac = new int[(int) Math.pow(4, depth) * 6];
+				points3d = new Point3D[1026]; // 3, 6, 66, 258, 1026
 
-            if (false) { // two sided mesh:
-                faces = new int[]{
-                        0, 0, 6, 1, 5, 2, // v0 cc e2
-                        1, 0, 5, 1, 6, 2, // v1 e2 cc
-                        1, 0, 6, 1, 3, 2, // v1 cc e0
-                        2, 0, 3, 0, 6, 2, // v2 e0 cc
-                        2, 0, 6, 1, 4, 2, // v2 cc e1
-                        0, 0, 4, 1, 6, 2, // v0 e1 cc
+				WrapInt p = new WrapInt(0);
+				WrapInt f = new WrapInt(0);
 
-                        0, 0, 5, 1, 6, 2, // v0 cc e2
-                        1, 0, 6, 1, 5, 2, // v1 e2 cc
-                        1, 0, 3, 1, 6, 2, // v1 cc e0
-                        2, 0, 6, 0, 3, 2, // v2 e0 cc
-                        2, 0, 4, 1, 6, 2, // v2 cc e1
-                        0, 0, 6, 1, 4, 2  // v0 e1 cc
+				points3d[p.incrementInt()] = fDomain.getVertex3D(0, a);
+				points3d[p.incrementInt()] = fDomain.getVertex3D(2, a);
+				points3d[p.incrementInt()] = fDomain.getVertex3D(1, a);
 
-                };
-                smoothing = new int[]{1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2};
-            } else { // one sided mesh:
-                if (fDomain.getOrientation(a) == orientation) {
-                    faces = new int[]{
-                            0, 0, 6, 1, 5, 2, // v0 cc e2
-                            1, 0, 5, 1, 6, 2, // v1 e2 cc
-                            1, 0, 6, 1, 3, 2, // v1 cc e0
-                            2, 0, 3, 0, 6, 2, // v2 e0 cc
-                            2, 0, 6, 1, 4, 2, // v2 cc e1
-                            0, 0, 4, 1, 6, 2  // v0 e1 cc
+				/*
+				 * int p = 0;
+				 * 
+				 * for (int i = 0; i <= 2; i++) { points3d[p++] =
+				 * fDomain.getVertex3D(i, a); } for (int i = 0; i <= 2; i++) {
+				 * points3d[p++] = fDomain.getEdgeCenter3D(i, a); }
+				 * points3d[p++] = fDomain.getChamberCenter3D(a);
+				 */
 
-                    };
-                }
-                else {
-                    faces = new int[]{
-                            0, 0, 5, 1, 6, 2,
-                            1, 0, 6, 1, 5, 2,
-                            1, 0, 3, 1, 6, 2,
-                            2, 0, 6, 0, 3, 2,
-                            2, 0, 4, 1, 6, 2,
-                            0, 0, 6, 1, 4, 2
-                    };
-                }
-                smoothing = new int[]{1, 1, 1, 1, 1, 1};
-            }
+				/*
+				 * // deep points3d[p++] = interpolateSpherePoints(points3d[0],
+				 * points3d[5]); points3d[p++] =
+				 * interpolateSpherePoints(points3d[0], points3d[6]);
+				 * points3d[p++] = interpolateSpherePoints(points3d[0],
+				 * points3d[4]); points3d[p++] =
+				 * interpolateSpherePoints(points3d[1], points3d[5]);
+				 * points3d[p++] = interpolateSpherePoints(points3d[1],
+				 * points3d[6]); points3d[p++] =
+				 * interpolateSpherePoints(points3d[1], points3d[3]);
+				 * points3d[p++] = interpolateSpherePoints(points3d[2],
+				 * points3d[3]); points3d[p++] =
+				 * interpolateSpherePoints(points3d[2], points3d[6]);
+				 * points3d[p++] = interpolateSpherePoints(points3d[2],
+				 * points3d[4]);
+				 */
 
-            TriangleMesh mesh = new TriangleMesh();
-            mesh.getPoints().addAll(points);
-            mesh.getTexCoords().addAll(texCoords);
-            mesh.getFaces().addAll(faces);
-            mesh.getFaceSmoothingGroups().addAll(smoothing);
-            MeshView meshView = new MeshView(mesh);
-            meshView.setMesh(mesh);
-            meshView.setMaterial(new PhongMaterial(colors[a]));
-            group.getChildren().addAll(meshView);
-        }
+				class triangle {
 
-        // Add handles
-        if (true){
-            // Compute handles for 0- and 1-vertices
-            for (int i = 0; i <= 1; i++) {
-                Point3D v;
-                int a = 1;
-                int m = dsymbol.countOrbits(i, 2);
-                BitSet visited = new BitSet(m);
-                for (int k = 1; k <= m; k++) {
-                    v = fDomain.getVertex3D(1-i, a);
-                    // Add handles
-                    Handle handle = new Handle();
-                    Circle circle = new Circle(4);
-                    circle.setTranslateX(v.getX());
-                    circle.setTranslateY(v.getY());
-                    circle.setFill(Color.WHITE);
-                    circle.setStroke(Color.DARKGRAY);
-                    handle.setShape(circle);
-                    BitSet orbit = new BitSet();
-                    dsymbol.markOrbit(1-i, 2, a, orbit);
-                    handle.setBitSet(orbit);
-                    handle.setType(1-i);
-                    handle.setFlag(a);
-                    handles.getChildren().add(handle.getShape());
-                    ShapeHandler.setHandler(handle, fDomain);
+					private boolean orientationUp;
+					private int pointA, pointB, pointC;
+					private int depth;
+					private triangle tri1;
+					private triangle tri2;
+					private triangle tri3;
+					private triangle tri4;
 
-                    a = dsymbol.nextOrbit(i, 2, a, visited);
-                }
-            }
+					triangle(boolean orientationUp, int pointA, int pointB, int pointC, int depth) {
+						this.orientationUp = orientationUp;
+						this.pointA = pointA;
+						this.pointB = pointB;
+						this.pointC = pointC;
+						this.depth = depth;
 
-            // Compute handles for 2-edge-centers
-            Point3D e;
-            int m = fDomain.size();
-            BitSet visited = new BitSet(m);
-            int a = 1;
-            while (a <= m){
-                if (!visited.get(a)){
-                    e = fDomain.getEdgeCenter3D(2,a);
-                    // Add handles
-                    Handle handle = new Handle();
-                    Circle circle = new Circle(4);
-                    circle.setTranslateX(e.getX());
-                    circle.setTranslateY(e.getY());
-                    circle.setFill(Color.WHITE);
-                    circle.setStroke(Color.DARKGRAY);
-                    handle.setShape(circle);
-                    handles.getChildren().add(handle.getShape());
-                    ShapeHandler.setHandler(handle, fDomain);
-                    visited.set(dsymbol.getS2(a));
-                }
-                a++;
-            }
-        }
+						if (this.depth > 0) {
+							int midAB = p.incrementInt();
+							points3d[midAB] = Tools.midpoint3D(geom, points3d[pointA], points3d[pointB]);
+							int midAC = p.incrementInt();
+							points3d[midAC] = Tools.midpoint3D(geom, points3d[pointA], points3d[pointC]);
+							int midBC = p.incrementInt();
+							points3d[midBC] = Tools.midpoint3D(geom, points3d[pointB], points3d[pointC]);
 
-        // Add lines
-        if(true) {
-            //Lines for barycentric subdivision of chambers:
-            /*for (int a = 1; a <= fDomain.size(); a++) {
-                group.getChildren().add(Cylinderline.createConnection(fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-                group.getChildren().add(Cylinderline.createConnection(fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+							this.tri1 = new triangle(this.orientationUp, this.pointA, midAB, midAC, --this.depth);
+							this.tri2 = new triangle(this.orientationUp, midAB, this.pointB, midBC, this.depth);
+							this.tri3 = new triangle(this.orientationUp, midAC, midBC, this.pointC, this.depth);
 
-                group.getChildren().add(Cylinderline.createConnection(fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-                group.getChildren().add(Cylinderline.createConnection(fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+							if (this.orientationUp) {
+								this.tri4 = new triangle(!this.orientationUp, midAB, midBC, midAC, this.depth);
+							} else {
+								this.tri4 = new triangle(!this.orientationUp, midAC, midAB, midBC, this.depth);
+							}
+						} else {
+							int facPos = 6 * f.incrementInt();
+							fac[facPos] = pointA;
+							fac[facPos + 1] = 0;
+							fac[facPos + 2] = pointB;
+							fac[facPos + 3] = 1;
+							fac[facPos + 4] = pointC;
+							fac[facPos + 5] = 2;
+						}
+					}
+				}
 
-                group.getChildren().add(Cylinderline.createConnection(fDomain.getVertex3D(0, a), fDomain.getChamberCenter3D(a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-                group.getChildren().add(Cylinderline.createConnection(fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+				new triangle(true, 0, 1, 2, depth); // create
 
-                group.getChildren().add(Cylinderline.createConnection(fDomain.getVertex3D(1, a), fDomain.getChamberCenter3D(a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-                group.getChildren().add(Cylinderline.createConnection(fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+			} else if (geom == Geometry.Euclidean) {
 
-                group.getChildren().add(Cylinderline.createConnection(fDomain.getVertex3D(2, a), fDomain.getChamberCenter3D(a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-                group.getChildren().add(Cylinderline.createConnection(fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(2, a), Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-            }*/
+				// euclidian
+				points3d = new Point3D[7];
 
+				int p = 0;
 
-            double width = 0;
-            if (fDomain.getGeometry() == Geometry.Hyperbolic){
-                Point3D refPoint = fDomain.getChamberCenter3D(1).multiply(0.01);
-                Point3D origin = new Point3D(0, 0, 1);
-                double w = 0.01;
-                double h = (1+w*w)/(1-w*w);
-                //Length of translation
-                double t = Tools.distance(fDomain, refPoint, origin);
-                // Affine translation:
-                Affine translateT = new Affine(Math.cosh(t), Math.sinh(t), 0, Math.sinh(t), Math.cosh(t), 0); // Translation along x-axis
-                Point2D x = translateT.transform(0,1);
-                Point2D y = translateT.transform((1+h)*w, h);
+				for (int i = 0; i <= 2; i++) {
+					points3d[p++] = fDomain.getVertex3D(i, a);
+				}
+				for (int i = 0; i <= 2; i++) {
+					points3d[p++] = fDomain.getEdgeCenter3D(i, a);
+				}
+				points3d[p++] = fDomain.getChamberCenter3D(a);
 
-                width = 100*(y.getX()/(1+y.getY())-x.getX()/(1+x.getY()));
-            }
-            else if (fDomain.getGeometry() == Geometry.Euclidean){
-                width = 1;
-            }
-            else if (fDomain.getGeometry() == Geometry.Spherical){
-                width = 0.5;
-            }
+				/// original mesh structure
+				int[] original = new int[] { 0, 0, 6, 1, 5, 2, // v0 cc e2
+						1, 0, 5, 1, 6, 2, // v1 e2 cc
+						1, 0, 6, 1, 3, 2, // v1 cc e0
+						2, 0, 3, 0, 6, 2, // v2 e0 cc
+						2, 0, 6, 1, 4, 2, // v2 cc e1
+						0, 0, 4, 1, 6, 2 // v0 e1 cc
+				};
 
-            System.out.println("Width: " + width);
+				fac = original;
 
-            // Edges of Tiling:
-            Point3D v0, e2, v1;
-            int m = fDomain.size();
-            BitSet visited = new BitSet(m);
-            int a = 1;
-            while (a <= m){
-                if (!visited.get(a)){
-                    v0 = fDomain.getVertex3D(0, a);
-                    e2 = fDomain.getEdgeCenter3D(2,a);
-                    v1 = fDomain.getVertex3D(1, a);
-                    group.getChildren().add(Cylinderline.createConnection(v0, e2, Color.BLACK, width));
-                    group.getChildren().add(Cylinderline.createConnection(e2, v1, Color.BLACK, width));
-                    visited.set(dsymbol.getS2(a));
-                }
-                a++;
-            }
-        }
+			} else {
 
+				// hyperbolic
 
-        // add numbers:
-        if (false)
-        {
-            for (int a = 1; a <= fDomain.size(); a++) {
-                final Point3D apt = fDomain.getChamberCenter3D(a);
-                Text label = new Text("" + a);
-                label.setFont(Font.font(8));
-                label.getTransforms().add(new Translate(apt.getX() - 4, apt.getY() + 4, apt.getZ()));
+				points3d = new Point3D[13];
 
-                label.setFill(Color.BLACK.deriveColor(0, 1, 1, 0.4));
-                group.getChildren().add(label);
-            }
-        }
+				int p = 0;
 
-        // add some points to debug transforms:
+				for (int i = 0; i <= 2; i++) {
+					points3d[p++] = fDomain.getVertex3D(i, a);
+				}
+				for (int i = 0; i <= 2; i++) {
+					points3d[p++] = fDomain.getEdgeCenter3D(i, a);
+				}
+				points3d[p++] = fDomain.getChamberCenter3D(a);
 
-        if (false) {
-                for (int i = 0; i < 3; i++) {
-                    final Point3D a = fDomain.getVertex3D(i, 16);
-                    final Sphere sphere = new Sphere(2);
-                    switch (i) {
-                        case 0:
-                            sphere.setMaterial(new PhongMaterial(Color.GREEN));
-                            break;
-                        case 1:
-                            sphere.setMaterial(new PhongMaterial(Color.YELLOW));
-                            break;
-                        case 2:
-                            sphere.setMaterial(new PhongMaterial(Color.RED));
-                            break;
-                    }
-                    sphere.getTransforms().add(new Translate(a.getX(), a.getY(), a.getZ()));
-                    group.getChildren().add(sphere);
-                }
+				// hyper
+				/*
+				 * points2d[p++] = interpolateHyperbolicPoints(points2d[0],
+				 * points2d[5]); points2d[p++] =
+				 * interpolateHyperbolicPoints(points2d[5], points2d[1]);
+				 * points2d[p++] = interpolateHyperbolicPoints(points2d[1],
+				 * points2d[3]); points2d[p++] =
+				 * interpolateHyperbolicPoints(points2d[3], points2d[2]);
+				 * points2d[p++] = interpolateHyperbolicPoints(points2d[2],
+				 * points2d[4]); points2d[p++] =
+				 * interpolateHyperbolicPoints(points2d[4], points2d[0]);
+				 */
 
-            final Transform transform = Tiling.getTransform(fDomain.getGeometry(), fDomain.getVertex3D(0, 16), fDomain.getVertex3D(1, 16),
-                    fDomain.getVertex3D(0, 19), fDomain.getVertex3D(1, 19), true);
+				// deep
+				/*
+				 * points2d[p++] = interpolateHyperbolicPoints(points2d[0],
+				 * points2d[5]); points2d[p++] =
+				 * interpolateHyperbolicPoints(points2d[0], points2d[6]);
+				 * points2d[p++] = interpolateHyperbolicPoints(points2d[0],
+				 * points2d[4]); points2d[p++] =
+				 * interpolateHyperbolicPoints(points2d[1], points2d[5]);
+				 * points2d[p++] = interpolateHyperbolicPoints(points2d[1],
+				 * points2d[6]); points2d[p++] =
+				 * interpolateHyperbolicPoints(points2d[1], points2d[3]);
+				 * points2d[p++] = interpolateHyperbolicPoints(points2d[2],
+				 * points2d[3]); points2d[p++] =
+				 * interpolateHyperbolicPoints(points2d[2], points2d[6]);
+				 * points2d[p++] = interpolateHyperbolicPoints(points2d[2],
+				 * points2d[4]);
+				 */
 
-                for (int i = 0; i < 3; i++) {
-                    final Point3D a = fDomain.getVertex3D(i, 16);
-                    final Sphere sphere = new Sphere(2);
-                    sphere.getTransforms().addAll(transform, new Translate(a.getX(), a.getY(), a.getZ()));
+				// hyper2
+				points3d[p++] = Tools.midpoint3D(geom, points3d[0], points3d[5]);
+				points3d[p++] = Tools.midpoint3D(geom, points3d[5], points3d[1]);
+				points3d[p++] = Tools.midpoint3D(geom, points3d[0], points3d[7]);
+				points3d[p++] = Tools.midpoint3D(geom, points3d[7], points3d[5]);
+				points3d[p++] = Tools.midpoint3D(geom, points3d[5], points3d[8]);
+				points3d[p++] = Tools.midpoint3D(geom, points3d[8], points3d[1]);
 
-                    switch (i) {
-                        case 0:
-                            sphere.setMaterial(new PhongMaterial(Color.LIGHTGREEN));
-                            break;
-                        case 1:
-                            sphere.setMaterial(new PhongMaterial(Color.LIGHTYELLOW));
-                            break;
-                        case 2:
-                            sphere.setMaterial(new PhongMaterial(Color.PINK));
-                            break;
+				int[] deep = new int[] { 0, 0, 8, 1, 7, 2, //
+						0, 0, 9, 1, 8, 2, //
+						7, 0, 8, 1, 5, 2, //
+						8, 0, 6, 1, 5, 2, //
+						6, 0, 11, 1, 5, 2, //
+						5, 0, 11, 1, 10, 2, //
+						10, 0, 11, 1, 1, 2, //
+						11, 0, 12, 1, 1, 2, //
+						9, 0, 4, 1, 8, 2, //
+						8, 0, 4, 1, 6, 2, //
+						6, 0, 3, 1, 11, 2, //
+						11, 0, 3, 1, 12, 2, //
+						4, 0, 14, 1, 6, 2, //
+						6, 0, 14, 1, 3, 2, //
+						4, 0, 15, 1, 14, 2, //
+						14, 0, 13, 1, 3, 2, //
+						15, 0, 2, 1, 14, 2, //
+						14, 0, 2, 1, 13, 2 //
+				};
 
-                    }
-                    group.getChildren().add(sphere);
-                }
-        }
-        return group;
-    }
+				int[] hyper = new int[] { 0, 0, 6, 1, 7, 2, //
+						7, 0, 6, 1, 5, 2, //
+						5, 0, 6, 1, 8, 2, //
+						8, 0, 6, 1, 1, 2, //
+						1, 0, 6, 1, 9, 2, //
+						9, 0, 6, 1, 3, 2, //
+						3, 0, 6, 1, 10, 2, //
+						10, 0, 6, 1, 2, 2, //
+						2, 0, 6, 1, 11, 2, //
+						11, 0, 6, 1, 4, 2, //
+						4, 0, 6, 1, 12, 2, //
+						12, 0, 6, 1, 0, 2 };
 
-    private static double computeWindingNumber(Point3D a0, Point3D a1, Point3D a2) {
-        return (a1.getX() - a0.getX()) * (a1.getY() + a0.getY()) + (a2.getX() - a1.getX()) * (a2.getY() + a1.getY()) + (a0.getX() - a2.getX()) * (a0.getY() + a2.getY());
-    }
+				int[] hyper2 = new int[] { 0, 0, 6, 1, 9, 2, //
+						9, 0, 6, 1, 7, 2, //
+						7, 0, 6, 1, 10, 2, //
+						10, 0, 6, 1, 5, 2, //
+						5, 0, 6, 1, 11, 2, //
+						11, 0, 6, 1, 8, 2, //
+						8, 0, 6, 1, 12, 2, //
+						12, 0, 6, 1, 1, 2, //
+						0, 0, 4, 1, 6, 2, //
+						4, 0, 2, 1, 6, 2, //
+						2, 0, 3, 1, 6, 2, //
+						6, 0, 3, 1, 1, 2 //
+				};
+
+				fac = hyper2;
+
+			} // end of geometric cases
+
+			points = new float[3 * points3d.length];
+
+			for (int i = 0; i < points3d.length; i++) {
+				points[3 * i] = (float) points3d[i].getX();
+				points[3 * i + 1] = (float) points3d[i].getY();
+				points[3 * i + 2] = (float) points3d[i].getZ();
+			}
+
+			if (fDomain.getOrientation(a) == orientation) {
+				faces = fac;
+			} else {
+				faces = invertOrientation(fac);
+			}
+
+			smoothing = new int[faces.length / 6];
+			Arrays.fill(smoothing, 1);
+
+			final float[] texCoords = { 0.5f, 0, 0, 0, 1, 1 };
+
+			TriangleMesh mesh = new TriangleMesh();
+			mesh.getPoints().addAll(points);
+			mesh.getTexCoords().addAll(texCoords);
+			mesh.getFaces().addAll(faces);
+			mesh.getFaceSmoothingGroups().addAll(smoothing);
+			MeshView meshView = new MeshView(mesh);
+			meshView.setMesh(mesh);
+			meshView.setMaterial(new PhongMaterial(colors[a]));
+			group.getChildren().addAll(meshView);
+		}
+
+		// Add handles
+		if (true) {
+			// Compute handles for 0- and 1-vertices
+			for (int i = 0; i <= 1; i++) {
+				Point3D v;
+				int a = 1;
+				int m = dsymbol.countOrbits(i, 2);
+				BitSet visited = new BitSet(m);
+				for (int k = 1; k <= m; k++) {
+					v = fDomain.getVertex3D(1 - i, a);
+					// Add handles
+					Handle handle = new Handle();
+					Circle circle = new Circle(4);
+					circle.setTranslateX(v.getX());
+					circle.setTranslateY(v.getY());
+					circle.setFill(Color.WHITE);
+					circle.setStroke(Color.DARKGRAY);
+					handle.setShape(circle);
+					BitSet orbit = new BitSet();
+					dsymbol.markOrbit(1 - i, 2, a, orbit);
+					handle.setBitSet(orbit);
+					handle.setType(1 - i);
+					handle.setFlag(a);
+					handles.getChildren().add(handle.getShape());
+					ShapeHandler.setHandler(handle, fDomain);
+
+					a = dsymbol.nextOrbit(i, 2, a, visited);
+				}
+			}
+
+			// Compute handles for 2-edge-centers
+			Point3D e;
+			int m = fDomain.size();
+			BitSet visited = new BitSet(m);
+			int a = 1;
+			while (a <= m) {
+				if (!visited.get(a)) {
+					e = fDomain.getEdgeCenter3D(2, a);
+					// Add handles
+					Handle handle = new Handle();
+					Circle circle = new Circle(4);
+					circle.setTranslateX(e.getX());
+					circle.setTranslateY(e.getY());
+					circle.setFill(Color.WHITE);
+					circle.setStroke(Color.DARKGRAY);
+					handle.setShape(circle);
+					handles.getChildren().add(handle.getShape());
+					ShapeHandler.setHandler(handle, fDomain);
+					visited.set(dsymbol.getS2(a));
+				}
+				a++;
+			}
+		}
+
+		// Add lines
+		if (true) {
+			// Lines for barycentric subdivision of chambers:
+			/*
+			 * for (int a = 1; a <= fDomain.size(); a++) {
+			 * group.getChildren().add(Cylinderline.createConnection(fDomain.
+			 * getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a),
+			 * Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+			 * group.getChildren().add(Cylinderline.createConnection(fDomain.
+			 * getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a),
+			 * Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+			 * 
+			 * group.getChildren().add(Cylinderline.createConnection(fDomain.
+			 * getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a),
+			 * Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+			 * group.getChildren().add(Cylinderline.createConnection(fDomain.
+			 * getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a),
+			 * Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+			 * 
+			 * group.getChildren().add(Cylinderline.createConnection(fDomain.
+			 * getVertex3D(0, a), fDomain.getChamberCenter3D(a),
+			 * Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+			 * group.getChildren().add(Cylinderline.createConnection(fDomain.
+			 * getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a),
+			 * Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+			 * 
+			 * group.getChildren().add(Cylinderline.createConnection(fDomain.
+			 * getVertex3D(1, a), fDomain.getChamberCenter3D(a),
+			 * Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+			 * group.getChildren().add(Cylinderline.createConnection(fDomain.
+			 * getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a),
+			 * Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+			 * 
+			 * group.getChildren().add(Cylinderline.createConnection(fDomain.
+			 * getVertex3D(2, a), fDomain.getChamberCenter3D(a),
+			 * Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
+			 * group.getChildren().add(Cylinderline.createConnection(fDomain.
+			 * getChamberCenter3D(a), fDomain.getEdgeCenter3D(2, a),
+			 * Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f)); }
+			 */
+
+			double width = 0;
+			if (fDomain.getGeometry() == Geometry.Hyperbolic) {
+				Point3D refPoint = fDomain.getChamberCenter3D(1).multiply(0.01);
+				Point3D origin = new Point3D(0, 0, 1);
+				double w = 0.01;
+				double h = (1 + w * w) / (1 - w * w);
+				// Length of translation
+				double t = Tools.distance(fDomain, refPoint, origin);
+				// Affine translation:
+				Affine translateT = new Affine(Math.cosh(t), Math.sinh(t), 0, Math.sinh(t), Math.cosh(t), 0); // Translation
+																												// along
+																												// x-axis
+				Point2D x = translateT.transform(0, 1);
+				Point2D y = translateT.transform((1 + h) * w, h);
+
+				width = 100 * (y.getX() / (1 + y.getY()) - x.getX() / (1 + x.getY()));
+			} else if (fDomain.getGeometry() == Geometry.Euclidean) {
+				width = 1;
+			} else if (fDomain.getGeometry() == Geometry.Spherical) {
+				width = 0.5;
+			}
+
+			System.out.println("Width: " + width);
+
+			// Edges of Tiling:
+			Point3D v0, e2, v1;
+			int m = fDomain.size();
+			BitSet visited = new BitSet(m);
+			int a = 1;
+			while (a <= m) {
+				if (!visited.get(a)) {
+					v0 = fDomain.getVertex3D(0, a);
+					e2 = fDomain.getEdgeCenter3D(2, a);
+					v1 = fDomain.getVertex3D(1, a);
+					group.getChildren().add(Cylinderline.createConnection(v0, e2, Color.BLACK, width));
+					group.getChildren().add(Cylinderline.createConnection(e2, v1, Color.BLACK, width));
+					visited.set(dsymbol.getS2(a));
+				}
+				a++;
+			}
+		}
+
+		// add numbers:
+		if (false) {
+			for (int a = 1; a <= fDomain.size(); a++) {
+				final Point3D apt = fDomain.getChamberCenter3D(a);
+				Text label = new Text("" + a);
+				label.setFont(Font.font(8));
+				label.getTransforms().add(new Translate(apt.getX() - 4, apt.getY() + 4, apt.getZ()));
+
+				label.setFill(Color.BLACK.deriveColor(0, 1, 1, 0.4));
+				group.getChildren().add(label);
+			}
+		}
+
+		// add some points to debug transforms:
+
+		if (false) {
+			for (int i = 0; i < 3; i++) {
+				final Point3D a = fDomain.getVertex3D(i, 16);
+				final Sphere sphere = new Sphere(2);
+				switch (i) {
+				case 0:
+					sphere.setMaterial(new PhongMaterial(Color.GREEN));
+					break;
+				case 1:
+					sphere.setMaterial(new PhongMaterial(Color.YELLOW));
+					break;
+				case 2:
+					sphere.setMaterial(new PhongMaterial(Color.RED));
+					break;
+				}
+				sphere.getTransforms().add(new Translate(a.getX(), a.getY(), a.getZ()));
+				group.getChildren().add(sphere);
+			}
+
+			final Transform transform = Tiling.getTransform(fDomain.getGeometry(), fDomain.getVertex3D(0, 16),
+					fDomain.getVertex3D(1, 16), fDomain.getVertex3D(0, 19), fDomain.getVertex3D(1, 19), true);
+
+			for (int i = 0; i < 3; i++) {
+				final Point3D a = fDomain.getVertex3D(i, 16);
+				final Sphere sphere = new Sphere(2);
+				sphere.getTransforms().addAll(transform, new Translate(a.getX(), a.getY(), a.getZ()));
+
+				switch (i) {
+				case 0:
+					sphere.setMaterial(new PhongMaterial(Color.LIGHTGREEN));
+					break;
+				case 1:
+					sphere.setMaterial(new PhongMaterial(Color.LIGHTYELLOW));
+					break;
+				case 2:
+					sphere.setMaterial(new PhongMaterial(Color.PINK));
+					break;
+
+				}
+				group.getChildren().add(sphere);
+			}
+		}
+		return group;
+	}
+	
+	
+	////// Hilfsfunktionen
+	
+	
+	private static int[] invertOrientation(int[] arr) {
+		int[] invArr = Arrays.copyOf(arr, arr.length);
+		for (int i = 0; i < invArr.length / 6; i++) {
+			int save = invArr[i * 6 + 2];
+			invArr[i * 6 + 2] = invArr[i * 6 + 4];
+			invArr[i * 6 + 4] = save;
+		}
+
+		return invArr;
+	}
+		
+	
+
+	private static double computeWindingNumber(Point3D a0, Point3D a1, Point3D a2) {
+		return (a1.getX() - a0.getX()) * (a1.getY() + a0.getY()) + (a2.getX() - a1.getX()) * (a2.getY() + a1.getY())
+				+ (a0.getX() - a2.getX()) * (a0.getY() + a2.getY());
+	}
 }
