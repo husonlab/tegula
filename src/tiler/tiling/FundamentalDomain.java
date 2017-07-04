@@ -35,8 +35,7 @@ public class FundamentalDomain {
      * @param fDomain domain computed by KW
      * @return fundamental domain
      */
-    public static Group buildFundamentalDomain(final DSymbol dsymbol, final FDomain fDomain, final Group handles) {
-        handles.getChildren().clear();
+    public static Group buildFundamentalDomain(final DSymbol dsymbol, final FDomain fDomain) {
 
         final Group group = new Group();
 
@@ -144,60 +143,6 @@ public class FundamentalDomain {
             meshView.setMesh(mesh);
             meshView.setMaterial(new PhongMaterial(colors[a]));
             group.getChildren().addAll(meshView);
-        }
-
-        // Add handles
-        if (true){
-            // Compute handles for 0- and 1-vertices
-            for (int i = 0; i <= 1; i++) {
-                Point3D v;
-                int a = 1;
-                int m = dsymbol.countOrbits(i, 2);
-                BitSet visited = new BitSet(m);
-                for (int k = 1; k <= m; k++) {
-                    v = fDomain.getVertex3D(1-i, a);
-                    // Add handles
-                    Handle handle = new Handle();
-                    Circle circle = new Circle(4);
-                    circle.setTranslateX(v.getX());
-                    circle.setTranslateY(v.getY());
-                    circle.setFill(Color.WHITE);
-                    circle.setStroke(Color.DARKGRAY);
-                    handle.setShape(circle);
-                    BitSet orbit = new BitSet();
-                    dsymbol.markOrbit(1-i, 2, a, orbit);
-                    handle.setBitSet(orbit);
-                    handle.setType(1-i);
-                    handle.setFlag(a);
-                    handles.getChildren().add(handle.getShape());
-                    ShapeHandler.setHandler(handle, fDomain);
-
-                    a = dsymbol.nextOrbit(i, 2, a, visited);
-                }
-            }
-
-            // Compute handles for 2-edge-centers
-            Point3D e;
-            int m = fDomain.size();
-            BitSet visited = new BitSet(m);
-            int a = 1;
-            while (a <= m){
-                if (!visited.get(a)){
-                    e = fDomain.getEdgeCenter3D(2,a);
-                    // Add handles
-                    Handle handle = new Handle();
-                    Circle circle = new Circle(4);
-                    circle.setTranslateX(e.getX());
-                    circle.setTranslateY(e.getY());
-                    circle.setFill(Color.WHITE);
-                    circle.setStroke(Color.DARKGRAY);
-                    handle.setShape(circle);
-                    handles.getChildren().add(handle.getShape());
-                    ShapeHandler.setHandler(handle, fDomain);
-                    visited.set(dsymbol.getS2(a));
-                }
-                a++;
-            }
         }
 
         // Add lines

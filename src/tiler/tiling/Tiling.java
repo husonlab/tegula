@@ -6,6 +6,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
@@ -16,7 +17,9 @@ import tiler.core.dsymbols.Geometry;
 import tiler.core.dsymbols.OrbifoldGroupName;
 import tiler.main.Document;
 import tiler.util.JavaFXUtils;
+import tiler.util.ShapeHandler;
 
+import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -46,6 +49,7 @@ public class Tiling {
     public static Group HyperbolicFund = new Group();
 
     public static Group handles = new Group();
+    public static Handle handle = new Handle();
 
 
     private final int[] flag2vert;
@@ -405,7 +409,7 @@ public class Tiling {
      */
     public Group createTilingSpherical(double tol) {
         final Group group = new Group();
-        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain, handles);
+        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
         group.getChildren().addAll(fund);
         //computeConstraintsAndGenerators();
 
@@ -470,7 +474,7 @@ public class Tiling {
         seen.insert(fDomain, refPointHyperbolic, tol); // root of OctTree is point of reference
 
         final Group group = new Group();
-        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain, handles);
+        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
 
         if (makeCopyHyperbolic(refPointHyperbolic)) {
             fund.setRotationAxis(refPointHyperbolic);
@@ -558,11 +562,19 @@ public class Tiling {
      */
     public Group createTilingEuclidean(boolean drawFundamentalDomainOnly, Point3D windowCorner, double width, double height, double tol) {
 
+        //Add all generators
+        computeConstraintsAndGenerators();
+
+        //Add handles
+        handles.getChildren().clear();
+        addHandles();
+
         //Calculation of point of reference:
         refPointEuclidean = fDomain.getChamberCenter3D(Document.getChamberIndex()); // Reference point of actual fundamental domain
 
+
         final Group group = new Group();
-        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain, handles); // Build fundamental domain
+        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain); // Build fundamental domain
 
         if (makeCopyEuclidean(refPointEuclidean)) { // Fill empty space with tiles
             fund.getTransforms().add(new Translate()); // Add transform (= identity)
@@ -577,9 +589,6 @@ public class Tiling {
         }
 
         if (!drawFundamentalDomainOnly) {
-
-            //Add all generators
-            computeConstraintsAndGenerators();
 
             final QuadTree seen = new QuadTree(); // Saves reference points of tiles
             seen.insert(refPointEuclidean.getX(), refPointEuclidean.getY(), tol); // Insert reference point of fDomain
@@ -997,14 +1006,124 @@ public class Tiling {
     }
 
 
+    /**
+     * Add handles to change shape
+     */
+    private void addHandles(){
+        // Compute handles for 0- and 1-vertices
+        for (int i = 0; i <= 1; i++) {
+            Point3D v;
+            int a = 1;
+            int m = ds.countOrbits(i, 2);
+            BitSet visited = new BitSet(m);
+            for (int k = 1; k <= m; k++) {
+                v = fDomain.getVertex3D(1-i, a);
+                // Add handles
+                Handle handle = new Handle();
+                Circle circle = new Circle(4);
+                circle.setTranslateX(v.getX());
+                circle.setTranslateY(v.getY());
+                circle.setFill(Color.WHITE);
+                circle.setStroke(Color.DARKGRAY);
+                handle.setShape(circle);
+                handle.setType(1-i);
+                handle.setFlag(a);
+                handles.getChildren().add(handle.getShape());
+                ShapeHandler.setHandler(handle);
+                a = ds.nextOrbit(i, 2, a, visited);
+            }
+        }
+
+        // Compute handles for 2-edge-centers
+        Point3D e;
+        int m = fDomain.size();
+        BitSet visited = new BitSet(m);
+        int a = 1;
+        while (a <= m){
+            if (!visited.get(a)){
+                e = fDomain.getEdgeCenter3D(2,a);
+                // Add handles
+                Handle handle = new Handle();
+                Circle circle = new Circle(4);
+                circle.setTranslateX(e.getX());
+                circle.setTranslateY(e.getY());
+                circle.setFill(Color.WHITE);
+                circle.setStroke(Color.DARKGRAY);
+                handle.setShape(circle);
+                handle.setFlag(a);
+                handle.setType(2);
+                handles.getChildren().add(handle.getShape());
+                ShapeHandler.setHandler(handle);
+
+                visited.set(ds.getS2(a));
+            }
+            a++;
+        }
+    }
+
+    /**
+     * Reset shapes of tiles
+     * @param deltaX
+     * @param deltaY
+     * @param handle
+     */
+    public void resetShape(double deltaX, double deltaY, Handle handle){
+        // Reset Point in fundamental domain
+        Transform g;
+        Translate t = new Translate(deltaX, deltaY);
+        int i = handle.getType(), a = handle.getFlag();
+        if (i <= 1) {
+            Point3D pt = fDomain.getVertex3D(i, a);
+            // Translate Point of type i in chamber a
+            pt = t.transform(pt);
+            javafx.geometry.Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt);
+            fDomain.setVertex(pt2d, i, a);
+            // Consider all points in orbit of a (especially if chamber contains boundary edges)
+            int l = ds.computeOrbitLength(1 - i, 2, a);
+            for (int k = 1; k <= l; k++) {
+                // If (1-i)-edge is on boundary
+                if (fDomain.isBoundaryEdge(1 - i, a)) {
+                    g = generators.get(1 - i, a);
+                    pt = g.transform(pt);
+                    pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt);
+                    fDomain.setVertex(pt2d, i, ds.getSi(1 - i, a));
+                }
+                a = ds.getSi(1 - i, a);
+
+                // If 2-edge is on boundary
+                if (fDomain.isBoundaryEdge(2, a)) {
+                    g = generators.get(2, a);
+                    pt = g.transform(pt);
+                    pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt);
+                    fDomain.setVertex(pt2d, i, ds.getSi(2, a));
+                }
+                a = ds.getSi(2, a);
+            }
+        }
+        else {
+            Point3D pt = fDomain.getEdgeCenter3D(2,a);
+            pt = t.transform(pt);
+            Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt);
+            fDomain.setEdgeCenter(pt2d, 2, a);
+            if (fDomain.isBoundaryEdge(2, a)){
+                g = generators.get(2, a);
+                pt = g.transform(pt);
+                pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt);
+                fDomain.setEdgeCenter(pt2d, 2, ds.getS2(a));
+            }
+        }
+    }
+
+
 
     /**
      * compute middle point
      *
-     * @param p
-     * @param q
+     * @param
+     * @param
      * @return middle
      */
+    /*
     public static Point2D middle(Geometry geometry, Point2D p, Point2D q) {
         double d;
 
@@ -1025,6 +1144,7 @@ public class Tiling {
         }
         return new Point2D(d * (p.getX() + q.getX()), d * (p.getY() + q.getY()));
     }
+    */
 
     public DSymbol getDSymbol() {
         return ds;

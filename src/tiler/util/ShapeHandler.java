@@ -25,6 +25,7 @@ import tiler.core.dsymbols.FDomain;
 import tiler.main.Document;
 import tiler.tiling.FundamentalDomain;
 import tiler.tiling.Handle;
+import tiler.tiling.Tiling;
 import tiler.tiling.Tools;
 
 import java.awt.geom.Point2D;
@@ -36,14 +37,15 @@ import java.awt.geom.Point2D;
 public class ShapeHandler {
     private double mouseX;
     private double mouseY;
+    private static Document doc;
 
     /**
      * set the handler
      *
      * @param handle
      */
-    public static void setHandler(Handle handle, FDomain fDomain) {
-        new ShapeHandler(handle, fDomain);
+    public static void setHandler(Handle handle) {
+        new ShapeHandler(handle);
     }
 
     /**
@@ -51,7 +53,7 @@ public class ShapeHandler {
      *
      * @param handle
      */
-    private ShapeHandler(Handle handle, FDomain fDomain) {
+    private ShapeHandler(Handle handle) {
 
         handle.getShape().setOnMousePressed((e) -> {
             mouseX = e.getSceneX();
@@ -71,14 +73,16 @@ public class ShapeHandler {
             handle.setTransY(handle.getTransY() + deltaY);
 
             // Reset Point in fundamental domain
-            Translate t = new Translate(deltaX, deltaY);
-            int i = handle.getType(), a = handle.getFlag();
-            Point3D pt = fDomain.getVertex3D(i, a);
-            pt = t.transform(pt);
-            javafx.geometry.Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt);
-            fDomain.setVertex(pt2d, i, a); // Todo: Consider all chambers of orbit
+            Tiling tiling = doc.getCurrent();
+            tiling.resetShape(deltaX, deltaY, handle);
 
             e.consume();
         });
+
+        handle.getShape().setOnMouseReleased((e) -> {
+            doc.update();
+        });
     }
+
+    public static void setDoc(Document d){doc = d;}
 }

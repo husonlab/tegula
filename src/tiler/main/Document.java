@@ -25,6 +25,7 @@ import javafx.geometry.Point3D;
 import javafx.scene.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeLineCap;
@@ -36,6 +37,7 @@ import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
 import tiler.tiling.*;
 import tiler.util.JavaFXUtils;
+import tiler.util.ShapeHandler;
 
 import javax.print.Doc;
 import java.io.BufferedReader;
@@ -43,6 +45,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.LinkedList;
 
 /**
@@ -624,8 +627,6 @@ public class Document {
         numberOfCopies = tiles.getChildren().size();
     }
 
-
-
     /**
      * Adds lines to fundamental domain
      */
@@ -648,6 +649,7 @@ public class Document {
             final Point3D v1 = tiling.getfDomain().getVertex3D(1, k);
             linesInFDomain.getChildren().add(makeLine(tiling.getfDomain().getGeometry(), v0, e2, v1, Color.BLACK, 1));
         }
+
         linesInFDomain.getTransforms().clear();
         linesInFDomain.getTransforms().add(new Translate());
         getWorld().getChildren().add(linesInFDomain);

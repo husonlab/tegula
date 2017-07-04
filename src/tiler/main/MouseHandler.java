@@ -11,6 +11,7 @@ import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import tiler.core.dsymbols.Geometry;
 import tiler.tiling.Tiling;
+import tiler.util.ShapeHandler;
 
 /**
  * mouse handler
