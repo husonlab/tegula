@@ -45,56 +45,61 @@ public class Tools {
 		if (geometry == Geometry.Euclidean) {
 			return a.midpoint(b);
 		} else if (geometry == Geometry.Spherical) {
-			return (a.midpoint(b)).normalize().multiply(100);
+			//return (a.midpoint(b)).normalize().multiply(100);
+			return interpolateSpherePoints(a, b, 0.5);
 		} else {
-			// TODO Refactoren: Namen etc.
-			// die Distanzen werden hier mometan nur uber den Z-Wert berechnet
-
-			Point3D point1 = a.multiply(0.01);
-			Point3D point2 = b.multiply(0.01);
-
-			Point3D xAxis = new Point3D(1, 0, 0);
-			Point3D ursprung = new Point3D(0, 0, 1);
-
-			double rotAngle = xAxis.angle(point1.getX(), point1.getY(), 0);
-
-			Point3D rotAxis = null;
-			if (point1.getY() >= 0)
-				rotAxis = new Point3D(0, 0, -1);
-			else
-				rotAxis = new Point3D(0, 0, 1);
-
-			Rotate rotateToX = new Rotate(rotAngle, rotAxis);
-			Rotate rotateToOr = new Rotate(-rotAngle, rotAxis);
-
-			double dist = Math.log(Math.abs(point1.getZ() + Math.sqrt(Math.abs(point1.getZ() * point1.getZ() - 1))));
-
-			Affine translate1 = new Affine(Math.cosh(-dist), 0, Math.sinh(-dist), 0, 0, 1, 0, 0, Math.sinh(-dist), 0,
-					Math.cosh(-dist), 0);
-			Affine translate1inv = new Affine(Math.cosh(dist), 0, Math.sinh(dist), 0, 0, 1, 0, 0, Math.sinh(dist), 0,
-					Math.cosh(dist), 0);
-
-			Point3D p2moved = translate1.transform(rotateToX.transform(point2));
-
-			rotAngle = xAxis.angle(p2moved.getX(), p2moved.getY(), 0);
-			if (p2moved.getY() >= 0)
-				rotAxis = new Point3D(0, 0, -1);
-			else
-				rotAxis = new Point3D(0, 0, 1);
-
-			Rotate rotat2 = new Rotate(-rotAngle, rotAxis);
-
-			dist = 0.5 * Math.log(Math.abs(p2moved.getZ() + Math.sqrt(Math.abs(p2moved.getZ() * p2moved.getZ() - 1))));
-
-			Affine translate2 = new Affine(Math.cosh(dist), 0, Math.sinh(dist), 0, 0, 1, 0, 0, Math.sinh(dist), 0,
-					Math.cosh(dist), 0);
-
-			return rotateToOr.transform(translate1inv.transform(rotat2.transform(translate2.transform(ursprung))))
-					.multiply(100);
+			return interpolateHyperbolicPoints(a, b, 0.5);
 		}
 	}
 
-	private static Point3D interpolateSpherePoints(Point3D pointA, Point3D pointB) {
+	public static Point3D interpolateHyperbolicPoints(Point3D a, Point3D b, double pos) {
+		// TODO Refactoren: Namen etc.
+		// die Distanzen werden hier mometan nur uber den Z-Wert berechnet
+
+		Point3D point1 = a.multiply(0.01);
+		Point3D point2 = b.multiply(0.01);
+
+		Point3D xAxis = new Point3D(1, 0, 0);
+		Point3D ursprung = new Point3D(0, 0, 1);
+
+		double rotAngle = xAxis.angle(point1.getX(), point1.getY(), 0);
+
+		Point3D rotAxis = null;
+		if (point1.getY() >= 0)
+			rotAxis = new Point3D(0, 0, -1);
+		else
+			rotAxis = new Point3D(0, 0, 1);
+
+		Rotate rotateToX = new Rotate(rotAngle, rotAxis);
+		Rotate rotateToOr = new Rotate(-rotAngle, rotAxis);
+
+		double dist = Math.log(Math.abs(point1.getZ() + Math.sqrt(Math.abs(point1.getZ() * point1.getZ() - 1))));
+
+		Affine translate1 = new Affine(Math.cosh(-dist), 0, Math.sinh(-dist), 0, 0, 1, 0, 0, Math.sinh(-dist), 0,
+				Math.cosh(-dist), 0);
+		Affine translate1inv = new Affine(Math.cosh(dist), 0, Math.sinh(dist), 0, 0, 1, 0, 0, Math.sinh(dist), 0,
+				Math.cosh(dist), 0);
+
+		Point3D p2moved = translate1.transform(rotateToX.transform(point2));
+
+		rotAngle = xAxis.angle(p2moved.getX(), p2moved.getY(), 0);
+		if (p2moved.getY() >= 0)
+			rotAxis = new Point3D(0, 0, -1);
+		else
+			rotAxis = new Point3D(0, 0, 1);
+
+		Rotate rotat2 = new Rotate(-rotAngle, rotAxis);
+
+		dist = pos * Math.log(Math.abs(p2moved.getZ() + Math.sqrt(Math.abs(p2moved.getZ() * p2moved.getZ() - 1))));
+
+		Affine translate2 = new Affine(Math.cosh(dist), 0, Math.sinh(dist), 0, 0, 1, 0, 0, Math.sinh(dist), 0,
+				Math.cosh(dist), 0);
+
+		return rotateToOr.transform(translate1inv.transform(rotat2.transform(translate2.transform(ursprung))))
+				.multiply(100);
+	}
+
+	public static Point3D interpolateSpherePoints(Point3D pointA, Point3D pointB, double pos) {
 		Point3D xAxis = new Point3D(100, 0, 0);
 		Point3D yAxis = new Point3D(0, 100, 0);
 		Point3D zAxis = new Point3D(0, 0, 100);
@@ -138,7 +143,7 @@ public class Tools {
 		else
 			rotAxis = yAxis;
 
-		Rotate beginInt = new Rotate(-0.5 * rotAngle4, rotAxis);
+		Rotate beginInt = new Rotate(-pos * rotAngle4, rotAxis);
 
 		return rotateToOrX.transform(rotateToOrZ.transform(rotLolB.transform(beginInt.transform(zAxis))));
 	}

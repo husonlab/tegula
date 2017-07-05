@@ -61,7 +61,7 @@ public class FundamentalDomain {
 
 		final int orientation = (computeWindingNumber(fDomain.getVertex3D(0, 1), fDomain.getVertex3D(1, 1),
 				fDomain.getVertex3D(2, 1)) < 0 ? fDomain.getOrientation(1) : -fDomain.getOrientation(1));
-		
+
 		Geometry geom = fDomain.getGeometry();
 
 		for (int a = 1; a <= fDomain.size(); a++) {
@@ -73,7 +73,7 @@ public class FundamentalDomain {
 
 			final int[] smoothing;
 
-			if (geom ==  Geometry.Spherical) {
+			if (geom == Geometry.Spherical) {
 
 				int depth = 5; // mehr als 5 nicht sinnvoll..... 4^5 = 2^10 =
 								// 1024 faces
@@ -87,32 +87,6 @@ public class FundamentalDomain {
 				points3d[p.incrementInt()] = fDomain.getVertex3D(0, a);
 				points3d[p.incrementInt()] = fDomain.getVertex3D(2, a);
 				points3d[p.incrementInt()] = fDomain.getVertex3D(1, a);
-
-				/*
-				 * int p = 0;
-				 * 
-				 * for (int i = 0; i <= 2; i++) { points3d[p++] =
-				 * fDomain.getVertex3D(i, a); } for (int i = 0; i <= 2; i++) {
-				 * points3d[p++] = fDomain.getEdgeCenter3D(i, a); }
-				 * points3d[p++] = fDomain.getChamberCenter3D(a);
-				 */
-
-				/*
-				 * // deep points3d[p++] = interpolateSpherePoints(points3d[0],
-				 * points3d[5]); points3d[p++] =
-				 * interpolateSpherePoints(points3d[0], points3d[6]);
-				 * points3d[p++] = interpolateSpherePoints(points3d[0],
-				 * points3d[4]); points3d[p++] =
-				 * interpolateSpherePoints(points3d[1], points3d[5]);
-				 * points3d[p++] = interpolateSpherePoints(points3d[1],
-				 * points3d[6]); points3d[p++] =
-				 * interpolateSpherePoints(points3d[1], points3d[3]);
-				 * points3d[p++] = interpolateSpherePoints(points3d[2],
-				 * points3d[3]); points3d[p++] =
-				 * interpolateSpherePoints(points3d[2], points3d[6]);
-				 * points3d[p++] = interpolateSpherePoints(points3d[2],
-				 * points3d[4]);
-				 */
 
 				class triangle {
 
@@ -205,37 +179,6 @@ public class FundamentalDomain {
 				points3d[p++] = fDomain.getChamberCenter3D(a);
 
 				// hyper
-				/*
-				 * points2d[p++] = interpolateHyperbolicPoints(points2d[0],
-				 * points2d[5]); points2d[p++] =
-				 * interpolateHyperbolicPoints(points2d[5], points2d[1]);
-				 * points2d[p++] = interpolateHyperbolicPoints(points2d[1],
-				 * points2d[3]); points2d[p++] =
-				 * interpolateHyperbolicPoints(points2d[3], points2d[2]);
-				 * points2d[p++] = interpolateHyperbolicPoints(points2d[2],
-				 * points2d[4]); points2d[p++] =
-				 * interpolateHyperbolicPoints(points2d[4], points2d[0]);
-				 */
-
-				// deep
-				/*
-				 * points2d[p++] = interpolateHyperbolicPoints(points2d[0],
-				 * points2d[5]); points2d[p++] =
-				 * interpolateHyperbolicPoints(points2d[0], points2d[6]);
-				 * points2d[p++] = interpolateHyperbolicPoints(points2d[0],
-				 * points2d[4]); points2d[p++] =
-				 * interpolateHyperbolicPoints(points2d[1], points2d[5]);
-				 * points2d[p++] = interpolateHyperbolicPoints(points2d[1],
-				 * points2d[6]); points2d[p++] =
-				 * interpolateHyperbolicPoints(points2d[1], points2d[3]);
-				 * points2d[p++] = interpolateHyperbolicPoints(points2d[2],
-				 * points2d[3]); points2d[p++] =
-				 * interpolateHyperbolicPoints(points2d[2], points2d[6]);
-				 * points2d[p++] = interpolateHyperbolicPoints(points2d[2],
-				 * points2d[4]);
-				 */
-
-				// hyper2
 				points3d[p++] = Tools.midpoint3D(geom, points3d[0], points3d[5]);
 				points3d[p++] = Tools.midpoint3D(geom, points3d[5], points3d[1]);
 				points3d[p++] = Tools.midpoint3D(geom, points3d[0], points3d[7]);
@@ -243,40 +186,7 @@ public class FundamentalDomain {
 				points3d[p++] = Tools.midpoint3D(geom, points3d[5], points3d[8]);
 				points3d[p++] = Tools.midpoint3D(geom, points3d[8], points3d[1]);
 
-				int[] deep = new int[] { 0, 0, 8, 1, 7, 2, //
-						0, 0, 9, 1, 8, 2, //
-						7, 0, 8, 1, 5, 2, //
-						8, 0, 6, 1, 5, 2, //
-						6, 0, 11, 1, 5, 2, //
-						5, 0, 11, 1, 10, 2, //
-						10, 0, 11, 1, 1, 2, //
-						11, 0, 12, 1, 1, 2, //
-						9, 0, 4, 1, 8, 2, //
-						8, 0, 4, 1, 6, 2, //
-						6, 0, 3, 1, 11, 2, //
-						11, 0, 3, 1, 12, 2, //
-						4, 0, 14, 1, 6, 2, //
-						6, 0, 14, 1, 3, 2, //
-						4, 0, 15, 1, 14, 2, //
-						14, 0, 13, 1, 3, 2, //
-						15, 0, 2, 1, 14, 2, //
-						14, 0, 2, 1, 13, 2 //
-				};
-
-				int[] hyper = new int[] { 0, 0, 6, 1, 7, 2, //
-						7, 0, 6, 1, 5, 2, //
-						5, 0, 6, 1, 8, 2, //
-						8, 0, 6, 1, 1, 2, //
-						1, 0, 6, 1, 9, 2, //
-						9, 0, 6, 1, 3, 2, //
-						3, 0, 6, 1, 10, 2, //
-						10, 0, 6, 1, 2, 2, //
-						2, 0, 6, 1, 11, 2, //
-						11, 0, 6, 1, 4, 2, //
-						4, 0, 6, 1, 12, 2, //
-						12, 0, 6, 1, 0, 2 };
-
-				int[] hyper2 = new int[] { 0, 0, 6, 1, 9, 2, //
+				int[] hyper = new int[] { 0, 0, 6, 1, 9, 2, //
 						9, 0, 6, 1, 7, 2, //
 						7, 0, 6, 1, 10, 2, //
 						10, 0, 6, 1, 5, 2, //
@@ -290,7 +200,7 @@ public class FundamentalDomain {
 						6, 0, 3, 1, 1, 2 //
 				};
 
-				fac = hyper2;
+				fac = hyper;
 
 			} // end of geometric cases
 
@@ -446,19 +356,41 @@ public class FundamentalDomain {
 			// Edges of Tiling:
 			Point3D v0, e2, v1;
 			int m = fDomain.size();
-			BitSet visited = new BitSet(m);
-			int a = 1;
-			while (a <= m) {
-				if (!visited.get(a)) {
-					v0 = fDomain.getVertex3D(0, a);
-					e2 = fDomain.getEdgeCenter3D(2, a);
-					v1 = fDomain.getVertex3D(1, a);
-					group.getChildren().add(Cylinderline.createConnection(v0, e2, Color.BLACK, width));
-					group.getChildren().add(Cylinderline.createConnection(e2, v1, Color.BLACK, width));
-					visited.set(dsymbol.getS2(a));
+			BitSet visited = new BitSet(m); //??
+			// Fallunterscheidung neeeds some serious refactoring
+			if (geom != Geometry.Spherical) {
+				int a = 1;
+				while (a <= m) {
+					if (!visited.get(a)) { // was macht das hier?
+						v0 = fDomain.getVertex3D(0, a);
+						e2 = fDomain.getEdgeCenter3D(2, a);
+						v1 = fDomain.getVertex3D(1, a);
+						group.getChildren().add(Cylinderline.createConnection(v0, e2, Color.BLACK, width));
+						group.getChildren().add(Cylinderline.createConnection(e2, v1, Color.BLACK, width));
+						visited.set(dsymbol.getS2(a));
+					}
+					a++;
 				}
-				a++;
+			} else {
+				//performanceProbleme durch Adden, also Magic numbers
+				for (int a = 1; a <= fDomain.size(); a++) {
+					v0 = fDomain.getVertex3D(0, a);
+					v1 = fDomain.getVertex3D(1, a);
+
+					Point3D[] linePoints = new Point3D[33];
+					linePoints[0] = v0;
+					linePoints[32] = v1;
+					for (int i = 1; i < 32; i++) {
+						linePoints[i] = Tools.interpolateSpherePoints(v0, v1, i / 32.0);
+					}
+
+					for (int j = 0; j < 8; j++) {
+						group.getChildren().add(
+								Cylinderline.createConnection(linePoints[4*j], linePoints[4*(j + 1)], Color.BLACK, width));
+					}
+				}
 			}
+
 		}
 
 		// add numbers:
@@ -520,11 +452,9 @@ public class FundamentalDomain {
 		}
 		return group;
 	}
-	
-	
+
 	////// Hilfsfunktionen
-	
-	
+
 	private static int[] invertOrientation(int[] arr) {
 		int[] invArr = Arrays.copyOf(arr, arr.length);
 		for (int i = 0; i < invArr.length / 6; i++) {
@@ -535,8 +465,6 @@ public class FundamentalDomain {
 
 		return invArr;
 	}
-		
-	
 
 	private static double computeWindingNumber(Point3D a0, Point3D a1, Point3D a2) {
 		return (a1.getX() - a0.getX()) * (a1.getY() + a0.getY()) + (a2.getX() - a1.getX()) * (a2.getY() + a1.getY())
