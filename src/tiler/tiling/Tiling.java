@@ -1018,18 +1018,20 @@ public class Tiling {
             BitSet visited = new BitSet(m);
             for (int k = 1; k <= m; k++) {
                 v = fDomain.getVertex3D(1-i, a);
-                // Add handles
-                Handle handle = new Handle();
-                Circle circle = new Circle(4);
-                circle.setTranslateX(v.getX());
-                circle.setTranslateY(v.getY());
-                circle.setFill(Color.WHITE);
-                circle.setStroke(Color.DARKGRAY);
-                handle.setShape(circle);
-                handle.setType(1-i);
-                handle.setFlag(a);
-                handles.getChildren().add(handle.getShape());
-                ShapeHandler.setHandler(handle);
+                // Add handles if v is no symmetry centre
+                if (ds.getVij(i, 2, a) == 1) {
+                    Handle handle = new Handle();
+                    Circle circle = new Circle(4);
+                    circle.setTranslateX(v.getX());
+                    circle.setTranslateY(v.getY());
+                    circle.setFill(Color.WHITE);
+                    circle.setStroke(Color.DARKGRAY);
+                    handle.setShape(circle);
+                    handle.setType(1 - i);
+                    handle.setFlag(a);
+                    handles.getChildren().add(handle.getShape());
+                    ShapeHandler.setHandler(handle);
+                }
                 a = ds.nextOrbit(i, 2, a, visited);
             }
         }
@@ -1042,19 +1044,20 @@ public class Tiling {
         while (a <= m){
             if (!visited.get(a)){
                 e = fDomain.getEdgeCenter3D(2,a);
-                // Add handles
-                Handle handle = new Handle();
-                Circle circle = new Circle(4);
-                circle.setTranslateX(e.getX());
-                circle.setTranslateY(e.getY());
-                circle.setFill(Color.WHITE);
-                circle.setStroke(Color.DARKGRAY);
-                handle.setShape(circle);
-                handle.setFlag(a);
-                handle.setType(2);
-                handles.getChildren().add(handle.getShape());
-                ShapeHandler.setHandler(handle);
-
+                // Add handles if e does not lie on a mirror axis
+                if (a != ds.getS2(a)) {
+                    Handle handle = new Handle();
+                    Circle circle = new Circle(4);
+                    circle.setTranslateX(e.getX());
+                    circle.setTranslateY(e.getY());
+                    circle.setFill(Color.WHITE);
+                    circle.setStroke(Color.DARKGRAY);
+                    handle.setShape(circle);
+                    handle.setFlag(a);
+                    handle.setType(2);
+                    handles.getChildren().add(handle.getShape());
+                    ShapeHandler.setHandler(handle);
+                }
                 visited.set(ds.getS2(a));
             }
             a++;
