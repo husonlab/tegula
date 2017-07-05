@@ -39,8 +39,7 @@ public class FundamentalDomain {
 	 *            domain computed by KW
 	 * @return fundamental domain
 	 */
-	public static Group buildFundamentalDomain(final DSymbol dsymbol, final FDomain fDomain, final Group handles) {
-		handles.getChildren().clear();
+	public static Group buildFundamentalDomain(final DSymbol dsymbol, final FDomain fDomain) {
 
 		final Group group = new Group();
 
