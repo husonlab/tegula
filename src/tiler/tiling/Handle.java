@@ -11,6 +11,7 @@ public class Handle extends Group {
     private Shape shape;
     private int type;
     private int flag;
+    private boolean[][] twoRestrictions = new boolean[2][2];
 
     public void setTransX(double dx){shape.setTranslateX(dx);}
     public void setTransY(double dy){shape.setTranslateY(dy);}
@@ -22,4 +23,6 @@ public class Handle extends Group {
     public int getType(){return this.type;}
     public void setFlag(int a){this.flag = a;}
     public int getFlag(){return this.flag;}
+    public void setTwoRestrictions(boolean b, int row, int column){ this.twoRestrictions[row][column] = b;}
+    public boolean[][] getTwoRestrictions(){return this.twoRestrictions;}
 }
