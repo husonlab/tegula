@@ -1097,7 +1097,7 @@ public class Tiling {
         if (i <= 1) {
             // Add restriction
             int l = ds.computeOrbitLength(1 - i, 2, a);
-            transVector = addRestriction(deltaX, deltaY, l, i, a, new Point3D(0,0,0));
+            transVector = addRestriction(deltaX, deltaY, l, i, a);
             t = new Translate(transVector.getX(), transVector.getY());
 
             // Translate Point of type i in chamber a
@@ -1128,21 +1128,15 @@ public class Tiling {
             }
         }
         else {
-            double[][] resetPoints = new double[4][2];
-            Point3D apt = fDomain.getEdgeCenter3D(2,a);
-            apt = t.transform(apt);
-            resetPoints[0][0] = a; resetPoints[1][0] = apt.getX(); resetPoints[2][0] = apt.getY(); resetPoints[3][0] = apt.getZ();
+            g = new Translate();
             if (fDomain.isBoundaryEdge(2, a)){
                 g = generators.get(2, a);
-                apt = g.transform(apt);
             }
-            resetPoints[0][1] = ds.getS2(a); resetPoints[1][1] = apt.getX(); resetPoints[2][1] = apt.getY(); resetPoints[3][1] = apt.getZ();
 
-
-            transVector = add2Restriction(deltaX, deltaY, resetPoints);
+            transVector = add2Restriction(deltaX, deltaY, g, a);
             t = new Translate(transVector.getX(), transVector.getY());
 
-            apt = fDomain.getEdgeCenter3D(2,a);
+            Point3D apt = fDomain.getEdgeCenter3D(2,a);
             apt = t.transform(apt);
             Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), apt);
             fDomain.setEdgeCenter(pt2d, 2, a);
@@ -1165,7 +1159,7 @@ public class Tiling {
      * @param flag
      * @return
      */
-    private Point2D addRestriction(double deltaX, double deltaY, int orbitLength, int type, int flag, Point3D resetPoint){
+    private Point2D addRestriction(double deltaX, double deltaY, int orbitLength, int type, int flag){
         Point3D r = new Point3D(0,0,0), n = new Point3D(0,0,0);
         final int m = fDomain.size();
         // Count number of chambers lying in (1-type)-2-orbit containing flag
@@ -1206,19 +1200,21 @@ public class Tiling {
         return new Point2D(deltaX, deltaY);
     }
 
-    private Point2D add2Restriction(double deltaX, double deltaY, double[][] resetPoints){
+    private Point2D add2Restriction(double deltaX, double deltaY, Transform generator, int flag){
         // Restrict movement for 2-edge-handles
         Point2D transVec = new Point2D(deltaX, deltaY);
-        for (int i=0; i<=1; i++) {
-            transVec = checkRestriction(i, resetPoints, transVec);
+        transVec = checkRestriction(flag, new Translate(), new Translate(), transVec);
+        Transform inverseGenerator = new Translate();
+        if (fDomain.isBoundaryEdge(2, flag)){
+            inverseGenerator = generators.get(2, ds.getS2(flag));
         }
+        transVec = checkRestriction(ds.getS2(flag), generator, inverseGenerator, transVec);
         return transVec;
     }
 
 
-    private Point2D checkRestriction(int i, double[][] resetPoints, Point2D transVec) {
+    private Point2D checkRestriction(int flag, Transform generator, Transform inverseGenerator, Point2D transVec) {
         // Compute normal vector and coordinate of restricting lines / planes with <x,n> = c
-        int flag = (int) Math.round(resetPoints[0][i]);
         Point3D r1 = fDomain.getVertex3D(2, flag).subtract(fDomain.getVertex3D(0, flag));
         Point3D n1 = new Point3D(r1.getY(), -r1.getX(), 0);
         double c1 = fDomain.getVertex3D(2, flag).dotProduct(n1);
@@ -1229,11 +1225,12 @@ public class Tiling {
         Point3D firstPos = (fDomain.getVertex3D(0, flag).add(fDomain.getVertex3D(1, flag))).multiply(0.5);
         boolean oldRestriction1 = compare(n1.dotProduct(firstPos), c1), oldRestriction0 = compare(n0.dotProduct(firstPos), c0);
 
+        Transform t = generator.createConcatenation(new Translate(transVec.getX(), transVec.getY(),0)).createConcatenation(inverseGenerator);
         Point3D oldPos = fDomain.getEdgeCenter3D(2, flag);
-        Point3D newPos = oldPos.add(transVec.getX(), transVec.getY(),0); // todo: change for sigma2(a)
+        Point3D newPos = t.transform(oldPos);
         boolean newRestriction1 = compare(n1.dotProduct(newPos), c1), newRestriction0 = compare(n0.dotProduct(newPos), c0);
 
-
+        // Todo: does not work for sigma2(a)
         int counter = 0;
         while (newRestriction1 != oldRestriction1 || newRestriction0 != oldRestriction0) {
             if (newRestriction1 != oldRestriction1 && newRestriction0 != oldRestriction0) {
@@ -1242,13 +1239,13 @@ public class Tiling {
             }
             if (newRestriction1 != oldRestriction1 && newRestriction0 == oldRestriction0) {
                 double lambda = (n1.getY() * transVec.getX() - n1.getX() * transVec.getY()) / (r1.getX() * n1.getY() - n1.getX() * r1.getY());
-                Point3D transVec3d = r1.multiply(lambda);
+                Point3D transVec3d = inverseGenerator.transform(r1.multiply(lambda));
                 System.out.println("second case");
                 transVec = new Point2D(transVec3d.getX(), transVec3d.getY());
             }
             if (newRestriction1 == oldRestriction1 && newRestriction0 != oldRestriction0) {
                 double lambda = (n0.getY() * transVec.getX() - n0.getX() * transVec.getY()) / (r0.getX() * n0.getY() - n0.getX() * r0.getY());
-                Point3D transVec3d = r0.multiply(lambda);
+                Point3D transVec3d = inverseGenerator.transform(r0.multiply(lambda));
                 System.out.println("first case");
                 transVec = new Point2D(transVec3d.getX(), transVec3d.getY());
             }
@@ -1256,7 +1253,8 @@ public class Tiling {
                 transVec = new Point2D(0,0);
                 break;
             }
-            newPos = oldPos.add(transVec.getX(), transVec.getY(), 0);
+            t = generator.createConcatenation(new Translate(transVec.getX(), transVec.getY(),0));
+            newPos = t.transform(inverseGenerator.transform(oldPos));
             newRestriction1 = compare(n1.dotProduct(newPos), c1);
             newRestriction0 = compare(n0.dotProduct(newPos), c0);
             counter++;
