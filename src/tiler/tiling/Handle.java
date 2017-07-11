@@ -11,7 +11,7 @@ public class Handle extends Group {
     private Shape shape;
     private int type;
     private int flag;
-    private boolean[][] twoRestrictions = new boolean[2][2];
+    private boolean[][] twoRestrictions = new boolean[2][2]; // First column contains restrictions of chamber a, second column of sigma_2(a)
 
     public void setTransX(double dx){shape.setTranslateX(dx);}
     public void setTransY(double dy){shape.setTranslateY(dy);}

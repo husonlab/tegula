@@ -73,8 +73,8 @@ public class ShapeHandler {
             handle.setTransX(handle.getTransX() + transVector.getX());
             handle.setTransY(handle.getTransY() + transVector.getY());
 
-            mouseX = e.getSceneX() - deltaX + transVector.getX();
-            mouseY = e.getSceneY() - deltaY + transVector.getY();
+            mouseX = e.getSceneX()-deltaX+transVector.getX();
+            mouseY = e.getSceneY()-deltaY+transVector.getY();
 
             e.consume();
         });

@@ -1226,12 +1226,44 @@ public class Tiling {
         Point3D n0 = new Point3D(r0.getY(), -r0.getX(), 0);
         double c0 = fDomain.getVertex3D(2, flag).dotProduct(n0);
 
-        Point3D oldPos = fDomain.getEdgeCenter3D(2, flag), newPos = new Point3D(resetPoints[1][i], resetPoints[2][i], resetPoints[3][i]);
+        Point3D firstPos = (fDomain.getVertex3D(0, flag).add(fDomain.getVertex3D(1, flag))).multiply(0.5);
+        boolean oldRestriction1 = compare(n1.dotProduct(firstPos), c1), oldRestriction0 = compare(n0.dotProduct(firstPos), c0);
 
-        boolean oldRestriction1 = compare(n1.dotProduct(oldPos), c1), oldRestriction0 = compare(n0.dotProduct(oldPos), c0);
+        Point3D oldPos = fDomain.getEdgeCenter3D(2, flag);
+        Point3D newPos = oldPos.add(transVec.getX(), transVec.getY(),0); // todo: change for sigma2(a)
         boolean newRestriction1 = compare(n1.dotProduct(newPos), c1), newRestriction0 = compare(n0.dotProduct(newPos), c0);
 
-        if (newRestriction1 == oldRestriction1) {
+
+        int counter = 0;
+        while (newRestriction1 != oldRestriction1 || newRestriction0 != oldRestriction0) {
+            if (newRestriction1 != oldRestriction1 && newRestriction0 != oldRestriction0) {
+                System.out.println("third case");
+                transVec = new Point2D(0, 0);
+            }
+            if (newRestriction1 != oldRestriction1 && newRestriction0 == oldRestriction0) {
+                double lambda = (n1.getY() * transVec.getX() - n1.getX() * transVec.getY()) / (r1.getX() * n1.getY() - n1.getX() * r1.getY());
+                Point3D transVec3d = r1.multiply(lambda);
+                System.out.println("second case");
+                transVec = new Point2D(transVec3d.getX(), transVec3d.getY());
+            }
+            if (newRestriction1 == oldRestriction1 && newRestriction0 != oldRestriction0) {
+                double lambda = (n0.getY() * transVec.getX() - n0.getX() * transVec.getY()) / (r0.getX() * n0.getY() - n0.getX() * r0.getY());
+                Point3D transVec3d = r0.multiply(lambda);
+                System.out.println("first case");
+                transVec = new Point2D(transVec3d.getX(), transVec3d.getY());
+            }
+            if (counter == 100){
+                transVec = new Point2D(0,0);
+                break;
+            }
+            newPos = oldPos.add(transVec.getX(), transVec.getY(), 0);
+            newRestriction1 = compare(n1.dotProduct(newPos), c1);
+            newRestriction0 = compare(n0.dotProduct(newPos), c0);
+            counter++;
+        }
+        return transVec;
+
+        /*if (newRestriction1 == oldRestriction1) {
             if (newRestriction0 == oldRestriction0) {
                 return transVec;
             } else {
@@ -1249,7 +1281,7 @@ public class Tiling {
             } else {
                 return new Point2D(0, 0);
             }
-        }
+        }*/
     }
 
     private boolean compare(double a, double b){
