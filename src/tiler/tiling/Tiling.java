@@ -1235,7 +1235,6 @@ public class Tiling {
         Point3D newPos = t.transform(oldPos);
         boolean newRestriction1 = compare(n1.dotProduct(newPos), c1), newRestriction0 = compare(n0.dotProduct(newPos), c0);
 
-        // Todo: does not work for sigma2(a)
         int counter = 0;
         while (newRestriction1 != oldRestriction1 || newRestriction0 != oldRestriction0) {
             if (newRestriction1 != oldRestriction1 && newRestriction0 != oldRestriction0) {
