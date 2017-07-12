@@ -1,5 +1,6 @@
 package tiler.tiling;
 
+import com.sun.javafx.geom.transform.Affine3D;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
@@ -8,6 +9,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Sphere;
+import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.util.Pair;
@@ -1213,7 +1215,7 @@ public class Tiling {
     }
 
 
-    private Point2D checkRestriction(int flag, Transform generator, Transform inverseGenerator, Point2D transVec) {
+    private Point2D checkRestriction(int flag, Transform gen, Transform invGen, Point2D transVec) {
         // Compute normal vector and coordinate of restricting lines / planes with <x,n> = c
         Point3D r1 = fDomain.getVertex3D(2, flag).subtract(fDomain.getVertex3D(0, flag));
         Point3D n1 = new Point3D(r1.getY(), -r1.getX(), 0);
@@ -1225,7 +1227,10 @@ public class Tiling {
         Point3D firstPos = (fDomain.getVertex3D(0, flag).add(fDomain.getVertex3D(1, flag))).multiply(0.5);
         boolean oldRestriction1 = compare(n1.dotProduct(firstPos), c1), oldRestriction0 = compare(n0.dotProduct(firstPos), c0);
 
-        Transform t = generator.createConcatenation(new Translate(transVec.getX(), transVec.getY(),0)).createConcatenation(inverseGenerator);
+        Affine genMat = new Affine(gen.getMxx(), gen.getMxy(), gen.getMxz(), 0, gen.getMyx(), gen.getMyy(), gen.getMyz(), 0, gen.getMzx(), gen.getMzy(), gen.getMzz(), 0);
+        Affine invGenMat = new Affine(invGen.getMxx(), invGen.getMxy(), invGen.getMxz(), 0, invGen.getMyx(), invGen.getMyy(), invGen.getMyz(), 0, invGen.getMzx(), invGen.getMzy(), invGen.getMzz(), 0);
+        transVec = genMat.transform(transVec.getX(), transVec.getY());
+        Transform t = new Translate(transVec.getX(), transVec.getY());
         Point3D oldPos = fDomain.getEdgeCenter3D(2, flag);
         Point3D newPos = t.transform(oldPos);
         boolean newRestriction1 = compare(n1.dotProduct(newPos), c1), newRestriction0 = compare(n0.dotProduct(newPos), c0);
@@ -1239,13 +1244,13 @@ public class Tiling {
             }
             if (newRestriction1 != oldRestriction1 && newRestriction0 == oldRestriction0) {
                 double lambda = (n1.getY() * transVec.getX() - n1.getX() * transVec.getY()) / (r1.getX() * n1.getY() - n1.getX() * r1.getY());
-                Point3D transVec3d = inverseGenerator.transform(r1.multiply(lambda));
+                Point3D transVec3d = r1.multiply(lambda);
                 System.out.println("second case");
                 transVec = new Point2D(transVec3d.getX(), transVec3d.getY());
             }
             if (newRestriction1 == oldRestriction1 && newRestriction0 != oldRestriction0) {
                 double lambda = (n0.getY() * transVec.getX() - n0.getX() * transVec.getY()) / (r0.getX() * n0.getY() - n0.getX() * r0.getY());
-                Point3D transVec3d = inverseGenerator.transform(r0.multiply(lambda));
+                Point3D transVec3d = r0.multiply(lambda);
                 System.out.println("first case");
                 transVec = new Point2D(transVec3d.getX(), transVec3d.getY());
             }
@@ -1253,33 +1258,13 @@ public class Tiling {
                 transVec = new Point2D(0,0);
                 break;
             }
-            t = generator.createConcatenation(new Translate(transVec.getX(), transVec.getY(),0));
-            newPos = t.transform(inverseGenerator.transform(oldPos));
+            t = new Translate(transVec.getX(), transVec.getY(),0);
+            newPos = t.transform(oldPos);
             newRestriction1 = compare(n1.dotProduct(newPos), c1);
             newRestriction0 = compare(n0.dotProduct(newPos), c0);
             counter++;
         }
-        return transVec;
-
-        /*if (newRestriction1 == oldRestriction1) {
-            if (newRestriction0 == oldRestriction0) {
-                return transVec;
-            } else {
-                double lambda = (n0.getY() * transVec.getX() - n0.getX() * transVec.getY()) / (r0.getX() * n0.getY() - n0.getX() * r0.getY());
-                Point3D transVec3d = r0.multiply(lambda);
-                System.out.println("first case");
-                return new Point2D(transVec3d.getX(), transVec3d.getY());
-            }
-        } else {
-            if (newRestriction0 == oldRestriction0) {
-                double lambda = (n1.getY() * transVec.getX() - n1.getX() * transVec.getY()) / (r1.getX() * n1.getY() - n1.getX() * r1.getY());
-                Point3D transVec3d = r1.multiply(lambda);
-                System.out.println("second case");
-                return new Point2D(transVec3d.getX(), transVec3d.getY());
-            } else {
-                return new Point2D(0, 0);
-            }
-        }*/
+        return invGenMat.transform(transVec);
     }
 
     private boolean compare(double a, double b){
