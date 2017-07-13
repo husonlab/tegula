@@ -51,6 +51,8 @@ public class Tools {
 			return interpolateHyperbolicPoints(a, b, 0.5);
 		}
 	}
+	
+	//TODO wo errorts bei den Funktionen???? (0,0,x) etc.
 
 	public static Point3D interpolateHyperbolicPoints(Point3D a, Point3D b, double pos) {
 		// TODO Refactoren: Namen etc.

@@ -49,6 +49,7 @@ public class FundamentalDomain {
 		// set colors
 		for (int a = 1; a <= dsymbol.size(); a = dsymbol.nextOrbit(0, 1, a, set)) {
 			final Color color = new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1);
+			//final Color color = new Color(1, 1, 1, 1);  //all white
 			dsymbol.visitOrbit(0, 1, a, new DSymbol.OrbitVisitor() {
 				public void visit(int a) {
 					colors[a] = color;
@@ -77,21 +78,20 @@ public class FundamentalDomain {
 				int depth = 4; // mehr als 5 nicht sinnvoll..... 4^5 = 2^10 =
 								// 1024 faces
 
-				fac = new int[(int) Math.pow(4, (depth+1)) * 6];
-				//fac = new int[4*6];
+				fac = new int[(int) Math.pow(4, (depth + 1)) * 6];
+				// fac = new int[4*6];
 				points3d = new Point3D[1026]; // 3, 6, 66, 258, 1026
 
 				WrapInt p = new WrapInt(0);
 				WrapInt f = new WrapInt(0);
 
-				//be careful, as changing the order of the numbers is crucial
+				// be careful, as changing the order of the numbers is crucial
 				points3d[p.incrementInt()] = fDomain.getVertex3D(0, a);
 				points3d[p.incrementInt()] = fDomain.getVertex3D(2, a);
 				points3d[p.incrementInt()] = fDomain.getVertex3D(1, a);
 				points3d[p.incrementInt()] = fDomain.getEdgeCenter3D(1, a);
 				points3d[p.incrementInt()] = fDomain.getEdgeCenter3D(0, a);
 				points3d[p.incrementInt()] = fDomain.getEdgeCenter3D(2, a);
-				
 
 				class triangle {
 
@@ -103,7 +103,8 @@ public class FundamentalDomain {
 					private triangle tri3;
 					private triangle tri4;
 
-					//scheint orientierung zu verdrehen? 0/1/2 test? ziel--> 0/1/2 und uhrzeigereingabe
+					// scheint orientierung zu verdrehen? 0/1/2 test? ziel-->
+					// 0/1/2 und uhrzeigereingabe
 					triangle(boolean orientationUp, int pointA, int pointB, int pointC, int depth) {
 						this.orientationUp = orientationUp;
 						this.pointA = pointA;
@@ -136,15 +137,16 @@ public class FundamentalDomain {
 							fac[facPos + 3] = 1;
 							fac[facPos + 4] = pointC;
 							fac[facPos + 5] = 2;
-							//System.out.println("A: " + pointA +" B: " + pointB + " C: " + pointC);
+							// System.out.println("A: " + pointA +" B: " +
+							// pointB + " C: " + pointC);
 						}
 					}
 				}
 
-				//no uses the given edge-midpoints!
-				
-				//be careful, as the order of the numbers is crucial
-				new triangle(true, 0, 3, 5, depth); 
+				// no uses the given edge-midpoints!
+
+				// be careful, as the order of the numbers is crucial
+				new triangle(true, 0, 3, 5, depth);
 				new triangle(true, 5, 4, 2, depth);
 				new triangle(true, 3, 1, 4, depth);
 				new triangle(false, 3, 4, 5, depth);
@@ -316,11 +318,11 @@ public class FundamentalDomain {
 			Point3D v0, e2, v1;
 			int m = fDomain.size();
 			BitSet visited = new BitSet(m); // ??
+			int a = 1;
 			// Fallunterscheidung neeeds some serious refactoring
-			if (geom != Geometry.Spherical) {
-				int a = 1;
+			if (geom == Geometry.Euclidean) {
 				while (a <= m) {
-					if (!visited.get(a)) { // was macht das hier?
+					if (!visited.get(a)) {
 						v0 = fDomain.getVertex3D(0, a);
 						e2 = fDomain.getEdgeCenter3D(2, a);
 						v1 = fDomain.getVertex3D(1, a);
@@ -330,23 +332,57 @@ public class FundamentalDomain {
 					}
 					a++;
 				}
+			} else if (geom == Geometry.Hyperbolic) {
+				while (a <= m) {
+					if (!visited.get(a)) {
+						v0 = fDomain.getVertex3D(0, a);
+						e2 = fDomain.getEdgeCenter3D(2, a);
+						v1 = fDomain.getVertex3D(1, a);
+
+						Point3D[] linePoints = new Point3D[9];
+						linePoints[0] = v0;
+						linePoints[4] = e2;
+						linePoints[8] = v1;
+						for (int i = 1; i < 4; i++) {
+							linePoints[i] = Tools.interpolateHyperbolicPoints(v0, e2, i / 8d);
+						}
+						for (int i = 5; i < 8; i++) {
+							linePoints[i] = Tools.interpolateHyperbolicPoints(e2, v1, i / 8d);
+						}
+						for (int i = 0; i < 8; i++) {
+							group.getChildren().add(Cylinderline.createConnection(linePoints[i], linePoints[i + 1],
+									Color.BLACK, width));
+						}
+						visited.set(dsymbol.getS2(a));
+					}
+					a++;
+				}
+
 			} else {
 				// performanceProbleme durch Adden, also Magic numbers
-				for (int a = 1; a <= fDomain.size(); a++) {
-					v0 = fDomain.getVertex3D(0, a);
-					v1 = fDomain.getVertex3D(1, a);
+				while (a <= m) {
+					if (!visited.get(a)) {
+						v0 = fDomain.getVertex3D(0, a);
+						e2 = fDomain.getEdgeCenter3D(2, a);
+						v1 = fDomain.getVertex3D(1, a);
 
-					Point3D[] linePoints = new Point3D[33];
-					linePoints[0] = v0;
-					linePoints[32] = v1;
-					for (int i = 1; i < 32; i++) {
-						linePoints[i] = Tools.interpolateSpherePoints(v0, v1, i / 32.0);
+						Point3D[] linePoints = new Point3D[33];
+						linePoints[0] = v0;
+						linePoints[16] = e2;
+						linePoints[32] = v1;
+						for (int i = 1; i < 16; i++) {
+							linePoints[i] = Tools.interpolateSpherePoints(v0, e2, i / 32.0);
+						}
+						for (int i = 17; i < 32; i++) {
+							linePoints[i] = Tools.interpolateSpherePoints(e2, v1, i / 32.0);
+						}
+						for (int j = 0; j < 32; j++) {
+							group.getChildren().add(Cylinderline.createConnection(linePoints[1 * j],
+									linePoints[1 * (j + 1)], Color.BLACK, width));
+						}
+						visited.set(dsymbol.getS2(a));
 					}
-
-					for (int j = 0; j < 8; j++) {
-						group.getChildren().add(Cylinderline.createConnection(linePoints[4 * j],
-								linePoints[4 * (j + 1)], Color.BLACK, width));
-					}
+					a++;
 				}
 			}
 
