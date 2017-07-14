@@ -1204,13 +1204,13 @@ public class Tiling {
         if (fDomain.isBoundaryEdge(2, flag)){
             inverseGenerator = generators.get(2, ds.getS2(flag));
         }
-        transVec = checkRestriction(ds.getS2(flag), inverseGenerator, transVec);
-        return transVec;
+        return checkRestriction(flag, inverseGenerator, transVec); // Check if restrictions are fulfilled when translating by mouse coordinates
     }
 
 
     private Point2D checkRestriction(int flag, Transform invGen, Point2D transVec) {
-        // Compute each of the 4 normal vectors and coordinates of the 4 restricting lines / planes with <x,n> = c
+        // There exist 4 restrictions. Each restricting line / plane is of the form <x,n> = c.
+        // R - directions of line, N - normal vector, c - coordinate
         Point3D[] R = new Point3D[4], N = new Point3D[4]; // Save normal vectors and directions of restricting lines / planes
         double[] c = new double[4]; // Save coordinates of the 4 restricting lines / planes
 
@@ -1278,7 +1278,6 @@ public class Tiling {
             }
             counter++;
         }
-        System.out.println(counter);
         Point3D transVec3d = newPos.subtract(oldPos);
         return new Point2D(transVec3d.getX(), transVec3d.getY());
     }
