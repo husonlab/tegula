@@ -1200,17 +1200,16 @@ public class Tiling {
     private Point2D add2Restriction(double deltaX, double deltaY, int flag){
         // Restrict movement for 2-edge-handles
         Point2D transVec = new Point2D(deltaX, deltaY);
-        Transform inverseGenerator = new Translate(), generator = new Translate();
+        Transform inverseGenerator = new Translate();
         if (fDomain.isBoundaryEdge(2, flag)){
-            generator = generators.get(2, flag);
             inverseGenerator = generators.get(2, ds.getS2(flag));
         }
-        transVec = checkRestriction(ds.getS2(flag), generator, inverseGenerator, transVec);
+        transVec = checkRestriction(ds.getS2(flag), inverseGenerator, transVec);
         return transVec;
     }
 
 
-    private Point2D checkRestriction(int flag, Transform gen, Transform invGen, Point2D transVec) {
+    private Point2D checkRestriction(int flag, Transform invGen, Point2D transVec) {
         // Compute each of the 4 normal vectors and coordinates of the 4 restricting lines / planes with <x,n> = c
         Point3D[] R = new Point3D[4], N = new Point3D[4]; // Save normal vectors and directions of restricting lines / planes
         double[] c = new double[4]; // Save coordinates of the 4 restricting lines / planes
@@ -1225,7 +1224,6 @@ public class Tiling {
         c[1] = fDomain.getVertex3D(1, flag).dotProduct(N[1]);
 
         // Define restrictions 2 and 3 for flag sigma2(a):
-        Affine genMat = new Affine(gen.getMxx(), gen.getMxy(), gen.getMxz(), 0, gen.getMyx(), gen.getMyy(), gen.getMyz(), 0, gen.getMzx(), gen.getMzy(), gen.getMzz(), 0);
         Affine invGenMat = new Affine(invGen.getMxx(), invGen.getMxy(), invGen.getMxz(), 0, invGen.getMyx(), invGen.getMyy(), invGen.getMyz(), 0, invGen.getMzx(), invGen.getMzy(), invGen.getMzz(), 0);
         R[2] = fDomain.getVertex3D(2, ds.getS2(flag)).subtract(fDomain.getVertex3D(0, ds.getS2(flag)));
         R[2] = invGenMat.transform(R[2]);
@@ -1236,97 +1234,51 @@ public class Tiling {
         N[3] = new Point3D(R[3].getY(), -R[3].getX(), 0);
         c[3] = fDomain.getVertex3D(1, flag).dotProduct(N[3]);
 
-        Transform t = new Translate(transVec.getX(), transVec.getY());
-        Point3D firstPos = (fDomain.getVertex3D(0, flag).add(fDomain.getVertex3D(1, flag))).multiply(0.5);
-        Point3D oldPos = fDomain.getEdgeCenter3D(2, flag);
-        Point3D newPos = t.transform(oldPos);
+        // Change direction of translation if restrictions are broken
+        Transform t = new Translate(transVec.getX(), transVec.getY()); // Original translation vector coming from mouse movement (in shapeHandler)
+        Point3D firstPos = (fDomain.getVertex3D(0, flag).add(fDomain.getVertex3D(1, flag))).multiply(0.5); // Midpoint of 0- and 1- vertex
+        Point3D oldPos = fDomain.getEdgeCenter3D(2, flag); // Actual position of handle
+        Point3D newPos = t.transform(oldPos); // New position of handle
         boolean[] restrictions = new boolean[4];
         boolean[] checkRest = new boolean[4];
-        boolean[] fulfilled = new boolean[4];
         for (int i = 0; i <= 3; i++){
-            restrictions[i] = compare(c[i], N[i].dotProduct(firstPos));
-            checkRest[i] = compare(c[i], N[i].dotProduct(newPos));
-            fulfilled[i] = true;
+            restrictions[i] = compare(c[i], N[i].dotProduct(firstPos));  // Compute restrictions (firstPos fulfills all restrictions and is used to define all restrictions)
+            checkRest[i] = compare(c[i], N[i].dotProduct(newPos)); // Compute restrictions for newPos
         }
 
+        // Loop works as long as newPos does not fulfill restrictions but at most 50 times
+        // If a restriction is not fulfilled then newPos is moved onto the restricting line / plane in direction of its normal vector
         int counter = 0;
-        while (counter <= 50 && (checkRest[0] != restrictions[0] || checkRest[1] != restrictions[1] || checkRest[2] != restrictions[2] || checkRest[3] != restrictions[3])){
+        while (counter <= 1000 && (checkRest[0] != restrictions[0] || checkRest[1] != restrictions[1] || checkRest[2] != restrictions[2] || checkRest[3] != restrictions[3])){
             for (int i = 0; i <= 3; i++){
                 if (checkRest[i] != restrictions[i]) {
                     if (i == 0 || i == 2) {
                         Point3D qp = fDomain.getVertex3D(0, flag).subtract(newPos);
+                        // b is the coefficient of the normal vector of restriction i
                         double b = (qp.getX() * R[i].getY() - qp.getY() * R[i].getX()) / (R[i].getX() * R[i].getX() + R[i].getY() * R[i].getY());
-                        if (b > 0){
-                            b = b+0.0001;
+                        newPos = newPos.add(N[i].multiply(b)); // Move newPos onto the restricting line i
+                        checkRest[i] = restrictions[i]; // Now restriction i is fulfilled
+                        for (int j = 0; j <= 3; j++) { // Check other restrictions for nePos
+                            if (j != i) {
+                                checkRest[j] = compare(c[j], N[j].dotProduct(newPos));
+                            }
                         }
-                        else {
-                            b = b-0.0001;
-                        }
-                        newPos = newPos.add(N[i].multiply(b));
-                        for (int j = 0; j <= 3; j++) {
-                            checkRest[j] = compare(c[i], N[i].dotProduct(newPos));
-                        }
-                        counter++;
                     } else {
                         Point3D qp = fDomain.getVertex3D(1, flag).subtract(newPos);
                         double b = (qp.getX() * R[i].getY() - qp.getY() * R[i].getX()) / (R[i].getX() * R[i].getX() + R[i].getY() * R[i].getY());
-                        if (b > 0){
-                            b = b+0.0001;
-                        }
-                        else {
-                            b = b-0.0001;
-                        }
                         newPos = newPos.add(N[i].multiply(b));
+                        checkRest[i] = restrictions[i];
                         for (int j = 0; j <= 3; j++) {
-                            checkRest[j] = compare(c[i], N[i].dotProduct(newPos));
+                            if (j != i) {
+                                checkRest[j] = compare(c[j], N[j].dotProduct(newPos));
+                            }
                         }
-                        counter++;
                     }
                 }
             }
-        }
-        System.out.println(counter);
-
-        /*Point3D firstPos = (fDomain.getVertex3D(0, flag).add(fDomain.getVertex3D(1, flag))).multiply(0.5);
-        boolean oldRestriction1 = compare(n1.dotProduct(firstPos), c1), oldRestriction0 = compare(n0.dotProduct(firstPos), c0);
-
-        Affine genMat = new Affine(gen.getMxx(), gen.getMxy(), gen.getMxz(), 0, gen.getMyx(), gen.getMyy(), gen.getMyz(), 0, gen.getMzx(), gen.getMzy(), gen.getMzz(), 0);
-        Affine invGenMat = new Affine(invGen.getMxx(), invGen.getMxy(), invGen.getMxz(), 0, invGen.getMyx(), invGen.getMyy(), invGen.getMyz(), 0, invGen.getMzx(), invGen.getMzy(), invGen.getMzz(), 0);
-        transVec = genMat.transform(transVec.getX(), transVec.getY());
-        Transform t = new Translate(transVec.getX(), transVec.getY());
-        Point3D oldPos = fDomain.getEdgeCenter3D(2, flag);
-        Point3D newPos = t.transform(oldPos);
-        boolean newRestriction1 = compare(n1.dotProduct(newPos), c1), newRestriction0 = compare(n0.dotProduct(newPos), c0);
-
-        int counter = 0;
-        while (newRestriction1 != oldRestriction1 || newRestriction0 != oldRestriction0) {
-            if (newRestriction1 != oldRestriction1 && newRestriction0 != oldRestriction0) {
-                System.out.println("third case");
-                transVec = new Point2D(0, 0);
-            }
-            if (newRestriction1 != oldRestriction1 && newRestriction0 == oldRestriction0) {
-                double lambda = (n1.getY() * transVec.getX() - n1.getX() * transVec.getY()) / (r1.getX() * n1.getY() - n1.getX() * r1.getY());
-                Point3D transVec3d = r1.multiply(lambda);
-                System.out.println("second case");
-                transVec = new Point2D(transVec3d.getX(), transVec3d.getY());
-            }
-            if (newRestriction1 == oldRestriction1 && newRestriction0 != oldRestriction0) {
-                double lambda = (n0.getY() * transVec.getX() - n0.getX() * transVec.getY()) / (r0.getX() * n0.getY() - n0.getX() * r0.getY());
-                Point3D transVec3d = r0.multiply(lambda);
-                System.out.println("first case");
-                transVec = new Point2D(transVec3d.getX(), transVec3d.getY());
-            }
-            if (counter == 100){
-                transVec = new Point2D(0,0);
-                break;
-            }
-            t = new Translate(transVec.getX(), transVec.getY(),0);
-            newPos = t.transform(oldPos);
-            newRestriction1 = compare(n1.dotProduct(newPos), c1);
-            newRestriction0 = compare(n0.dotProduct(newPos), c0);
             counter++;
         }
-        return invGenMat.transform(transVec);*/
+        System.out.println(counter);
         Point3D transVec3d = newPos.subtract(oldPos);
         return new Point2D(transVec3d.getX(), transVec3d.getY());
     }
