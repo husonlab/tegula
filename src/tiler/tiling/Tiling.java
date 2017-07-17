@@ -1157,7 +1157,7 @@ public class Tiling {
      * @return
      */
     private Point2D addRestriction(double deltaX, double deltaY, int orbitLength, int type, int flag){
-        Point3D r = new Point3D(0,0,0), n = new Point3D(0,0,0);
+        Point3D r = new Point3D(0,0,0), n = new Point3D(0,0,0), q= new Point3D(0,0,0);
         final int m = fDomain.size();
         // Count number of chambers lying in (1-type)-2-orbit containing flag
         final BitSet visited = new BitSet(m);
@@ -1172,17 +1172,24 @@ public class Tiling {
         // Restrict movement if handle lies on exactly one mirror axis:
         if (2*orbitLength/numberOfChambers == 2){ // Condition for exactly one mirror axis
             while (flag <= m){
-                if (fDomain.isBoundaryEdge(1-type, flag)){ // Mirror axis is always a boundary for fundamental domain
-                    r = fDomain.getVertex3D(2, flag).subtract(fDomain.getVertex3D(type, flag)); // Direction of translation for handle = direction of mirror axis
-                    n = new Point3D(r.getY(), -r.getX(), 0); // Orthogonal direction of r
+                if (fDomain.isBoundaryEdge(1-type, flag) && ds.getSi(1-type, flag) == flag){ // Mirror axis is always a boundary for fundamental domain
+                    Transform g = generators.get(1-type, flag);
+                    n = fDomain.getVertex3D(1-type, flag).subtract(g.transform(fDomain.getVertex3D(1-type, flag))); // Orthogonal direction of mirror axis
+                    r = new Point3D(n.getY(), -n.getX(), 0); // Direction of translation for handle = direction of mirror axis
+                    Point3D transformed = g.transform(fDomain.getVertex3D(1-type, flag));
+                    q = fDomain.getVertex3D(1-type, flag).midpoint(transformed);
+
                     break;
                 }
                 else{
                     flag = ds.getSi(1-type, flag);
                 }
-                if (fDomain.isBoundaryEdge(2, flag)){ // Consider also 2-edge-boundaries
-                    r = fDomain.getVertex3D(1-type, flag).subtract(fDomain.getVertex3D(type, flag));
-                    n = new Point3D(r.getY(), -r.getX(), 0);
+                if (fDomain.isBoundaryEdge(2, flag) && ds.getS2(flag) == flag){ // Consider 2-edge-boundaries
+                    Transform g = generators.get(2, flag);
+                    n = fDomain.getVertex3D(2, flag).subtract(g.transform(fDomain.getVertex3D(2, flag)));
+                    r = new Point3D(n.getY(), -n.getX(), 0);
+                    Point3D transformed = g.transform(fDomain.getVertex3D(2, flag));
+                    q = fDomain.getVertex3D(2, flag).midpoint(transformed);
                     break;
                 }
                 else{
@@ -1190,9 +1197,21 @@ public class Tiling {
                 }
             }
             // Change direction (deltaX, deltaY) to translation along mirror axis
-            double lambda = (deltaX*n.getY()-deltaY*n.getX())/(r.getX()*n.getY()-n.getX()*r.getY()); // (deltaX,deltaY) = lambda*r + mu*n
-            deltaX = lambda*r.getX();
-            deltaY = lambda*r.getY();
+            Point3D oldPos = fDomain.getVertex3D(type, flag);
+            Point3D newPos = oldPos.add(new Point3D(deltaX, deltaY, 0));
+
+            // While loop prevents from rounding errors
+            int counter = 0;
+            while (counter <= 50) {
+                Point3D qp = q.subtract(newPos);
+                double b = (qp.getY() * r.getX() - qp.getX() * r.getY()) / (r.getX() * r.getX() + r.getY() * r.getY());
+                System.out.println(b);
+                newPos = newPos.add(n.multiply(b));
+                counter++;
+            }
+
+            deltaX = newPos.getX() - oldPos.getX();
+            deltaY = newPos.getY() - oldPos.getY();
         }
         return new Point2D(deltaX, deltaY);
     }
