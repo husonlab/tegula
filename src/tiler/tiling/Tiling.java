@@ -1170,7 +1170,7 @@ public class Tiling {
         }
 
         // Restrict movement if handle lies on exactly one mirror axis:
-        if (orbitLength/numberOfChambers == 1){ // Condition for exactly one mirror axis
+        if (2*orbitLength/numberOfChambers == 2){ // Condition for exactly one mirror axis
             while (flag <= m){
                 if (fDomain.isBoundaryEdge(1-type, flag)){ // Mirror axis is always a boundary for fundamental domain
                     r = fDomain.getVertex3D(2, flag).subtract(fDomain.getVertex3D(type, flag)); // Direction of translation for handle = direction of mirror axis
@@ -1190,7 +1190,7 @@ public class Tiling {
                 }
             }
             // Change direction (deltaX, deltaY) to translation along mirror axis
-            final double lambda = (deltaX*n.getY()-deltaY*n.getX())/(r.getX()*n.getY()-n.getX()*r.getY()); // (deltaX,deltaY) = lambda*r + mu*n
+            double lambda = (deltaX*n.getY()-deltaY*n.getX())/(r.getX()*n.getY()-n.getX()*r.getY()); // (deltaX,deltaY) = lambda*r + mu*n
             deltaX = lambda*r.getX();
             deltaY = lambda*r.getY();
         }
@@ -1252,26 +1252,19 @@ public class Tiling {
         while (counter <= 1000 && (checkRest[0] != restrictions[0] || checkRest[1] != restrictions[1] || checkRest[2] != restrictions[2] || checkRest[3] != restrictions[3])){
             for (int i = 0; i <= 3; i++){
                 if (checkRest[i] != restrictions[i]) {
+                    Point3D qp;
                     if (i == 0 || i == 2) {
-                        Point3D qp = fDomain.getVertex3D(0, flag).subtract(newPos);
-                        // b is the coefficient of the normal vector of restriction i
-                        double b = (qp.getX() * R[i].getY() - qp.getY() * R[i].getX()) / (R[i].getX() * R[i].getX() + R[i].getY() * R[i].getY());
-                        newPos = newPos.add(N[i].multiply(b)); // Move newPos onto the restricting line i
-                        checkRest[i] = restrictions[i]; // Now restriction i is fulfilled
-                        for (int j = 0; j <= 3; j++) { // Check other restrictions for nePos
-                            if (j != i) {
-                                checkRest[j] = compare(c[j], N[j].dotProduct(newPos));
-                            }
-                        }
+                        qp = fDomain.getVertex3D(0, flag).subtract(newPos);
                     } else {
-                        Point3D qp = fDomain.getVertex3D(1, flag).subtract(newPos);
-                        double b = (qp.getX() * R[i].getY() - qp.getY() * R[i].getX()) / (R[i].getX() * R[i].getX() + R[i].getY() * R[i].getY());
-                        newPos = newPos.add(N[i].multiply(b));
-                        checkRest[i] = restrictions[i];
-                        for (int j = 0; j <= 3; j++) {
-                            if (j != i) {
-                                checkRest[j] = compare(c[j], N[j].dotProduct(newPos));
-                            }
+                        qp = fDomain.getVertex3D(1, flag).subtract(newPos);
+                    }
+                    // b is the coefficient of the normal vector of restriction i
+                    double b = (qp.getX() * R[i].getY() - qp.getY() * R[i].getX()) / (R[i].getX() * R[i].getX() + R[i].getY() * R[i].getY());
+                    newPos = newPos.add(N[i].multiply(b)); // Move newPos onto the restricting line i
+                    checkRest[i] = restrictions[i]; // Now restriction i is fulfilled
+                    for (int j = 0; j <= 3; j++) { // Check other restrictions for nePos
+                        if (j != i) {
+                            checkRest[j] = compare(c[j], N[j].dotProduct(newPos));
                         }
                     }
                 }
