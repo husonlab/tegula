@@ -19,16 +19,9 @@
 
 package tiler.util;
 
-import javafx.geometry.Point3D;
-import javafx.scene.transform.Translate;
-import tiler.core.dsymbols.FDomain;
 import tiler.main.Document;
-import tiler.tiling.FundamentalDomain;
 import tiler.tiling.Handle;
 import tiler.tiling.Tiling;
-import tiler.tiling.Tools;
-
-import java.awt.geom.Point2D;
 
 /**
  * handles mouse events on handles
@@ -37,15 +30,14 @@ import java.awt.geom.Point2D;
 public class ShapeHandler {
     private double mouseX;
     private double mouseY;
-    private static Document doc;
 
     /**
      * set the handler
      *
      * @param handle
      */
-    public static void setHandler(Handle handle) {
-        new ShapeHandler(handle);
+    public static void setHandler(Document doc, Handle handle) {
+        new ShapeHandler(doc, handle);
     }
 
     /**
@@ -53,7 +45,7 @@ public class ShapeHandler {
      *
      * @param handle
      */
-    private ShapeHandler(Handle handle) {
+    private ShapeHandler(Document doc, Handle handle) {
 
         handle.getShape().setOnMousePressed((e) -> {
             mouseX = e.getSceneX();
@@ -83,6 +75,4 @@ public class ShapeHandler {
             doc.update();
         });
     }
-
-    public static void setDoc(Document d){doc = d;}
 }

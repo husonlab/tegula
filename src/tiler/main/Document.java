@@ -25,7 +25,6 @@ import javafx.geometry.Point3D;
 import javafx.scene.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeLineCap;
@@ -37,15 +36,12 @@ import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
 import tiler.tiling.*;
 import tiler.util.JavaFXUtils;
-import tiler.util.ShapeHandler;
 
-import javax.print.Doc;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.LinkedList;
 
 /**
@@ -210,10 +206,10 @@ public class Document {
 
             if (!tiling.isInWindowEuclidean(tiling.refPointEuclidean, windowCorner, width, height)) { // Fund. domain is not in visible window
                 recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width, height, tol)); // Shifts back fDomain into valid range for fund. domain
-                tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height, tol);
+                tiles = tiling.createTilingEuclidean(this, isDrawFundamentalDomainOnly(), windowCorner, width, height, tol);
             }
             else { // If fDomain is inside visible window
-                tiles = tiling.createTilingEuclidean(isDrawFundamentalDomainOnly(), windowCorner, width, height, tol);
+                tiles = tiling.createTilingEuclidean(this, isDrawFundamentalDomainOnly(), windowCorner, width, height, tol);
             }
             numberOfCopies = tiles.getChildren().size();
 
@@ -365,7 +361,7 @@ public class Document {
             }
 
             tiles.getChildren().clear();
-            tiles.getChildren().addAll(tiling.createTilingEuclidean(true,windowCorner,width,height, tol));
+            tiles.getChildren().addAll(tiling.createTilingEuclidean(this, true, windowCorner, width, height, tol));
         }
 
         // Translation of fundamental domain in hyperbolic case
@@ -495,7 +491,7 @@ public class Document {
 
             //Second step: Create new tiles ----------------------------------------------------------------------------
             // Create new tiles to fill empty space of valid range. Add new tiles to the group "tiles"
-            Group newTiles = tiling.createTilingEuclidean(false, windowCorner, width, height, tol);
+            Group newTiles = tiling.createTilingEuclidean(this, false, windowCorner, width, height, tol);
 
             if (isBreak){ // Generates new tiling if too much rounding errors
                 isBreak = false;

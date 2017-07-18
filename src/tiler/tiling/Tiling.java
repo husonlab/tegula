@@ -1,14 +1,11 @@
 package tiler.tiling;
 
-import com.sun.javafx.geom.transform.Affine3D;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
@@ -21,7 +18,6 @@ import tiler.main.Document;
 import tiler.util.JavaFXUtils;
 import tiler.util.ShapeHandler;
 
-import java.lang.reflect.Array;
 import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -563,14 +559,14 @@ public class Tiling {
      * @param height
      * @return group
      */
-    public Group createTilingEuclidean(boolean drawFundamentalDomainOnly, Point3D windowCorner, double width, double height, double tol) {
+    public Group createTilingEuclidean(Document doc, boolean drawFundamentalDomainOnly, Point3D windowCorner, double width, double height, double tol) {
 
         //Add all generators
         computeConstraintsAndGenerators();
 
         //Add handles
         handles.getChildren().clear();
-        addHandles();
+        addHandles(doc);
 
         //Calculation of point of reference:
         refPointEuclidean = fDomain.getChamberCenter3D(Document.getChamberIndex()); // Reference point of actual fundamental domain
@@ -1012,7 +1008,7 @@ public class Tiling {
     /**
      * Add handles to change shape
      */
-    private void addHandles(){
+    private void addHandles(Document doc) {
         // Straighten 0- and 1-vertices
         for (int a = 1; a <= fDomain.size(); a++){
             // Midpoint between 1- and 2-vertex = new 0-edge center
@@ -1050,7 +1046,7 @@ public class Tiling {
                     handle.setType(1 - i);
                     handle.setFlag(a);
                     handles.getChildren().add(handle.getShape());
-                    ShapeHandler.setHandler(handle);
+                    ShapeHandler.setHandler(doc, handle);
                 }
                 a = ds.nextOrbit(i, 2, a, visited);
             }
@@ -1076,7 +1072,7 @@ public class Tiling {
                     handle.setFlag(a);
                     handle.setType(2);
                     handles.getChildren().add(handle.getShape());
-                    ShapeHandler.setHandler(handle);
+                    ShapeHandler.setHandler(doc, handle);
                 }
                 visited.set(ds.getS2(a));
             }

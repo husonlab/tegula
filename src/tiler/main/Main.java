@@ -15,9 +15,7 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
-import sun.security.provider.SHA;
 import tiler.core.dsymbols.Geometry;
-import tiler.util.ShapeHandler;
 
 import java.io.StringReader;
 import java.util.Properties;
@@ -87,9 +85,7 @@ public class Main extends Application {
 
         MouseHandler.addMouseHandler(scene, worldTranslate, worldScale, worldRotateProperty, document);
         document.update();
-
-
-
+        
 
         /*controller.getFieldOfViewSlider().valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
@@ -120,7 +116,6 @@ public class Main extends Application {
                 world.getTransforms().set(indexOf, newValue);
             }
         });
-        ShapeHandler.setDoc(document);
     }
 
     public static Properties getProgramPreferences() {
