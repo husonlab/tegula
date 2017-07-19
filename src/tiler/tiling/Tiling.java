@@ -1090,12 +1090,15 @@ public class Tiling {
         // Reset Point in fundamental domain
         Point2D transVector = new Point2D(deltaX, deltaY);
         Transform g;
-        Translate t = new Translate(deltaX, deltaY);
+        Translate t;
         int i = handle.getType(), a = handle.getFlag();
         if (i <= 1) {
             // Add restriction
             int l = ds.computeOrbitLength(1 - i, 2, a);
-            transVector = addRestriction(deltaX, deltaY, l, i, a);
+            transVector = addRestriction(transVector.getX(), transVector.getY(), l, i, a); // Todo: consider special cases (corners)
+            if (i == 1){
+                transVector = add1Restriction(transVector.getX(), transVector.getY(), a);
+            }
             t = new Translate(transVector.getX(), transVector.getY());
 
             // Translate Point of type i in chamber a
@@ -1228,15 +1231,17 @@ public class Tiling {
 
         // There exist 4 restrictions. Each restricting line / plane is of the form <x,n> = c.
         // R - directions of line, N - normal vector, c - coordinate
-        Point3D[] R = new Point3D[4], N = new Point3D[4]; // Save normal vectors and directions of restricting lines / planes
+        Point3D[] R = new Point3D[4], N = new Point3D[4], Q = new Point3D[4]; // Save normal vectors N, directions R and position vectors P of restricting lines
         double[] c = new double[4]; // Save coordinates of the 4 restricting lines / planes
 
         // Define restriction 0 and 1 for flag a
         R[0] = fDomain.getVertex3D(2, flag).subtract(fDomain.getVertex3D(0, flag));
         N[0] = new Point3D(R[0].getY(), -R[0].getX(), 0);
+        Q[0] = fDomain.getVertex3D(0, flag);
         c[0] = fDomain.getVertex3D(0, flag).dotProduct(N[0]);
         R[1] = fDomain.getVertex3D(2, flag).subtract(fDomain.getVertex3D(1, flag));
         N[1] = new Point3D(R[1].getY(), -R[1].getX(), 0);
+        Q[1] = fDomain.getVertex3D(1, flag);
         c[1] = fDomain.getVertex3D(1, flag).dotProduct(N[1]);
 
         // Define restrictions 2 and 3 for flag sigma2(a):
@@ -1244,33 +1249,37 @@ public class Tiling {
         R[2] = fDomain.getVertex3D(2, ds.getS2(flag)).subtract(fDomain.getVertex3D(0, ds.getS2(flag)));
         R[2] = invGenMat.transform(R[2]);
         N[2] = new Point3D(R[2].getY(), -R[2].getX(), 0);
+        Q[2] = fDomain.getVertex3D(0, flag);
         c[2] = fDomain.getVertex3D(0, flag).dotProduct(N[2]);
         R[3] = fDomain.getVertex3D(2, ds.getS2(flag)).subtract(fDomain.getVertex3D(1, ds.getS2(flag)));
         R[3] = invGenMat.transform(R[3]);
         N[3] = new Point3D(R[3].getY(), -R[3].getX(), 0);
+        Q[3] = fDomain.getVertex3D(1, flag);
         c[3] = fDomain.getVertex3D(1, flag).dotProduct(N[3]);
 
         Point3D firstPos = (fDomain.getVertex3D(0, flag).add(fDomain.getVertex3D(1, flag))).multiply(0.5); // Midpoint of 0- and 1- vertex
         Point3D oldPos = fDomain.getEdgeCenter3D(2, flag); // Actual position of handle
 
-        return checkRestriction(flag, transVec, R, N, c, firstPos, oldPos); // Check if restrictions are fulfilled when translating by mouse coordinates
+        return checkRestriction(transVec, R, N, Q, c, firstPos, oldPos); // Check if restrictions are fulfilled when translating by mouse coordinates
     }
 
 
-    /*
+
     private Point2D add1Restriction(double deltaX, double deltaY, int flag){
         // There exist 4 restrictions. Each restricting line / plane is of the form <x,n> = c.
         // R - directions of line, N - normal vector, c - coordinate
-        Point3D[] R = new Point3D[4], N = new Point3D[4]; // Save normal vectors and directions of restricting lines / planes
+        Point3D[] R = new Point3D[4], N = new Point3D[4], Q = new Point3D[4]; // Save normal vectors, directions and position vectors of restricting lines
         double[] c = new double[4]; // Save coordinates of the 4 restricting lines / planes
 
         Affine genMat = new Affine(1,0,0,0,0,1,0,0,0,0,1,0);
+        Point2D transVec = new Point2D(deltaX, deltaY);
         Transform gen = new Translate();
         for (int i = 0; i <= 1; i++){
-            R[i] = fDomain.getVertex3D(2, flag).subtract(fDomain.getEdgeCenter3D(2, flag));
-            R[i] = genMat.transform(R[i]);
-            N[i] = new Point3D(R[i].getY(), -R[i].getX(),0);
-            c[i] = N[i].dotProduct(fDomain.getVertex3D(2, flag));
+            R[2*i] = fDomain.getVertex3D(2, flag).subtract(fDomain.getEdgeCenter3D(2, flag));
+            R[2*i] = genMat.transform(R[2*i]);
+            N[2*i] = new Point3D(R[2*i].getY(), -R[2*i].getX(),0);
+            Q[2*i] = gen.transform(fDomain.getEdgeCenter3D(2, flag));
+            c[2*i] = N[2*i].dotProduct(fDomain.getVertex3D(2, flag));
 
             flag = ds.getS2(flag);
             if (fDomain.isBoundaryEdge(2, flag)) {
@@ -1278,10 +1287,11 @@ public class Tiling {
                 genMat = new Affine(gen.getMxx(), gen.getMxy(), gen.getMxz(), 0, gen.getMyx(), gen.getMyy(), gen.getMyz(), 0, gen.getMzx(), gen.getMzy(), gen.getMzz(), 0);
             }
 
-            R[i+1] = fDomain.getVertex3D(2, flag).subtract(fDomain.getEdgeCenter3D(2, flag));
-            R[i+1] = genMat.transform(R[i+1]);
-            N[i+1] = new Point3D(R[i+1].getY(), -R[i+1].getX(),0);
-            c[i+1] = N[i+1].dotProduct(fDomain.getVertex3D(2, flag));
+            R[2*i+1] = fDomain.getVertex3D(2, flag).subtract(fDomain.getEdgeCenter3D(2, flag));
+            R[2*i+1] = genMat.transform(R[2*i+1]);
+            N[2*i+1] = new Point3D(R[2*i+1].getY(), -R[2*i+1].getX(),0);
+            Q[2*i+1] = gen.transform(fDomain.getEdgeCenter3D(2, flag));
+            c[2*i+1] = N[2*i+1].dotProduct(fDomain.getVertex3D(2, flag));
 
             flag = ds.getS0(flag);
             if (fDomain.isBoundaryEdge(0, flag)) {
@@ -1290,16 +1300,21 @@ public class Tiling {
             }
         }
 
-        Point3D bpt = fDomain.getEdgeCenter3D(2, ds.getS0(flag));
+        Point3D apt = fDomain.getEdgeCenter3D(2, ds.getS0(flag));
         if (fDomain.isBoundaryEdge(0, flag)){
-            gen = generators.get(ds.getS0(flag))
+            gen = generators.get(0, ds.getS0(flag));
+            apt = gen.transform(apt);
         }
-    }*/
+
+        Point3D firstPos = apt.midpoint(fDomain.getEdgeCenter3D(2, flag));
+        Point3D oldPos = fDomain.getVertex3D(1, flag);
+
+        return checkRestriction(transVec, R, N, Q, c, firstPos, oldPos); // Check if restrictions are fulfilled when translating by mouse coordinates
+    }
 
 
         /**
          * Change direction of mouse movement for handle when restrictions are broken
-         * @param flag
          * @param transVec
          * @param R
          * @param N
@@ -1308,7 +1323,7 @@ public class Tiling {
          * @param oldPos
          * @return new direction
          */
-    private Point2D checkRestriction(int flag, Point2D transVec, Point3D[] R, Point3D[] N, double[] c, Point3D firstPos, Point3D oldPos) {
+    private Point2D checkRestriction(Point2D transVec, Point3D[] R, Point3D[] N, Point3D[] Q, double[] c, Point3D firstPos, Point3D oldPos) {
         // Change direction of translation if restrictions are broken
         Transform t = new Translate(transVec.getX(), transVec.getY()); // Original translation vector coming from mouse movement (in shapeHandler)
         Point3D newPos = t.transform(oldPos); // New position of handle
@@ -1325,12 +1340,7 @@ public class Tiling {
         while (counter <= 1000 && (checkRest[0] != restrictions[0] || checkRest[1] != restrictions[1] || checkRest[2] != restrictions[2] || checkRest[3] != restrictions[3])){
             for (int i = 0; i <= 3; i++){
                 if (checkRest[i] != restrictions[i]) {
-                    Point3D qp;
-                    if (i == 0 || i == 2) {
-                        qp = fDomain.getVertex3D(0, flag).subtract(newPos);
-                    } else {
-                        qp = fDomain.getVertex3D(1, flag).subtract(newPos);
-                    }
+                    Point3D qp = Q[i].subtract(newPos);
                     // b is the coefficient of the normal vector of restriction i
                     double b = (qp.getX() * R[i].getY() - qp.getY() * R[i].getX()) / (R[i].getX() * R[i].getX() + R[i].getY() * R[i].getY());
                     newPos = newPos.add(N[i].multiply(b)); // Move newPos onto the restricting line i
