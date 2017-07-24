@@ -1299,7 +1299,6 @@ public class Tiling {
                 genMat = new Affine(gen.getMxx(), gen.getMxy(), gen.getMxz(), 0, gen.getMyx(), gen.getMyy(), gen.getMyz(), 0, gen.getMzx(), gen.getMzy(), gen.getMzz(), 0);
             }
         }
-        System.out.println(R[3]);
 
         Point3D apt = fDomain.getEdgeCenter3D(2, ds.getS0(flag));
         if (fDomain.isBoundaryEdge(0, flag)){
