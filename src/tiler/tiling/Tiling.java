@@ -1279,7 +1279,7 @@ public class Tiling {
             R[2*i] = genMat.transform(R[2*i]);
             N[2*i] = new Point3D(R[2*i].getY(), -R[2*i].getX(),0);
             Q[2*i] = gen.transform(fDomain.getEdgeCenter3D(2, flag));
-            c[2*i] = N[2*i].dotProduct(fDomain.getVertex3D(2, flag));
+            c[2*i] = N[2*i].dotProduct(Q[2*i]);
 
             flag = ds.getS2(flag);
             if (fDomain.isBoundaryEdge(2, flag)) {
@@ -1291,7 +1291,7 @@ public class Tiling {
             R[2*i+1] = genMat.transform(R[2*i+1]);
             N[2*i+1] = new Point3D(R[2*i+1].getY(), -R[2*i+1].getX(),0);
             Q[2*i+1] = gen.transform(fDomain.getEdgeCenter3D(2, flag));
-            c[2*i+1] = N[2*i+1].dotProduct(fDomain.getVertex3D(2, flag));
+            c[2*i+1] = N[2*i+1].dotProduct(Q[2*i+1]);
 
             flag = ds.getS0(flag);
             if (fDomain.isBoundaryEdge(0, flag)) {
@@ -1299,6 +1299,7 @@ public class Tiling {
                 genMat = new Affine(gen.getMxx(), gen.getMxy(), gen.getMxz(), 0, gen.getMyx(), gen.getMyy(), gen.getMyz(), 0, gen.getMzx(), gen.getMzy(), gen.getMzz(), 0);
             }
         }
+        System.out.println(R[3]);
 
         Point3D apt = fDomain.getEdgeCenter3D(2, ds.getS0(flag));
         if (fDomain.isBoundaryEdge(0, flag)){
