@@ -1095,10 +1095,11 @@ public class Tiling {
         if (i <= 1) {
             // Add restriction
             int l = ds.computeOrbitLength(1 - i, 2, a);
-            transVector = addRestriction(transVector.getX(), transVector.getY(), l, i, a); // Todo: consider special cases (corners)
             if (i == 1){
                 transVector = add1Restriction(transVector.getX(), transVector.getY(), a);
             }
+            transVector = addRestriction(transVector.getX(), transVector.getY(), l, i, a); // Todo: consider special cases (corners)
+
             t = new Translate(transVector.getX(), transVector.getY());
 
             // Translate Point of type i in chamber a
@@ -1195,9 +1196,51 @@ public class Tiling {
                     flag = ds.getSi(2, flag);
                 }
             }
+
             // Change direction (deltaX, deltaY) to translation along mirror axis
             Point3D oldPos = fDomain.getVertex3D(type, flag);
             Point3D newPos = oldPos.add(new Point3D(deltaX, deltaY, 0));
+            /*
+            Point3D vertex2 = fDomain.getVertex3D(2, ds.getS2(flag));
+            if (fDomain.isBoundaryEdge(2, flag)){
+                Transform g = generators.get(2, ds.getS2(flag));
+                vertex2 = g.transform(vertex2);
+            }
+            Point3D firstPos = fDomain.getVertex3D(2, flag).midpoint(vertex2);
+            boolean[] restrictions = new boolean[2], checkRest = new boolean[2];
+            if (type == 1) {
+                restrictions[0] = compare(firstPos.dotProduct(r), fDomain.getVertex3D(2, flag).dotProduct(r));
+                restrictions[1] = compare(firstPos.dotProduct(r), vertex2.dotProduct(r));
+                checkRest[0] = compare(newPos.dotProduct(r), fDomain.getVertex3D(2, flag).dotProduct(r));
+                checkRest[1] = compare(newPos.dotProduct(r), vertex2.dotProduct(r));
+                if (checkRest[0] != restrictions[0]){
+                    newPos = fDomain.getVertex3D(2, flag);
+                }
+                else {
+                    if (checkRest[1] != restrictions[1]) {
+                        newPos = vertex2;
+                    } else {
+                        // While loop prevents from rounding errors
+                        int counter = 0;
+                        while (counter <= 50) {
+                            Point3D qp = q.subtract(newPos);
+                            double b = (qp.getY() * r.getX() - qp.getX() * r.getY()) / (r.getX() * r.getX() + r.getY() * r.getY());
+                            newPos = newPos.add(n.multiply(b));
+                            counter++;
+                        }
+                    }
+                }
+            }
+            else{
+                // While loop prevents from rounding errors
+                int counter = 0;
+                while (counter <= 50) {
+                    Point3D qp = q.subtract(newPos);
+                    double b = (qp.getY() * r.getX() - qp.getX() * r.getY()) / (r.getX() * r.getX() + r.getY() * r.getY());
+                    newPos = newPos.add(n.multiply(b));
+                    counter++;
+                }
+            }*/
 
             // While loop prevents from rounding errors
             int counter = 0;
@@ -1324,6 +1367,18 @@ public class Tiling {
          * @return new direction
          */
     private Point2D checkRestriction(Point2D transVec, Point3D[] R, Point3D[] N, Point3D[] Q, double[] c, Point3D firstPos, Point3D oldPos) {
+        // Make restricted area smaller
+        for (int i=0; i<=3; i++){
+            Point3D qpt = Q[i].add(N[i].multiply(0.00001));
+            if (compare(firstPos.dotProduct(N[i]), Q[i].dotProduct(N[i])) == compare(qpt.dotProduct(N[i]), Q[i].dotProduct(N[i]))){
+                Q[i] = qpt;
+            }
+            else{
+                Q[i] = Q[i].subtract(N[i].multiply(0.00001));
+            }
+            c[i] = Q[i].dotProduct(N[i]);
+        }
+
         // Change direction of translation if restrictions are broken
         Transform t = new Translate(transVec.getX(), transVec.getY()); // Original translation vector coming from mouse movement (in shapeHandler)
         Point3D newPos = t.transform(oldPos); // New position of handle
