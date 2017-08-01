@@ -1324,7 +1324,7 @@ public class Tiling {
         Affine genMat = new Affine(1,0,0,0,0,1,0,0,0,0,1,0);
         Point2D transVec = new Point2D(deltaX, deltaY);
         Transform gen = new Translate();
-        for (int i = 0; i <= 1; i++){
+        for (int i = 0; i <= length-1; i++){
             R[2*i] = fDomain.getVertex3D(2, flag).subtract(fDomain.getEdgeCenter3D(2, flag));
             R[2*i] = genMat.transform(R[2*i]);
             N[2*i] = new Point3D(R[2*i].getY(), -R[2*i].getX(),0);
@@ -1343,21 +1343,21 @@ public class Tiling {
             Q[2*i+1] = gen.transform(fDomain.getEdgeCenter3D(2, flag));
             c[2*i+1] = N[2*i+1].dotProduct(Q[2*i+1]);
 
-            flag = ds.getS0(flag);
-            if (fDomain.isBoundaryEdge(0, flag)) {
-                gen = gen.createConcatenation(generators.get(0, flag));
+            flag = ds.getS1(flag);
+            if (fDomain.isBoundaryEdge(1, flag)) {
+                gen = gen.createConcatenation(generators.get(1, flag));
                 genMat = new Affine(gen.getMxx(), gen.getMxy(), gen.getMxz(), 0, gen.getMyx(), gen.getMyy(), gen.getMyz(), 0, gen.getMzx(), gen.getMzy(), gen.getMzz(), 0);
             }
         }
 
         Point3D apt = fDomain.getEdgeCenter3D(2, ds.getS0(flag));
-        if (fDomain.isBoundaryEdge(0, flag)){
-            gen = generators.get(0, ds.getS0(flag));
+        if (fDomain.isBoundaryEdge(1, flag)){
+            gen = generators.get(1, ds.getS1(flag));
             apt = gen.transform(apt);
         }
 
         Point3D firstPos = apt.midpoint(fDomain.getEdgeCenter3D(2, flag));
-        Point3D oldPos = fDomain.getVertex3D(1, flag);
+        Point3D oldPos = fDomain.getVertex3D(0, flag);
 
         return checkRestriction(transVec, R, N, Q, c, firstPos, oldPos); // Check if restrictions are fulfilled when translating by mouse coordinates
     }
