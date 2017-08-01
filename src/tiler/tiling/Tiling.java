@@ -1367,6 +1367,17 @@ public class Tiling {
          * @return new direction
          */
     private Point2D checkRestriction(Point2D transVec, Point3D[] R, Point3D[] N, Point3D[] Q, double[] c, Point3D firstPos, Point3D oldPos) {
+
+
+        // Change direction of translation if restrictions are broken
+        Transform t = new Translate(transVec.getX(), transVec.getY()); // Original translation vector coming from mouse movement (in shapeHandler)
+        Point3D newPos = t.transform(oldPos); // New position of handle
+        boolean[] restrictions = new boolean[4];
+        boolean[] checkRest = new boolean[4];
+        for (int i = 0; i <= 3; i++){
+            restrictions[i] = compare(c[i], N[i].dotProduct(firstPos));  // Compute restrictions (firstPos fulfills all restrictions and is used to define all restrictions)
+        }
+
         // Make restricted area smaller
         for (int i=0; i<=3; i++){
             Point3D qpt = Q[i].add(N[i].multiply(0.00001));
@@ -1377,15 +1388,6 @@ public class Tiling {
                 Q[i] = Q[i].subtract(N[i].multiply(0.00001));
             }
             c[i] = Q[i].dotProduct(N[i]);
-        }
-
-        // Change direction of translation if restrictions are broken
-        Transform t = new Translate(transVec.getX(), transVec.getY()); // Original translation vector coming from mouse movement (in shapeHandler)
-        Point3D newPos = t.transform(oldPos); // New position of handle
-        boolean[] restrictions = new boolean[4];
-        boolean[] checkRest = new boolean[4];
-        for (int i = 0; i <= 3; i++){
-            restrictions[i] = compare(c[i], N[i].dotProduct(firstPos));  // Compute restrictions (firstPos fulfills all restrictions and is used to define all restrictions)
             checkRest[i] = compare(c[i], N[i].dotProduct(newPos)); // Compute restrictions for newPos
         }
 
