@@ -1095,10 +1095,15 @@ public class Tiling {
         if (i <= 1) {
             int l = ds.computeOrbitLength(1 - i, 2, a);
             // Add restrictions:
-            transVector = addMirrorRestriction(transVector.getX(), transVector.getY(), l, i, a); // Mirror axis restriction
             if (i == 1){
                 transVector = add1Restriction(transVector.getX(), transVector.getY(), a); // Restrictions for 1-handles
             }
+            else{
+                transVector = add0Restriction(transVector.getX(), transVector.getY(), a, l); // Restrictions for 0-handles
+            }
+
+            transVector = addMirrorRestriction(transVector.getX(), transVector.getY(), l, i, a); // Mirror axis restriction
+
 
             t = new Translate(transVector.getX(), transVector.getY());
 
@@ -1318,8 +1323,8 @@ public class Tiling {
         // There exist length restrictions. Each restricting line / plane is of the form <x,n> = c.
         // R - directions of line, N - normal vector, c - coordinate
 
-        Point3D[] R = new Point3D[length], N = new Point3D[length], Q = new Point3D[length]; // Save normal vectors, directions and position vectors of restricting lines
-        double[] c = new double[length]; // Save coordinates of the 4 restricting lines / planes
+        Point3D[] R = new Point3D[2*length], N = new Point3D[2*length], Q = new Point3D[2*length]; // Save normal vectors, directions and position vectors of restricting lines
+        double[] c = new double[2*length]; // Save coordinates of the 4 restricting lines / planes
 
         Affine genMat = new Affine(1,0,0,0,0,1,0,0,0,0,1,0);
         Point2D transVec = new Point2D(deltaX, deltaY);
@@ -1359,7 +1364,7 @@ public class Tiling {
         Point3D firstPos = apt.midpoint(fDomain.getEdgeCenter3D(2, flag));
         Point3D oldPos = fDomain.getVertex3D(0, flag);
 
-        return checkRestriction(transVec, R, N, Q, c, firstPos, oldPos); // Check if restrictions are fulfilled when translating by mouse coordinates
+        return checkRestriction(transVec, R, N, Q, c, oldPos, oldPos); // Check if restrictions are fulfilled when translating by mouse coordinates
     }
 
 
