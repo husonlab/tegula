@@ -250,7 +250,7 @@ public class FundamentalDomain {
 		}
 
 		// Add lines
-		if (false) {
+		if (true) {
 			// Lines for barycentric subdivision of chambers:
 			/*
 			 * for (int a = 1; a <= fDomain.size(); a++) {

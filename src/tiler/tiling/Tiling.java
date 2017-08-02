@@ -1035,7 +1035,7 @@ public class Tiling {
             for (int k = 1; k <= m; k++) {
                 v = fDomain.getVertex3D(1-i, a);
                 // Add handles if v is no symmetry centre
-                if (ds.getVij(i, 2, a) == 1) {
+                if ((ds.getVij(1, 2, a) == 1 && i == 1) || (ds.getVij(0, 2, a) == 1 && i == 0 && a != ds.getS2(a))) {
                     Handle handle = new Handle();
                     Circle circle = new Circle(4);
                     circle.setTranslateX(v.getX());
