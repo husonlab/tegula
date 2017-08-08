@@ -75,11 +75,10 @@ public class FundamentalDomain {
 
 			if (geom == Geometry.Spherical) {
 
-				int depth = 4; // mehr als 5 nicht sinnvoll..... 4^5 = 2^10 =
-								// 1024 faces
+				//Spherical
+				int depth = 4; // 4^5 = 1024
 
 				fac = new int[(int) Math.pow(4, (depth + 1)) * 6];
-				// fac = new int[4*6];
 				points3d = new Point3D[1026]; // 3, 6, 66, 258, 1026
 
 				WrapInt p = new WrapInt(0);
@@ -87,10 +86,10 @@ public class FundamentalDomain {
 
 				// be careful, as changing the order of the numbers is crucial
 				points3d[p.incrementInt()] = fDomain.getVertex3D(0, a);
-				points3d[p.incrementInt()] = fDomain.getVertex3D(2, a);
 				points3d[p.incrementInt()] = fDomain.getVertex3D(1, a);
-				points3d[p.incrementInt()] = fDomain.getEdgeCenter3D(1, a);
+				points3d[p.incrementInt()] = fDomain.getVertex3D(2, a);
 				points3d[p.incrementInt()] = fDomain.getEdgeCenter3D(0, a);
+				points3d[p.incrementInt()] = fDomain.getEdgeCenter3D(1, a);
 				points3d[p.incrementInt()] = fDomain.getEdgeCenter3D(2, a);
 
 				class triangle {
@@ -102,9 +101,8 @@ public class FundamentalDomain {
 					private triangle tri2;
 					private triangle tri3;
 					private triangle tri4;
+					
 
-					// scheint orientierung zu verdrehen? 0/1/2 test? ziel-->
-					// 0/1/2 und uhrzeigereingabe
 					triangle(boolean orientationUp, int pointA, int pointB, int pointC, int depth) {
 						this.orientationUp = orientationUp;
 						this.pointA = pointA;
@@ -137,19 +135,15 @@ public class FundamentalDomain {
 							fac[facPos + 3] = 1;
 							fac[facPos + 4] = pointC;
 							fac[facPos + 5] = 2;
-							// System.out.println("A: " + pointA +" B: " +
-							// pointB + " C: " + pointC);
 						}
 					}
 				}
 
-				// no uses the given edge-midpoints!
-
-				// be careful, as the order of the numbers is crucial
-				new triangle(true, 0, 3, 5, depth);
-				new triangle(true, 5, 4, 2, depth);
-				new triangle(true, 3, 1, 4, depth);
-				new triangle(false, 3, 4, 5, depth);
+				// glockwise orientation -> the order of the numbers is crucial
+				new triangle(true, 0, 4, 5, depth);
+				new triangle(true, 5, 3, 1, depth);
+				new triangle(true, 4, 2, 3, depth);
+				new triangle(false, 4, 3, 5, depth);
 
 			} else if (geom == Geometry.Euclidean) {
 
@@ -180,7 +174,6 @@ public class FundamentalDomain {
 			} else {
 
 				// hyperbolic
-
 				points3d = new Point3D[13];
 
 				int p = 0;
@@ -250,7 +243,7 @@ public class FundamentalDomain {
 		}
 
 		// Add lines
-		if (false) {
+		if (true) {
 			// Lines for barycentric subdivision of chambers:
 			/*
 			 * for (int a = 1; a <= fDomain.size(); a++) {
