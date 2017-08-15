@@ -79,12 +79,11 @@ public class FundamentalDomain {
 				int depth = 4; // 4^5 = 1024
 
 				fac = new int[(int) Math.pow(4, (depth + 1)) * 6];
-				points3d = new Point3D[1026]; // 3, 6, 66, 258, 1026
+				points3d = new Point3D[1026]; // 3, 6, 66, 258, 1026 // size of points array dependent on depth
 
 				WrapInt p = new WrapInt(0);
 				WrapInt f = new WrapInt(0);
 
-				// be careful, as changing the order of the numbers is crucial
 				points3d[p.incrementInt()] = fDomain.getVertex3D(0, a);
 				points3d[p.incrementInt()] = fDomain.getVertex3D(1, a);
 				points3d[p.incrementInt()] = fDomain.getVertex3D(2, a);
@@ -92,6 +91,8 @@ public class FundamentalDomain {
 				points3d[p.incrementInt()] = fDomain.getEdgeCenter3D(1, a);
 				points3d[p.incrementInt()] = fDomain.getEdgeCenter3D(2, a);
 
+				
+				// iterative triangle mesh generator
 				class triangle {
 
 					private boolean orientationUp;
@@ -139,7 +140,7 @@ public class FundamentalDomain {
 					}
 				}
 
-				// glockwise orientation -> the order of the numbers is crucial
+				// glockwise orientation
 				new triangle(true, 0, 4, 5, depth);
 				new triangle(true, 5, 3, 1, depth);
 				new triangle(true, 4, 2, 3, depth);
@@ -441,7 +442,7 @@ public class FundamentalDomain {
 		return group;
 	}
 
-	////// Hilfsfunktionen
+	// additional functions
 
 	private static int[] invertOrientation(int[] arr) {
 		int[] invArr = Arrays.copyOf(arr, arr.length);

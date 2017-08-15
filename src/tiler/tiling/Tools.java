@@ -52,7 +52,14 @@ public class Tools {
 		}
 	}
 	
-
+	/**
+	 * Calculates interpolated point with respect to 0 <= pos <= 1 between points a and b on 3d-hyperboloid.
+	 * 
+	 * @param a
+	 * @param b
+	 * @param pos
+	 * @return midpoint between a and b
+	 */
 	public static Point3D interpolateHyperbolicPoints(Point3D a, Point3D b, double pos) {
 
 		Point3D point1 = a.multiply(0.01);
@@ -102,6 +109,16 @@ public class Tools {
 		return rotateToXInv.transform(translate1Inv.transform(rotat2.transform(translate2.transform(ursprung)))).multiply(100);
 	}
 
+	
+	
+	/**
+	 * Calculates interpolated point with respect to 0 <= pos <= 1 between points a and b on 3d-sphere.
+	 * 
+	 * @param a
+	 * @param b
+	 * @param pos
+	 * @return midpoint between a and b
+	 */
 	public static Point3D interpolateSpherePoints(Point3D pointA, Point3D pointB, double pos) {
 		Point3D xAxis = new Point3D(100, 0, 0);
 		Point3D yAxis = new Point3D(0, 100, 0);
