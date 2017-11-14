@@ -149,15 +149,33 @@ public class FundamentalDomain {
 			} else if (geom == Geometry.Euclidean) {
 
 				// Euclidean
+				double dist = 10;
 				points3d = new Point3D[7];
 
 				int p = 0;
 
 				for (int i = 0; i <= 2; i++) {
-					points3d[p++] = fDomain.getVertex3D(i, a);
+					if (i != 2){
+						Point3D v1 = fDomain.getEdgeCenter3D(2, a).subtract(fDomain.getVertex3D(i, a));
+						Point3D v2 = fDomain.getVertex3D(2, a).subtract(fDomain.getVertex3D(i, a));
+						double phi = Math.toRadians(v1.angle(v2));
+						double t = dist*Math.sin(phi);
+						Point3D newVertex = v2.normalize().multiply(t).add(fDomain.getVertex3D(i, a));
+						points3d[p++] = newVertex;
+					}
+					else {
+						points3d[p++] = fDomain.getVertex3D(i, a);
+					}
 				}
 				for (int i = 0; i <= 2; i++) {
-					points3d[p++] = fDomain.getEdgeCenter3D(i, a);
+					if (i == 2){
+						Point3D v = fDomain.getVertex3D(2, a).subtract(fDomain.getEdgeCenter3D(2, a));
+						Point3D newVertex = v.normalize().multiply(dist).add(fDomain.getEdgeCenter3D(2, a));
+						points3d[p++] = newVertex;
+					}
+					else {
+						points3d[p++] = fDomain.getEdgeCenter3D(i, a);
+					}
 				}
 				points3d[p++] = fDomain.getChamberCenter3D(a);
 
