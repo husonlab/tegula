@@ -52,15 +52,18 @@ public class Tools {
 		}
 	}
 	
-	//TODO wo errorts bei den Funktionen???? (0,0,x) etc.
-
+	/**
+	 * Calculates interpolated point with respect to 0 <= pos <= 1 between points a and b on 3d-hyperboloid.
+	 * 
+	 * @param a
+	 * @param b
+	 * @param pos
+	 * @return midpoint between a and b
+	 */
 	public static Point3D interpolateHyperbolicPoints(Point3D a, Point3D b, double pos) {
-		// TODO Refactoren: Namen etc.
-		// die Distanzen werden hier mometan nur uber den Z-Wert berechnet
 
 		Point3D point1 = a.multiply(0.01);
 		Point3D point2 = b.multiply(0.01);
-
 		Point3D xAxis = new Point3D(1, 0, 0);
 		Point3D ursprung = new Point3D(0, 0, 1);
 
@@ -73,14 +76,18 @@ public class Tools {
 			rotAxis = new Point3D(0, 0, 1);
 
 		Rotate rotateToX = new Rotate(rotAngle, rotAxis);
-		Rotate rotateToOr = new Rotate(-rotAngle, rotAxis);
+		Rotate rotateToXInv = new Rotate(-rotAngle, rotAxis);
+		
+		///////
 
 		double dist = Math.log(Math.abs(point1.getZ() + Math.sqrt(Math.abs(point1.getZ() * point1.getZ() - 1))));
 
 		Affine translate1 = new Affine(Math.cosh(-dist), 0, Math.sinh(-dist), 0, 0, 1, 0, 0, Math.sinh(-dist), 0,
 				Math.cosh(-dist), 0);
-		Affine translate1inv = new Affine(Math.cosh(dist), 0, Math.sinh(dist), 0, 0, 1, 0, 0, Math.sinh(dist), 0,
+		Affine translate1Inv = new Affine(Math.cosh(dist), 0, Math.sinh(dist), 0, 0, 1, 0, 0, Math.sinh(dist), 0,
 				Math.cosh(dist), 0);
+		
+		///////
 
 		Point3D p2moved = translate1.transform(rotateToX.transform(point2));
 
@@ -90,17 +97,28 @@ public class Tools {
 		else
 			rotAxis = new Point3D(0, 0, 1);
 
-		Rotate rotat2 = new Rotate(-rotAngle, rotAxis);
+		Rotate rotat2 = new Rotate(-rotAngle, rotAxis); //only inverse is needed
+		
+		///////
 
 		dist = pos * Math.log(Math.abs(p2moved.getZ() + Math.sqrt(Math.abs(p2moved.getZ() * p2moved.getZ() - 1))));
 
 		Affine translate2 = new Affine(Math.cosh(dist), 0, Math.sinh(dist), 0, 0, 1, 0, 0, Math.sinh(dist), 0,
 				Math.cosh(dist), 0);
 
-		return rotateToOr.transform(translate1inv.transform(rotat2.transform(translate2.transform(ursprung))))
-				.multiply(100);
+		return rotateToXInv.transform(translate1Inv.transform(rotat2.transform(translate2.transform(ursprung)))).multiply(100);
 	}
 
+	
+	
+	/**
+	 * Calculates interpolated point with respect to 0 <= pos <= 1 between points a and b on 3d-sphere.
+	 * 
+	 * @param a
+	 * @param b
+	 * @param pos
+	 * @return midpoint between a and b
+	 */
 	public static Point3D interpolateSpherePoints(Point3D pointA, Point3D pointB, double pos) {
 		Point3D xAxis = new Point3D(100, 0, 0);
 		Point3D yAxis = new Point3D(0, 100, 0);
@@ -115,7 +133,9 @@ public class Tools {
 			rotAxis = zAxis;
 
 		Rotate rotateToX = new Rotate(rotAngle1, rotAxis);
-		Rotate rotateToOrX = new Rotate(-rotAngle1, rotAxis);
+		Rotate rotateToXInv = new Rotate(-rotAngle1, rotAxis);
+		
+		////////
 
 		double rotAngle2 = zAxis.angle(rotateToX.transform(pointA).getX(), 0, pointA.getZ());
 
@@ -125,29 +145,33 @@ public class Tools {
 			rotAxis = yAxis;
 
 		Rotate rotateToZ = new Rotate(rotAngle2, rotAxis);
-		Rotate rotateToOrZ = new Rotate(-rotAngle2, rotAxis);
+		Rotate rotateToZInv = new Rotate(-rotAngle2, rotAxis);
 
-		Point3D lol = rotateToZ.transform(rotateToX.transform(pointB));
+		////////
+		
+		Point3D bNew = rotateToZ.transform(rotateToX.transform(pointB));
 
-		double rotAngle3 = xAxis.angle(new Point3D(lol.getX(), lol.getY(), 0));
-		if (lol.getY() >= 0)
+		double rotAngle3 = xAxis.angle(new Point3D(bNew.getX(), bNew.getY(), 0));
+		if (bNew.getY() >= 0)
 			rotAxis = zAxis.multiply(-1);
 		else
 			rotAxis = zAxis;
 
-		Rotate rotLol = new Rotate(rotAngle3, rotAxis);
-		Rotate rotLolB = new Rotate(-rotAngle3, rotAxis);
+		Rotate rotBNew = new Rotate(rotAngle3, rotAxis);  
+		Rotate rotBNewInv = new Rotate(-rotAngle3, rotAxis);
+		
+		////////
 
-		double rotAngle4 = zAxis.angle(rotLol.transform(lol).getX(), 0, lol.getZ());
+		double rotAngle4 = zAxis.angle(rotBNew.transform(bNew).getX(), 0, bNew.getZ());
 
-		if (rotLol.transform(lol).getX() >= 0)
+		if (rotBNew.transform(bNew).getX() >= 0)
 			rotAxis = yAxis.multiply(-1);
 		else
 			rotAxis = yAxis;
 
-		Rotate beginInt = new Rotate(-pos * rotAngle4, rotAxis);
+		Rotate rotInterpolate = new Rotate(-pos * rotAngle4, rotAxis); 
 
-		return rotateToOrX.transform(rotateToOrZ.transform(rotLolB.transform(beginInt.transform(zAxis))));
+		return rotateToXInv.transform(rotateToZInv.transform(rotBNewInv.transform(rotInterpolate.transform(zAxis))));
 	}
 
 	/**
