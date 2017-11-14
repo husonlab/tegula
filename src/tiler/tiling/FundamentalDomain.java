@@ -149,7 +149,7 @@ public class FundamentalDomain {
 			} else if (geom == Geometry.Euclidean) {
 
 				// Euclidean
-				double dist = 5;
+				double dist = 2;
 				points3d = new Point3D[7];
 
 				int p = 0;
@@ -159,7 +159,7 @@ public class FundamentalDomain {
 						Point3D v1 = fDomain.getEdgeCenter3D(2, a).subtract(fDomain.getVertex3D(i, a));
 						Point3D v2 = fDomain.getVertex3D(2, a).subtract(fDomain.getVertex3D(i, a));
 						double phi = Math.toRadians(v1.angle(v2));
-						double t = dist*Math.sin(phi);
+						double t = dist/Math.sin(phi);
 						Point3D newVertex = v2.normalize().multiply(t).add(fDomain.getVertex3D(i, a));
 						points3d[p++] = newVertex;
 					}
