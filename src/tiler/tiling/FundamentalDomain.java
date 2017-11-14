@@ -149,7 +149,7 @@ public class FundamentalDomain {
 			} else if (geom == Geometry.Euclidean) {
 
 				// Euclidean
-				double dist = 10;
+				double dist = 5;
 				points3d = new Point3D[7];
 
 				int p = 0;
