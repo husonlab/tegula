@@ -319,10 +319,6 @@ public class Document {
         if (tiling.getGeometry() != Geometry.Spherical) {
             getWorld().getChildren().add(ambientLight);
         }
-        else{
-            pointLight.setTranslateZ(-7000);
-            getWorld().getChildren().add(pointLight);
-        }
         if (controller.getCbShowLines().isSelected()){
             removeLinesFromFDomain();
             addLinesToFDomain();

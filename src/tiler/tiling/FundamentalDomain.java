@@ -92,7 +92,7 @@ public class FundamentalDomain {
 				points3d[p.incrementInt()] = fDomain.getEdgeCenter3D(2, a);
 
 				
-				// iterative triangle mesh generator
+				// Iterative triangle mesh generator
 				class triangle {
 
 					private boolean orientationUp;
@@ -140,7 +140,7 @@ public class FundamentalDomain {
 					}
 				}
 
-				// glockwise orientation
+				// clockwise orientation
 				new triangle(true, 0, 4, 5, depth);
 				new triangle(true, 5, 3, 1, depth);
 				new triangle(true, 4, 2, 3, depth);
@@ -148,7 +148,7 @@ public class FundamentalDomain {
 
 			} else if (geom == Geometry.Euclidean) {
 
-				// euclidian
+				// Euclidean
 				points3d = new Point3D[7];
 
 				int p = 0;
@@ -162,12 +162,13 @@ public class FundamentalDomain {
 				points3d[p++] = fDomain.getChamberCenter3D(a);
 
 				/// original mesh structure
-				int[] original = new int[] { 0, 0, 6, 1, 5, 2, // v0 cc e2
+				int[] original = new int[] {
+						0, 0, 6, 1, 5, 2, // v0 cc e2
 						1, 0, 5, 1, 6, 2, // v1 e2 cc
 						1, 0, 6, 1, 3, 2, // v1 cc e0
 						2, 0, 3, 0, 6, 2, // v2 e0 cc
 						2, 0, 6, 1, 4, 2, // v2 cc e1
-						0, 0, 4, 1, 6, 2 // v0 e1 cc
+						0, 0, 4, 1, 6, 2 //  v0 e1 cc
 				};
 
 				fac = original;
@@ -244,7 +245,7 @@ public class FundamentalDomain {
 		}
 
 		// Add lines
-		if (true) {
+		if (false) {
 			// Lines for barycentric subdivision of chambers:
 			/*
 			 * for (int a = 1; a <= fDomain.size(); a++) {
