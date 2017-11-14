@@ -61,7 +61,8 @@ public class Document {
     private final Group world;
     private final Controller controller;
     private PerspectiveCamera camera;
-    private AmbientLight light = new AmbientLight();
+    private AmbientLight ambientLight = new AmbientLight();
+    private PointLight pointLight = new PointLight();
 
     private boolean camPoincare = true; // Variable saving camera settings
 
@@ -315,8 +316,12 @@ public class Document {
         // Build up world
         getWorld().getChildren().clear();
         getWorld().getChildren().addAll(tiles, rect, range, test, test2);
-        if (tiling.getGeometry() == Geometry.Hyperbolic) {
-            getWorld().getChildren().add(light);
+        if (tiling.getGeometry() != Geometry.Spherical) {
+            getWorld().getChildren().add(ambientLight);
+        }
+        else{
+            pointLight.setTranslateZ(-7000);
+            getWorld().getChildren().add(pointLight);
         }
         if (controller.getCbShowLines().isSelected()){
             removeLinesFromFDomain();

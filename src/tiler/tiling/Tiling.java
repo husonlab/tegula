@@ -407,6 +407,10 @@ public class Tiling {
      * @return tiles
      */
     public Group createTilingSpherical(double tol) {
+        //Add handles
+        handles.getChildren().clear();
+        //addHandles(doc);
+
         final Group group = new Group();
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
         group.getChildren().addAll(fund);
@@ -467,6 +471,10 @@ public class Tiling {
 
         //Add all generators
         computeConstraintsAndGenerators();
+
+        //Add handles
+        handles.getChildren().clear();
+        //addHandles(doc);
 
         refPointHyperbolic = fDomain.getChamberCenter3D(Document.getChamberIndex()).multiply(0.01);
         final OctTree seen = new OctTree();
@@ -570,7 +578,6 @@ public class Tiling {
 
         //Calculation of point of reference:
         refPointEuclidean = fDomain.getChamberCenter3D(Document.getChamberIndex()); // Reference point of actual fundamental domain
-
 
         final Group group = new Group();
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain); // Build fundamental domain
@@ -1004,12 +1011,11 @@ public class Tiling {
         }
     }
 
-
     /**
-     * Add handles to change shape
+     * Straighten 0- and 1- edges
      */
-    private void addHandles(Document doc) {
-        // Straighten 0- and 1-vertices
+    private void straighten01Edges(){
+        // Straighten 0- and 1-edges
         for (int a = 1; a <= fDomain.size(); a++){
             // Midpoint between 1- and 2-vertex = new 0-edge center
             Point3D pt3d = (fDomain.getVertex3D(1, a).add(fDomain.getVertex3D(2, a))).multiply(0.5);
@@ -1025,6 +1031,15 @@ public class Tiling {
             pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt3d);
             fDomain.setChamberCenter(pt2d, a);
         }
+    }
+
+
+    /**
+     * Add handles to change shape
+     */
+    private void addHandles(Document doc) {
+        // Straighten 0- and 1-edges
+        straighten01Edges();
 
         // Compute handles for 0- and 1-vertices
         for (int i = 0; i <= 1; i++) {
@@ -1149,6 +1164,8 @@ public class Tiling {
                 fDomain.setEdgeCenter(pt2d, 2, ds.getS2(a));
             }
         }
+        // Straighten 0- and 1-edges
+        straighten01Edges();
         return transVector;
     }
 
@@ -1361,7 +1378,6 @@ public class Tiling {
             apt = gen.transform(apt);
         }
 
-        Point3D firstPos = apt.midpoint(fDomain.getEdgeCenter3D(2, flag));
         Point3D oldPos = fDomain.getVertex3D(0, flag);
 
         return checkRestriction(transVec, R, N, Q, c, oldPos, oldPos); // Check if restrictions are fulfilled when translating by mouse coordinates

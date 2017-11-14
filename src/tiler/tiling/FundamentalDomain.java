@@ -312,8 +312,6 @@ public class FundamentalDomain {
 				width = 0.5;
 			}
 
-			System.out.println("Width: " + width);
-
 			// Edges of Tiling:
 			Point3D v0, e2, v1;
 			int m = fDomain.size();
