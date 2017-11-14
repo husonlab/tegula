@@ -309,7 +309,6 @@ public class Document {
             controller.getIncreaseButton().setVisible(true);
             controller.getDecreaseButton().setVisible(true);
             controller.getCBPullFDomain().setVisible(true);
-            //gggg
         }
 
         setUseDepthBuffer(!tiling.getGeometry().equals(Geometry.Euclidean));
