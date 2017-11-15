@@ -149,7 +149,7 @@ public class FundamentalDomain {
 			} else if (geom == Geometry.Euclidean) {
 
 				// Euclidean
-				double dist = 2;
+				double dist = 5;
 				points3d = new Point3D[7];
 
 				int p = 0;
@@ -169,9 +169,23 @@ public class FundamentalDomain {
 				}
 				for (int i = 0; i <= 2; i++) {
 					if (i == 2){
-						Point3D v = fDomain.getVertex3D(2, a).subtract(fDomain.getEdgeCenter3D(2, a));
-						Point3D newVertex = v.normalize().multiply(dist).add(fDomain.getEdgeCenter3D(2, a));
-						points3d[p++] = newVertex;
+						Point3D v = fDomain.getEdgeCenter3D(2, a).subtract(fDomain.getVertex3D(0, a));
+						Point3D w = fDomain.getEdgeCenter3D(2, a).subtract(fDomain.getVertex3D(1, a));
+						double alpha = 0.5*Math.toRadians(v.angle(w));
+						System.out.println(alpha);
+						double t = dist/Math.sin(alpha);
+						Point3D dir = v.normalize().add(w.normalize());
+						if (dir.getX() == 0 && dir.getY() == 0){
+							dir = fDomain.getVertex3D(0, a).subtract(fDomain.getVertex3D(0, a));
+						}
+						//Point3D dir = (new Point3D(Math.cos(alpha),Math.sin(alpha),0).multiply(v.getX())).add(new Point3D(-Math.sin(alpha),Math.cos(alpha),0).multiply(v.getY()));
+						Point3D check = fDomain.getVertex3D(2, a).subtract(fDomain.getEdgeCenter3D(2, a));
+						double checkAngle = Math.toRadians(dir.angle(check));
+						if (Math.cos(checkAngle) < 0){
+							t = -t;
+						}
+						Point3D newEdge = dir.normalize().multiply(t).add(fDomain.getEdgeCenter3D(2, a));
+						points3d[p++] = newEdge;
 					}
 					else {
 						points3d[p++] = fDomain.getEdgeCenter3D(i, a);
