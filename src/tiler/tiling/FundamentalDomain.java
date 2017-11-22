@@ -183,7 +183,7 @@ public class FundamentalDomain {
 				}
 				Point3D newEdge = dir.normalize().multiply(t).add(fDomain.getEdgeCenter3D(2, a));
 				points3d[p++] = newEdge;
-
+				
 				/*for (int i = 0; i <= 2; i++) {
 					points3d[p++] = fDomain.getEdgeCenter3D(i, a);
 				}
