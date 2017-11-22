@@ -150,10 +150,9 @@ public class FundamentalDomain {
 
 				// Euclidean
 				double dist = 2.5;
-				points3d = new Point3D[7];
+				points3d = new Point3D[4];
 
 				int p = 0;
-
 				for (int i = 0; i <= 2; i++) {
 					if (i != 2){
 						Point3D v1 = fDomain.getEdgeCenter3D(2, a).subtract(fDomain.getVertex3D(i, a));
@@ -167,28 +166,26 @@ public class FundamentalDomain {
 						points3d[p++] = fDomain.getVertex3D(i, a);
 					}
 				}
-				for (int i = 0; i <= 2; i++) {
-					if (i == 2){
-						Point3D v = fDomain.getEdgeCenter3D(2, a).subtract(fDomain.getVertex3D(0, a));
-						Point3D w = fDomain.getEdgeCenter3D(2, a).subtract(fDomain.getVertex3D(1, a));
-						double alpha = 0.5*Math.toRadians(v.angle(w));
-						double t = dist/Math.sin(alpha);
-						Point3D dir = v.normalize().add(w.normalize());
-						if (dir.getX() == 0 && dir.getY() == 0){
-							dir = fDomain.getVertex3D(0, a).subtract(fDomain.getVertex3D(0, a));
-						}
-						//Point3D dir = (new Point3D(Math.cos(alpha),Math.sin(alpha),0).multiply(v.getX())).add(new Point3D(-Math.sin(alpha),Math.cos(alpha),0).multiply(v.getY()));
-						Point3D check = fDomain.getVertex3D(2, a).subtract(fDomain.getEdgeCenter3D(2, a));
-						double checkAngle = Math.toRadians(dir.angle(check));
-						if (Math.cos(checkAngle) < 0){
-							t = -t;
-						}
-						Point3D newEdge = dir.normalize().multiply(t).add(fDomain.getEdgeCenter3D(2, a));
-						points3d[p++] = newEdge;
-					}
-					else {
-						points3d[p++] = fDomain.getEdgeCenter3D(i, a);
-					}
+
+				Point3D v = fDomain.getEdgeCenter3D(2, a).subtract(fDomain.getVertex3D(0, a));
+				Point3D w = fDomain.getEdgeCenter3D(2, a).subtract(fDomain.getVertex3D(1, a));
+				double alpha = 0.5*Math.toRadians(v.angle(w));
+				double t = dist/Math.sin(alpha);
+				Point3D dir = v.normalize().add(w.normalize());
+				if (dir.getX() == 0 && dir.getY() == 0){
+					dir = fDomain.getVertex3D(0, a).subtract(fDomain.getVertex3D(0, a));
+				}
+				//Point3D dir = (new Point3D(Math.cos(alpha),Math.sin(alpha),0).multiply(v.getX())).add(new Point3D(-Math.sin(alpha),Math.cos(alpha),0).multiply(v.getY()));
+				Point3D check = fDomain.getVertex3D(2, a).subtract(fDomain.getEdgeCenter3D(2, a));
+				double checkAngle = Math.toRadians(dir.angle(check));
+				if (Math.cos(checkAngle) < 0){
+					t = -t;
+				}
+				Point3D newEdge = dir.normalize().multiply(t).add(fDomain.getEdgeCenter3D(2, a));
+				points3d[p++] = newEdge;
+
+				/*for (int i = 0; i <= 2; i++) {
+					points3d[p++] = fDomain.getEdgeCenter3D(i, a);
 				}
 				points3d[p++] = fDomain.getChamberCenter3D(a);
 
@@ -200,6 +197,11 @@ public class FundamentalDomain {
 						2, 0, 3, 0, 6, 2, // v2 e0 cc
 						2, 0, 6, 1, 4, 2, // v2 cc e1
 						0, 0, 4, 1, 6, 2 //  v0 e1 cc
+				};*/
+
+				int[] original = new int[]{
+						0, 0, 2, 1, 3, 2, //v0 v2 e2
+						2, 0, 1, 1, 3, 2  //v2 v1 e2
 				};
 
 				fac = original;
@@ -339,20 +341,95 @@ public class FundamentalDomain {
 			}
 
 			// Edges of Tiling:
+			Point3D[] points3d;
 			Point3D v0, e2, v1;
 			int m = fDomain.size();
-			BitSet visited = new BitSet(m); // ??
+			BitSet visited = new BitSet(m); //
 			int a = 1;
-			// Fallunterscheidung neeeds some serious refactoring
+			// Fallunterscheidung needs some serious refactoring
 			if (geom == Geometry.Euclidean) {
 				while (a <= m) {
 					if (!visited.get(a)) {
-						v0 = fDomain.getVertex3D(0, a);
-						e2 = fDomain.getEdgeCenter3D(2, a);
-						v1 = fDomain.getVertex3D(1, a);
-						group.getChildren().add(Cylinderline.createConnection(v0, e2, Color.BLACK, width));
-						group.getChildren().add(Cylinderline.createConnection(e2, v1, Color.BLACK, width));
-						visited.set(dsymbol.getS2(a));
+
+						double dist = 2.5;
+						points3d = new Point3D[9];
+
+						int p = 0;
+						points3d[p++] = fDomain.getVertex3D(0, a);
+						points3d[p++] = fDomain.getVertex3D(1,a);
+						points3d[p++] = fDomain.getEdgeCenter3D(2, a);
+
+						for (int j = 0; j <= 1; j++) {
+							if (j == 1){
+								a = dsymbol.getS2(a);
+							}
+							for (int i = 0; i <= 1; i++) {
+								Point3D v = fDomain.getEdgeCenter3D(2, a).subtract(fDomain.getVertex3D(i, a));
+								Point3D w = fDomain.getVertex3D(2, a).subtract(fDomain.getVertex3D(i, a));
+								double phi = Math.toRadians(v.angle(w));
+								double t = dist / Math.sin(phi);
+								Point3D newVertex = w.normalize().multiply(t).add(fDomain.getVertex3D(i, a));
+								points3d[p++] = newVertex;
+							}
+
+							Point3D v = fDomain.getEdgeCenter3D(2, a).subtract(fDomain.getVertex3D(0, a));
+							Point3D w = fDomain.getEdgeCenter3D(2, a).subtract(fDomain.getVertex3D(1, a));
+							double alpha = 0.5 * Math.toRadians(v.angle(w));
+							double t = dist / Math.sin(alpha);
+							Point3D dir = v.normalize().add(w.normalize());
+							if (dir.getX() == 0 && dir.getY() == 0) {
+								dir = fDomain.getVertex3D(0, a).subtract(fDomain.getVertex3D(0, a));
+							}
+							Point3D check = fDomain.getVertex3D(2, a).subtract(fDomain.getEdgeCenter3D(2, a));
+							double checkAngle = Math.toRadians(dir.angle(check));
+							if (Math.cos(checkAngle) < 0) {
+								t = -t;
+							}
+							Point3D newEdge = dir.normalize().multiply(t).add(fDomain.getEdgeCenter3D(2, a));
+							points3d[p++] = newEdge;
+						}
+
+						int[] line = new int[] {
+								0, 0, 3, 1, 2, 2,
+								2, 0, 3, 1, 5, 2,
+								2, 0, 5, 1, 4, 2,
+								2, 0, 4, 1, 1, 2,
+								0, 0, 2, 1, 6, 2,
+								6, 0, 2, 1, 8, 2,
+								2, 0, 7, 1, 8, 2,
+								2, 0, 1, 1, 7, 2
+						};
+
+
+
+						//group.getChildren().add(Cylinderline.createConnection(v0, e2, Color.BLACK, width));
+						//group.getChildren().add(Cylinderline.createConnection(e2, v1, Color.BLACK, width));
+						visited.set(a);
+						a = dsymbol.getS2(a);
+
+						float[] points = new float[3 * points3d.length];
+
+						for (int i = 0; i < points3d.length; i++) {
+							points[3 * i] = (float) points3d[i].getX();
+							points[3 * i + 1] = (float) points3d[i].getY();
+							points[3 * i + 2] = (float) points3d[i].getZ();
+						}
+
+						//smoothing = new int[faces.length / 6];
+						//Arrays.fill(smoothing, 1);
+
+						final float[] texCoords = { 0.5f, 0, 0, 0, 1, 1 };
+
+						TriangleMesh mesh = new TriangleMesh();
+						mesh.getPoints().addAll(points);
+						mesh.getTexCoords().addAll(texCoords);
+						mesh.getFaces().addAll(line);
+						//mesh.getFaceSmoothingGroups().addAll(smoothing);
+						MeshView meshView = new MeshView(mesh);
+						meshView.setMesh(mesh);
+						meshView.setMaterial(new PhongMaterial(Color.BLACK));
+						group.getChildren().addAll(meshView);
+
 					}
 					a++;
 				}

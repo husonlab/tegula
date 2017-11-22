@@ -33,7 +33,7 @@ public class Cylinderline {
         double angle = Math.acos(diff.normalize().dotProduct(yAxis));
         Rotate rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRotation);
 
-        Cylinder line = new Cylinder(width, height, 8);
+        Cylinder line = new Cylinder(width, height, 1);
         line.setCullFace(CullFace.BACK);
         line.setDrawMode(DrawMode.FILL);
         line.setMaterial(new PhongMaterial(color));
