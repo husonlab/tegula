@@ -1496,6 +1496,5 @@ public class Tiling {
     public Group getHandles() {
         return handles;
     }
-
     //public Transforms getGenerators(){return generators;}
 }

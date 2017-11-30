@@ -23,7 +23,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
@@ -766,16 +766,16 @@ public class Document {
      * @param useDepthBuffer
      */
     public void setUseDepthBuffer(boolean useDepthBuffer) {
-        final StackPane stackPane = controller.getStackPane();
-        SubScene subScene = (SubScene) stackPane.getChildren().get(0);
+        final Pane mainPane = controller.getMainPane();
+        SubScene subScene = (SubScene) mainPane.getChildren().get(0);
         if (useDepthBuffer != subScene.isDepthBuffer()) {
-            stackPane.getChildren().remove(subScene);
+            mainPane.getChildren().remove(subScene);
             final Group group = (Group) subScene.getRoot();
             group.getChildren().removeAll();
 
             subScene = new SubScene(new Group(getWorld()), subScene.getWidth(), subScene.getHeight(), useDepthBuffer, subScene.getAntiAliasing());
-            subScene.heightProperty().bind(stackPane.heightProperty());
-            subScene.widthProperty().bind(stackPane.widthProperty());
+            subScene.heightProperty().bind(mainPane.heightProperty());
+            subScene.widthProperty().bind(mainPane.widthProperty());
             if (useDepthBuffer) {
                 PerspectiveCamera newCamera = new PerspectiveCamera(camera.isFixedEyeAtCameraZero());
                 newCamera.setNearClip(camera.getNearClip());
@@ -785,7 +785,7 @@ public class Document {
                 camera = newCamera;
                 subScene.setCamera(camera);
             }
-            stackPane.getChildren().add(0, subScene);
+            mainPane.getChildren().add(0, subScene);
         }
     }
 
@@ -799,8 +799,8 @@ public class Document {
      * @return true, if so
      */
     public boolean isUseDepthBuffer() {
-        final StackPane stackPane = controller.getStackPane();
-        SubScene subScene = (SubScene) stackPane.getChildren().get(0);
+        final Pane mainPane = controller.getMainPane();
+        SubScene subScene = (SubScene) mainPane.getChildren().get(0);
         return subScene.isDepthBuffer();
     }
 

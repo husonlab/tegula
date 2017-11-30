@@ -231,6 +231,30 @@ public class OrbifoldGroupName {
         else
             return 0;
     }
+
+    /**
+     * is this a spherical NN group?
+     *
+     * @param dSymbol
+     * @return true, if spherical NN group
+     */
+    public static boolean isSphericalNN(DSymbol dSymbol) {
+        String name = getGroupName(dSymbol);
+        if (name.startsWith("*"))
+            name = name.substring(1);
+        if (name.length() % 2 == 1)
+            return false;
+        int half = name.length() / 2;
+        if (half == 0)
+            return false;
+        for (int i = 0; i < half; i++) {
+            if (!Character.isDigit(name.charAt(i)) || name.charAt(i) != name.charAt(half + i))
+                return false;
+        }
+        return true;
+    }
+
+
 }
 
 class IntegerCompareDown implements Comparator<Integer> {

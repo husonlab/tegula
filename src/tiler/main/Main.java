@@ -62,14 +62,14 @@ public class Main extends Application {
         final Pane topPane = controller.getTopPane();
         topPane.setPickOnBounds(false);
 
-        final StackPane stackPane = controller.getStackPane();
-        stackPane.getChildren().add(0, subScene);
+        final Pane mainPane = controller.getMainPane();
+        mainPane.getChildren().add(0, subScene);
 
         StackPane.setAlignment(topPane, Pos.CENTER);
         StackPane.setAlignment(subScene, Pos.CENTER);
 
-        subScene.heightProperty().bind(stackPane.heightProperty());
-        subScene.widthProperty().bind(stackPane.widthProperty());
+        subScene.heightProperty().bind(mainPane.heightProperty());
+        subScene.widthProperty().bind(mainPane.widthProperty());
 
         // setup top pane and stacked pane
 
@@ -85,7 +85,7 @@ public class Main extends Application {
 
         MouseHandler.addMouseHandler(scene, worldTranslate, worldScale, worldRotateProperty, document);
         document.update();
-        
+
 
         /*controller.getFieldOfViewSlider().valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {

@@ -380,7 +380,7 @@ public class DSymbol {
     /**
      * compute the Euler characteristic of the Delaney set
      *
-     * @return Eulcer characteristic
+     * @return Euler characteristic
      */
     public int computeEulerCharacteristic() {
         int res = size() + countOrbits(0, 1) + countOrbits(0, 2) + countOrbits(1, 2);

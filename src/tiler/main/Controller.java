@@ -5,14 +5,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import tiler.tiling.Tiling;
 
 import java.io.File;
 import java.io.FileReader;
@@ -23,16 +20,13 @@ import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
     @FXML
-    private BorderPane mainPane;
+    private Pane mainPane;
 
     @FXML
     private MenuBar menuBar;
 
     @FXML
-    private StackPane stackPane;
-
-    @FXML
-    private AnchorPane topPane;
+    private Pane topPane;
 
     @FXML
     private MenuItem firstTilingMenuItem;
@@ -206,15 +200,12 @@ public class Controller implements Initializable {
         this.stage = stage;
     }
 
-    public StackPane getStackPane() {
-        return stackPane;
-    }
 
     public MenuBar getMenuBar() {
         return menuBar;
     }
 
-    public AnchorPane getTopPane() {
+    public Pane getTopPane() {
         return topPane;
     }
 
@@ -479,6 +470,10 @@ public class Controller implements Initializable {
     void fireReset(ActionEvent event){
         document.reset();
         document.update();
+    }
+
+    public Pane getMainPane() {
+        return mainPane;
     }
 
 

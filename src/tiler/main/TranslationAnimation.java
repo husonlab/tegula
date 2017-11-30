@@ -51,7 +51,7 @@ public class TranslationAnimation {
         this.dy = factor * dy0;
         timeline.stop();
         timeline.getKeyFrames().clear();
-        final KeyFrame keyFrame = new KeyFrame(Duration.millis(100), (e) -> {
+        final KeyFrame keyFrame = new KeyFrame(Duration.millis(10), (e) -> {
             document.translateTiling(dx, dy);
         });
         timeline.getKeyFrames().add(keyFrame);

@@ -21,6 +21,7 @@ package tiler.main;
 
 import javafx.scene.control.Button;
 import tiler.core.dsymbols.DSymbol;
+import tiler.core.dsymbols.OrbifoldGroupName;
 import tiler.tiling.Tiling;
 
 import java.util.BitSet;
@@ -45,24 +46,32 @@ public class GroupEditing {
         for (int i = 0; i <= 1; i++) {
             BitSet seen = new BitSet();
             for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, i + 1, a, seen)) {
-                if (ds.getVij(i, i + 1, a) > 1) {
+                if (ds.getVij(i, i + 1, a) > 0) {
                     controller.getLabelV(count).setText("" + ds.getVij(i, i + 1, a));
                     controller.getLabelV(count).setDisable(false);
                     final int fi = i;
                     final int fa = a;
                     final Button decreaseVButton = controller.getDecreaseV(count);
                     decreaseVButton.setOnAction((e) -> {
-                        ds.setVij(fi, fi + 1, fa, ds.getVij(fi, fi + 1, fa) - 1);
+                        if (OrbifoldGroupName.isSphericalNN(ds)) {
+                            int n = ds.getVij(fi, fi + 1, fa);
+                            setNN(ds, n, n - 1);
+                        } else
+                            ds.setVij(fi, fi + 1, fa, ds.getVij(fi, fi + 1, fa) - 1);
                         document.setCurrent(new Tiling(ds));
                         document.update();
-                        decreaseVButton.setDisable(ds.getVij(fi, fi + 1, fa) <= 1);
+                        decreaseVButton.setDisable(ds.getVij(fi, fi + 1, fa) <= (OrbifoldGroupName.isSphericalNN(ds) ? 3 : 1));
                     });
-                    decreaseVButton.setDisable(false);
+                    decreaseVButton.setDisable(ds.getVij(fi, fi + 1, fa) <= (OrbifoldGroupName.isSphericalNN(ds) ? 3 : 1));
                     controller.getIncreaseV(count).setOnAction((e) -> {
-                        ds.setVij(fi, fi + 1, fa, ds.getVij(fi, fi + 1, fa) + 1);
+                        if (OrbifoldGroupName.isSphericalNN(ds)) {
+                            int n = ds.getVij(fi, fi + 1, fa);
+                            setNN(ds, n, n + 1);
+                        } else
+                            ds.setVij(fi, fi + 1, fa, ds.getVij(fi, fi + 1, fa) + 1);
                         document.setCurrent(new Tiling(ds));
                         document.update();
-                        decreaseVButton.setDisable(ds.getVij(fi, fi + 1, fa) <= 1);
+                        decreaseVButton.setDisable(ds.getVij(fi, fi + 1, fa) <= (OrbifoldGroupName.isSphericalNN(ds) ? 3 : 1));
                     });
                     controller.getIncreaseV(count).setDisable(false);
                     count++;
@@ -75,6 +84,24 @@ public class GroupEditing {
             controller.getDecreaseV(count).setDisable(true);
             controller.getIncreaseV(count).setDisable(true);
             count++;
+        }
+    }
+
+    /**
+     * set all branching numbers that have value oldN to value newN
+     *
+     * @param ds
+     * @param oldN
+     * @param newN
+     */
+    private static void setNN(DSymbol ds, int oldN, int newN) {
+        for (int i = 0; i <= 1; i++) {
+            BitSet seen = new BitSet();
+            for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, i + 1, a, seen)) {
+                if (ds.getVij(i, i + 1, a) == oldN) {
+                    ds.setVij(i, i + 1, a, newN);
+                }
+            }
         }
     }
 }
