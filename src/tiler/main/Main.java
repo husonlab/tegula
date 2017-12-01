@@ -44,7 +44,7 @@ public class Main extends Application {
         final Translate worldTranslate = new Translate(0, 0, 0);
         final Scale worldScale = new Scale(1, 1);
 
-        stage.setTitle("TileOScope");
+        stage.setTitle("Tiler");
 
         final FXMLLoader fxmlLoader = new FXMLLoader();
         Pane root = fxmlLoader.load(getClass().getResource("View.fxml").openStream());

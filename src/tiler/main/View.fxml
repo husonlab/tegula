@@ -200,6 +200,19 @@
                     <children>
                         <BorderPane prefHeight="31.0" prefWidth="88.0">
                             <left>
+                                <Button fx:id="decreasev0" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
+                                        text="-" BorderPane.alignment="CENTER"/>
+                            </left>
+                            <right>
+                                <Button fx:id="increaseV0" mnemonicParsing="false" text="+"
+                                        BorderPane.alignment="CENTER"/>
+                            </right>
+                            <center>
+                                <Label fx:id="labelV0" text="1" textAlignment="CENTER" BorderPane.alignment="CENTER"/>
+                            </center>
+                        </BorderPane>
+                        <BorderPane layoutX="10.0" layoutY="10.0" prefHeight="31.0" prefWidth="88.0">
+                            <left>
                                 <Button fx:id="decreaseV1" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
                                         text="-" BorderPane.alignment="CENTER"/>
                             </left>
@@ -211,7 +224,7 @@
                                 <Label fx:id="labelV1" text="1" textAlignment="CENTER" BorderPane.alignment="CENTER"/>
                             </center>
                         </BorderPane>
-                        <BorderPane layoutX="10.0" layoutY="10.0" prefHeight="31.0" prefWidth="88.0">
+                        <BorderPane layoutX="10.0" layoutY="41.0" prefHeight="31.0" prefWidth="88.0">
                             <left>
                                 <Button fx:id="decreaseV2" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
                                         text="-" BorderPane.alignment="CENTER"/>
@@ -224,7 +237,7 @@
                                 <Label fx:id="labelV2" text="1" textAlignment="CENTER" BorderPane.alignment="CENTER"/>
                             </center>
                         </BorderPane>
-                        <BorderPane layoutX="10.0" layoutY="41.0" prefHeight="31.0" prefWidth="88.0">
+                        <BorderPane layoutX="10.0" layoutY="72.0" prefHeight="31.0" prefWidth="88.0">
                             <left>
                                 <Button fx:id="decreaseV3" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
                                         text="-" BorderPane.alignment="CENTER"/>
@@ -234,10 +247,10 @@
                                         BorderPane.alignment="CENTER"/>
                             </right>
                             <center>
-                                <Label fx:id="labelV3" text="1" textAlignment="CENTER" BorderPane.alignment="CENTER"/>
+                                <Label fx:id="labelV3" text="1" BorderPane.alignment="CENTER"/>
                             </center>
                         </BorderPane>
-                        <BorderPane layoutX="10.0" layoutY="72.0" prefHeight="31.0" prefWidth="88.0">
+                        <BorderPane layoutX="10.0" layoutY="103.0" prefHeight="31.0" prefWidth="88.0">
                             <left>
                                 <Button fx:id="decreaseV4" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
                                         text="-" BorderPane.alignment="CENTER"/>
@@ -250,7 +263,7 @@
                                 <Label fx:id="labelV4" text="1" BorderPane.alignment="CENTER"/>
                             </center>
                         </BorderPane>
-                        <BorderPane layoutX="10.0" layoutY="103.0" prefHeight="31.0" prefWidth="88.0">
+                        <BorderPane layoutX="10.0" layoutY="134.0" prefHeight="31.0" prefWidth="88.0">
                             <left>
                                 <Button fx:id="decreaseV5" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
                                         text="-" BorderPane.alignment="CENTER"/>
@@ -263,7 +276,7 @@
                                 <Label fx:id="labelV5" text="1" BorderPane.alignment="CENTER"/>
                             </center>
                         </BorderPane>
-                        <BorderPane layoutX="10.0" layoutY="134.0" prefHeight="31.0" prefWidth="88.0">
+                        <BorderPane layoutX="10.0" layoutY="165.0" prefHeight="31.0" prefWidth="88.0">
                             <left>
                                 <Button fx:id="decreaseV6" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
                                         text="-" BorderPane.alignment="CENTER"/>
@@ -276,7 +289,7 @@
                                 <Label fx:id="labelV6" text="1" BorderPane.alignment="CENTER"/>
                             </center>
                         </BorderPane>
-                        <BorderPane layoutX="10.0" layoutY="165.0" prefHeight="31.0" prefWidth="88.0">
+                        <BorderPane layoutX="10.0" layoutY="196.0" prefHeight="31.0" prefWidth="88.0">
                             <left>
                                 <Button fx:id="decreaseV7" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
                                         text="-" BorderPane.alignment="CENTER"/>
@@ -289,7 +302,7 @@
                                 <Label fx:id="labelV7" text="1" BorderPane.alignment="CENTER"/>
                             </center>
                         </BorderPane>
-                        <BorderPane layoutX="10.0" layoutY="196.0" prefHeight="31.0" prefWidth="88.0">
+                        <BorderPane prefHeight="31.0" prefWidth="88.0">
                             <left>
                                 <Button fx:id="decreaseV8" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
                                         text="-" BorderPane.alignment="CENTER"/>
@@ -300,6 +313,19 @@
                             </right>
                             <center>
                                 <Label fx:id="labelV8" text="1" BorderPane.alignment="CENTER"/>
+                            </center>
+                        </BorderPane>
+                        <BorderPane prefHeight="31.0" prefWidth="88.0">
+                            <left>
+                                <Button fx:id="decreaseV9" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
+                                        text="-" BorderPane.alignment="CENTER"/>
+                            </left>
+                            <right>
+                                <Button fx:id="increaseV9" mnemonicParsing="false" text="+"
+                                        BorderPane.alignment="CENTER"/>
+                            </right>
+                            <center>
+                                <Label fx:id="labelV9" text="1" BorderPane.alignment="CENTER"/>
                             </center>
                         </BorderPane>
                     </children>

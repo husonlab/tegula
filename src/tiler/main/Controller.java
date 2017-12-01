@@ -72,6 +72,15 @@ public class Controller implements Initializable {
     private VBox groupVBox;
 
     @FXML
+    private Button decreasev0;
+
+    @FXML
+    private Button increaseV0;
+
+    @FXML
+    private Label labelV0;
+
+    @FXML
     private Button decreaseV1;
 
     @FXML
@@ -142,6 +151,15 @@ public class Controller implements Initializable {
 
     @FXML
     private Label labelV8;
+
+    @FXML
+    private Button decreaseV9;
+
+    @FXML
+    private Button increaseV9;
+
+    @FXML
+    private Label labelV9;
 
     @FXML
     private Button poincareButton;
@@ -486,22 +504,26 @@ public class Controller implements Initializable {
     public Label getLabelV(int i) {
         switch (i) {
             case 0:
-                return labelV1;
+                return labelV0;
             case 1:
-                return labelV2;
+                return labelV1;
             case 2:
-                return labelV3;
+                return labelV2;
             case 3:
-                return labelV4;
+                return labelV3;
             case 4:
-                return labelV5;
+                return labelV4;
             case 5:
-                return labelV6;
+                return labelV5;
             case 6:
-                return labelV7;
-            default:
+                return labelV6;
             case 7:
+                return labelV7;
+            case 8:
                 return labelV8;
+            default:
+            case 9:
+                return labelV9;
         }
     }
 
@@ -514,22 +536,26 @@ public class Controller implements Initializable {
     public Button getDecreaseV(int i) {
         switch (i) {
             case 0:
-                return decreaseV1;
+                return decreasev0;
             case 1:
-                return decreaseV2;
+                return decreaseV1;
             case 2:
-                return decreaseV3;
+                return decreaseV2;
             case 3:
-                return decreaseV4;
+                return decreaseV3;
             case 4:
-                return decreaseV5;
+                return decreaseV4;
             case 5:
-                return decreaseV6;
+                return decreaseV5;
             case 6:
-                return decreaseV7;
-            default:
+                return decreaseV6;
             case 7:
+                return decreaseV7;
+            case 8:
                 return decreaseV8;
+            default:
+            case 9:
+                return decreaseV9;
         }
     }
 
@@ -542,22 +568,26 @@ public class Controller implements Initializable {
     public Button getIncreaseV(int i) {
         switch (i) {
             case 0:
-                return increaseV1;
+                return increaseV0;
             case 1:
-                return increaseV2;
+                return increaseV1;
             case 2:
-                return increaseV3;
+                return increaseV2;
             case 3:
-                return increaseV4;
+                return increaseV3;
             case 4:
-                return increaseV5;
+                return increaseV4;
             case 5:
-                return increaseV6;
+                return increaseV5;
             case 6:
-                return increaseV7;
-            default:
+                return increaseV6;
             case 7:
+                return increaseV7;
+            case 8:
                 return increaseV8;
+            default:
+            case 9:
+                return increaseV9;
         }
     }
 }

@@ -20,10 +20,11 @@
 package tiler.main;
 
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import tiler.core.dsymbols.DSymbol;
-import tiler.core.dsymbols.OrbifoldGroupName;
 import tiler.tiling.Tiling;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 
 /**
@@ -46,62 +47,104 @@ public class GroupEditing {
         for (int i = 0; i <= 1; i++) {
             BitSet seen = new BitSet();
             for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, i + 1, a, seen)) {
-                if (ds.getVij(i, i + 1, a) > 0) {
-                    controller.getLabelV(count).setText("" + ds.getVij(i, i + 1, a));
-                    controller.getLabelV(count).setDisable(false);
                     final int fi = i;
                     final int fa = a;
+
+                final Label label = controller.getLabelV(count);
+                label.setText("" + ds.getVij(i, i + 1, a));
+                label.setVisible(true);
+                label.setDisable(false);
+
+
                     final Button decreaseVButton = controller.getDecreaseV(count);
+                decreaseVButton.setDisable(ds.getVij(fi, fi + 1, fa) <= (isSphericalNN(ds) ? 3 : 1));
+                decreaseVButton.setVisible(true);
+
                     decreaseVButton.setOnAction((e) -> {
-                        if (OrbifoldGroupName.isSphericalNN(ds)) {
-                            int n = ds.getVij(fi, fi + 1, fa);
-                            setNN(ds, n, n - 1);
-                        } else
-                            ds.setVij(fi, fi + 1, fa, ds.getVij(fi, fi + 1, fa) - 1);
+                        final int newValue = ds.getVij(fi, fi + 1, fa) - 1;
+                        ds.setVij(fi, fi + 1, fa, newValue);
+                        ensureNNForSpherical(ds, newValue);
                         document.setCurrent(new Tiling(ds));
                         document.update();
-                        decreaseVButton.setDisable(ds.getVij(fi, fi + 1, fa) <= (OrbifoldGroupName.isSphericalNN(ds) ? 3 : 1));
+                        decreaseVButton.setDisable(ds.getVij(fi, fi + 1, fa) <= (isSphericalNN(ds) ? 3 : 1));
                     });
-                    decreaseVButton.setDisable(ds.getVij(fi, fi + 1, fa) <= (OrbifoldGroupName.isSphericalNN(ds) ? 3 : 1));
-                    controller.getIncreaseV(count).setOnAction((e) -> {
-                        if (OrbifoldGroupName.isSphericalNN(ds)) {
-                            int n = ds.getVij(fi, fi + 1, fa);
-                            setNN(ds, n, n + 1);
-                        } else
-                            ds.setVij(fi, fi + 1, fa, ds.getVij(fi, fi + 1, fa) + 1);
+
+                final Button increaseButton = controller.getIncreaseV(count);
+                increaseButton.setDisable(false);
+                increaseButton.setVisible(true);
+
+                increaseButton.setOnAction((e) -> {
+                    final int newValue = ds.getVij(fi, fi + 1, fa) + 1;
+                    ds.setVij(fi, fi + 1, fa, newValue);
+                    ensureNNForSpherical(ds, newValue);
                         document.setCurrent(new Tiling(ds));
                         document.update();
-                        decreaseVButton.setDisable(ds.getVij(fi, fi + 1, fa) <= (OrbifoldGroupName.isSphericalNN(ds) ? 3 : 1));
+                    decreaseVButton.setDisable(ds.getVij(fi, fi + 1, fa) <= (isSphericalNN(ds) ? 3 : 1));
                     });
-                    controller.getIncreaseV(count).setDisable(false);
+
                     count++;
-                }
+                if (count == 10)
+                    break; // only support 10 choices
             }
         }
-        while (count < 8) {
-            controller.getLabelV(count).setText("1");
-            controller.getLabelV(count).setDisable(true);
-            controller.getDecreaseV(count).setDisable(true);
-            controller.getIncreaseV(count).setDisable(true);
+        while (count < 10) {
+            controller.getLabelV(count).setVisible(false);
+            controller.getLabelV(count).setVisible(false);
+            controller.getDecreaseV(count).setVisible(false);
+            controller.getIncreaseV(count).setVisible(false);
             count++;
         }
     }
 
     /**
-     * set all branching numbers that have value oldN to value newN
+     * is this a spherical NN group?
      *
      * @param ds
-     * @param oldN
-     * @param newN
+     * @return true, if spherical NN group
      */
-    private static void setNN(DSymbol ds, int oldN, int newN) {
-        for (int i = 0; i <= 1; i++) {
-            BitSet seen = new BitSet();
-            for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, i + 1, a, seen)) {
-                if (ds.getVij(i, i + 1, a) == oldN) {
-                    ds.setVij(i, i + 1, a, newN);
+    public static boolean isSphericalNN(DSymbol ds) {
+        if (ds.computeEulerCharacteristic() > 0) {
+            final ArrayList<Integer> values = new ArrayList<>();
+            for (int i = 0; i <= 1; i++) {
+                BitSet seen = new BitSet();
+                for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, i + 1, a, seen)) {
+                    if (ds.getVij(i, i + 1, a) > 1) {
+                        values.add(ds.getVij(i, i + 1, a));
+                    }
                 }
             }
+            return values.size() == 2;
+        }
+        return false;
+    }
+
+    /**
+     * ensures that the DS symbol is a valid spherical symbol (with NN rather than NM)
+     * @param ds a Delaney symbol for which the new value has already been set
+     * @param newValue the new value that should be copied to the other
+     */
+    private static void ensureNNForSpherical(DSymbol ds, int newValue) {
+        if (ds.computeEulerCharacteristic() > 0) {
+            ArrayList<int[]> values = new ArrayList<>();
+            for (int i = 0; i <= 1; i++) {
+                BitSet seen = new BitSet();
+                for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, i + 1, a, seen)) {
+                    if (ds.getVij(i, i + 1, a) > 1) {
+                        values.add(new int[]{i, i + 1, a, ds.getVij(i, i + 1, a)});
+                    }
+                }
+            }
+            if (values.size() == 1) {
+                System.err.println("Internal error");
+            } else if (values.size() == 2) {
+                int[] a = values.get(0);
+                int[] b = values.get(1);
+                if (a[3] != b[3]) {
+                    ds.setVij(a[0], a[1], a[2], newValue);
+                    ds.setVij(b[0], b[1], b[2], newValue);
+                }
+            }
+
         }
     }
 }
