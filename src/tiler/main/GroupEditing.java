@@ -89,7 +89,6 @@ public class GroupEditing {
         }
         while (count < 10) {
             controller.getLabelV(count).setVisible(false);
-            controller.getLabelV(count).setVisible(false);
             controller.getDecreaseV(count).setVisible(false);
             controller.getIncreaseV(count).setVisible(false);
             count++;
@@ -110,14 +109,14 @@ public class GroupEditing {
         if (isSphericalNN(ds) && currentValue <= 3)
             return false;
 
-        if (ds.getMij(i, j, a) <= 3)
+        if (ds.getMij(i, j, a) < 3)
             return false;
 
-        if (i == 0 && j == 1) { // don't want a tile with only one edge
+        if (i == 0 && j == 1) { // don't want a resulting tile with only one edge
             if (ds.getMij(i, j, a) / ds.getVij(i, j, a) * (currentValue - 1) < 2)
                 return false;
         }
-        if (i == 1 && j == 2) { // don't want a node of degree 2
+        if (i == 1 && j == 2) { // don't want a resulting node of degree 2
             if (ds.getMij(i, j, a) / ds.getVij(i, j, a) * (currentValue - 1) < 3)
                 return false;
         }
