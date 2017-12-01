@@ -47,8 +47,8 @@ public class GroupEditing {
         for (int i = 0; i <= 1; i++) {
             BitSet seen = new BitSet();
             for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, i + 1, a, seen)) {
-                    final int fi = i;
-                    final int fa = a;
+                final int fi = i;
+                final int fa = a;
 
                 final Label label = controller.getLabelV(count);
                 label.setText("" + ds.getVij(i, i + 1, a));
@@ -56,18 +56,18 @@ public class GroupEditing {
                 label.setDisable(false);
 
 
-                    final Button decreaseVButton = controller.getDecreaseV(count);
-                decreaseVButton.setDisable(ds.getVij(fi, fi + 1, fa) <= (isSphericalNN(ds) ? 3 : 1));
+                final Button decreaseVButton = controller.getDecreaseV(count);
+                decreaseVButton.setDisable(!isOkDecreaseVij(ds, fa, fi, fi + 1, ds.getVij(fi, fi + 1, fa)));
                 decreaseVButton.setVisible(true);
 
-                    decreaseVButton.setOnAction((e) -> {
-                        final int newValue = ds.getVij(fi, fi + 1, fa) - 1;
-                        ds.setVij(fi, fi + 1, fa, newValue);
-                        ensureNNForSpherical(ds, newValue);
-                        document.setCurrent(new Tiling(ds));
-                        document.update();
-                        decreaseVButton.setDisable(ds.getVij(fi, fi + 1, fa) <= (isSphericalNN(ds) ? 3 : 1));
-                    });
+                decreaseVButton.setOnAction((e) -> {
+                    final int newValue = ds.getVij(fi, fi + 1, fa) - 1;
+                    ds.setVij(fi, fi + 1, fa, newValue);
+                    ensureNNForSpherical(ds, newValue);
+                    document.setCurrent(new Tiling(ds));
+                    document.update();
+                    decreaseVButton.setDisable(!isOkDecreaseVij(ds, fa, fi, fi + 1, ds.getVij(fi, fi + 1, fa)));
+                });
 
                 final Button increaseButton = controller.getIncreaseV(count);
                 increaseButton.setDisable(false);
@@ -77,12 +77,12 @@ public class GroupEditing {
                     final int newValue = ds.getVij(fi, fi + 1, fa) + 1;
                     ds.setVij(fi, fi + 1, fa, newValue);
                     ensureNNForSpherical(ds, newValue);
-                        document.setCurrent(new Tiling(ds));
-                        document.update();
-                    decreaseVButton.setDisable(ds.getVij(fi, fi + 1, fa) <= (isSphericalNN(ds) ? 3 : 1));
-                    });
+                    document.setCurrent(new Tiling(ds));
+                    document.update();
+                    decreaseVButton.setDisable(!isOkDecreaseVij(ds, fa, fi, fi + 1, ds.getVij(fi, fi + 1, fa)));
+                });
 
-                    count++;
+                count++;
                 if (count == 10)
                     break; // only support 10 choices
             }
@@ -97,12 +97,41 @@ public class GroupEditing {
     }
 
     /**
+     * determines whether it is ok to decrease Vij
+     *
+     * @param ds
+     * @param a
+     * @param i
+     * @param j
+     * @param currentValue
+     * @return true, if ok
+     */
+    private static boolean isOkDecreaseVij(DSymbol ds, int a, int i, int j, int currentValue) {
+        if (isSphericalNN(ds) && currentValue <= 3)
+            return false;
+
+        if (ds.getMij(i, j, a) <= 3)
+            return false;
+
+        if (i == 0 && j == 1) { // don't want a tile with only one edge
+            if (ds.getMij(i, j, a) / ds.getVij(i, j, a) * (currentValue - 1) < 2)
+                return false;
+        }
+        if (i == 1 && j == 2) { // don't want a node of degree 2
+            if (ds.getMij(i, j, a) / ds.getVij(i, j, a) * (currentValue - 1) < 3)
+                return false;
+        }
+        return true;
+    }
+
+
+    /**
      * is this a spherical NN group?
      *
      * @param ds
      * @return true, if spherical NN group
      */
-    public static boolean isSphericalNN(DSymbol ds) {
+    private static boolean isSphericalNN(DSymbol ds) {
         if (ds.computeEulerCharacteristic() > 0) {
             final ArrayList<Integer> values = new ArrayList<>();
             for (int i = 0; i <= 1; i++) {
@@ -120,7 +149,8 @@ public class GroupEditing {
 
     /**
      * ensures that the DS symbol is a valid spherical symbol (with NN rather than NM)
-     * @param ds a Delaney symbol for which the new value has already been set
+     *
+     * @param ds       a Delaney symbol for which the new value has already been set
      * @param newValue the new value that should be copied to the other
      */
     private static void ensureNNForSpherical(DSymbol ds, int newValue) {
