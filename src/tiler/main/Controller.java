@@ -1,5 +1,6 @@
 package tiler.main;
 
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.io.FileReader;
@@ -459,13 +461,19 @@ public class Controller implements Initializable {
     @FXML
     void fireKlein(ActionEvent event) {
         double maxDist = Math.cosh(0.5 * getDocument().getLimitHyperbolicGroup());  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
-        document.getCamera().setTranslateZ(0);
-        if (getDocument().getLimitHyperbolicGroup() < 12) {
-            document.getCamera().setFarClip(65 * maxDist);
-        }
-        else {
-            document.getCamera().setFarClip(100 * maxDist);
-        }
+        final TranslateTransition translateTransition = new TranslateTransition();
+        translateTransition.setNode(document.getCamera());
+        translateTransition.setToZ(0);
+        translateTransition.setDuration(Duration.millis(1000));
+        translateTransition.play();
+        translateTransition.setOnFinished((e) -> {
+            if (getDocument().getLimitHyperbolicGroup() < 12) {
+                document.getCamera().setFarClip(65 * maxDist);
+            } else {
+                document.getCamera().setFarClip(100 * maxDist);
+            }
+            document.getCamera().setFarClip(10000);
+        });
         document.setCamPoincare(false);
 
     }
@@ -473,13 +481,21 @@ public class Controller implements Initializable {
     @FXML
     void firePoincare(ActionEvent event) {
         double maxDist = Math.cosh(0.5 * getDocument().getLimitHyperbolicGroup());  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
-        if (getDocument().getLimitHyperbolicGroup() < 12) {
+        final TranslateTransition translateTransition = new TranslateTransition();
+        translateTransition.setNode(document.getCamera());
+        translateTransition.setToZ(-100);
+        translateTransition.setDuration(Duration.millis(1000));
+        translateTransition.play();
+        translateTransition.setOnFinished((e) -> {
+            if (getDocument().getLimitHyperbolicGroup() < 12) {
             document.getCamera().setFarClip(65 * (maxDist + 1));
         }
         else {
             document.getCamera().setFarClip(100 * (maxDist + 1));
         }
-        document.getCamera().setTranslateZ(-100);
+            document.getCamera().setFarClip(10000);
+        });
+
         document.setCamPoincare(true);
 
     }
