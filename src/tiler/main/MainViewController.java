@@ -1,6 +1,5 @@
 package tiler.main;
 
-import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,7 +10,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import javafx.util.Duration;
 
 import java.io.File;
 import java.io.FileReader;
@@ -20,7 +18,7 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-public class Controller implements Initializable {
+public class MainViewController implements Initializable {
     @FXML
     private Pane mainPane;
 
@@ -164,10 +162,14 @@ public class Controller implements Initializable {
     private Label labelV9;
 
     @FXML
-    private Button poincareButton;
+    private RadioButton poincareRadioButton;
 
     @FXML
-    private Button kleinButton;
+    private RadioButton kleinRadioButton;
+
+    @FXML
+    private RadioButton hyperboloidRadioButton;
+
 
     @FXML
     private Button increaseButton;
@@ -187,7 +189,6 @@ public class Controller implements Initializable {
     private Document document;
     private Stage stage;
 
-
     /**
      * initialize
      *
@@ -202,6 +203,11 @@ public class Controller implements Initializable {
         statusTextField.setEditable(false);
 
         topPane.getChildren().remove(groupVBox);
+
+        final ToggleGroup toggleGroup = new ToggleGroup();
+        poincareRadioButton.setToggleGroup(toggleGroup);
+        kleinRadioButton.setToggleGroup(toggleGroup);
+        hyperboloidRadioButton.setToggleGroup(toggleGroup);
     }
 
     public Document getDocument() {
@@ -233,12 +239,16 @@ public class Controller implements Initializable {
         return statusTextField;
     }
 
-    public Button getPoincareButton() {
-        return poincareButton;
+    public RadioButton getPoincareButton() {
+        return poincareRadioButton;
     }
 
-    public Button getKleinButton() {
-        return kleinButton;
+    public RadioButton getKleinButton() {
+        return kleinRadioButton;
+    }
+
+    public RadioButton getHyperboloidButton() {
+        return hyperboloidRadioButton;
     }
 
     public Button getIncreaseButton() {
@@ -378,7 +388,6 @@ public class Controller implements Initializable {
 
     @FXML
     void firePrint(ActionEvent event) {
-
     }
 
     @FXML
@@ -395,7 +404,6 @@ public class Controller implements Initializable {
         } else {
             alert.close();
         }
-
     }
 
     @FXML
@@ -457,48 +465,6 @@ public class Controller implements Initializable {
     void fireStraigthenSelected(ActionEvent event) {
     }
 
-
-    @FXML
-    void fireKlein(ActionEvent event) {
-        double maxDist = Math.cosh(0.5 * getDocument().getLimitHyperbolicGroup());  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
-        final TranslateTransition translateTransition = new TranslateTransition();
-        translateTransition.setNode(document.getCamera());
-        translateTransition.setToZ(0);
-        translateTransition.setDuration(Duration.millis(1000));
-        translateTransition.play();
-        translateTransition.setOnFinished((e) -> {
-            if (getDocument().getLimitHyperbolicGroup() < 12) {
-                document.getCamera().setFarClip(65 * maxDist);
-            } else {
-                document.getCamera().setFarClip(100 * maxDist);
-            }
-            document.getCamera().setFarClip(10000);
-        });
-        document.setCamPoincare(false);
-
-    }
-
-    @FXML
-    void firePoincare(ActionEvent event) {
-        double maxDist = Math.cosh(0.5 * getDocument().getLimitHyperbolicGroup());  // maxDist is height of hyperboloid defined by z^2 = x^2+y^2+1.
-        final TranslateTransition translateTransition = new TranslateTransition();
-        translateTransition.setNode(document.getCamera());
-        translateTransition.setToZ(-100);
-        translateTransition.setDuration(Duration.millis(1000));
-        translateTransition.play();
-        translateTransition.setOnFinished((e) -> {
-            if (getDocument().getLimitHyperbolicGroup() < 12) {
-            document.getCamera().setFarClip(65 * (maxDist + 1));
-        }
-        else {
-            document.getCamera().setFarClip(100 * (maxDist + 1));
-        }
-            document.getCamera().setFarClip(10000);
-        });
-
-        document.setCamPoincare(true);
-
-    }
 
     @FXML
     void fireReset(ActionEvent event){

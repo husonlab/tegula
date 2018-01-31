@@ -41,7 +41,7 @@ public class GroupEditing {
 
         final Tiling tiling = document.getCurrent();
         final DSymbol ds = tiling.getDSymbol();
-        final Controller controller = document.getController();
+        final MainViewController mainViewController = document.getMainViewController();
 
         int count = 0;
         for (int i = 0; i <= 1; i++) {
@@ -50,13 +50,13 @@ public class GroupEditing {
                 final int fi = i;
                 final int fa = a;
 
-                final Label label = controller.getLabelV(count);
+                final Label label = mainViewController.getLabelV(count);
                 label.setText("" + ds.getVij(i, i + 1, a));
                 label.setVisible(true);
                 label.setDisable(false);
 
 
-                final Button decreaseVButton = controller.getDecreaseV(count);
+                final Button decreaseVButton = mainViewController.getDecreaseV(count);
                 decreaseVButton.setDisable(!isOkDecreaseVij(ds, fa, fi, fi + 1, ds.getVij(fi, fi + 1, fa)));
                 decreaseVButton.setVisible(true);
 
@@ -69,7 +69,7 @@ public class GroupEditing {
                     decreaseVButton.setDisable(!isOkDecreaseVij(ds, fa, fi, fi + 1, ds.getVij(fi, fi + 1, fa)));
                 });
 
-                final Button increaseButton = controller.getIncreaseV(count);
+                final Button increaseButton = mainViewController.getIncreaseV(count);
                 increaseButton.setDisable(false);
                 increaseButton.setVisible(true);
 
@@ -88,9 +88,9 @@ public class GroupEditing {
             }
         }
         while (count < 10) {
-            controller.getLabelV(count).setVisible(false);
-            controller.getDecreaseV(count).setVisible(false);
-            controller.getIncreaseV(count).setVisible(false);
+            mainViewController.getLabelV(count).setVisible(false);
+            mainViewController.getDecreaseV(count).setVisible(false);
+            mainViewController.getIncreaseV(count).setVisible(false);
             count++;
         }
     }

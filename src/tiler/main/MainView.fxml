@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
             prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="tiler.main.Controller">
+            fx:controller="tiler.main.MainViewController">
     <top>
         <VBox prefHeight="69.0" prefWidth="600.0" BorderPane.alignment="CENTER">
             <children>
@@ -339,10 +339,11 @@
     <left>
         <VBox prefHeight="200.0" prefWidth="123.0" spacing="10.0" BorderPane.alignment="CENTER">
             <children>
-                <Button fx:id="poincareButton" mnemonicParsing="false" onAction="#firePoincare" prefHeight="25.0"
-                        prefWidth="112.0" text="Poincare model"/>
-                <Button fx:id="kleinButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#fireKlein"
-                        prefHeight="27.0" prefWidth="112.0" text="Klein model"/>
+                <RadioButton fx:id="poincareRadioButton" mnemonicParsing="false" selected="true" text="Poincare model"/>
+                <RadioButton fx:id="kleinRadioButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false"
+                             text="Klein model"/>
+                <RadioButton fx:id="hyperboloidRadioButton" layoutX="10.0" layoutY="186.0" mnemonicParsing="false"
+                             text="Hyperboloid"/>
                 <Button fx:id="increaseButton" layoutX="10.0" layoutY="37.0" mnemonicParsing="false"
                         onAction="#fireShowMoreTiles" prefHeight="27.0" prefWidth="112.0" text="Increase"/>
                 <Button fx:id="decreaseButton" layoutX="10.0" layoutY="64.0" mnemonicParsing="false"

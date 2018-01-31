@@ -59,7 +59,7 @@ public class Document {
     private int current = -1;
 
     private final Group world;
-    private final Controller controller;
+    private final MainViewController mainViewController;
     private PerspectiveCamera camera;
     private AmbientLight ambientLight = new AmbientLight();
     private PointLight pointLight = new PointLight();
@@ -83,12 +83,12 @@ public class Document {
     /**
      * constructor
      */
-    public Document(Stage stage, Group world, Controller controller, PerspectiveCamera camera) {
+    public Document(Stage stage, Group world, MainViewController mainViewController, PerspectiveCamera camera) {
         this.world = world;
-        this.controller = controller;
+        this.mainViewController = mainViewController;
         this.camera = camera;
-        controller.setDocument(this);
-        controller.setStage(stage);
+        mainViewController.setDocument(this);
+        mainViewController.setStage(stage);
     }
 
     /**
@@ -153,8 +153,8 @@ public class Document {
         return world;
     }
 
-    public Controller getController() {
-        return controller;
+    public MainViewController getMainViewController() {
+        return mainViewController;
     }
 
     public Tiling getCurrent() {
@@ -165,7 +165,6 @@ public class Document {
         tilings.set(current, tiling);
         geometryProperty.setValue(tiling.getfDomain().getGeometry());
     }
-
 
     public Point3D windowCorner = new Point3D(0,0,0); // Upper left corner of window in Euclidean case
     public double width=800, height=506; //Width and height of window
@@ -232,11 +231,12 @@ public class Document {
             camera.setTranslateZ(-500);
             camera.setFarClip(10000);
 
-            controller.getPoincareButton().setVisible(false);
-            controller.getKleinButton().setVisible(false);
-            controller.getIncreaseButton().setVisible(false);
-            controller.getDecreaseButton().setVisible(false);
-            controller.getCBPullFDomain().setVisible(true);
+            mainViewController.getPoincareButton().setVisible(false);
+            mainViewController.getKleinButton().setVisible(false);
+            mainViewController.getHyperboloidButton().setVisible(false);
+            mainViewController.getIncreaseButton().setVisible(false);
+            mainViewController.getDecreaseButton().setVisible(false);
+            mainViewController.getCBPullFDomain().setVisible(true);
         }
 
         // Spherical case ----------------------------------------------------------------------------------------------
@@ -247,17 +247,21 @@ public class Document {
             camera.setFieldOfView(35);
             camera.setFarClip(600);
 
-            controller.getPoincareButton().setVisible(false);
-            controller.getKleinButton().setVisible(false);
-            controller.getIncreaseButton().setVisible(false);
-            controller.getDecreaseButton().setVisible(false);
-            controller.getCBPullFDomain().setVisible(false);
+            mainViewController.getPoincareButton().setVisible(false);
+            mainViewController.getKleinButton().setVisible(false);
+            mainViewController.getHyperboloidButton().setVisible(false);
+            mainViewController.getIncreaseButton().setVisible(false);
+            mainViewController.getDecreaseButton().setVisible(false);
+            mainViewController.getCBPullFDomain().setVisible(false);
 
         }
 
         // Hyperbolic case ---------------------------------------------------------------------------------------------
         else if (tiling.getGeometry() == Geometry.Hyperbolic) {
-
+            camera.setRotate(0);
+            camera.setTranslateZ(-100);
+            camera.setFieldOfView(90);
+            camera.setFarClip(10000);
 
             double diameterFDomain = calculateDiameter(tiling.getfDomain());
             if (2.8 * diameterFDomain > getLimitHyperbolicGroup()){
@@ -282,33 +286,20 @@ public class Document {
             numberOfCopies = tiles.getChildren().size();
 
             //Camera settings:
-            camera.setFieldOfView(90);
-            if (camPoincare){
-                if (getLimitHyperbolicGroup() < 12) {
-                    camera.setFarClip(65 * (maxDist + 1));
-                }
-                else{
-                    camera.setFarClip(100 * (maxDist + 1));
+            if (mainViewController.getPoincareButton().isSelected())
+                HyperbolicModelCameraSettings.setModel(this, HyperbolicModelCameraSettings.Model.Poincare);
+            else if (mainViewController.getKleinButton().isSelected())
+                HyperbolicModelCameraSettings.setModel(this, HyperbolicModelCameraSettings.Model.Klein);
+            else
+                HyperbolicModelCameraSettings.setModel(this, HyperbolicModelCameraSettings.Model.Hyperboloid);
 
-                }
-                camera.setTranslateZ(-100);
-            }
-            else{
-                if (getLimitHyperbolicGroup() < 12) {
-                    camera.setFarClip(65 * maxDist);
-                }
-                else {
-                    camera.setFarClip(100 * maxDist);
-                }
-                camera.setTranslateZ(0);
-            }
-            camera.setFarClip(100000);
 
-            controller.getPoincareButton().setVisible(true);
-            controller.getKleinButton().setVisible(true);
-            controller.getIncreaseButton().setVisible(true);
-            controller.getDecreaseButton().setVisible(true);
-            controller.getCBPullFDomain().setVisible(true);
+            mainViewController.getPoincareButton().setVisible(true);
+            mainViewController.getKleinButton().setVisible(true);
+            mainViewController.getHyperboloidButton().setVisible(true);
+            mainViewController.getIncreaseButton().setVisible(true);
+            mainViewController.getDecreaseButton().setVisible(true);
+            mainViewController.getCBPullFDomain().setVisible(true);
         }
 
         setUseDepthBuffer(!tiling.getGeometry().equals(Geometry.Euclidean));
@@ -319,16 +310,16 @@ public class Document {
         if (tiling.getGeometry() != Geometry.Spherical) {
             getWorld().getChildren().add(ambientLight);
         }
-        if (controller.getCbShowLines().isSelected()){
+        if (mainViewController.getCbShowLines().isSelected()) {
             removeLinesFromFDomain();
             addLinesToFDomain();
         }
 
         getWorld().getChildren().add(tiling.getHandles());
 
-        getController().getStatusTextField().setText(tilings.get(current).getStatusLine());
+        getMainViewController().getStatusTextField().setText(tilings.get(current).getStatusLine());
         GroupEditing.update(this);
-        controller.updateNavigateTilings();
+        mainViewController.updateNavigateTilings();
     }
 
     // Reset fundamental domain (without updating tiling)
@@ -353,7 +344,7 @@ public class Document {
             setKeptEuclideanCopy(new QuadTree()); // Reset Tree (see tiling.makeCopyEuclidean())
 
             translate(dx, dy); // Translates fDomain by vector (dx,dy).
-            if (controller.getCbShowLines().isSelected()){
+            if (mainViewController.getCbShowLines().isSelected()) {
                 Translate t = new Translate(dx, dy);
                 Transform lineTrans = linesInFDomain.getTransforms().get(0);
                 lineTrans = t.createConcatenation(lineTrans);
@@ -386,7 +377,7 @@ public class Document {
                 dx = b*(b*dx-a*dy)/(a*a+b*b);
                 dy = a*(a*dy-b*dx)/(a*a+b*b);
                 translate(dx,dy);
-                if (controller.getCbShowLines().isSelected()){
+                if (mainViewController.getCbShowLines().isSelected()) {
                     // Hyperbolic translation
                     Transform translate = Tools.hyperbolicTranslation(dx,dy);
 
@@ -404,13 +395,13 @@ public class Document {
             else if (refPoint.getZ() >= 9){
                 reset();
                 removeLinesFromFDomain();
-                if (controller.getCbShowLines().isSelected()){
+                if (mainViewController.getCbShowLines().isSelected()) {
                     addLinesToFDomain();
                 }
             }
             else {
                 translate(dx, dy); // Translates fDomain by vector (dx,dy).
-                if (controller.getCbShowLines().isSelected()){
+                if (mainViewController.getCbShowLines().isSelected()) {
                     // Hyperbolic translation
                     Transform translate = Tools.hyperbolicTranslation(dx,dy);
 
@@ -443,7 +434,7 @@ public class Document {
 
             translate(dx,dy); // Translates fDomain by vector (dx,dy).
             setTransformRecycled(translate.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
-            if (controller.getCbShowLines().isSelected()){
+            if (mainViewController.getCbShowLines().isSelected()) {
                 Transform lineTrans = linesInFDomain.getTransforms().get(0);
                 lineTrans = translate.createConcatenation(lineTrans);
                 linesInFDomain.getTransforms().clear();
@@ -457,7 +448,7 @@ public class Document {
                 Transform t = tiling.calculateBackShiftEuclidean(windowCorner, width, height, tol);
                 setTransformRecycled(t.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
                 recenterFDomain(t); // Shifts back fDomain into visible window
-                if (controller.getCbShowLines().isSelected()){
+                if (mainViewController.getCbShowLines().isSelected()) {
                     Transform lineTrans = linesInFDomain.getTransforms().get(0);
                     lineTrans = t.createConcatenation(lineTrans);
                     linesInFDomain.getTransforms().clear();
@@ -523,7 +514,7 @@ public class Document {
             // Translates fDomain by vector (dx,dy).
             translate(dx,dy);
             setTransformRecycled(translate.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
-            if (controller.getCbShowLines().isSelected()){
+            if (mainViewController.getCbShowLines().isSelected()) {
                 Transform lineTrans = linesInFDomain.getTransforms().get(0);
                 lineTrans = translate.createConcatenation(lineTrans);
                 linesInFDomain.getTransforms().clear();
@@ -536,7 +527,7 @@ public class Document {
                 Transform t = tiling.calculateBackShiftHyperbolic(tol);
                 recenterFDomain(t); // Shifts back fDomain into valid range
                 setTransformRecycled(t.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
-                if (controller.getCbShowLines().isSelected()){
+                if (mainViewController.getCbShowLines().isSelected()) {
                     Transform lineTrans = linesInFDomain.getTransforms().get(0);
                     lineTrans = t.createConcatenation(lineTrans);
                     linesInFDomain.getTransforms().clear();
@@ -766,7 +757,7 @@ public class Document {
      * @param useDepthBuffer
      */
     public void setUseDepthBuffer(boolean useDepthBuffer) {
-        final Pane mainPane = controller.getMainPane();
+        final Pane mainPane = mainViewController.getMainPane();
         SubScene subScene = (SubScene) mainPane.getChildren().get(0);
         if (useDepthBuffer != subScene.isDepthBuffer()) {
             mainPane.getChildren().remove(subScene);
@@ -799,7 +790,7 @@ public class Document {
      * @return true, if so
      */
     public boolean isUseDepthBuffer() {
-        final Pane mainPane = controller.getMainPane();
+        final Pane mainPane = mainViewController.getMainPane();
         SubScene subScene = (SubScene) mainPane.getChildren().get(0);
         return subScene.isDepthBuffer();
     }

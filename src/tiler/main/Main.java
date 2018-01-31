@@ -3,8 +3,6 @@ package tiler.main;
 import javafx.application.Application;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.*;
@@ -47,8 +45,8 @@ public class Main extends Application {
         stage.setTitle("Tiler");
 
         final FXMLLoader fxmlLoader = new FXMLLoader();
-        Pane root = fxmlLoader.load(getClass().getResource("View.fxml").openStream());
-        final Controller controller = fxmlLoader.getController();
+        Pane root = fxmlLoader.load(getClass().getResource("MainView.fxml").openStream());
+        final MainViewController mainViewController = fxmlLoader.getController();
 
         // setup world and subscene
         final Group world = new Group();
@@ -59,10 +57,10 @@ public class Main extends Application {
         world.getTransforms().add(worldScale);
         world.getTransforms().add(worldRotateProperty.get());
 
-        final Pane topPane = controller.getTopPane();
+        final Pane topPane = mainViewController.getTopPane();
         topPane.setPickOnBounds(false);
 
-        final Pane mainPane = controller.getMainPane();
+        final Pane mainPane = mainViewController.getMainPane();
         mainPane.getChildren().add(0, subScene);
 
         StackPane.setAlignment(topPane, Pos.CENTER);
@@ -79,15 +77,22 @@ public class Main extends Application {
         stage.sizeToScene();
         stage.show();
 
-        final Document document = new Document(stage, world, controller, camera);
+        final Document document = new Document(stage, world, mainViewController, camera);
         // read in a symbol for debugging:
         document.read(new StringReader("<23.1:20:2 4 6 8 10 12 14 16 18 20,2 10 5 9 8 20 13 15 17 19,11 12 13 14 15 16 17 18 19 20:3 3 5 5,4 4 4>"));
 
         MouseHandler.addMouseHandler(scene, worldTranslate, worldScale, worldRotateProperty, document);
+
+        {
+            mainViewController.getPoincareButton().setOnAction((e) -> HyperbolicModelCameraSettings.setModel(document, HyperbolicModelCameraSettings.Model.Poincare));
+            mainViewController.getKleinButton().setOnAction((e) -> HyperbolicModelCameraSettings.setModel(document, HyperbolicModelCameraSettings.Model.Klein));
+            mainViewController.getHyperboloidButton().setOnAction((e) -> HyperbolicModelCameraSettings.setModel(document, HyperbolicModelCameraSettings.Model.Hyperboloid));
+        }
+
         document.update();
 
 
-        /*controller.getFieldOfViewSlider().valueProperty().addListener(new ChangeListener<Number>() {
+        /*mainViewController.getFieldOfViewSlider().valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
                 document.getCamera().setFieldOfView(new_val.intValue());
             }
@@ -109,12 +114,9 @@ public class Main extends Application {
             }
         });
 
-        worldRotateProperty.addListener(new ChangeListener<Transform>() {
-            @Override
-            public void changed(ObservableValue<? extends Transform> observable, Transform oldValue, Transform newValue) {
-                int indexOf = world.getTransforms().indexOf(oldValue);
-                world.getTransforms().set(indexOf, newValue);
-            }
+        worldRotateProperty.addListener((observable, oldValue, newValue) -> {
+            int indexOf = world.getTransforms().indexOf(oldValue);
+            world.getTransforms().set(indexOf, newValue);
         });
     }
 
