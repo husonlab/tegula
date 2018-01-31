@@ -21,14 +21,14 @@ package tiler.util;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Sphere;
-import javafx.scene.shape.Cylinder;
 import javafx.scene.text.Text;
 
 /**
- * some Java FX untilities
+ * some Java FX utilities
  * Created by huson on 4/19/16.
  */
 public class JavaFXUtils {

@@ -228,7 +228,8 @@ public class Document {
             test2.setStroke(Color.BLACK);
 
             //Camera options
-            camera.setTranslateZ(-500);
+            camera.setTranslateZ(-5);
+            camera.setFieldOfView(10);
             camera.setFarClip(10000);
 
             mainViewController.getPoincareButton().setVisible(false);
@@ -243,9 +244,9 @@ public class Document {
         else if (tiling.getGeometry() == Geometry.Spherical) {
             tiles = tiling.createTilingSpherical(tol);
 
-            camera.setTranslateZ(-500);
-            camera.setFieldOfView(35);
-            camera.setFarClip(600);
+            camera.setTranslateZ(-700);
+            camera.setFieldOfView(15);
+            camera.setFarClip(10000);
 
             mainViewController.getPoincareButton().setVisible(false);
             mainViewController.getKleinButton().setVisible(false);
@@ -258,10 +259,12 @@ public class Document {
 
         // Hyperbolic case ---------------------------------------------------------------------------------------------
         else if (tiling.getGeometry() == Geometry.Hyperbolic) {
-            camera.setRotate(0);
-            camera.setTranslateZ(-100);
-            camera.setFieldOfView(90);
-            camera.setFarClip(10000);
+            if (mainViewController.getPoincareButton().isSelected())
+                mainViewController.getPoincareButton().fire();
+            else if (mainViewController.getKleinButton().isSelected())
+                mainViewController.getKleinButton().fire();
+            else if (mainViewController.getHyperboloidButton().isSelected())
+                mainViewController.getHyperboloidButton().fire();
 
             double diameterFDomain = calculateDiameter(tiling.getfDomain());
             if (2.8 * diameterFDomain > getLimitHyperbolicGroup()){
@@ -834,5 +837,9 @@ public class Document {
 
     public SimpleObjectProperty<Geometry> geometryProperty() {
         return geometryProperty;
+    }
+
+    public Geometry getGeometry() {
+        return geometryProperty.get();
     }
 }

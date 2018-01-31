@@ -1,17 +1,14 @@
 package tiler.main;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Scene;
-import javafx.scene.SubScene;
-import javafx.scene.layout.StackPane;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import tiler.core.dsymbols.Geometry;
-import tiler.tiling.Tiling;
-import tiler.util.ShapeHandler;
 
 /**
  * mouse handler
@@ -85,11 +82,13 @@ public class MouseHandler {
                     }
 
                 } else { //// rotate
-                    double modifierFactor = 0.25;
+                    final Point2D delta = new Point2D(me.getSceneX() - mouseDownX, me.getSceneY() - mouseDownY);
                     //noinspection SuspiciousNameCombination
-                    Point3D dragOrthogonalAxis = new Point3D(mouseDeltaY, -mouseDeltaX, 0);
-                    double rotationAngle = modifierFactor * Math.sqrt(mouseDeltaX * mouseDeltaX + mouseDeltaY * mouseDeltaY);
-                    worldRotateProperty.setValue(new Rotate(rotationAngle, dragOrthogonalAxis));
+                    final Point3D dragOrthogonalAxis = new Point3D(delta.getY(), -delta.getX(), 0);
+                    final Rotate rotate = new Rotate(0.25 * delta.magnitude(), dragOrthogonalAxis);
+                    worldRotateProperty.setValue(rotate.createConcatenation(worldRotateProperty.get()));
+                    mouseDownX = me.getSceneX();
+                    mouseDownY = me.getSceneY();
                 }
             }
         });
@@ -121,8 +120,8 @@ public class MouseHandler {
                         double factor = (me.getDeltaY() > 0 ? 1.1 : 0.9);
                         worldScale.setX(factor * worldScale.getX());
                         worldScale.setY(factor * worldScale.getY());
-                        document.width *= 1/factor;
-                        document.height *= 1/factor;
+                        document.width *= 1 / factor;
+                        document.height *= 1 / factor;
                         if (document.geometryProperty().getValue() == Geometry.Euclidean) {
                             document.update();
                         }

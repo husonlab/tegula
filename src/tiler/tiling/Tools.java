@@ -5,7 +5,6 @@ import javafx.geometry.Point3D;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
-import sun.misc.FDBigInteger;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
 
@@ -109,16 +108,15 @@ public class Tools {
 		return rotateToXInv.transform(translate1Inv.transform(rotat2.transform(translate2.transform(ursprung)))).multiply(100);
 	}
 
-	
-	
-	/**
-	 * Calculates interpolated point with respect to 0 <= pos <= 1 between points a and b on 3d-sphere.
-	 * 
-	 * @param a
-	 * @param b
-	 * @param pos
-	 * @return midpoint between a and b
-	 */
+
+    /**
+     * Calculates interpolated point with respect to 0 <= pos <= 1 between points a and b on 3d-sphere
+     *
+     * @param pointA
+     * @param pointB
+     * @param pos
+     * @return
+     */
 	public static Point3D interpolateSpherePoints(Point3D pointA, Point3D pointB, double pos) {
 		Point3D xAxis = new Point3D(100, 0, 0);
 		Point3D yAxis = new Point3D(0, 100, 0);
@@ -205,9 +203,9 @@ public class Tools {
 
 		return rotateForward.createConcatenation(translateX).createConcatenation(rotateBackward); // Hyperbolic
 																									// translation
-	}
+    }
 
-	/**
+    /**
 	 * map 2D point (unit model) to 3D point (scaled with 100), depending on set
 	 * geometry
 	 *
@@ -215,6 +213,7 @@ public class Tools {
 	 * @return 3D point
 	 */
 	public static Point3D map2Dto3D(Geometry geometry, Point2D apt) {
+
 		switch (geometry) {
 		default:
 		case Euclidean: {
@@ -223,13 +222,13 @@ public class Tools {
 		case Spherical: {
 			final double d = apt.getX() * apt.getX() + apt.getY() * apt.getY();
 			return new Point3D(100 * (2 * apt.getX() / (1 + d)), 100 * (2 * apt.getY() / (1 + d)),
-					100 * ((d - 1) / (d + 1)));
+                    100 * ((d - 1) / (d + 1)));
 		}
 		case Hyperbolic: {
 			final double d = apt.getX() * apt.getX() + apt.getY() * apt.getY();
 			if (d < 1)
 				return new Point3D(100 * (2 * apt.getX() / (1 - d)), 100 * (2 * apt.getY() / (1 - d)),
-						100 * ((1 + d) / (1 - d)));
+                        100 * ((1 + d) / (1 - d)));
 			else
 				return new Point3D(0, 0, 0);
 		}

@@ -5,7 +5,6 @@ import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Sphere;
 import javafx.scene.shape.TriangleMesh;
@@ -17,8 +16,6 @@ import javafx.scene.transform.Translate;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
-import tiler.main.Document;
-import tiler.util.ShapeHandler;
 import tiler.core.fundamental.utils.WrapInt;
 
 import java.util.Arrays;
@@ -273,7 +270,9 @@ public class FundamentalDomain {
 			mesh.getFaceSmoothingGroups().addAll(smoothing);
 			MeshView meshView = new MeshView(mesh);
 			meshView.setMesh(mesh);
-			meshView.setMaterial(new PhongMaterial(colors[a]));
+            PhongMaterial material = new PhongMaterial(colors[a]);
+            //material.setSpecularColor(Color.YELLOW);
+            meshView.setMaterial(material);
 			group.getChildren().addAll(meshView);
 		}
 
@@ -478,8 +477,8 @@ public class FundamentalDomain {
 							linePoints[i] = Tools.interpolateSpherePoints(e2, v1, i / 32.0);
 						}
 						for (int j = 0; j < 32; j++) {
-							group.getChildren().add(Cylinderline.createConnection(linePoints[1 * j],
-									linePoints[1 * (j + 1)], Color.BLACK, width));
+                            group.getChildren().add(Cylinderline.createConnection(linePoints[j],
+                                    linePoints[j + 1], Color.BLACK, width));
 						}
 						visited.set(dsymbol.getS2(a));
 					}
