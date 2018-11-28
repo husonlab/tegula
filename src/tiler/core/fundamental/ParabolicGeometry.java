@@ -7,9 +7,9 @@ import tiler.core.fundamental.utils.Wrap;
  * Created by huson on 3/28/16.
  * Based on del_pgeo.h by Klaus Westphal, 1990
  */
-public class ParabolicGeometry {
+class ParabolicGeometry {
 
-    public static Boolean Compute_Par_Line(double Beg_R, double Beg_A, double End_R, double End_A, double Aux_R, Boolean infinite,
+    static boolean Compute_Par_Line(double Beg_R, double Beg_A, double End_R, double End_A, double Aux_R, boolean infinite,
                                            Wrap<Double> Cen_Re, Wrap<Double> Cen_Im, Wrap<Double> Cen_R, Wrap<Double> Ang_B, Wrap<Double> Ang_E,
                                            Wrap<Double> Beg_Re, Wrap<Double> Beg_Im, Wrap<Double> End_Re, Wrap<Double> End_Im) {
         double Del_Re, Del_Im;

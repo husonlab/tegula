@@ -64,7 +64,7 @@ public class Approximate {
         }
     }
 
-    static double beta_defect(DELANEY d, double rad) {
+    static private double beta_defect(DELANEY d, double rad) {
         double sum = 0.0;
         double cosr;
         int p, oc, op;
@@ -97,7 +97,7 @@ public class Approximate {
         }
     }
 
-    static double regula_falsi(DELANEY d, double lr, double la, double hr, double ha) {
+    static private double regula_falsi(DELANEY d, double lr, double la, double hr, double ha) {
         int count = 0;
         double olr, ola;	/*	    lower value		*/
         double ohr, oha;	/*	   higher value		*/
@@ -153,7 +153,6 @@ public class Approximate {
         return (0.5 * (hr + lr));
     }
 
-
     static public void compute_coords(DELANEY d) {
         int s;
         int b, cb;
@@ -164,7 +163,7 @@ public class Approximate {
         int cp = 0, ocx, ocy;
         int k, n;
         double sum;
-        Boolean is_circle;
+        boolean is_circle;
         final Wrap<Double> Cen_Re = new Wrap<>(0.0);
         final Wrap<Double> Cen_Im = new Wrap<>(0.0);
         final Wrap<Double> Cen_R = new Wrap<>(0.0);
@@ -492,16 +491,16 @@ public class Approximate {
         }
     }
 
-    static public Boolean relax_coords(DELANEY d) {
-        Boolean nod_changes = relax_nods(d);
-        Boolean edg_changes = relax_edgs(d);
-        Boolean orb_changes = relax_orbs(d);
-        Boolean any_changes = nod_changes || edg_changes || orb_changes;
+    static public boolean relax_coords(DELANEY d) {
+        boolean nod_changes = relax_nods(d);
+        boolean edg_changes = relax_edgs(d);
+        boolean orb_changes = relax_orbs(d);
+        boolean any_changes = nod_changes || edg_changes || orb_changes;
         return (any_changes);
     }
 
-    static public Boolean relax_nods(DELANEY d) {
-        Boolean nod_changes;
+    static private boolean relax_nods(DELANEY d) {
+        boolean nod_changes;
         int nc, ty;
         int ec;
         int oc;
@@ -536,7 +535,7 @@ public class Approximate {
         return (nod_changes);
     }
 
-    static public Boolean relax_edgs(DELANEY d) {
+    static public boolean relax_edgs(DELANEY d) {
         boolean edg_changes;
         int ec, ep;
         int nca, ncb;
@@ -582,7 +581,7 @@ public class Approximate {
         return (edg_changes);
     }
 
-    static public Boolean relax_orbs(DELANEY d) {
+    static private boolean relax_orbs(DELANEY d) {
         boolean orb_changes = false;
         int oc, op;
         int nc;

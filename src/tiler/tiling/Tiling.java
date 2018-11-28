@@ -18,6 +18,7 @@ import tiler.main.Document;
 import tiler.util.JavaFXUtils;
 import tiler.util.ShapeHandler;
 
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -48,7 +49,6 @@ public class Tiling {
     public static Group HyperbolicFund = new Group();
 
     public static Group handles = new Group();
-    public static Handle handle = new Handle();
 
 
     private final int[] flag2vert;
@@ -62,6 +62,9 @@ public class Tiling {
     private final int numbVert;
     private final int numbEdge;
     private final int numbTile;
+
+    private boolean isBreak = false;
+    private int numberOfCopies = 0;
 
     /**
      * constructor
@@ -599,8 +602,8 @@ public class Tiling {
             final QuadTree seen = new QuadTree(); // Saves reference points of tiles
             seen.insert(refPointEuclidean.getX(), refPointEuclidean.getY(), tol); // Insert reference point of fDomain
 
-            final Queue<Transform> queue = new LinkedList<>(); // Saves transforms for copies
-            queue.addAll(generators.getTransforms()); // Add generators
+            // Saves transforms for copies
+            final Queue<Transform> queue = new LinkedList<>(generators.getTransforms()); // Add generators
 
             for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
                 Point3D genRef = g.transform(refPointEuclidean); // Reference point for new copy
@@ -684,8 +687,7 @@ public class Tiling {
         //Add all generators
         computeConstraintsAndGenerators();
 
-        final Queue<Transform> queue = new LinkedList<>();
-        queue.addAll(generators.getTransforms());
+        final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
 
         Point3D refPoint = fDomain.getChamberCenter3D(Document.getChamberIndex());
         final QuadTree seen = new QuadTree();
@@ -752,9 +754,7 @@ public class Tiling {
         //Add all generators
         computeConstraintsAndGenerators();
 
-        final Queue<Transform> queue = new LinkedList<>();
-        queue.addAll(generators.getTransforms());
-
+        final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
 
         Point3D refPoint = fDomain.getChamberCenter3D(Document.getChamberIndex());
         final OctTree seen = new OctTree();
@@ -828,12 +828,8 @@ public class Tiling {
 
         double eps = 0;
 
-        if (windowCorner.getX() - 250 - eps <= point.getX() && point.getX() <= windowCorner.getX() + width + eps &&
-                windowCorner.getY() - 250 - eps <= point.getY() && point.getY() <= windowCorner.getY() + height + eps) {
-            return true;
-        } else {
-            return false;
-        }
+        return windowCorner.getX() - 250 - eps <= point.getX() && point.getX() <= windowCorner.getX() + width + eps &&
+                windowCorner.getY() - 250 - eps <= point.getY() && point.getY() <= windowCorner.getY() + height + eps;
     }
 
     /**
@@ -853,12 +849,8 @@ public class Tiling {
             height = 450;
         }
 
-        if (windowCorner.getX() <= point.getX() && point.getX() <= windowCorner.getX() + width &&
-                windowCorner.getY() <= point.getY() && point.getY() <= windowCorner.getY() + height) {
-            return true;
-        } else {
-            return false;
-        }
+        return windowCorner.getX() <= point.getX() && point.getX() <= windowCorner.getX() + width &&
+                windowCorner.getY() <= point.getY() && point.getY() <= windowCorner.getY() + height;
     }
 
     /**
@@ -881,12 +873,7 @@ public class Tiling {
         double left = windowCorner.getX() + 50, right = windowCorner.getX() + width - 50;
         double up = windowCorner.getY() + 50, down = windowCorner.getY() + height - 50;
 
-        if (left <= point.getX() && point.getX() <= right &&
-                up <= point.getY() && point.getY() <= down) {
-            return true;
-        } else {
-            return false;
-        }
+        return left <= point.getX() && point.getX() <= right && up <= point.getY() && point.getY() <= down;
     }
 
     private void useRecycler(Group g, Transform t, Point3D p, Group domain) {
@@ -906,14 +893,6 @@ public class Tiling {
         group2.setRotationAxis(p);
         group2.getTransforms().add(t);
         g.getChildren().add(group2);
-    }
-
-    private static int getNumberOfCopies() {
-        return Document.numberOfCopies;
-    }
-
-    private void setBreak(boolean b) {
-        Document.isBreak = b;
     }
 
     private boolean makeCopyHyperbolic(Point3D p) {
@@ -1423,7 +1402,7 @@ public class Tiling {
         // Loop works as long as newPos does not fulfill restrictions but at most 50 times
         // If a restriction is not fulfilled then newPos is moved onto the restricting line / plane in direction of its normal vector
         int counter = 0;
-        while (counter <= 1000 && !checkRest.equals(restrictions)){
+        while (counter <= 1000 && !Arrays.equals(checkRest, restrictions)) {
             for (int i = 0; i <= length-1; i++){
                 if (checkRest[i] != restrictions[i]) {
                     Point3D qp = Q[i].subtract(newPos);
@@ -1445,11 +1424,8 @@ public class Tiling {
     }
 
     private boolean compare(double a, double b){
-        if (a >= b) return true;
-        else return false;
+        return a >= b;
     }
-
-
 
     /**
      * compute middle point
@@ -1497,4 +1473,21 @@ public class Tiling {
         return handles;
     }
     //public Transforms getGenerators(){return generators;}
+
+
+    public boolean isBreak() {
+        return isBreak;
+    }
+
+    public void setBreak(boolean isBreak) {
+        this.isBreak = isBreak;
+    }
+
+    public void setNumberOfCopies(int numberOfCopies) {
+        this.numberOfCopies = numberOfCopies;
+    }
+
+    public int getNumberOfCopies() {
+        return numberOfCopies;
+    }
 }

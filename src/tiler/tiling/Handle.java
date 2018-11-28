@@ -1,8 +1,7 @@
 package tiler.tiling;
+
 import javafx.scene.Group;
 import javafx.scene.shape.Shape;
-
-import java.util.BitSet;
 
 /**
  * Created by Ruediger on 2017.06.20.

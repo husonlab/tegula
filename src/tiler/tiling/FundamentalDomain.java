@@ -1,19 +1,12 @@
 package tiler.tiling;
 
-import javafx.collections.ObservableFloatArray;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
-import javafx.scene.AmbientLight;
 import javafx.scene.Group;
-import javafx.scene.PerspectiveCamera;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.CullFace;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Sphere;
-import javafx.scene.shape.Shape;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -24,17 +17,10 @@ import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
 import tiler.core.fundamental.utils.WrapInt;
-import tiler.core.fundamental.utils.Gaps;
 
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.Comparator;
 import java.util.Random;
-import java.util.concurrent.SynchronousQueue;
-import java.util.List;
-import java.util.ArrayList;
-
-import com.sun.javafx.css.CalculatedValue;
 
 /**
  * builds fundamental domain in JavaFX Created by huson on 4/5/16.

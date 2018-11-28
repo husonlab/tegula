@@ -19,7 +19,6 @@
 package tiler.tiling;
 
 import javafx.geometry.Point3D;
-import javafx.scene.Group;
 import javafx.scene.shape.TriangleMesh;
 
 import java.util.List;

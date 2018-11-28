@@ -58,13 +58,13 @@ public class Main extends Application {
         world.getTransforms().add(worldScale);
         world.getTransforms().add(worldRotateProperty.get());
 
-        final Pane topPane = mainViewController.getTopPane();
-        topPane.setPickOnBounds(false);
+        //final Pane topPane = mainViewController.getMainPane();
+        // topPane.setPickOnBounds(false);
 
         final Pane mainPane = mainViewController.getMainPane();
         mainPane.getChildren().add(0, subScene);
 
-        StackPane.setAlignment(topPane, Pos.CENTER);
+        //StackPane.setAlignment(topPane, Pos.CENTER);
         StackPane.setAlignment(subScene, Pos.CENTER);
 
         subScene.heightProperty().bind(mainPane.heightProperty());

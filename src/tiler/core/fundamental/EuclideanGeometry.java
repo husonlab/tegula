@@ -11,11 +11,11 @@ import tiler.core.fundamental.utils.Wrap;
  */
 public class EuclideanGeometry {
 
-    public static double cut_circle_circle(Wrap<Double> CutMX, Wrap<Double> CutMY,
-                                           Wrap<Double> CutLX, Wrap<Double> CutLY,
-                                           Wrap<Double> CutRX, Wrap<Double> CutRY,
-                                           double CenAX, double CenAY, double RadA,
-                                           double CenBX, double CenBY, double RadB) {
+    static double cut_circle_circle(Wrap<Double> CutMX, Wrap<Double> CutMY,
+                                    Wrap<Double> CutLX, Wrap<Double> CutLY,
+                                    Wrap<Double> CutRX, Wrap<Double> CutRY,
+                                    double CenAX, double CenAY, double RadA,
+                                    double CenBX, double CenBY, double RadB) {
         double DisX, DisY;
         double Dis2, RadA2, RadB2;
         double Fact;
@@ -45,11 +45,11 @@ public class EuclideanGeometry {
         return (Dis);
     }
 
-    public static double cut_circle_line(Wrap<Double> CutMX, Wrap<Double> CutMY, Wrap<Double> CutM,
-                                         Wrap<Double> CutLX, Wrap<Double> CutLY, Wrap<Double> CutL,
-                                         Wrap<Double> CutRX, Wrap<Double> CutRY, Wrap<Double> CutR,
-                                         double CenX, double CenY, double Rad,
-                                         double BegX, double BegY, double EndX, double EndY) {
+    static double cut_circle_line(Wrap<Double> CutMX, Wrap<Double> CutMY, Wrap<Double> CutM,
+                                  Wrap<Double> CutLX, Wrap<Double> CutLY, Wrap<Double> CutL,
+                                  Wrap<Double> CutRX, Wrap<Double> CutRY, Wrap<Double> CutR,
+                                  double CenX, double CenY, double Rad,
+                                  double BegX, double BegY, double EndX, double EndY) {
         double Beg2, End2;
         double MidX, MidY, Mid2;
         double DelX, DelY, Del2;
@@ -89,9 +89,9 @@ public class EuclideanGeometry {
         return (Math.sqrt(Dis2));
     }
 
-    public static double cut_line_line(Wrap<Double> CutX, Wrap<Double> CutY, Wrap<Double> Cut1, Wrap<Double> Cut2,
-                                       double Beg1X, double Beg1Y, double End1X, double End1Y,
-                                       double Beg2X, double Beg2Y, double End2X, double End2Y) {
+    static double cut_line_line(Wrap<Double> CutX, Wrap<Double> CutY, Wrap<Double> Cut1, Wrap<Double> Cut2,
+                                double Beg1X, double Beg1Y, double End1X, double End1Y,
+                                double Beg2X, double Beg2Y, double End2X, double End2Y) {
         double Del1X, Del1Y, Del2X, Del2Y;
         double Mid1X, Mid1Y, Mid2X, Mid2Y;
         double Dis, Fac0, Fac1, Fac2;

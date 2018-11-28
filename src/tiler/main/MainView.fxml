@@ -4,11 +4,11 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
-            prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="tiler.main.MainViewController">
+<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="tiler.main.MainViewController">
     <top>
-        <VBox prefHeight="69.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+        <VBox prefHeight="40.0" prefWidth="600.0" BorderPane.alignment="CENTER">
             <children>
                 <MenuBar fx:id="menuBar">
                     <menus>
@@ -194,150 +194,137 @@
         <TextField fx:id="statusTextField" BorderPane.alignment="CENTER" />
     </bottom>
     <right>
-        <Pane fx:id="topPane" BorderPane.alignment="CENTER">
+        <VBox fx:id="groupVBox" prefHeight="304.0" prefWidth="88.0">
             <children>
-                <VBox fx:id="groupVBox" prefHeight="304.0" prefWidth="88.0">
-                    <children>
-                        <BorderPane prefHeight="31.0" prefWidth="88.0">
-                            <left>
-                                <Button fx:id="decreasev0" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
-                                        text="-" BorderPane.alignment="CENTER"/>
-                            </left>
-                            <right>
-                                <Button fx:id="increaseV0" mnemonicParsing="false" text="+"
-                                        BorderPane.alignment="CENTER"/>
-                            </right>
-                            <center>
-                                <Label fx:id="labelV0" text="1" textAlignment="CENTER" BorderPane.alignment="CENTER"/>
-                            </center>
-                        </BorderPane>
-                        <BorderPane layoutX="10.0" layoutY="10.0" prefHeight="31.0" prefWidth="88.0">
-                            <left>
-                                <Button fx:id="decreaseV1" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
-                                        text="-" BorderPane.alignment="CENTER"/>
-                            </left>
-                            <right>
-                                <Button fx:id="increaseV1" mnemonicParsing="false" text="+"
-                                        BorderPane.alignment="CENTER"/>
-                            </right>
-                            <center>
-                                <Label fx:id="labelV1" text="1" textAlignment="CENTER" BorderPane.alignment="CENTER"/>
-                            </center>
-                        </BorderPane>
-                        <BorderPane layoutX="10.0" layoutY="41.0" prefHeight="31.0" prefWidth="88.0">
-                            <left>
-                                <Button fx:id="decreaseV2" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
-                                        text="-" BorderPane.alignment="CENTER"/>
-                            </left>
-                            <right>
-                                <Button fx:id="increaseV2" mnemonicParsing="false" text="+"
-                                        BorderPane.alignment="CENTER"/>
-                            </right>
-                            <center>
-                                <Label fx:id="labelV2" text="1" textAlignment="CENTER" BorderPane.alignment="CENTER"/>
-                            </center>
-                        </BorderPane>
-                        <BorderPane layoutX="10.0" layoutY="72.0" prefHeight="31.0" prefWidth="88.0">
-                            <left>
-                                <Button fx:id="decreaseV3" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
-                                        text="-" BorderPane.alignment="CENTER"/>
-                            </left>
-                            <right>
-                                <Button fx:id="increaseV3" mnemonicParsing="false" text="+"
-                                        BorderPane.alignment="CENTER"/>
-                            </right>
-                            <center>
-                                <Label fx:id="labelV3" text="1" BorderPane.alignment="CENTER"/>
-                            </center>
-                        </BorderPane>
-                        <BorderPane layoutX="10.0" layoutY="103.0" prefHeight="31.0" prefWidth="88.0">
-                            <left>
-                                <Button fx:id="decreaseV4" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
-                                        text="-" BorderPane.alignment="CENTER"/>
-                            </left>
-                            <right>
-                                <Button fx:id="increaseV4" mnemonicParsing="false" text="+"
-                                        BorderPane.alignment="CENTER"/>
-                            </right>
-                            <center>
-                                <Label fx:id="labelV4" text="1" BorderPane.alignment="CENTER"/>
-                            </center>
-                        </BorderPane>
-                        <BorderPane layoutX="10.0" layoutY="134.0" prefHeight="31.0" prefWidth="88.0">
-                            <left>
-                                <Button fx:id="decreaseV5" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
-                                        text="-" BorderPane.alignment="CENTER"/>
-                            </left>
-                            <right>
-                                <Button fx:id="increaseV5" mnemonicParsing="false" text="+"
-                                        BorderPane.alignment="CENTER"/>
-                            </right>
-                            <center>
-                                <Label fx:id="labelV5" text="1" BorderPane.alignment="CENTER"/>
-                            </center>
-                        </BorderPane>
-                        <BorderPane layoutX="10.0" layoutY="165.0" prefHeight="31.0" prefWidth="88.0">
-                            <left>
-                                <Button fx:id="decreaseV6" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
-                                        text="-" BorderPane.alignment="CENTER"/>
-                            </left>
-                            <right>
-                                <Button fx:id="increaseV6" mnemonicParsing="false" text="+"
-                                        BorderPane.alignment="CENTER"/>
-                            </right>
-                            <center>
-                                <Label fx:id="labelV6" text="1" BorderPane.alignment="CENTER"/>
-                            </center>
-                        </BorderPane>
-                        <BorderPane layoutX="10.0" layoutY="196.0" prefHeight="31.0" prefWidth="88.0">
-                            <left>
-                                <Button fx:id="decreaseV7" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
-                                        text="-" BorderPane.alignment="CENTER"/>
-                            </left>
-                            <right>
-                                <Button fx:id="increaseV7" mnemonicParsing="false" text="+"
-                                        BorderPane.alignment="CENTER"/>
-                            </right>
-                            <center>
-                                <Label fx:id="labelV7" text="1" BorderPane.alignment="CENTER"/>
-                            </center>
-                        </BorderPane>
-                        <BorderPane prefHeight="31.0" prefWidth="88.0">
-                            <left>
-                                <Button fx:id="decreaseV8" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
-                                        text="-" BorderPane.alignment="CENTER"/>
-                            </left>
-                            <right>
-                                <Button fx:id="increaseV8" mnemonicParsing="false" text="+"
-                                        BorderPane.alignment="CENTER"/>
-                            </right>
-                            <center>
-                                <Label fx:id="labelV8" text="1" BorderPane.alignment="CENTER"/>
-                            </center>
-                        </BorderPane>
-                        <BorderPane prefHeight="31.0" prefWidth="88.0">
-                            <left>
-                                <Button fx:id="decreaseV9" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0"
-                                        text="-" BorderPane.alignment="CENTER"/>
-                            </left>
-                            <right>
-                                <Button fx:id="increaseV9" mnemonicParsing="false" text="+"
-                                        BorderPane.alignment="CENTER"/>
-                            </right>
-                            <center>
-                                <Label fx:id="labelV9" text="1" BorderPane.alignment="CENTER"/>
-                            </center>
-                        </BorderPane>
-                    </children>
-                    <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                    </padding>
-                </VBox>
+                <BorderPane prefHeight="31.0" prefWidth="88.0">
+                    <left>
+                        <Button fx:id="decreasev0" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
+                                BorderPane.alignment="CENTER"/>
+                    </left>
+                    <right>
+                        <Button fx:id="increaseV0" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
+                    </right>
+                    <center>
+                        <Label fx:id="labelV0" text="1" textAlignment="CENTER" BorderPane.alignment="CENTER"/>
+                    </center>
+                </BorderPane>
+                <BorderPane layoutX="10.0" layoutY="10.0" prefHeight="31.0" prefWidth="88.0">
+                    <left>
+                        <Button fx:id="decreaseV1" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
+                                BorderPane.alignment="CENTER"/>
+                    </left>
+                    <right>
+                        <Button fx:id="increaseV1" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
+                    </right>
+                    <center>
+                        <Label fx:id="labelV1" text="1" textAlignment="CENTER" BorderPane.alignment="CENTER"/>
+                    </center>
+                </BorderPane>
+                <BorderPane layoutX="10.0" layoutY="41.0" prefHeight="31.0" prefWidth="88.0">
+                    <left>
+                        <Button fx:id="decreaseV2" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
+                                BorderPane.alignment="CENTER"/>
+                    </left>
+                    <right>
+                        <Button fx:id="increaseV2" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
+                    </right>
+                    <center>
+                        <Label fx:id="labelV2" text="1" textAlignment="CENTER" BorderPane.alignment="CENTER"/>
+                    </center>
+                </BorderPane>
+                <BorderPane layoutX="10.0" layoutY="72.0" prefHeight="31.0" prefWidth="88.0">
+                    <left>
+                        <Button fx:id="decreaseV3" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
+                                BorderPane.alignment="CENTER"/>
+                    </left>
+                    <right>
+                        <Button fx:id="increaseV3" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
+                    </right>
+                    <center>
+                        <Label fx:id="labelV3" text="1" BorderPane.alignment="CENTER"/>
+                    </center>
+                </BorderPane>
+                <BorderPane layoutX="10.0" layoutY="103.0" prefHeight="31.0" prefWidth="88.0">
+                    <left>
+                        <Button fx:id="decreaseV4" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
+                                BorderPane.alignment="CENTER"/>
+                    </left>
+                    <right>
+                        <Button fx:id="increaseV4" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
+                    </right>
+                    <center>
+                        <Label fx:id="labelV4" text="1" BorderPane.alignment="CENTER"/>
+                    </center>
+                </BorderPane>
+                <BorderPane layoutX="10.0" layoutY="134.0" prefHeight="31.0" prefWidth="88.0">
+                    <left>
+                        <Button fx:id="decreaseV5" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
+                                BorderPane.alignment="CENTER"/>
+                    </left>
+                    <right>
+                        <Button fx:id="increaseV5" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
+                    </right>
+                    <center>
+                        <Label fx:id="labelV5" text="1" BorderPane.alignment="CENTER"/>
+                    </center>
+                </BorderPane>
+                <BorderPane layoutX="10.0" layoutY="165.0" prefHeight="31.0" prefWidth="88.0">
+                    <left>
+                        <Button fx:id="decreaseV6" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
+                                BorderPane.alignment="CENTER"/>
+                    </left>
+                    <right>
+                        <Button fx:id="increaseV6" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
+                    </right>
+                    <center>
+                        <Label fx:id="labelV6" text="1" BorderPane.alignment="CENTER"/>
+                    </center>
+                </BorderPane>
+                <BorderPane layoutX="10.0" layoutY="196.0" prefHeight="31.0" prefWidth="88.0">
+                    <left>
+                        <Button fx:id="decreaseV7" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
+                                BorderPane.alignment="CENTER"/>
+                    </left>
+                    <right>
+                        <Button fx:id="increaseV7" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
+                    </right>
+                    <center>
+                        <Label fx:id="labelV7" text="1" BorderPane.alignment="CENTER"/>
+                    </center>
+                </BorderPane>
+                <BorderPane prefHeight="31.0" prefWidth="88.0">
+                    <left>
+                        <Button fx:id="decreaseV8" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
+                                BorderPane.alignment="CENTER"/>
+                    </left>
+                    <right>
+                        <Button fx:id="increaseV8" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
+                    </right>
+                    <center>
+                        <Label fx:id="labelV8" text="1" BorderPane.alignment="CENTER"/>
+                    </center>
+                </BorderPane>
+                <BorderPane prefHeight="31.0" prefWidth="88.0">
+                    <left>
+                        <Button fx:id="decreaseV9" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
+                                BorderPane.alignment="CENTER"/>
+                    </left>
+                    <right>
+                        <Button fx:id="increaseV9" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
+                    </right>
+                    <center>
+                        <Label fx:id="labelV9" text="1" BorderPane.alignment="CENTER"/>
+                    </center>
+                </BorderPane>
             </children>
-        </Pane>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </VBox>
     </right>
     <left>
-        <VBox prefHeight="200.0" prefWidth="123.0" spacing="10.0" BorderPane.alignment="CENTER">
+        <VBox fx:id="hyperbolicControlsVBox" prefHeight="200.0" prefWidth="123.0" spacing="10.0"
+              BorderPane.alignment="CENTER">
             <children>
                 <RadioButton fx:id="poincareRadioButton" mnemonicParsing="false" selected="true" text="Poincare model"/>
                 <RadioButton fx:id="kleinRadioButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false"
@@ -355,6 +342,7 @@
         </VBox>
     </left>
     <center>
-        <Pane fx:id="mainPane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER"/>
+        <Pane fx:id="mainPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+              style="-fx-background-color: white;" BorderPane.alignment="CENTER"/>
     </center>
 </BorderPane>

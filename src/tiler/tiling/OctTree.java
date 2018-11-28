@@ -1,11 +1,7 @@
 package tiler.tiling;
 
-import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
-import javafx.scene.transform.Transform;
 import tiler.core.dsymbols.FDomain;
-import tiler.core.dsymbols.Geometry;
-import tiler.main.Document;
 
 /**
  * Computes an OctTree for 3d-points. Returns true if a given point is added to the tree.

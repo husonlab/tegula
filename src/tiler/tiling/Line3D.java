@@ -1,25 +1,12 @@
 package tiler.tiling;
 
-import java.util.Arrays;
-import java.util.List;
-
-import javafx.scene.AmbientLight;
-import javafx.scene.DepthTest;
-import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.CullFace;
-import javafx.scene.shape.DrawMode;
-import javafx.scene.shape.MeshView;
-import javafx.scene.shape.TriangleMesh;
-import javafx.scene.transform.Rotate;
 import javafx.geometry.Point3D;
-
-import tiler.core.dsymbols.DSymbol;
+import javafx.scene.Group;
+import javafx.scene.shape.TriangleMesh;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
-import tiler.tiling.*;
+
+import java.util.Arrays;
 
 public class Line3D extends Group {
 

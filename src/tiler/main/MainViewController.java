@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -186,6 +187,14 @@ public class MainViewController implements Initializable {
     @FXML
     private CheckBox cbShowLines;
 
+    @FXML
+    private VBox hyperbolicControlsVBox;
+
+    @FXML
+    private BorderPane borderPane;
+
+
+
     private Document document;
     private Stage stage;
 
@@ -197,12 +206,15 @@ public class MainViewController implements Initializable {
      */
     @Override
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
-        if (System.getProperty("os.name") != null && System.getProperty("os.name").toLowerCase().startsWith("mac"))
+        if (System.getProperty("os.name") != null && System.getProperty("os.name").toLowerCase().startsWith("mac")) {
             menuBar.setUseSystemMenuBar(true);
+        }
 
+        borderPane.setRight(null);
+        editSymmetryGroupMenuItem.setSelected(false);
+        editSymmetryGroupButton.setSelected(false);
+        
         statusTextField.setEditable(false);
-
-        topPane.getChildren().remove(groupVBox);
 
         final ToggleGroup toggleGroup = new ToggleGroup();
         poincareRadioButton.setToggleGroup(toggleGroup);
@@ -354,7 +366,6 @@ public class MainViewController implements Initializable {
 
     @FXML
     void fireMaxSymmetry(ActionEvent event) {
-
     }
 
     @FXML
@@ -380,10 +391,8 @@ public class MainViewController implements Initializable {
         }
     }
 
-
     @FXML
     void firePaste(ActionEvent event) {
-
     }
 
     @FXML
@@ -445,14 +454,12 @@ public class MainViewController implements Initializable {
 
     @FXML
     void fireEditSymmetryGroup(ActionEvent event) {
-        if (topPane.getChildren().contains(groupVBox)) {
-            topPane.getChildren().remove(groupVBox);
-        } else {
-            topPane.getChildren().add(groupVBox);
-        }
-        editSymmetryGroupMenuItem.setSelected(topPane.getChildren().contains(groupVBox));
-        editSymmetryGroupButton.setSelected(topPane.getChildren().contains(groupVBox));
-
+        if (editSymmetryGroupButton.isSelected()) {
+            borderPane.setRight(groupVBox);
+        } else
+            borderPane.setRight(null);
+        editSymmetryGroupMenuItem.setSelected(borderPane.getRight() == groupVBox);
+        editSymmetryGroupButton.setSelected(borderPane.getRight() == groupVBox);
     }
 
     @FXML
@@ -570,6 +577,16 @@ public class MainViewController implements Initializable {
             default:
             case 9:
                 return increaseV9;
+        }
+    }
+
+    public void showHyperbolicControls(boolean show) {
+        if (show) {
+            if (borderPane.getLeft() != hyperbolicControlsVBox) {
+                borderPane.setLeft(hyperbolicControlsVBox);
+            }
+        } else {
+            borderPane.setLeft(null);
         }
     }
 }

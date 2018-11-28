@@ -21,7 +21,7 @@ public class Glue {
     public void glue_delaney() {
         int ep, op;
         int np, oq;
-        Boolean change;
+        boolean change;
         Util.prepare_m(d);
         for (op = 0; op < d.getOrbs(); ++op) {
             d.getOrb(op).setS(0);
@@ -302,7 +302,7 @@ public class Glue {
         return (-1);
     }
 
-    private Boolean glue_orb(int op) {
+    private boolean glue_orb(int op) {
         boolean change;
         int ti = d.getOrb(op).getTi();
         int tj = d.getOrb(op).getTj();
@@ -339,18 +339,18 @@ public class Glue {
         } while (np != na);
         d.getOrb(op).setId(++ocnt);		/*	glue orbit	*/
         change = true;
-        return (change);
+        return change;
     }
 
-    private Boolean glue_edg(int ep) {
+    private boolean glue_edg(int ep) {
         int na, nb;
         int ox, oy;
-        Boolean change = false;
+        boolean change = false;
         if (edg_is_glued(ep)) {
-            return (change);
+            return false;
         }
         if (edg_is_cut(ep)) {
-            return (change);
+            return false;
         }
         na = d.getEdg(ep).getNpa();
         nb = d.getEdg(ep).getNpb();
@@ -359,7 +359,7 @@ public class Glue {
         if (na == nb) {				/*	Mirror	*/
             if (glue_nod(na))
                 change = true;
-            return (change);
+            return change;
         }
         switch ((nod_is_glued(na) ? 1 : 0) + (nod_is_glued(nb) ? 1 : 0)) {
             case 0:
@@ -381,18 +381,18 @@ public class Glue {
             change = true;
         if (glue_nod(nb))
             change = true;
-        return (change);				/*	ok	*/
+        return change;                /*	ok	*/
     }
 
-    private Boolean glue_nod(int np) {
+    private boolean glue_nod(int np) {
         int ty;
         int op;
         int ti, ei, ni;
         int tj, ej, nj;
-        Boolean change = false;
+        boolean change = false;
         d.getNod(np).incrMk();			/*	count glued edges of node	*/
         if (nod_is_glued(np)) {
-            return (change);
+            return change;
         }
         d.getNod(np).setId(++ncnt);		/*	glue node	*/
         change = true;
@@ -417,7 +417,7 @@ public class Glue {
             // // System.err.print(String.format("%d.%d: %d\n",ty,op,(edg_is_glued(ei)?1:0)+(edg_is_glued(ej)?1:0)));
 
         }
-        return (change);				/*	ok	*/
+        return change;                /*	ok	*/
     }
 
     private void spread_sg(int nr) {
@@ -716,12 +716,12 @@ public class Glue {
         return d.getOrb(op).getB() < 1;
     }
 
-    private static Boolean greater_than(int a1, int b1, int a2, int b2, int a3, int b3) {
+    private static boolean greater_than(int a1, int b1, int a2, int b2, int a3, int b3) {
         // System.err.print(String.format("GT: %d %d %d %d %d %d\n",a1,b1,a2,b2,a3,b3));
         return !less_or_equal(a1, b1, a2, b2, a3, b3);
     }
 
-    private static Boolean less_or_equal(int a1, int b1, int a2, int b2, int a3, int b3) {
+    private static boolean less_or_equal(int a1, int b1, int a2, int b2, int a3, int b3) {
         if (a1 < b1) {
             return (true);
         } else if (a1 > b1) {

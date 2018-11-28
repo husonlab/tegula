@@ -1,7 +1,6 @@
 package tiler.tiling;
 
 import javafx.geometry.Point2D;
-import javafx.geometry.Point3D;
 
 /**
  * Created by Ruediger on 2016.07.07.

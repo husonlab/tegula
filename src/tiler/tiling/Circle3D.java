@@ -1,15 +1,10 @@
 package tiler.tiling;
 
-import java.util.Arrays;
-import java.util.List;
-
 import javafx.geometry.Point3D;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
-import javafx.scene.transform.Rotate;
 import tiler.core.dsymbols.Geometry;
+
+import java.util.Arrays;
 
 public class Circle3D {
 
