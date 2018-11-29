@@ -1,6 +1,24 @@
-package tiler.main;
+/*
+ *  Copyright (C) 2016 Daniel H. Huson
+ *
+ *  (Some files contain contributions from other authors, who are then mentioned separately.)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-import javafx.application.Application;
+package tiler.main_new;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
@@ -14,23 +32,28 @@ import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.Geometry;
+import tiler.main.Document;
+import tiler.main.MouseHandler;
 
+import java.io.IOException;
 import java.io.StringReader;
-import java.util.Properties;
 
 /**
- * main program
+ * the main view
+ * todo: extensive refactoring required
+ * Daniel Huson, 1.2018
  */
-public class Main extends Application {
+public class MainView {
+    /**
+     * create a new main view
+     *
+     * @param stage
+     * @throws IOException
+     */
+    public MainView(Stage stage) throws IOException {
+        if (stage == null)
+            stage = new Stage();
 
-    private static final Properties programPreferences = new Properties();
-
-    public static void main(String[] args) {
-        launch(args);
-    }
-
-    @Override
-    public void start(Stage stage) throws Exception {
         final PerspectiveCamera camera = new PerspectiveCamera(true);
         camera.setNearClip(0.1);
         camera.setFarClip(10000.0);
@@ -79,8 +102,9 @@ public class Main extends Application {
         stage.show();
 
         final Document document = new Document(stage, world, camera);
-        mainViewController.setDocument(document);
-        mainViewController.setStage(stage);
+
+        SetupController.setup(mainViewController, document, stage);
+
         document.setWidth(800);
         document.setHeight(600);
 
@@ -93,16 +117,13 @@ public class Main extends Application {
         });
 
         document.geometryProperty().addListener((c, o, n) -> {
-            mainViewController.showHyperbolicControls(n == Geometry.Hyperbolic);
-            mainViewController.getCBPullFDomain().setVisible(n == Geometry.Euclidean);
             document.setUseDepthBuffer(mainPane, n != Geometry.Euclidean);
         });
 
-        document.showLinesProperty().bind(mainViewController.getCbShowLines().selectedProperty());
+        //document.showLinesProperty().bind(mainViewController.getCbShowLines().selectedProperty());
         mainViewController.getStatusTextField().textProperty().bind(document.statusLineProperty());
         document.statusLineProperty().addListener((c, o, n) -> {
-                    mainViewController.updateNavigateTilings();
-                    GroupEditing.update(mainViewController, document);
+                    // GroupEditing.update(mainViewController,document);
                 }
         );
 
@@ -111,32 +132,7 @@ public class Main extends Application {
 
         MouseHandler.addMouseHandler(scene, worldTranslate, worldScale, worldRotateProperty, document);
 
-        {
-            mainViewController.getPoincareButton().setOnAction((e) -> HyperbolicModelCameraSettings.setModel(document, Document.HyperbolicModel.Poincare, true));
-            mainViewController.getKleinButton().setOnAction((e) -> HyperbolicModelCameraSettings.setModel(document, Document.HyperbolicModel.Klein, true));
-            mainViewController.getHyperboloidButton().setOnAction((e) -> HyperbolicModelCameraSettings.setModel(document, Document.HyperbolicModel.Hyperboloid, true));
-            document.hyperbolicModelProperty().addListener((c, o, n) -> {
-                mainViewController.getPoincareButton().setSelected(n == Document.HyperbolicModel.Poincare);
-                mainViewController.getKleinButton().setSelected(n == Document.HyperbolicModel.Klein);
-                mainViewController.getHyperboloidButton().setSelected(n == Document.HyperbolicModel.Hyperboloid);
-            });
-        }
-
         document.update();
-
-
-        /*mainViewController.getFieldOfViewSlider().valueProperty().addListener(new ChangeListener<Number>() {
-            public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
-                document.getCamera().setFieldOfView(new_val.intValue());
-            }
-        });*/
-
-
-        /*
-        Box box=new Box(100,100,100);
-        box.setMaterial(new PhongMaterial(Color.AQUA));
-        world.getChildren().add(box);
-        */
 
         document.geometryProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == Geometry.Spherical && newValue != Geometry.Spherical) {
@@ -151,9 +147,5 @@ public class Main extends Application {
             int indexOf = world.getTransforms().indexOf(oldValue);
             world.getTransforms().set(indexOf, newValue);
         });
-    }
-
-    public static Properties getProgramPreferences() {
-        return programPreferences;
     }
 }

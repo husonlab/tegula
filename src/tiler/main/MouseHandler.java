@@ -120,8 +120,8 @@ public class MouseHandler {
                         double factor = (me.getDeltaY() > 0 ? 1.1 : 0.9);
                         worldScale.setX(factor * worldScale.getX());
                         worldScale.setY(factor * worldScale.getY());
-                        document.width *= 1 / factor;
-                        document.height *= 1 / factor;
+                        document.setWidth(document.getWidth() / factor);
+                        document.setHeight(document.getHeight() / factor);
                         if (document.geometryProperty().getValue() == Geometry.Euclidean) {
                             document.update();
                         }

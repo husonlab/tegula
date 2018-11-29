@@ -58,7 +58,7 @@ public class ShapeHandler {
             double deltaY = e.getSceneY() - mouseY;
 
             // Reset shape of fundamental domain
-            Tiling tiling = doc.getCurrent();
+            Tiling tiling = doc.getCurrentTiling();
             javafx.geometry.Point2D transVector = tiling.resetShape(deltaX, deltaY, handle);
 
             // Move handles along transVector

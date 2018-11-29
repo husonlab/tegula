@@ -37,11 +37,10 @@ public class GroupEditing {
      *
      * @param document
      */
-    public static void update(Document document) {
+    public static void update(MainViewController mainViewController, Document document) {
 
-        final Tiling tiling = document.getCurrent();
+        final Tiling tiling = document.getCurrentTiling();
         final DSymbol ds = tiling.getDSymbol();
-        final MainViewController mainViewController = document.getMainViewController();
 
         int count = 0;
         for (int i = 0; i <= 1; i++) {
@@ -64,7 +63,7 @@ public class GroupEditing {
                     final int newValue = ds.getVij(fi, fi + 1, fa) - 1;
                     ds.setVij(fi, fi + 1, fa, newValue);
                     ensureNNForSpherical(ds, newValue);
-                    document.setCurrent(new Tiling(ds));
+                    document.changeCurrentTiling(new Tiling(ds));
                     document.update();
                     decreaseVButton.setDisable(!isOkDecreaseVij(ds, fa, fi, fi + 1, ds.getVij(fi, fi + 1, fa)));
                 });
@@ -77,7 +76,7 @@ public class GroupEditing {
                     final int newValue = ds.getVij(fi, fi + 1, fa) + 1;
                     ds.setVij(fi, fi + 1, fa, newValue);
                     ensureNNForSpherical(ds, newValue);
-                    document.setCurrent(new Tiling(ds));
+                    document.changeCurrentTiling(new Tiling(ds));
                     document.update();
                     decreaseVButton.setDisable(!isOkDecreaseVij(ds, fa, fi, fi + 1, ds.getVij(fi, fi + 1, fa)));
                 });

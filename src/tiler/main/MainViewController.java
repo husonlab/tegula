@@ -213,7 +213,7 @@ public class MainViewController implements Initializable {
         borderPane.setRight(null);
         editSymmetryGroupMenuItem.setSelected(false);
         editSymmetryGroupButton.setSelected(false);
-        
+
         statusTextField.setEditable(false);
 
         final ToggleGroup toggleGroup = new ToggleGroup();
@@ -403,7 +403,7 @@ public class MainViewController implements Initializable {
     void fireQuit(ActionEvent event) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmation");
-        alert.setHeaderText("Quit Tiler");
+        alert.setHeaderText("Quit Tiler_new");
         alert.setContentText("Sure you want to quit?");
 
         Optional<ButtonType> result = alert.showAndWait();
@@ -442,13 +442,11 @@ public class MainViewController implements Initializable {
 
     @FXML
     void fireShowLessTiles(ActionEvent event) {
-        getDocument().setLimitHyperbolicGroup(getDocument().getLimitHyperbolicGroup() - 1);
         document.decreaseTiling();
     }
 
     @FXML
     void fireShowMoreTiles(ActionEvent event) {
-        getDocument().setLimitHyperbolicGroup(getDocument().getLimitHyperbolicGroup() + 1);
         document.increaseTiling();
     }
 

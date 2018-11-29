@@ -29,15 +29,14 @@ import javafx.util.Duration;
  * sets up the camera for hyperbolic viewing
  */
 public class HyperbolicModelCameraSettings {
-    public enum Model {Poincare, Klein, Hyperboloid}
-
     /**
      * set the camera based on the model
      *
      * @param document
      * @param model
      */
-    public static void setModel(Document document, Model model) {
+    public static void setModel(Document document, Document.HyperbolicModel model, boolean animate) {
+
         document.getCamera().setFieldOfView(90);
 
         final double cameraAngle;
@@ -64,17 +63,23 @@ public class HyperbolicModelCameraSettings {
                 break;
         }
 
+        final Duration duration;
+        if (animate)
+            duration = Duration.millis(1000);
+        else
+            duration = Duration.ONE;
+
         final RotateTransition rotateTransition = new RotateTransition();
         rotateTransition.setNode(document.getCamera());
         rotateTransition.setAxis(new Point3D(0, 1, 0));
         rotateTransition.setToAngle(cameraAngle);
-        rotateTransition.setDuration(Duration.millis(1000));
+        rotateTransition.setDuration(duration);
 
         final TranslateTransition translateTransition = new TranslateTransition();
         translateTransition.setNode(document.getCamera());
         translateTransition.setToX(cameraTranslateX);
         translateTransition.setToZ(cameraTranslateZ);
-        translateTransition.setDuration(Duration.millis(1000));
+        translateTransition.setDuration(duration);
 
         final ParallelTransition parallelTransition = new ParallelTransition(rotateTransition, translateTransition);
         parallelTransition.setOnFinished((e) -> {
@@ -82,7 +87,6 @@ public class HyperbolicModelCameraSettings {
         });
         parallelTransition.play();
 
-        document.setCamPoincare(false);
-
+        document.setHyperbolicModel(model);
     }
 }
