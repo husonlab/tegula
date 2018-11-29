@@ -1,10 +1,9 @@
 package tiler.tiling;
 
+import java.util.Arrays;
 import javafx.geometry.Point3D;
 import javafx.scene.shape.TriangleMesh;
 import tiler.core.dsymbols.Geometry;
-
-import java.util.Arrays;
 
 public class Circle3D {
 
@@ -130,10 +129,10 @@ public class Circle3D {
 
 	}
 
-	// overloading CircleMesh method
+	// overloading CircleMesh method with default value 
 	public static TriangleMesh CircleMesh(Point3D center, Point3D[] coordinates, Geometry geom) {
 
-		return CircleMesh(center, coordinates, geom, 1);
+		return CircleMesh(center, coordinates, geom, 0);
 	}
 
 }
