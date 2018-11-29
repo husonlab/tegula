@@ -2,11 +2,18 @@ package tiler.tiling;
 
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
+
 import javafx.scene.Group;
+
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Material;
 import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.CullFace;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Sphere;
+import javafx.scene.shape.Shape;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -20,7 +27,13 @@ import tiler.core.fundamental.utils.WrapInt;
 
 import java.util.Arrays;
 import java.util.BitSet;
+
 import java.util.Random;
+import java.util.concurrent.SynchronousQueue;
+import java.util.List;
+import java.util.ArrayList;
+
+import com.sun.javafx.css.CalculatedValue;
 
 /**
  * builds fundamental domain in JavaFX Created by huson on 4/5/16.
@@ -60,12 +73,13 @@ public class FundamentalDomain {
 		}
 
 		// For lines and edges
-		double linesize = 2;
-		double edgesize = 2;
+		double linesize = 1.5; // size of lines
+		double edgesize = linesize; // size of edges
 		int edgefine = 24; // defines how smooth the edges are
 		final Color linecolor = Color.WHITE;
-		final Color edgecolor = Color.WHITE;
+		final Color edgecolor = linecolor;
 		double linesAbove; // defines the height of the line above the faces
+		TriangleMesh FinalMesh = new TriangleMesh();
 
 		// Booleans
 		boolean drawFaces = true;
@@ -381,7 +395,7 @@ public class FundamentalDomain {
 
 			// defines the height of line and edges above the surface
 			if (geom == Geometry.Euclidean) {
-				linesAbove = 0;
+				linesAbove = 1;
 			} else if (geom == Geometry.Hyperbolic) {
 				linesAbove = 0.0;
 			} else {
@@ -391,7 +405,7 @@ public class FundamentalDomain {
 			//// Draw Lines on 2-Line
 			final float[] texCoord = { 0.5f, 0, 0, 0, 1, 1 };
 			PhongMaterial linematerial = new PhongMaterial(linecolor);
-			PhongMaterial edgematerial = new PhongMaterial(edgecolor);
+			PhongMaterial edgematerial = linematerial;
 
 			TriangleMesh linemesh = new TriangleMesh();
 			TriangleMesh edgemesh = new TriangleMesh();
@@ -417,7 +431,8 @@ public class FundamentalDomain {
 
 					MeshView lineView = new MeshView(linemesh);
 					lineView.setMaterial(linematerial);
-					group.getChildren().addAll(lineView);
+
+					// group.getChildren().addAll(lineView); //adds linemesh seperately
 
 				}
 			}
@@ -449,10 +464,20 @@ public class FundamentalDomain {
 
 					MeshView edgeView = new MeshView(edgemesh);
 					edgeView.setMaterial(edgematerial);
-					group.getChildren().addAll(edgeView);
+
+					// group.getChildren().addAll(edgeView); //adds edgemesh seperately
 				}
 
 			}
+
+			// combines linemesh and edgemesh
+			// only one mesh for both reduces computation and errors
+			TriangleMesh FinalStorage = combineTriangleMesh(linemesh, edgemesh);
+			FinalMesh = combineTriangleMesh(FinalMesh, FinalStorage);
+			FinalMesh.getTexCoords().addAll(texCoord);
+			MeshView View = new MeshView(FinalMesh);
+			View.setMaterial(edgematerial);
+			group.getChildren().addAll(View);
 
 		}
 

@@ -1,12 +1,17 @@
 package tiler.tiling;
 
-import javafx.geometry.Point3D;
+import java.util.Arrays;
+
 import javafx.scene.Group;
+
 import javafx.scene.shape.TriangleMesh;
+
+import javafx.geometry.Point3D;
+
+
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
 
-import java.util.Arrays;
 
 public class Line3D extends Group {
 
