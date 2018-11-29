@@ -46,14 +46,14 @@ import java.util.LinkedList;
 
 /**
  * document
- * This contains all the data associated with a single document.
  * Created by huson on 4/22/16.
  */
 public class Document {
-    static final int FIRST = 0;
-    static final int NEXT = -1;
-    static final int PREV = -2;
-    static final int LAST = -3;
+
+    public static final int FIRST = 0;
+    public static final int NEXT = -1;
+    public static final int PREV = -2;
+    public static final int LAST = -3;
 
     private final ArrayList<Tiling> tilings = new ArrayList<>();
     private int current = -1;
@@ -68,25 +68,17 @@ public class Document {
 
     private boolean drawFundamentalDomainOnly = false;
 
+    public static boolean isBreak = false;
+
     private boolean changeDirection;
 
     private Point2D vec = new Point2D(0,0);
 
     private int limitHyperbolicGroup = 5;
 
-    private static final double validHyperbolicRange = 4.8;
+    private static double validHyperbolicRange = 4.8;
 
     private final SimpleObjectProperty<Geometry> geometryProperty = new SimpleObjectProperty<>();
-
-    public Point3D windowCorner = new Point3D(0, 0, 0); // Upper left corner of window in Euclidean case
-    public double width, height; //Width and height of window
-
-    private final Group tiles = new Group();
-    private final Group linesInFDomain = new Group();
-
-    private static int chamberIndex = 0;
-
-    private static double tol;
 
     /**
      * constructor
@@ -97,28 +89,6 @@ public class Document {
         this.camera = camera;
         mainViewController.setDocument(this);
         mainViewController.setStage(stage);
-
-        width = mainViewController.getMainPane().getWidth();
-        height = mainViewController.getMainPane().getHeight();
-
-        stage.widthProperty().addListener((c, o, n) -> {
-            width = stage.getWidth();
-            update();
-        });
-
-        mainViewController.getMainPane().widthProperty().addListener((c, o, n) -> {
-            if (!n.equals(width)) {
-                width = stage.getWidth();
-                update();
-            }
-        });
-
-        mainViewController.getMainPane().heightProperty().addListener((c, o, n) -> {
-            if (!n.equals(height)) {
-                height = stage.getWidth();
-                update();
-            }
-        });
     }
 
     /**
@@ -126,7 +96,6 @@ public class Document {
      */
     public void clear() {
         tilings.clear();
-        tiles.getChildren().clear();
         current = -1;
     }
 
@@ -137,13 +106,12 @@ public class Document {
      * @throws IOException
      */
     public void read(Reader reader) throws IOException {
-        try (BufferedReader br = new BufferedReader(reader)) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                final DSymbol dSymbol = new DSymbol();
-                dSymbol.read(new StringReader(line));
-                tilings.add(new Tiling(dSymbol));
-            }
+        BufferedReader br = new BufferedReader(reader);
+        String line;
+        while ((line = br.readLine()) != null) {
+            DSymbol dSymbol = new DSymbol();
+            dSymbol.read(new StringReader(line));
+            tilings.add(new Tiling(dSymbol));
         }
         if (tilings.size() > 0)
             current = 0;
@@ -198,10 +166,19 @@ public class Document {
         geometryProperty.setValue(tiling.getfDomain().getGeometry());
     }
 
-    /**
-     * update the tiling
-     */
+    public Point3D windowCorner = new Point3D(0,0,0); // Upper left corner of window in Euclidean case
+    public double width=800, height=506; //Width and height of window
+
+
+    private Group tiles = new Group(), linesInFDomain = new Group();
+    public static int numberOfCopies; //Counts number of copies.
+
+    private static int chamberIndex = 0;
+
+    private static double tol;
+
     public void update() {
+
         final Tiling tiling = tilings.get(current);
         geometryProperty().setValue(tiling.getGeometry());
 
@@ -218,64 +195,76 @@ public class Document {
         setTransformRecycled(new Translate());
         changeDirection = false; // No direction has to be changed
 
-        final Group additionalStuff = new Group();
+        Rectangle rect = new Rectangle(), range = new Rectangle(), test = new Rectangle(), test2 = new Rectangle(); //Rectangles for Debugging
+
 
         //Euclidean case -----------------------------------------------------------------------------------------------
         if (tiling.getGeometry() == Geometry.Euclidean) {
-            mainViewController.showHyperbolicControls(false);
-
             // Reset Euclidean fundamental domain and QuadTree
             setEuclideanFund(new Group());
             setKeptEuclideanCopy(new QuadTree());
 
-            if (!tiling.isInWindowEuclidean(Tiling.refPointEuclidean, windowCorner, width, height)) { // Fund. domain is not in visible window
+            if (!tiling.isInWindowEuclidean(tiling.refPointEuclidean, windowCorner, width, height)) { // Fund. domain is not in visible window
                 recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width, height, tol)); // Shifts back fDomain into valid range for fund. domain
+                tiles = tiling.createTilingEuclidean(this, isDrawFundamentalDomainOnly(), windowCorner, width, height, tol);
             }
-            tiles.getChildren().setAll(tiling.createTilingEuclidean(this, isDrawFundamentalDomainOnly(), windowCorner, width, height, tol).getChildren());
-            tiling.setNumberOfCopies(tiles.getChildren().size());
+            else { // If fDomain is inside visible window
+                tiles = tiling.createTilingEuclidean(this, isDrawFundamentalDomainOnly(), windowCorner, width, height, tol);
+            }
+            numberOfCopies = tiles.getChildren().size();
 
             //Add rectangles for debugging
-            if (false) {
-                Rectangle rect = new Rectangle(width, height);
-                rect.setFill(Color.TRANSPARENT);
-                rect.setStroke(Color.BLACK);
-                Rectangle range = new Rectangle(width + 250, height + 250);
-                range.setFill(Color.TRANSPARENT);
-                range.setStroke(Color.BLACK);
-                Rectangle test = new Rectangle(width + 200, height + 200);
-                test.setFill(Color.TRANSPARENT);
-                test.setStroke(Color.BLACK);
-                Rectangle test2 = new Rectangle(width + 150, height + 150);
-                test2.setFill(Color.TRANSPARENT);
-                test2.setStroke(Color.BLACK);
-                additionalStuff.getChildren().addAll(rect, range, test, test2);
-            }
+            rect = new Rectangle(width, height);
+            rect.setFill(Color.TRANSPARENT);
+            rect.setStroke(Color.BLACK);
+            range = new Rectangle(width+250,height+250);
+            range.setFill(Color.TRANSPARENT);
+            range.setStroke(Color.BLACK);
+            test = new Rectangle(width+200, height+200);
+            test.setFill(Color.TRANSPARENT);
+            test.setStroke(Color.BLACK);
+            test2 = new Rectangle(width+150, height+150);
+            test2.setFill(Color.TRANSPARENT);
+            test2.setStroke(Color.BLACK);
 
             //Camera options
             camera.setTranslateZ(-5);
             camera.setFieldOfView(10);
             camera.setFarClip(10000);
 
+            mainViewController.getPoincareButton().setVisible(false);
+            mainViewController.getKleinButton().setVisible(false);
+            mainViewController.getHyperboloidButton().setVisible(false);
+            mainViewController.getIncreaseButton().setVisible(false);
+            mainViewController.getDecreaseButton().setVisible(false);
             mainViewController.getCBPullFDomain().setVisible(true);
         }
 
         // Spherical case ----------------------------------------------------------------------------------------------
         else if (tiling.getGeometry() == Geometry.Spherical) {
-            mainViewController.showHyperbolicControls(false);
-
-            tiles.getChildren().setAll(tiling.createTilingSpherical(tol).getChildren());
-            tiling.setNumberOfCopies(tiles.getChildren().size());
+            tiles = tiling.createTilingSpherical(tol);
+            
+           
 
             camera.setTranslateZ(-700);
-            camera.setFieldOfView(15);
-            camera.setFarClip(10000);
+            camera.setFieldOfView(15);  
+            camera.setFarClip(10000);  
+            
+            
+            
+
+
+            mainViewController.getPoincareButton().setVisible(false);
+            mainViewController.getKleinButton().setVisible(false);
+            mainViewController.getHyperboloidButton().setVisible(false);
+            mainViewController.getIncreaseButton().setVisible(false);
+            mainViewController.getDecreaseButton().setVisible(false);
+            mainViewController.getCBPullFDomain().setVisible(false);
 
         }
 
         // Hyperbolic case ---------------------------------------------------------------------------------------------
         else if (tiling.getGeometry() == Geometry.Hyperbolic) {
-            mainViewController.showHyperbolicControls(true);
-
             if (mainViewController.getPoincareButton().isSelected())
                 mainViewController.getPoincareButton().fire();
             else if (mainViewController.getKleinButton().isSelected())
@@ -297,10 +286,13 @@ public class Document {
             //Reset Fundamental Domain if necessary:
             if (Tiling.refPointHyperbolic.getZ() >= validHyperbolicRange){// Fundamental domain is shifted back
                 recenterFDomain(tiling.calculateBackShiftHyperbolic(tol)); // Shifts back fDomain into valid range (slower algorithm)
+                tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist, tol);
+            }
+            else {
+                tiles = tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist, tol);
             }
 
-            tiles.getChildren().setAll(tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist, tol).getChildren());
-            tiling.setNumberOfCopies(tiles.getChildren().size());
+            numberOfCopies = tiles.getChildren().size();
 
             //Camera settings:
             if (mainViewController.getPoincareButton().isSelected())
@@ -309,17 +301,29 @@ public class Document {
                 HyperbolicModelCameraSettings.setModel(this, HyperbolicModelCameraSettings.Model.Klein);
             else
                 HyperbolicModelCameraSettings.setModel(this, HyperbolicModelCameraSettings.Model.Hyperboloid);
+
+
+            mainViewController.getPoincareButton().setVisible(true);
+            mainViewController.getKleinButton().setVisible(true);
+            mainViewController.getHyperboloidButton().setVisible(true);
+            mainViewController.getIncreaseButton().setVisible(true);
+            mainViewController.getDecreaseButton().setVisible(true);
+            mainViewController.getCBPullFDomain().setVisible(true);
         }
 
         setUseDepthBuffer(!tiling.getGeometry().equals(Geometry.Euclidean));
 
         // Build up world
-        getWorld().getChildren().setAll(tiles, additionalStuff);
-
-        if (tiling.getGeometry() != Geometry.Spherical) {
-            getWorld().getChildren().add(ambientLight);
-        }
-
+        getWorld().getChildren().clear();
+        getWorld().getChildren().addAll(tiles, rect, range, test, test2);
+        
+        getWorld().getChildren().add(ambientLight);
+       
+        //nice view of sphere but shimmer effects of line
+//        if (tiling.getGeometry() != Geometry.Spherical) {
+//            getWorld().getChildren().add(ambientLight);
+//        }
+        
         if (mainViewController.getCbShowLines().isSelected()) {
             removeLinesFromFDomain();
             addLinesToFDomain();
@@ -362,8 +366,8 @@ public class Document {
                 linesInFDomain.getTransforms().add(lineTrans);
             }
 
-            tiles.getChildren().setAll(tiling.createTilingEuclidean(this, true, windowCorner, width, height, tol).getChildren());
-            tiling.setNumberOfCopies(tiles.getChildren().size());
+            tiles.getChildren().clear();
+            tiles.getChildren().addAll(tiling.createTilingEuclidean(this, true, windowCorner, width, height, tol));
         }
 
         // Translation of fundamental domain in hyperbolic case
@@ -424,8 +428,8 @@ public class Document {
                 changeDirection = false;
             }
 
-            tiles.getChildren().setAll(tiling.createTilingHyperbolic(true, maxDist, tol).getChildren());
-            tiling.setNumberOfCopies(tiles.getChildren().size());
+            tiles.getChildren().clear();
+            tiles.getChildren().addAll(tiling.createTilingHyperbolic(true, maxDist, tol));
         }
     }
 
@@ -495,15 +499,14 @@ public class Document {
             // Create new tiles to fill empty space of valid range. Add new tiles to the group "tiles"
             Group newTiles = tiling.createTilingEuclidean(this, false, windowCorner, width, height, tol);
 
-            if (tiling.isBreak()) { // Generates new tiling if too much rounding errors
-                tiling.setBreak(false);
+            if (isBreak){ // Generates new tiling if too much rounding errors
+                isBreak = false;
                 reset(); // Reset fundamental domain
                 update(); // Update tiling
             }
             else { // No rounding errors: add new tiles
                 tiles.getChildren().addAll(newTiles.getChildren());
-                tiling.setNumberOfCopies(tiles.getChildren().size());
-                System.out.println("Number of copies: " + tiling.getNumberOfCopies());
+                System.out.println("Number of copies: " + tiles.getChildren().size());
             }
         }
 
@@ -549,13 +552,14 @@ public class Document {
             //First step: Translate tiles by vector (dx,dy) ------------------------------------------------------------
             int i = 0;
             while (i < tiles.getChildren().size()){
-                final Node node = tiles.getChildren().get(i);
-                final Transform nodeTransform = node.getTransforms().get(0);
-                final Point3D point = translate.transform(node.getRotationAxis()); // point = translated reference point of node
+                Node node = tiles.getChildren().get(i);
+                Transform nodeTransform = node.getTransforms().get(0);
+                Point3D point = translate.transform(node.getRotationAxis()); // point = translated reference point of node
 
-                if (point.getZ() > maxDist) {
+                if (point.getZ() > maxDist){
                     getRecycler().getChildren().add(node); // Remove node and add to recycler
-                } else {
+                }
+                else {
                     node.getTransforms().remove(0);
                     node.getTransforms().add(translate.createConcatenation(nodeTransform));
                     node.setRotationAxis(point);
@@ -571,14 +575,13 @@ public class Document {
 
             //Second step: Create new tiles ----------------------------------------------------------------------------
             Group newTiles = tiling.createTilingHyperbolic(false, maxDist, tol);
-            if (tiling.isBreak()) { // Generates new tiling if too much rounding errors
-                tiling.setBreak(false);
+            if (isBreak){ // Generates new tiling if too much rounding errors
+                isBreak = false;
                 reset(); // Reset fundamental domain
                 update(); // Update tiling
             }
             else { // No rounding errors: add new tiles
                 tiles.getChildren().addAll(newTiles.getChildren());
-                tiling.setNumberOfCopies(tiles.getChildren().size());
             }
         }
 
@@ -619,11 +622,11 @@ public class Document {
             getRecycler().getChildren().addAll(recycler2); // Add copy to recycler
         }
 
-        tiling.setNumberOfCopies(0);
+        numberOfCopies = 0;
         // Add new tiles
         Group newTiles = tiling.createTilingHyperbolic(false, maxDist, tol);
         tiles.getChildren().addAll(newTiles.getChildren());
-        tiling.setNumberOfCopies(tiles.getChildren().size());
+        numberOfCopies = tiles.getChildren().size();
     }
 
     /**
