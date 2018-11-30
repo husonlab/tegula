@@ -57,6 +57,9 @@ public class SetupController {
             controller.getTilingNumberTextField().setText(document.getCurrentTiling().getDSymbol().getNr1() + "."
                             + document.getCurrentTiling().getDSymbol().getNr2());
             controller.getGroupTextField().setText(document.getCurrentTiling().getGroupName());
+            controller.getOrientateMenuItem().setDisable(document.getCurrentTiling().getDSymbol().computeOrientation() == 2);
+            controller.getMaxSymmetryMenuItem().setDisable(DSymbolAlgorithms.isMaximalSymmetry(document.getCurrentTiling().getDSymbol()));
+
                 }
         );
 
@@ -204,6 +207,7 @@ public class SetupController {
             document.update();
         });
         controller.getMaximizeButton().setOnAction((e) -> controller.getMaxSymmetryMenuItem().fire());
+        controller.getMaximizeButton().disableProperty().bind(controller.getMaxSymmetryMenuItem().disableProperty());
 
         controller.getOrientateMenuItem().setOnAction((e) -> {
             final DSymbol ds = DSymbolAlgorithms.orientate(document.getCurrentTiling().getDSymbol());
@@ -215,6 +219,7 @@ public class SetupController {
             document.update();
         });
         controller.getOrientateButton().setOnAction((e) -> controller.getOrientateMenuItem().fire());
+        controller.getOrientateButton().disableProperty().bind(controller.getOrientateMenuItem().disableProperty());
 
     }
 
