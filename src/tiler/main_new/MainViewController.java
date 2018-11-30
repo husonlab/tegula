@@ -186,9 +186,6 @@ public class MainViewController {
     private Spinner<Integer> v10Spinner;
 
     @FXML
-    private Button resetButton;
-
-    @FXML
     private ChoiceBox<String> modelChoiceBox;
 
     @FXML
@@ -196,6 +193,24 @@ public class MainViewController {
 
     @FXML
     private Button decreaseHyperbolicTilesButton;
+
+    @FXML
+    private TextField groupTextField;
+
+    @FXML
+    private ToggleButton toolsToggleButton;
+
+    @FXML
+    private Button maximizeButton;
+
+    @FXML
+    private Button orientateButton;
+
+    @FXML
+    private Button dualizeButton;
+
+    @FXML
+    private ToolBar toolsToolBar;
 
     public BorderPane getBorderPane() {
         return borderPane;
@@ -405,8 +420,8 @@ public class MainViewController {
         return v10Spinner;
     }
 
-    public Button getResetButton() {
-        return resetButton;
+    public TextField getGroupTextField() {
+        return groupTextField;
     }
 
     public ChoiceBox<String> getModelChoiceBox() {
@@ -419,6 +434,26 @@ public class MainViewController {
 
     public Button getDecreaseHyperbolicTilesButton() {
         return decreaseHyperbolicTilesButton;
+    }
+
+    public ToggleButton getToolsToggleButton() {
+        return toolsToggleButton;
+    }
+
+    public Button getMaximizeButton() {
+        return maximizeButton;
+    }
+
+    public Button getOrientateButton() {
+        return orientateButton;
+    }
+
+    public Button getDualizeButton() {
+        return dualizeButton;
+    }
+
+    public ToolBar getToolsToolBar() {
+        return toolsToolBar;
     }
 
     @FXML

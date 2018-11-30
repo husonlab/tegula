@@ -24,10 +24,13 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import tiler.core.dsymbols.DSymbol;
+import tiler.core.dsymbols.DSymbolAlgorithms;
 import tiler.core.dsymbols.Geometry;
 import tiler.main.Document;
 import tiler.main.HyperbolicModelCameraSettings;
 import tiler.main.Main;
+import tiler.tiling.Tiling;
 
 import java.io.File;
 import java.io.FileReader;
@@ -42,23 +45,24 @@ public class SetupController {
     /**
      * setup the menu items
      *
-     * @param mainViewController
+     * @param controller
      * @param document
      * @param mainStage
      */
-    public static void setup(MainViewController mainViewController, Document document, Stage mainStage) {
+    public static void setup(MainViewController controller, Document document, Stage mainStage) {
         //document.showLinesProperty().bind(mainViewController.getCbShowLines().selectedProperty());
-        mainViewController.getStatusTextField().textProperty().bind(document.statusLineProperty());
+        controller.getStatusTextField().textProperty().bind(document.statusLineProperty());
         document.statusLineProperty().addListener((c, o, n) -> {
-                    GroupEditing.update(mainViewController, document);
-                    mainViewController.getTilingNumberTextField().setText(document.getCurrentTiling().getDSymbol().getNr1() + "."
+            GroupEditing.update(controller, document);
+            controller.getTilingNumberTextField().setText(document.getCurrentTiling().getDSymbol().getNr1() + "."
                             + document.getCurrentTiling().getDSymbol().getNr2());
+            controller.getGroupTextField().setText(document.getCurrentTiling().getGroupName());
                 }
         );
 
-        mainViewController.getNewMenuItem().setOnAction((e) -> System.err.print("Not implemented"));
+        controller.getNewMenuItem().setOnAction((e) -> System.err.print("Not implemented"));
 
-        mainViewController.getOpenMenuItem().setOnAction((e) -> {
+        controller.getOpenMenuItem().setOnAction((e) -> {
             final FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Open file of tilings");
             fileChooser.setInitialDirectory(
@@ -80,11 +84,11 @@ public class SetupController {
             }
         });
 
-        mainViewController.getOpenFileButton().setOnAction((e) -> mainViewController.getOpenMenuItem().fire());
+        controller.getOpenFileButton().setOnAction((e) -> controller.getOpenMenuItem().fire());
 
-        mainViewController.getCloseMenuItem().setOnAction((e) -> System.err.print("Not implemented"));
+        controller.getCloseMenuItem().setOnAction((e) -> System.err.print("Not implemented"));
 
-        mainViewController.getQuitMenuItem().setOnAction((e) -> {
+        controller.getQuitMenuItem().setOnAction((e) -> {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Confirmation");
             alert.setHeaderText("Quit Tiler_new");
@@ -99,52 +103,52 @@ public class SetupController {
             }
         });
 
-        mainViewController.getFirstTilingMenuItem().setOnAction((e) -> {
+        controller.getFirstTilingMenuItem().setOnAction((e) -> {
             if (document.moveTo(Document.FIRST))
                 document.update();
         });
-        mainViewController.getFirstTilingMenuItem().disableProperty().bind(document.currentIndexProperty().isEqualTo(0));
-        mainViewController.getFirstTilingButton().setOnAction((e) -> mainViewController.getFirstTilingMenuItem().fire());
-        mainViewController.getFirstTilingButton().disableProperty().bind(mainViewController.getFirstTilingMenuItem().disableProperty());
+        controller.getFirstTilingMenuItem().disableProperty().bind(document.currentIndexProperty().isEqualTo(0));
+        controller.getFirstTilingButton().setOnAction((e) -> controller.getFirstTilingMenuItem().fire());
+        controller.getFirstTilingButton().disableProperty().bind(controller.getFirstTilingMenuItem().disableProperty());
 
-        mainViewController.getPreviousTilingMenuItem().setOnAction((e) -> {
+        controller.getPreviousTilingMenuItem().setOnAction((e) -> {
             if (document.moveTo(Document.PREV))
                 document.update();
         });
-        mainViewController.getPreviousTilingMenuItem().disableProperty().bind((document.currentIndexProperty().isEqualTo(0)));
-        mainViewController.getPreviousTilingButton().setOnAction((e) -> mainViewController.getPreviousTilingMenuItem().fire());
-        mainViewController.getPreviousTilingButton().disableProperty().bind(mainViewController.getPreviousTilingMenuItem().disableProperty());
+        controller.getPreviousTilingMenuItem().disableProperty().bind((document.currentIndexProperty().isEqualTo(0)));
+        controller.getPreviousTilingButton().setOnAction((e) -> controller.getPreviousTilingMenuItem().fire());
+        controller.getPreviousTilingButton().disableProperty().bind(controller.getPreviousTilingMenuItem().disableProperty());
 
 
-        mainViewController.getNextTilingMenuItem().setOnAction((e) -> {
+        controller.getNextTilingMenuItem().setOnAction((e) -> {
             if (document.moveTo(Document.NEXT))
                 document.update();
         });
-        mainViewController.getNextTilingMenuItem().disableProperty().bind((document.currentIndexProperty().isEqualTo(document.numberOfTilingsProperty().subtract(1))));
-        mainViewController.getNextTilingButton().setOnAction((e) -> mainViewController.getNextTilingMenuItem().fire());
-        mainViewController.getNextTilingButton().disableProperty().bind(mainViewController.getNextTilingMenuItem().disableProperty());
+        controller.getNextTilingMenuItem().disableProperty().bind((document.currentIndexProperty().isEqualTo(document.numberOfTilingsProperty().subtract(1))));
+        controller.getNextTilingButton().setOnAction((e) -> controller.getNextTilingMenuItem().fire());
+        controller.getNextTilingButton().disableProperty().bind(controller.getNextTilingMenuItem().disableProperty());
 
-        mainViewController.getLastTilingMenuItem().setOnAction((e) -> {
+        controller.getLastTilingMenuItem().setOnAction((e) -> {
             if (document.moveTo(Document.LAST))
                 document.update();
         });
-        mainViewController.getLastTilingMenuItem().disableProperty().bind((document.currentIndexProperty().isEqualTo(document.numberOfTilingsProperty().subtract(1))));
-        mainViewController.getLastTilingButton().setOnAction((e) -> mainViewController.getLastTilingMenuItem().fire());
-        mainViewController.getLastTilingButton().disableProperty().bind(mainViewController.getLastTilingMenuItem().disableProperty());
+        controller.getLastTilingMenuItem().disableProperty().bind((document.currentIndexProperty().isEqualTo(document.numberOfTilingsProperty().subtract(1))));
+        controller.getLastTilingButton().setOnAction((e) -> controller.getLastTilingMenuItem().fire());
+        controller.getLastTilingButton().disableProperty().bind(controller.getLastTilingMenuItem().disableProperty());
 
 
-        mainViewController.getTilingNumberTextField().setOnAction((e) ->
+        controller.getTilingNumberTextField().setOnAction((e) ->
         {
-            if (document.findAndMoveTo(mainViewController.getTilingNumberTextField().getText())) {
+            if (document.findAndMoveTo(controller.getTilingNumberTextField().getText())) {
                 document.update();
             } else {
-                mainViewController.getTilingNumberTextField().setText(document.getCurrentTiling().getDSymbol().getNr1() + "."
+                controller.getTilingNumberTextField().setText(document.getCurrentTiling().getDSymbol().getNr1() + "."
                         + document.getCurrentTiling().getDSymbol().getNr2());
             }
         });
 
 
-        mainViewController.getModelChoiceBox().getSelectionModel().selectedIndexProperty().addListener((c, o, n) -> {
+        controller.getModelChoiceBox().getSelectionModel().selectedIndexProperty().addListener((c, o, n) -> {
             switch (n.intValue()) {
                 default:
                 case 0: // Poincare
@@ -158,31 +162,59 @@ public class SetupController {
                     break;
             }
         });
-        mainViewController.getModelChoiceBox().disableProperty().bind(document.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
+        controller.getModelChoiceBox().disableProperty().bind(document.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
 
-        mainViewController.getIncreaseHyperbolicTilesButton().setOnAction((e) -> {
+        controller.getIncreaseHyperbolicTilesButton().setOnAction((e) -> {
             document.increaseTiling();
         });
-        mainViewController.getShowMoreTilesMenuItem().setOnAction((e) -> mainViewController.getIncreaseHyperbolicTilesButton().fire());
+        controller.getShowMoreTilesMenuItem().setOnAction((e) -> controller.getIncreaseHyperbolicTilesButton().fire());
 
-        mainViewController.getIncreaseHyperbolicTilesButton().disableProperty().bind(document.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
-        mainViewController.getShowMoreTilesMenuItem().disableProperty().bind(mainViewController.getIncreaseHyperbolicTilesButton().disableProperty());
+        controller.getIncreaseHyperbolicTilesButton().disableProperty().bind(document.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
+        controller.getShowMoreTilesMenuItem().disableProperty().bind(controller.getIncreaseHyperbolicTilesButton().disableProperty());
 
-        mainViewController.getDecreaseHyperbolicTilesButton().setOnAction((e) -> document.decreaseTiling());
-        mainViewController.getShowLessTilesMenuItem().setOnAction((e) -> mainViewController.getDecreaseHyperbolicTilesButton().fire());
+        controller.getDecreaseHyperbolicTilesButton().setOnAction((e) -> document.decreaseTiling());
+        controller.getShowLessTilesMenuItem().setOnAction((e) -> controller.getDecreaseHyperbolicTilesButton().fire());
 
-        mainViewController.getDecreaseHyperbolicTilesButton().disableProperty().bind(document.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
-        mainViewController.getShowLessTilesMenuItem().disableProperty().bind(mainViewController.getDecreaseHyperbolicTilesButton().disableProperty());
+        controller.getDecreaseHyperbolicTilesButton().disableProperty().bind(document.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
+        controller.getShowLessTilesMenuItem().disableProperty().bind(controller.getDecreaseHyperbolicTilesButton().disableProperty());
 
-        mainViewController.getShowRotationsToggleButton().setSelected(false);
-        mainViewController.getRotationsToolBar().visibleProperty().bind(mainViewController.getShowRotationsToggleButton().selectedProperty());
+        controller.getShowRotationsToggleButton().setSelected(false);
+        controller.getRotationsToolBar().visibleProperty().bind(controller.getShowRotationsToggleButton().selectedProperty());
+
+        controller.getToolsToggleButton().setSelected(false);
+        controller.getToolsToolBar().visibleProperty().bind(controller.getToolsToggleButton().selectedProperty());
 
 
-        mainViewController.getResetMenuItem().setOnAction((e) -> {
-            document.reset();
+        controller.getResetMenuItem().setOnAction((e) -> {
+            System.err.println("Not implemented");
+        });
+
+        controller.getDualizeMenuItem().setOnAction((e) -> {
+            final DSymbol ds = DSymbolAlgorithms.dualize(document.getCurrentTiling().getDSymbol());
+            System.err.println(ds.toString());
+            document.changeCurrentTiling(new Tiling(ds));
             document.update();
         });
-        mainViewController.getResetButton().setOnAction((e) -> mainViewController.getResetMenuItem().fire());
+        controller.getDualizeButton().setOnAction((e) -> controller.getDualizeMenuItem().fire());
+
+        controller.getMaxSymmetryMenuItem().setOnAction((e) -> {
+            final DSymbol ds = DSymbolAlgorithms.maxSymmetry(document.getCurrentTiling().getDSymbol());
+            System.err.println(ds.toString());
+            document.changeCurrentTiling(new Tiling(ds));
+            document.update();
+        });
+        controller.getMaximizeButton().setOnAction((e) -> controller.getMaxSymmetryMenuItem().fire());
+
+        controller.getOrientateMenuItem().setOnAction((e) -> {
+            final DSymbol ds = DSymbolAlgorithms.orientate(document.getCurrentTiling().getDSymbol());
+            System.err.println(ds.toString());
+            final Tiling tiling = new Tiling(ds);
+            System.err.println("Group: " + tiling.getGroupName());
+            System.err.println("Geometry: " + tiling.getGeometry());
+            document.changeCurrentTiling(tiling);
+            document.update();
+        });
+        controller.getOrientateButton().setOnAction((e) -> controller.getOrientateMenuItem().fire());
 
     }
 

@@ -33,8 +33,8 @@ public class DSymbol {
      * @param size
      */
     public DSymbol(int size) {
-        set = new int[size][3];
-        matrix = new int[size][3];
+        set = new int[size + 1][3];
+        matrix = new int[size + 1][3];
     }
 
     public void resize(int newSize) {
@@ -287,6 +287,10 @@ public class DSymbol {
         while (b != a);
     }
 
+    public void setMatrixIJ(int i, int j, int a, int value) {
+        matrix[a][i + j - 1] = value;
+    }
+
     public int getVij(int i, int j, int a) {
         int r = computeOrbitLength(i, j, a);
         int m = getMij(i, j, a);
@@ -340,7 +344,7 @@ public class DSymbol {
      * @return 2 if orientable and fixpoint-free, 1 if orientable with fixpoints, 0 if not orientable
      */
     public int computeOrientation(int[] ori) {
-        return orientate(new Wrap<Integer>(2), 1, 1, ori);
+        return orientate(new Wrap<>(2), 1, 1, ori);
     }
 
     private int orientate(Wrap<Integer> result, int value, int a, int[] ori) {

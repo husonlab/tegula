@@ -27,7 +27,7 @@
 <?import javafx.scene.layout.*?>
 <?import java.lang.String?>
 <BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="500.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.111"
+            prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.111"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="tiler.main_new.MainViewController">
     <top>
         <VBox prefHeight="40.0" prefWidth="600.0" BorderPane.alignment="CENTER">
@@ -290,7 +290,9 @@
                         <Button fx:id="increaseHyperbolicTilesButton" mnemonicParsing="false" text="++"/>
                         <Button fx:id="decreaseHyperbolicTilesButton" mnemonicParsing="false" text="--"/>
                         <Separator orientation="VERTICAL" prefHeight="200.0"/>
-                        <ToggleButton fx:id="showRotationsToggleButton" mnemonicParsing="false" text="Rotations..."/>
+                        <ToggleButton fx:id="showRotationsToggleButton" mnemonicParsing="false" text="Symmetries"/>
+                        <ToggleButton fx:id="toolsToggleButton" layoutX="529.0" layoutY="11.0" mnemonicParsing="false"
+                                      text="Tools"/>
                     </items>
                 </ToolBar>
             </children>
@@ -309,7 +311,8 @@
                         <ToolBar fx:id="rotationsToolBar" maxWidth="-Infinity" minWidth="-Infinity"
                                  orientation="VERTICAL" BorderPane.alignment="CENTER">
                             <items>
-                                <Label text="Rotations"/>
+                                <TextField fx:id="groupTextField" editable="false" prefHeight="27.0" prefWidth="40.0"
+                                           promptText="Group" style="-fx-background-color: transparent;"/>
                                 <Spinner fx:id="v1Spinner" editable="true" maxHeight="24.0" maxWidth="60.0"
                                          minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
                                     <opaqueInsets>
@@ -379,8 +382,6 @@
                                         <Insets/>
                                     </opaqueInsets>
                                 </Spinner>
-                                <Button fx:id="resetButton" alignment="TOP_LEFT" maxHeight="28.0" minHeight="28.0"
-                                        mnemonicParsing="false" prefHeight="28.0" text="Reset"/>
                             </items>
                             <opaqueInsets>
                                 <Insets/>
@@ -391,6 +392,19 @@
                         <Pane mouseTransparent="true" pickOnBounds="false" prefHeight="200.0" prefWidth="200.0"
                               BorderPane.alignment="CENTER"/>
                     </center>
+                    <right>
+                        <ToolBar fx:id="toolsToolBar" maxWidth="-Infinity" minWidth="-Infinity" orientation="VERTICAL"
+                                 prefWidth="100.0" BorderPane.alignment="CENTER">
+                            <items>
+                                <Button fx:id="dualizeButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        text="Dualize"/>
+                                <Button fx:id="orientateButton" layoutX="10.0" layoutY="103.0"
+                                        maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Orientate"/>
+                                <Button fx:id="maximizeButton" layoutX="10.0" layoutY="134.0"
+                                        maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Max Symm"/>
+                            </items>
+                        </ToolBar>
+                    </right>
                 </BorderPane>
             </children>
         </StackPane>

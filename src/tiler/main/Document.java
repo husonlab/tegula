@@ -270,6 +270,7 @@ public class Document {
             }
 
             //Camera options
+            camera.setRotate(0);
             camera.setTranslateZ(-5);
             camera.setFieldOfView(10);
             camera.setFarClip(10000);
@@ -280,6 +281,7 @@ public class Document {
             tiles.getChildren().setAll(tiling.createTilingSpherical(tol).getChildren());
             tiling.setNumberOfCopies(tiles.getChildren().size());
 
+            camera.setRotate(0);
             camera.setTranslateX(0);
             camera.setTranslateZ(-700);
             camera.setFieldOfView(15);
@@ -289,6 +291,7 @@ public class Document {
         // Hyperbolic case ---------------------------------------------------------------------------------------------
         else if (tiling.getGeometry() == Geometry.Hyperbolic) {
             HyperbolicModelCameraSettings.setModel(this, getHyperbolicModel(), false);
+
             double diameterFDomain = calculateDiameter(tiling.getfDomain());
             if (2.8 * diameterFDomain > getLimitHyperbolicGroup()){
                 setLimitHyperbolicGroup((int) Math.round(2.8 * diameterFDomain));

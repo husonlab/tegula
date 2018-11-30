@@ -424,8 +424,7 @@ public class Tiling {
         final Point3D refPoint = fDomain.getChamberCenter3D(Document.getChamberIndex()).multiply(0.01); // refPoint lies on unit sphere
         seen.insert(fDomain, refPoint, tol); //root node of OctTree is point of reference.
 
-        final Queue<Transform> queue = new LinkedList<>();
-        queue.addAll(generators.getTransforms());
+        final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
         for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
             Point3D genRef = g.transform(refPoint);
             if (seen.insert(fDomain, genRef, tol)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
@@ -434,7 +433,6 @@ public class Tiling {
                 group.getChildren().add(group2);
             }
         }
-
 
         while (queue.size() > 0) {
             final Transform t = queue.poll(); // remove t from queue
@@ -499,8 +497,7 @@ public class Tiling {
 
         if (!drawFundamentalDomainOnly) {
             // Make copies of fundamental domain.
-            final Queue<Transform> queue = new LinkedList<>();
-            queue.addAll(generators.getTransforms());
+            final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
 
             for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
                 Point3D genRef = g.transform(refPointHyperbolic);
