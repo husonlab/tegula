@@ -16,12 +16,14 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package tiler.main_new;
 
-package tiler.main;
-
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.scene.control.Spinner;
 import tiler.core.dsymbols.DSymbol;
+import tiler.main.Document;
 import tiler.tiling.Tiling;
 
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ import java.util.BitSet;
  * Created by huson on 4/22/16.
  */
 public class GroupEditing {
+
     /**
      * update the group editing buttons
      *
@@ -42,55 +45,59 @@ public class GroupEditing {
         final Tiling tiling = document.getCurrentTiling();
         final DSymbol ds = tiling.getDSymbol();
 
-        int count = 0;
-        for (int i = 0; i <= 1; i++) {
-            BitSet seen = new BitSet();
-            for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, i + 1, a, seen)) {
-                final int fi = i;
-                final int fa = a;
+        // setup the rotation controls:
+        final BooleanProperty ignoreUpdatesDuringSetup = new SimpleBooleanProperty(true);
+        try {
+            int count = 0;
+            for (int i = 0; i <= 1; i++) {
+                BitSet seen = new BitSet();
+                for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, i + 1, a, seen)) {
+                    final int fi = i;
+                    final int fa = a;
 
-                final Label label = mainViewController.getLabelV(count);
-                label.setText("" + ds.getVij(i, i + 1, a));
-                label.setVisible(true);
-                label.setDisable(false);
+                    final Spinner<Integer> spinner = mainViewController.getVSpinner(count);
+                    spinner.setDisable(false);
 
+                    if (spinner.getUserData() instanceof ChangeListener)
+                        spinner.valueProperty().removeListener((ChangeListener) spinner.getUserData());
 
-                final Button decreaseVButton = mainViewController.getDecreaseV(count);
-                decreaseVButton.setDisable(!isOkDecreaseVij(ds, fa, fi, fi + 1, ds.getVij(fi, fi + 1, fa)));
-                decreaseVButton.setVisible(true);
+                    spinner.getValueFactory().setValue(ds.getVij(i, i + 1, a));
 
-                decreaseVButton.setOnAction((e) -> {
-                    final int newValue = ds.getVij(fi, fi + 1, fa) - 1;
-                    ds.setVij(fi, fi + 1, fa, newValue);
-                    ensureNNForSpherical(ds, newValue);
-                    document.changeCurrentTiling(new Tiling(ds));
-                    document.update();
-                    decreaseVButton.setDisable(!isOkDecreaseVij(ds, fa, fi, fi + 1, ds.getVij(fi, fi + 1, fa)));
-                });
+                    final ChangeListener<Integer> listener = ((c, o, n) -> {
+                        if (!ignoreUpdatesDuringSetup.get()) {
+                            if (n < o && isOkDecreaseVij(ds, fa, fi, fi + 1, ds.getVij(fi, fi + 1, fa))) {
+                                ds.setVij(fi, fi + 1, fa, n);
+                                ensureNNForSpherical(ds, n);
+                                document.changeCurrentTiling(new Tiling(ds));
+                                document.update();
+                            } else {
+                                ds.setVij(fi, fi + 1, fa, n);
+                                ensureNNForSpherical(ds, n);
+                                document.changeCurrentTiling(new Tiling(ds));
+                                document.update();
+                            }
+                        }
+                    });
+                    spinner.valueProperty().addListener(listener);
+                    spinner.setUserData(listener);
 
-                final Button increaseButton = mainViewController.getIncreaseV(count);
-                increaseButton.setDisable(false);
-                increaseButton.setVisible(true);
-
-                increaseButton.setOnAction((e) -> {
-                    final int newValue = ds.getVij(fi, fi + 1, fa) + 1;
-                    ds.setVij(fi, fi + 1, fa, newValue);
-                    ensureNNForSpherical(ds, newValue);
-                    document.changeCurrentTiling(new Tiling(ds));
-                    document.update();
-                    decreaseVButton.setDisable(!isOkDecreaseVij(ds, fa, fi, fi + 1, ds.getVij(fi, fi + 1, fa)));
-                });
-
-                count++;
-                if (count == 10)
-                    break; // only support 10 choices
+                    count++;
+                    if (count == 10)
+                        break; // only support 10 choices
+                }
             }
-        }
-        while (count < 10) {
-            mainViewController.getLabelV(count).setVisible(false);
-            mainViewController.getDecreaseV(count).setVisible(false);
-            mainViewController.getIncreaseV(count).setVisible(false);
-            count++;
+            // disable the rest:
+            while (count < 10) {
+                final Spinner<Integer> spinner = mainViewController.getVSpinner(count);
+                if (spinner.getUserData() instanceof ChangeListener)
+                    spinner.valueProperty().removeListener((ChangeListener) spinner.getUserData());
+
+                spinner.setDisable(true);
+                spinner.getValueFactory().setValue(1);
+                count++;
+            }
+        } finally {
+            ignoreUpdatesDuringSetup.set(false);
         }
     }
 
@@ -172,7 +179,6 @@ public class GroupEditing {
                     ds.setVij(b[0], b[1], b[2], newValue);
                 }
             }
-
         }
     }
 }

@@ -156,34 +156,34 @@ public class MainViewController {
     private ToolBar rotationsToolBar;
 
     @FXML
-    private Spinner<?> v1Spinner;
+    private Spinner<Integer> v1Spinner;
 
     @FXML
-    private Spinner<?> v2Spinner;
+    private Spinner<Integer> v2Spinner;
 
     @FXML
-    private Spinner<?> v3Spinner;
+    private Spinner<Integer> v3Spinner;
 
     @FXML
-    private Spinner<?> v4Spinner;
+    private Spinner<Integer> v4Spinner;
 
     @FXML
-    private Spinner<?> v5Spinner;
+    private Spinner<Integer> v5Spinner;
 
     @FXML
-    private Spinner<?> v6Spinner;
+    private Spinner<Integer> v6Spinner;
 
     @FXML
-    private Spinner<?> v7Spinner;
+    private Spinner<Integer> v7Spinner;
 
     @FXML
-    private Spinner<?> v8Spinner;
+    private Spinner<Integer> v8Spinner;
 
     @FXML
-    private Spinner<?> v9Spinner;
+    private Spinner<Integer> v9Spinner;
 
     @FXML
-    private Spinner<?> v10Spinner;
+    private Spinner<Integer> v10Spinner;
 
     @FXML
     private Button resetButton;
@@ -196,10 +196,6 @@ public class MainViewController {
 
     @FXML
     private Button decreaseHyperbolicTilesButton;
-
-    @FXML
-    void initialize() {
-    }
 
     public BorderPane getBorderPane() {
         return borderPane;
@@ -369,43 +365,43 @@ public class MainViewController {
         return rotationsToolBar;
     }
 
-    public Spinner<?> getV1Spinner() {
+    public Spinner<Integer> getV1Spinner() {
         return v1Spinner;
     }
 
-    public Spinner<?> getV2Spinner() {
+    public Spinner<Integer> getV2Spinner() {
         return v2Spinner;
     }
 
-    public Spinner<?> getV3Spinner() {
+    public Spinner<Integer> getV3Spinner() {
         return v3Spinner;
     }
 
-    public Spinner<?> getV4Spinner() {
+    public Spinner<Integer> getV4Spinner() {
         return v4Spinner;
     }
 
-    public Spinner<?> getV5Spinner() {
+    public Spinner<Integer> getV5Spinner() {
         return v5Spinner;
     }
 
-    public Spinner<?> getV6Spinner() {
+    public Spinner<Integer> getV6Spinner() {
         return v6Spinner;
     }
 
-    public Spinner<?> getV7Spinner() {
+    public Spinner<Integer> getV7Spinner() {
         return v7Spinner;
     }
 
-    public Spinner<?> getV8Spinner() {
+    public Spinner<Integer> getV8Spinner() {
         return v8Spinner;
     }
 
-    public Spinner<?> getV9Spinner() {
+    public Spinner<Integer> getV9Spinner() {
         return v9Spinner;
     }
 
-    public Spinner<?> getV10Spinner() {
+    public Spinner<Integer> getV10Spinner() {
         return v10Spinner;
     }
 
@@ -424,4 +420,43 @@ public class MainViewController {
     public Button getDecreaseHyperbolicTilesButton() {
         return decreaseHyperbolicTilesButton;
     }
+
+    @FXML
+    void initialize() {
+        for (int i = 0; i < 10; i++)
+            getVSpinner(i).setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 24));
+    }
+
+    /**
+     * gets a V label
+     *
+     * @param i
+     * @return
+     */
+    public Spinner<Integer> getVSpinner(int i) {
+        switch (i) {
+            case 0:
+                return v1Spinner;
+            case 1:
+                return v2Spinner;
+            case 2:
+                return v3Spinner;
+            case 3:
+                return v4Spinner;
+            case 4:
+                return v5Spinner;
+            case 5:
+                return v6Spinner;
+            case 6:
+                return v7Spinner;
+            case 7:
+                return v8Spinner;
+            case 8:
+                return v9Spinner;
+            default:
+            case 9:
+                return v10Spinner;
+        }
+    }
+
 }

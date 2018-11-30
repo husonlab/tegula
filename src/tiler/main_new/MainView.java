@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2016 Daniel H. Huson
+ *  Copyright (C) 2018 University of Tuebingen
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -119,13 +119,6 @@ public class MainView {
         document.geometryProperty().addListener((c, o, n) -> {
             document.setUseDepthBuffer(mainPane, n != Geometry.Euclidean);
         });
-
-        //document.showLinesProperty().bind(mainViewController.getCbShowLines().selectedProperty());
-        mainViewController.getStatusTextField().textProperty().bind(document.statusLineProperty());
-        document.statusLineProperty().addListener((c, o, n) -> {
-                    // GroupEditing.update(mainViewController,document);
-                }
-        );
 
         // read in a symbol for debugging:
         document.read(new StringReader("<23.1:20:2 4 6 8 10 12 14 16 18 20,2 10 5 9 8 20 13 15 17 19,11 12 13 14 15 16 17 18 19 20:3 3 5 5,4 4 4>"));

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2016 Daniel H. Huson
+ *  Copyright (C) 2018 University of Tuebingen
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -47,6 +47,14 @@ public class SetupController {
      * @param mainStage
      */
     public static void setup(MainViewController mainViewController, Document document, Stage mainStage) {
+        //document.showLinesProperty().bind(mainViewController.getCbShowLines().selectedProperty());
+        mainViewController.getStatusTextField().textProperty().bind(document.statusLineProperty());
+        document.statusLineProperty().addListener((c, o, n) -> {
+                    GroupEditing.update(mainViewController, document);
+                    mainViewController.getTilingNumberTextField().setText(document.getCurrentTiling().getDSymbol().getNr1() + "."
+                            + document.getCurrentTiling().getDSymbol().getNr2());
+                }
+        );
 
         mainViewController.getNewMenuItem().setOnAction((e) -> System.err.print("Not implemented"));
 
@@ -124,6 +132,18 @@ public class SetupController {
         mainViewController.getLastTilingButton().setOnAction((e) -> mainViewController.getLastTilingMenuItem().fire());
         mainViewController.getLastTilingButton().disableProperty().bind(mainViewController.getLastTilingMenuItem().disableProperty());
 
+
+        mainViewController.getTilingNumberTextField().setOnAction((e) ->
+        {
+            if (document.findAndMoveTo(mainViewController.getTilingNumberTextField().getText())) {
+                document.update();
+            } else {
+                mainViewController.getTilingNumberTextField().setText(document.getCurrentTiling().getDSymbol().getNr1() + "."
+                        + document.getCurrentTiling().getDSymbol().getNr2());
+            }
+        });
+
+
         mainViewController.getModelChoiceBox().getSelectionModel().selectedIndexProperty().addListener((c, o, n) -> {
             switch (n.intValue()) {
                 default:
@@ -156,6 +176,14 @@ public class SetupController {
 
         mainViewController.getShowRotationsToggleButton().setSelected(false);
         mainViewController.getRotationsToolBar().visibleProperty().bind(mainViewController.getShowRotationsToggleButton().selectedProperty());
+
+
+        mainViewController.getResetMenuItem().setOnAction((e) -> {
+            document.reset();
+            document.update();
+        });
+        mainViewController.getResetButton().setOnAction((e) -> mainViewController.getResetMenuItem().fire());
+
     }
 
 }

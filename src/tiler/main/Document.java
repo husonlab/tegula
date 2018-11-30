@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2016 Daniel H. Huson
+ *  Copyright (C) 2018 University of Tuebingen
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -888,4 +888,24 @@ public class Document {
     public ReadOnlyStringProperty statusLineProperty() {
         return statusLine;
     }
+
+    /**
+     * searches for a tiling that has the given text as number and chooses it
+     *
+     * @param text
+     */
+    public boolean findAndMoveTo(String text) {
+        for (int i = 0; i < tilings.size(); i++) {
+            final String label = tilings.get(i).getDSymbol().getNr1() + "." + tilings.get(i).getDSymbol().getNr2();
+            if (label.startsWith(text)) {
+                if (i != currentIndex.get()) {
+                    moveTo(i);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 }

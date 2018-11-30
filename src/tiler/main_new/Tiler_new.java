@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2016 Daniel H. Huson
+ *  Copyright (C) 2018 University of Tuebingen
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
