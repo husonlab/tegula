@@ -209,6 +209,27 @@ public class MainViewController {
     @FXML
     private Button dualizeButton;
 
+
+    @FXML
+    private ColorPicker bandsColorPicker;
+
+    @FXML
+    private ColorPicker backgroundColorPicker;
+
+
+    @FXML
+    private Spinner<Integer> bandWidthSpinner;
+
+    @FXML
+    private CheckBox showFacesCheckBox;
+
+    @FXML
+    private CheckBox showBandsCheckBox;
+
+    @FXML
+    private CheckBox smoothEdgesCheckBox;
+
+
     @FXML
     private ToolBar toolsToolBar;
 
@@ -456,10 +477,35 @@ public class MainViewController {
         return toolsToolBar;
     }
 
+    public Spinner<Integer> getBandWidthSpinner() {
+        return bandWidthSpinner;
+    }
+
+    public CheckBox getShowFacesCheckBox() {
+        return showFacesCheckBox;
+    }
+
+    public CheckBox getShowBandsCheckBox() {
+        return showBandsCheckBox;
+    }
+
+    public CheckBox getSmoothEdgesCheckBox() {
+        return smoothEdgesCheckBox;
+    }
+
+    public ColorPicker getBandsColorPicker() {
+        return bandsColorPicker;
+    }
+
+    public ColorPicker getBackgroundColorPicker() {
+        return backgroundColorPicker;
+    }
+
     @FXML
     void initialize() {
         for (int i = 0; i < 10; i++)
             getVSpinner(i).setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 24));
+        bandWidthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 50));
     }
 
     /**

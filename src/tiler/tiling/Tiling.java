@@ -15,6 +15,7 @@ import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
 import tiler.core.dsymbols.OrbifoldGroupName;
 import tiler.main.Document;
+import tiler.main.TilingStyle;
 import tiler.util.JavaFXUtils;
 import tiler.util.ShapeHandler;
 
@@ -409,13 +410,13 @@ public class Tiling {
      *
      * @return tiles
      */
-    public Group createTilingSpherical(double tol) {
+    public Group createTilingSpherical(double tol, TilingStyle tilingStyle) {
         //Add handles
         handles.getChildren().clear();
         //addHandles(doc);
 
         final Group group = new Group();
-        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
+        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
         group.getChildren().addAll(fund);
         //computeConstraintsAndGenerators();
 
@@ -468,7 +469,7 @@ public class Tiling {
      * @param maxDist
      * @return group
      */
-    public Group createTilingHyperbolic(boolean drawFundamentalDomainOnly, double maxDist, double tol) {
+    public Group createTilingHyperbolic(boolean drawFundamentalDomainOnly, double maxDist, double tol, TilingStyle tilingStyle) {
 
         //Add all generators
         computeConstraintsAndGenerators();
@@ -482,7 +483,7 @@ public class Tiling {
         seen.insert(fDomain, refPointHyperbolic, tol); // root of OctTree is point of reference
 
         final Group group = new Group();
-        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain);
+        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
 
         if (makeCopyHyperbolic(refPointHyperbolic)) {
             fund.setRotationAxis(refPointHyperbolic);
@@ -567,7 +568,7 @@ public class Tiling {
      * @param height
      * @return group
      */
-    public Group createTilingEuclidean(Document doc, boolean drawFundamentalDomainOnly, Point3D windowCorner, double width, double height, double tol) {
+    public Group createTilingEuclidean(Document doc, boolean drawFundamentalDomainOnly, Point3D windowCorner, double width, double height, double tol, TilingStyle tilingStyle) {
 
         //Add all generators
         computeConstraintsAndGenerators();
@@ -580,7 +581,7 @@ public class Tiling {
         refPointEuclidean = fDomain.getChamberCenter3D(Document.getChamberIndex()); // Reference point of actual fundamental domain
 
         final Group group = new Group();
-        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain); // Build fundamental domain
+        final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle); // Build fundamental domain
 
         if (makeCopyEuclidean(refPointEuclidean)) { // Fill empty space with tiles
             fund.getTransforms().add(new Translate()); // Add transform (= identity)
@@ -1080,8 +1081,7 @@ public class Tiling {
     public Point2D resetShape(double deltaX, double deltaY, Handle handle){
         // Reset Point in fundamental domain
         Point2D transVector = new Point2D(deltaX, deltaY);
-        Transform g;
-        Translate t;
+
         int i = handle.getType(), a = handle.getFlag();
         if (i <= 1) {
             int l = ds.computeOrbitLength(1 - i, 2, a);
@@ -1096,7 +1096,7 @@ public class Tiling {
             transVector = addMirrorRestriction(transVector.getX(), transVector.getY(), l, i, a); // Mirror axis restriction
 
 
-            t = new Translate(transVector.getX(), transVector.getY());
+            final Translate t = new Translate(transVector.getX(), transVector.getY());
 
             // Translate Point of type i in chamber a
             Point3D pt = fDomain.getVertex3D(i, a);
@@ -1108,7 +1108,7 @@ public class Tiling {
             for (int k = 1; k <= l; k++) {
                 // If (1-i)-edge is on boundary
                 if (fDomain.isBoundaryEdge(1 - i, a)) {
-                    g = generators.get(1 - i, a);
+                    final Transform g = generators.get(1 - i, a);
                     pt = g.transform(pt);
                     pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt);
                     fDomain.setVertex(pt2d, i, ds.getSi(1 - i, a));
@@ -1117,7 +1117,7 @@ public class Tiling {
 
                 // If 2-edge is on boundary
                 if (fDomain.isBoundaryEdge(2, a)) {
-                    g = generators.get(2, a);
+                    final Transform g = generators.get(2, a);
                     pt = g.transform(pt);
                     pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt);
                     fDomain.setVertex(pt2d, i, ds.getSi(2, a));
@@ -1127,14 +1127,14 @@ public class Tiling {
         }
         else {
             transVector = add2Restriction(deltaX, deltaY, a);
-            t = new Translate(transVector.getX(), transVector.getY());
+            final Translate t = new Translate(transVector.getX(), transVector.getY());
 
             Point3D apt = fDomain.getEdgeCenter3D(2,a);
             apt = t.transform(apt);
             Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), apt);
             fDomain.setEdgeCenter(pt2d, 2, a);
             if (fDomain.isBoundaryEdge(2, a)) {
-                g = generators.get(2, a);
+                final Transform g = generators.get(2, a);
                 apt = g.transform(apt);
                 pt2d = Tools.map3Dto2D(fDomain.getGeometry(), apt);
                 fDomain.setEdgeCenter(pt2d, 2, ds.getS2(a));
@@ -1263,8 +1263,6 @@ public class Tiling {
         return checkRestriction(transVec, R, N, Q, c, firstPos, oldPos); // Check if restrictions are fulfilled when translating by mouse coordinates
     }
 
-
-
     private Point2D add1Restriction(double deltaX, double deltaY, int flag){
         // There exist 4 restrictions. Each restricting line / plane is of the form <x,n> = c.
         // R - directions of line, N - normal vector, c - coordinate
@@ -1358,7 +1356,6 @@ public class Tiling {
 
         return checkRestriction(transVec, R, N, Q, c, oldPos, oldPos); // Check if restrictions are fulfilled when translating by mouse coordinates
     }
-
 
         /**
          * Change direction of mouse movement for handle when restrictions are broken

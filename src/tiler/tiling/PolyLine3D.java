@@ -36,7 +36,7 @@ public class PolyLine3D extends TriangleMesh {
         getTexCoords().addAll(0,0);
         //Add each line segments
         for(int i=0; i<points.size()-1; i++) {
-            getFaces().addAll(i,0,i+1,0,i,0);  // Endpoints of line segment serve as points for triangle
+            getFaces().addAll(i, 0, i + 1, 0, i, 0);  // Endpoints of line segment serve as points for Triangle
         }
     }
 }

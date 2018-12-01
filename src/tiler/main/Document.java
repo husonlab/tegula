@@ -101,6 +101,10 @@ public class Document {
 
     private final StringProperty statusLine = new SimpleStringProperty();
 
+    private final BooleanProperty alwaysStraightenEdges = new SimpleBooleanProperty(false);
+
+    private final TilingStyle tilingStyle = new TilingStyle();
+
     /**
      * constructor
      */
@@ -221,8 +225,12 @@ public class Document {
         tiles.getChildren().clear();
 
         final Tiling tiling = getCurrentTiling();
+
         if (tiling == null)
             return;
+
+        if (isAlwaysStraightenEdges())
+            tiling.straightenAllEdges();
 
         geometryProperty.setValue(tiling.getGeometry());
 
@@ -249,7 +257,7 @@ public class Document {
             if (!tiling.isInWindowEuclidean(Tiling.refPointEuclidean, windowCorner, width.get(), height.get())) { // Fund. domain is not in visible window
                 recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width.get(), height.get(), tol)); // Shifts back fDomain into valid range for fund. domain
             }
-            tiles.getChildren().setAll(tiling.createTilingEuclidean(this, isDrawFundamentalDomainOnly(), windowCorner, width.get(), height.get(), tol).getChildren());
+            tiles.getChildren().setAll(tiling.createTilingEuclidean(this, isDrawFundamentalDomainOnly(), windowCorner, width.get(), height.get(), tol, tilingStyle).getChildren());
             tiling.setNumberOfCopies(tiles.getChildren().size());
 
             //Add rectangles for debugging
@@ -278,7 +286,7 @@ public class Document {
 
         // Spherical case ----------------------------------------------------------------------------------------------
         else if (tiling.getGeometry() == Geometry.Spherical) {
-            tiles.getChildren().setAll(tiling.createTilingSpherical(tol).getChildren());
+            tiles.getChildren().setAll(tiling.createTilingSpherical(tol, tilingStyle).getChildren());
             tiling.setNumberOfCopies(tiles.getChildren().size());
 
             camera.setRotate(0);
@@ -308,7 +316,7 @@ public class Document {
                 recenterFDomain(tiling.calculateBackShiftHyperbolic(tol)); // Shifts back fDomain into valid range (slower algorithm)
             }
 
-            tiles.getChildren().setAll(tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist, tol).getChildren());
+            tiles.getChildren().setAll(tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist, tol, tilingStyle).getChildren());
             tiling.setNumberOfCopies(tiles.getChildren().size());
 
         }
@@ -360,7 +368,7 @@ public class Document {
                 linesInFDomain.getTransforms().add(lineTrans);
             }
 
-            tiles.getChildren().setAll(tiling.createTilingEuclidean(this, true, windowCorner, width.get(), height.get(), tol).getChildren());
+            tiles.getChildren().setAll(tiling.createTilingEuclidean(this, true, windowCorner, width.get(), height.get(), tol, tilingStyle).getChildren());
             tiling.setNumberOfCopies(tiles.getChildren().size());
         }
 
@@ -422,7 +430,7 @@ public class Document {
                 changeDirection = false;
             }
 
-            tiles.getChildren().setAll(tiling.createTilingHyperbolic(true, maxDist, tol).getChildren());
+            tiles.getChildren().setAll(tiling.createTilingHyperbolic(true, maxDist, tol, tilingStyle).getChildren());
             tiling.setNumberOfCopies(tiles.getChildren().size());
         }
     }
@@ -490,7 +498,7 @@ public class Document {
 
             //Second step: Create new tiles ----------------------------------------------------------------------------
             // Create new tiles to fill empty space of valid range. Add new tiles to the group "tiles"
-            Group newTiles = tiling.createTilingEuclidean(this, false, windowCorner, width.get(), height.get(), tol);
+            Group newTiles = tiling.createTilingEuclidean(this, false, windowCorner, width.get(), height.get(), tol, tilingStyle);
 
             if (tiling.isBreak()) { // Generates new tiling if too much rounding errors
                 tiling.setBreak(false);
@@ -567,7 +575,7 @@ public class Document {
             }
 
             //Second step: Create new tiles ----------------------------------------------------------------------------
-            Group newTiles = tiling.createTilingHyperbolic(false, maxDist, tol);
+            Group newTiles = tiling.createTilingHyperbolic(false, maxDist, tol, tilingStyle);
             if (tiling.isBreak()) { // Generates new tiling if too much rounding errors
                 tiling.setBreak(false);
                 reset(); // Reset fundamental domain
@@ -622,7 +630,7 @@ public class Document {
 
         tiling.setNumberOfCopies(0);
         // Add new tiles
-        Group newTiles = tiling.createTilingHyperbolic(false, maxDist, tol);
+        Group newTiles = tiling.createTilingHyperbolic(false, maxDist, tol, tilingStyle);
         tiles.getChildren().addAll(newTiles.getChildren());
         tiling.setNumberOfCopies(tiles.getChildren().size());
     }
@@ -761,10 +769,6 @@ public class Document {
 
     public static int getChamberIndex() { return chamberIndex; }
 
-    public void straightenAll() {
-        getCurrentTiling().straightenAllEdges();
-    }
-
     /**
      * determine whether to use depth buffer
      *
@@ -892,6 +896,18 @@ public class Document {
         return statusLine;
     }
 
+    public boolean isAlwaysStraightenEdges() {
+        return alwaysStraightenEdges.get();
+    }
+
+    public BooleanProperty alwaysStraightenEdgesProperty() {
+        return alwaysStraightenEdges;
+    }
+
+    public void setAlwaysStraightenEdges(boolean alwaysStraightenEdges) {
+        this.alwaysStraightenEdges.set(alwaysStraightenEdges);
+    }
+
     /**
      * searches for a tiling that has the given text as number and chooses it
      *
@@ -910,5 +926,7 @@ public class Document {
         return false;
     }
 
-
+    public TilingStyle getTilingStyle() {
+        return tilingStyle;
+    }
 }

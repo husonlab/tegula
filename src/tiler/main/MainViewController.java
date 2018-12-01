@@ -462,7 +462,7 @@ public class MainViewController implements Initializable {
 
     @FXML
     void fireStraigthenAll(ActionEvent event) {
-        document.straightenAll();
+        document.getCurrentTiling().straightenAllEdges();
         document.update();
     }
 

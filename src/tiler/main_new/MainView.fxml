@@ -394,14 +394,29 @@
                     </center>
                     <right>
                         <ToolBar fx:id="toolsToolBar" maxWidth="-Infinity" minWidth="-Infinity" orientation="VERTICAL"
-                                 prefWidth="100.0" BorderPane.alignment="CENTER">
+                                 prefWidth="110.0" BorderPane.alignment="CENTER">
                             <items>
+                                <Label alignment="CENTER" layoutX="10.0" layoutY="110.0"
+                                       maxWidth="1.7976931348623157E308" text="Change Tiling"/>
                                 <Button fx:id="dualizeButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
                                         text="Dualize"/>
                                 <Button fx:id="orientateButton" layoutX="10.0" layoutY="103.0"
                                         maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Orientate"/>
                                 <Button fx:id="maximizeButton" layoutX="10.0" layoutY="134.0"
                                         maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Max Symm"/>
+                                <Separator prefWidth="200.0"/>
+                                <CheckBox fx:id="showBandsCheckBox" maxWidth="1.7976931348623157E308"
+                                          mnemonicParsing="false" text="Bands"/>
+                                <Spinner fx:id="bandWidthSpinner" editable="true"/>
+                                <ColorPicker fx:id="bandsColorPicker"/>
+                                <Separator prefWidth="200.0"/>
+                                <CheckBox fx:id="showFacesCheckBox" mnemonicParsing="false" text="Faces"/>
+                                <CheckBox fx:id="smoothEdgesCheckBox" layoutX="10.0" layoutY="170.0"
+                                          mnemonicParsing="false" text="Smooth"/>
+                                <Separator prefWidth="200.0"/>
+                                <Label alignment="CENTER" layoutX="10.0" layoutY="10.0"
+                                       maxWidth="1.7976931348623157E308" text="Background"/>
+                                <ColorPicker fx:id="backgroundColorPicker"/>
                             </items>
                         </ToolBar>
                     </right>

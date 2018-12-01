@@ -22,6 +22,8 @@ package tiler.main_new;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
@@ -59,7 +61,10 @@ public class SetupController {
             controller.getGroupTextField().setText(document.getCurrentTiling().getGroupName());
             controller.getOrientateMenuItem().setDisable(document.getCurrentTiling().getDSymbol().computeOrientation() == 2);
             controller.getMaxSymmetryMenuItem().setDisable(DSymbolAlgorithms.isMaximalSymmetry(document.getCurrentTiling().getDSymbol()));
-
+            controller.getBandWidthSpinner().getValueFactory().setValue(document.getTilingStyle().getBandWidth());
+            controller.getShowBandsCheckBox().setSelected(document.getTilingStyle().isShowBands());
+            controller.getShowFacesCheckBox().setSelected(document.getTilingStyle().isShowFaces());
+            controller.getSmoothEdgesCheckBox().setSelected(document.getTilingStyle().isSmoothEdges());
                 }
         );
 
@@ -194,7 +199,6 @@ public class SetupController {
 
         controller.getDualizeMenuItem().setOnAction((e) -> {
             final DSymbol ds = DSymbolAlgorithms.dualize(document.getCurrentTiling().getDSymbol());
-            System.err.println(ds.toString());
             document.changeCurrentTiling(new Tiling(ds));
             document.update();
         });
@@ -202,7 +206,6 @@ public class SetupController {
 
         controller.getMaxSymmetryMenuItem().setOnAction((e) -> {
             final DSymbol ds = DSymbolAlgorithms.maxSymmetry(document.getCurrentTiling().getDSymbol());
-            System.err.println(ds.toString());
             document.changeCurrentTiling(new Tiling(ds));
             document.update();
         });
@@ -211,16 +214,61 @@ public class SetupController {
 
         controller.getOrientateMenuItem().setOnAction((e) -> {
             final DSymbol ds = DSymbolAlgorithms.orientate(document.getCurrentTiling().getDSymbol());
-            System.err.println(ds.toString());
             final Tiling tiling = new Tiling(ds);
-            System.err.println("Group: " + tiling.getGroupName());
-            System.err.println("Geometry: " + tiling.getGeometry());
             document.changeCurrentTiling(tiling);
             document.update();
         });
         controller.getOrientateButton().setOnAction((e) -> controller.getOrientateMenuItem().fire());
         controller.getOrientateButton().disableProperty().bind(controller.getOrientateMenuItem().disableProperty());
 
+        controller.getStraightenAllMenuItem().setOnAction((e) -> {
+            document.getCurrentTiling().straightenAllEdges();
+            document.update();
+        });
+
+        controller.getStraightenAlwaysCheckMenuItem().setOnAction((e) -> {
+            document.setAlwaysStraightenEdges(!document.isAlwaysStraightenEdges());
+            if (document.isAlwaysStraightenEdges())
+                controller.getStraightenAllMenuItem().fire();
+        });
+        document.alwaysStraightenEdgesProperty().addListener((c, o, n) -> controller.getStraightenAlwaysCheckMenuItem().setSelected(n));
+        controller.getBandWidthSpinner().valueProperty().addListener((c, o, n) -> {
+        });
+
+        controller.getBandWidthSpinner().valueProperty().addListener((c, o, n) -> {
+            document.getTilingStyle().setBandWidth(n);
+            document.update();
+        });
+
+        controller.getShowFacesCheckBox().setOnAction((e) -> {
+            document.getTilingStyle().setShowFaces(controller.getShowFacesCheckBox().isSelected());
+            document.update();
+        });
+
+        controller.getShowBandsCheckBox().setOnAction((e) -> {
+            document.getTilingStyle().setShowBands(controller.getShowBandsCheckBox().isSelected());
+            document.getTilingStyle().setShowBandCaps(controller.getShowBandsCheckBox().isSelected());
+            document.update();
+        });
+
+        controller.getSmoothEdgesCheckBox().setOnAction((e) -> {
+            document.getTilingStyle().setSmoothEdges(controller.getSmoothEdgesCheckBox().isSelected());
+            document.update();
+        });
+        controller.getSmoothEdgesCheckBox().disableProperty().bind(document.geometryProperty().isNotEqualTo(Geometry.Spherical));
+
+        controller.getBandsColorPicker().setOnAction((e) -> {
+            document.getTilingStyle().setBandColor(controller.getBandsColorPicker().getValue());
+            document.update();
+        });
+        controller.getBandsColorPicker().setOnShowing((e) -> {
+            controller.getBandsColorPicker().setValue(document.getTilingStyle().getBandColor());
+        });
+
+        controller.getBackgroundColorPicker().setOnAction((e) -> {
+            controller.getMainPane().setBackground(new Background(new BackgroundFill(controller.getBackgroundColorPicker().getValue(), null, null)));
+            document.update();
+        });
     }
 
 }
