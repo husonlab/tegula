@@ -95,7 +95,7 @@ public class MainView {
 
         // setup top pane and stacked pane
 
-        final Scene scene = new Scene(root, 800, 600);
+        final Scene scene = new Scene(root, 800, 800);
 
         stage.setScene(scene);
         stage.sizeToScene();
@@ -109,11 +109,11 @@ public class MainView {
         document.setHeight(600);
 
         mainPane.widthProperty().addListener((c, o, n) -> {
-            document.setWidth(mainPane.getWidth() + 100);
+            document.setWidth(2 * mainPane.getWidth() + 100);
         });
 
         mainPane.heightProperty().addListener((c, o, n) -> {
-            document.setHeight(mainPane.getHeight() + 100);
+            document.setHeight(2 * mainPane.getHeight() + 100);
         });
 
         document.geometryProperty().addListener((c, o, n) -> {
