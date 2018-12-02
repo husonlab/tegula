@@ -32,6 +32,7 @@ import tiler.core.dsymbols.Geometry;
 import tiler.main.Document;
 import tiler.main.HyperbolicModelCameraSettings;
 import tiler.main.Main;
+import tiler.main.SetupTileColors;
 import tiler.tiling.Tiling;
 
 import java.io.File;
@@ -55,7 +56,8 @@ public class SetupController {
         //document.showLinesProperty().bind(mainViewController.getCbShowLines().selectedProperty());
         controller.getStatusTextField().textProperty().bind(document.statusLineProperty());
         document.statusLineProperty().addListener((c, o, n) -> {
-            GroupEditing.update(controller, document);
+            SetupGroupEditing.apply(controller, document);
+            SetupTileColors.apply(controller, document);
             controller.getTilingNumberTextField().setText(document.getCurrentTiling().getDSymbol().getNr1() + "."
                             + document.getCurrentTiling().getDSymbol().getNr2());
             controller.getGroupTextField().setText(document.getCurrentTiling().getGroupName());
@@ -268,6 +270,14 @@ public class SetupController {
         controller.getBackgroundColorPicker().setOnAction((e) -> {
             controller.getMainPane().setBackground(new Background(new BackgroundFill(controller.getBackgroundColorPicker().getValue(), null, null)));
             document.update();
+        });
+
+        controller.getTile1ColorPicker().setOnAction((e) -> {
+            document.getTilingStyle().setTileColor(0, controller.getTile1ColorPicker().getValue());
+            document.update();
+        });
+        controller.getTile1ColorPicker().setOnShowing((e) -> {
+            controller.getTile1ColorPicker().setValue(document.getTilingStyle().getTileColor(0));
         });
     }
 

@@ -229,6 +229,8 @@ public class MainViewController {
     @FXML
     private CheckBox smoothEdgesCheckBox;
 
+    @FXML
+    private ColorPicker tile1ColorPicker;
 
     @FXML
     private ToolBar toolsToolBar;
@@ -401,46 +403,6 @@ public class MainViewController {
         return rotationsToolBar;
     }
 
-    public Spinner<Integer> getV1Spinner() {
-        return v1Spinner;
-    }
-
-    public Spinner<Integer> getV2Spinner() {
-        return v2Spinner;
-    }
-
-    public Spinner<Integer> getV3Spinner() {
-        return v3Spinner;
-    }
-
-    public Spinner<Integer> getV4Spinner() {
-        return v4Spinner;
-    }
-
-    public Spinner<Integer> getV5Spinner() {
-        return v5Spinner;
-    }
-
-    public Spinner<Integer> getV6Spinner() {
-        return v6Spinner;
-    }
-
-    public Spinner<Integer> getV7Spinner() {
-        return v7Spinner;
-    }
-
-    public Spinner<Integer> getV8Spinner() {
-        return v8Spinner;
-    }
-
-    public Spinner<Integer> getV9Spinner() {
-        return v9Spinner;
-    }
-
-    public Spinner<Integer> getV10Spinner() {
-        return v10Spinner;
-    }
-
     public TextField getGroupTextField() {
         return groupTextField;
     }
@@ -501,11 +463,8 @@ public class MainViewController {
         return backgroundColorPicker;
     }
 
-    @FXML
-    void initialize() {
-        for (int i = 0; i < 10; i++)
-            getVSpinner(i).setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 24));
-        bandWidthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 50));
+    public ColorPicker getTile1ColorPicker() {
+        return tile1ColorPicker;
     }
 
     /**
@@ -539,5 +498,13 @@ public class MainViewController {
                 return v10Spinner;
         }
     }
+
+    @FXML
+    void initialize() {
+        for (int i = 0; i < 10; i++)
+            getVSpinner(i).setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 24));
+        bandWidthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100));
+    }
+
 
 }

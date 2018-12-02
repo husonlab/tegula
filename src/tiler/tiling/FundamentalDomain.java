@@ -21,7 +21,6 @@ import tiler.main.TilingStyle;
 
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.Random;
 
 /**
  * builds fundamental domain in JavaFX Created by huson on 4/5/16.
@@ -38,30 +37,28 @@ public class FundamentalDomain {
 
         final Group group = new Group();
 
-        final Color[] colors = new Color[fDomain.size() + 1];
-
-        final BitSet set = new BitSet();
         final BitSet visitLines = new BitSet(fDomain.size());
         final BitSet visitEdges = new BitSet(fDomain.size());
 
-        final Random random = new Random(666);
         // set colors
-        for (int a = 1; a <= dsymbol.size(); a = dsymbol.nextOrbit(0, 1, a, set)) {
-            final Color color = new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1);
-            // final Color color = new Color(1, 1, 1, 1); //all white
-            dsymbol.visitOrbit(0, 1, a, new DSymbol.OrbitVisitor() {
-                public void visit(int a) {
-                    colors[a] = color;
-                }
-            });
+        final Color[] colors = new Color[fDomain.size() + 1];
+        {
+            int tileNumber = 0;
+            final BitSet set = new BitSet();
+            for (int a = 1; a <= dsymbol.size(); a = dsymbol.nextOrbit(0, 1, a, set)) {
+                final Color color = tilingStyle.getTileColor(tileNumber++);
+                dsymbol.visitOrbit(0, 1, a, b -> colors[b] = color);
+            }
         }
 
         // For bands and the band caps (i.e. circles at the ends of bands)
         final double bandWidth = 0.1 * tilingStyle.getBandWidth(); // size of edges
+        final Color bandColor = tilingStyle.getBandColor();
+
         final double badCapDiameter = bandWidth;
         final int bandCapFineness = tilingStyle.getBandCapFineness(); // defines how smooth the edges are
-        final Color bandColor = tilingStyle.getBandColor();
         final Color bandCapColor = bandColor;
+
         double linesAbove; // defines the height of the line above the faces
 
         final TriangleMesh theMesh = new TriangleMesh();

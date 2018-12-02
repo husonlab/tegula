@@ -33,14 +33,14 @@ import java.util.BitSet;
  * manages editing of symmetry group
  * Created by huson on 4/22/16.
  */
-public class GroupEditing {
+public class SetupGroupEditing {
 
     /**
      * update the group editing buttons
      *
      * @param document
      */
-    public static void update(MainViewController mainViewController, Document document) {
+    public static void apply(MainViewController mainViewController, Document document) {
 
         final Tiling tiling = document.getCurrentTiling();
         final DSymbol ds = tiling.getDSymbol();
@@ -50,13 +50,13 @@ public class GroupEditing {
         try {
             int count = 0;
             for (int i = 0; i <= 1; i++) {
-                BitSet seen = new BitSet();
+                final BitSet seen = new BitSet();
                 for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, i + 1, a, seen)) {
                     final int fi = i;
                     final int fa = a;
 
                     final Spinner<Integer> spinner = mainViewController.getVSpinner(count);
-                    spinner.setDisable(false);
+
 
                     if (spinner.getUserData() instanceof ChangeListener)
                         spinner.valueProperty().removeListener((ChangeListener) spinner.getUserData());
@@ -81,6 +81,9 @@ public class GroupEditing {
                     spinner.valueProperty().addListener(listener);
                     spinner.setUserData(listener);
 
+                    spinner.setDisable(false);
+                    spinner.setVisible(true);
+
                     count++;
                     if (count == 10)
                         break; // only support 10 choices
@@ -92,8 +95,11 @@ public class GroupEditing {
                 if (spinner.getUserData() instanceof ChangeListener)
                     spinner.valueProperty().removeListener((ChangeListener) spinner.getUserData());
 
-                spinner.setDisable(true);
                 spinner.getValueFactory().setValue(1);
+
+                spinner.setDisable(true);
+                spinner.setVisible(false);
+
                 count++;
             }
         } finally {
