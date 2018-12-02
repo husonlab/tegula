@@ -24,7 +24,7 @@ import javafx.scene.shape.TriangleMesh;
 import java.util.List;
 
 /**
- * Sets up a line trough a list of 3d-points
+ * Sets up a line through a list of 3d-points
  * @author Ruediger
  */
 public class PolyLine3D extends TriangleMesh {

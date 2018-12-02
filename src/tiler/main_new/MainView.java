@@ -65,7 +65,7 @@ public class MainView {
         final Translate worldTranslate = new Translate(0, 0, 0);
         final Scale worldScale = new Scale(1, 1);
 
-        stage.setTitle("Tiler_new");
+        stage.setTitle("TileDesign");
 
         final FXMLLoader fxmlLoader = new FXMLLoader();
         Pane root = fxmlLoader.load(getClass().getResource("MainView.fxml").openStream());

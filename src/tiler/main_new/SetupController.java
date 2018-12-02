@@ -101,7 +101,7 @@ public class SetupController {
         controller.getQuitMenuItem().setOnAction((e) -> {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Confirmation");
-            alert.setHeaderText("Quit Tiler_new");
+            alert.setHeaderText("Quit TileDesign");
             alert.setContentText("Sure you want to quit?");
 
             Optional<ButtonType> result = alert.showAndWait();
@@ -279,6 +279,13 @@ public class SetupController {
         controller.getTile1ColorPicker().setOnShowing((e) -> {
             controller.getTile1ColorPicker().setValue(document.getTilingStyle().getTileColor(0));
         });
+
+        controller.getBackEdgesCheckBox().setSelected(document.getTilingStyle().isShowBackEdges());
+        controller.getBackEdgesCheckBox().setOnAction((e) -> {
+            document.getTilingStyle().setShowBackEdges(controller.getBackEdgesCheckBox().isSelected());
+            document.update();
+        });
+        controller.getBackEdgesCheckBox().disableProperty().bind(document.geometryProperty().isEqualTo(Geometry.Euclidean));
     }
 
 }

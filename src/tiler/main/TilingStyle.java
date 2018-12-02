@@ -41,6 +41,7 @@ public class TilingStyle {
     private final BooleanProperty showBands = new SimpleBooleanProperty(true);
     private final BooleanProperty showBandCaps = new SimpleBooleanProperty(true);
 
+    private final BooleanProperty showBackEdges = new SimpleBooleanProperty(false);
     private final BooleanProperty smoothEdges = new SimpleBooleanProperty(true);
 
     private final ObservableList<SimpleObjectProperty<Color>> tileColors = FXCollections.observableArrayList();
@@ -167,5 +168,17 @@ public class TilingStyle {
 
     public void setSmoothEdges(boolean smoothEdges) {
         this.smoothEdges.set(smoothEdges);
+    }
+
+    public boolean isShowBackEdges() {
+        return showBackEdges.get();
+    }
+
+    public BooleanProperty showBackEdgesProperty() {
+        return showBackEdges;
+    }
+
+    public void setShowBackEdges(boolean showBackEdges) {
+        this.showBackEdges.set(showBackEdges);
     }
 }

@@ -403,7 +403,7 @@ public class MainViewController implements Initializable {
     void fireQuit(ActionEvent event) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmation");
-        alert.setHeaderText("Quit Tiler_new");
+        alert.setHeaderText("Quit TileDesign");
         alert.setContentText("Sure you want to quit?");
 
         Optional<ButtonType> result = alert.showAndWait();

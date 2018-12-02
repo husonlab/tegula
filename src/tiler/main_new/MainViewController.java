@@ -235,6 +235,9 @@ public class MainViewController {
     @FXML
     private ToolBar toolsToolBar;
 
+    @FXML
+    private CheckBox backEdgesCheckBox;
+
     public BorderPane getBorderPane() {
         return borderPane;
     }
@@ -467,6 +470,10 @@ public class MainViewController {
         return tile1ColorPicker;
     }
 
+    public CheckBox getBackEdgesCheckBox() {
+        return backEdgesCheckBox;
+    }
+
     /**
      * gets a V label
      *
@@ -505,6 +512,4 @@ public class MainViewController {
             getVSpinner(i).setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 24));
         bandWidthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100));
     }
-
-
 }

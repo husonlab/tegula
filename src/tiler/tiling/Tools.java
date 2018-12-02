@@ -10,6 +10,7 @@ import tiler.core.dsymbols.Geometry;
 
 /**
  * Tools for calculation Created by Ruediger on 2017.05.22.
+ * Ruediger Zeller, 2017
  */
 public class Tools {
 

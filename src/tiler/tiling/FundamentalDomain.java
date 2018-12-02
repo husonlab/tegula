@@ -82,13 +82,13 @@ public class FundamentalDomain {
             final Point3D[] linepoints3d;
             final Point3D[] edgepoints3d;
 
-            final int[] faces0;
+            final int[] faces;
 
             if (geom == Geometry.Spherical) { // Spherical
 
                 final int depth = tilingStyle.isSmoothEdges() ? 4 : 0; // 4^5 = 1024
 
-                faces0 = new int[(int) Math.pow(4, (depth + 1)) * 6];
+                faces = new int[(int) Math.pow(4, (depth + 1)) * 6];
                 points3d = new Point3D[depth == 0 ? 6 : 1026]; // 3, 6, 66, 258, 1026 // size of points array dependent on depth
 
                 final WrapInt p = new WrapInt(0);
@@ -143,12 +143,12 @@ public class FundamentalDomain {
                             }
                         } else {
                             int facPos = 6 * f.incrementInt();
-                            faces0[facPos] = pointA;
-                            faces0[facPos + 1] = 0;
-                            faces0[facPos + 2] = pointB;
-                            faces0[facPos + 3] = 1;
-                            faces0[facPos + 4] = pointC;
-                            faces0[facPos + 5] = 2;
+                            faces[facPos] = pointA;
+                            faces[facPos + 1] = 0;
+                            faces[facPos + 2] = pointB;
+                            faces[facPos + 3] = 1;
+                            faces[facPos + 4] = pointC;
+                            faces[facPos + 5] = 2;
                         }
                     }
                 }
@@ -236,7 +236,7 @@ public class FundamentalDomain {
                     points3d[p++] = fDomain.getEdgeCenter3D(i, a);
                 }
                 points3d[p++] = fDomain.getChamberCenter3D(a);
-                faces0 = new int[]{0, 0, 6, 1, 5, 2, // v0 cc e2
+                faces = new int[]{0, 0, 6, 1, 5, 2, // v0 cc e2
                         1, 0, 5, 1, 6, 2, // v1 e2 cc
                         1, 0, 6, 1, 3, 2, // v1 cc e0
                         2, 0, 3, 0, 6, 2, // v2 e0 cc
@@ -286,7 +286,7 @@ public class FundamentalDomain {
                 points3d[p++] = Tools.midpoint3D(geom, points3d[5], points3d[8]);
                 points3d[p++] = Tools.midpoint3D(geom, points3d[8], points3d[1]);
 
-                faces0 = new int[]{0, 0, 6, 1, 9, 2, //
+                faces = new int[]{0, 0, 6, 1, 9, 2, //
                         9, 0, 6, 1, 7, 2, //
                         7, 0, 6, 1, 10, 2, //
                         10, 0, 6, 1, 5, 2, //
@@ -328,12 +328,9 @@ public class FundamentalDomain {
                 points[3 * i + 2] = (float) points3d[i].getZ();
             }
 
-            final int[] faces;
-            if (fDomain.getOrientation(a) == orientation) {
-                faces = faces0;
-            } else {
-                faces = invertOrientation(faces0);
-            }
+            if (fDomain.getOrientation(a) != orientation)
+                invertOrientationOfFaces(faces);
+
 
             final int[] smoothing = new int[faces.length / 6];
             Arrays.fill(smoothing, 1);
@@ -375,11 +372,12 @@ public class FundamentalDomain {
                     visitLines.set(a);
 
                     for (int i = 0; i < linepoints3d.length - 1; i++) {
-
-                        final TriangleMesh meshStorage = Line3D.connect(linepoints3d[i], linepoints3d[i + 1], geom, bandWidth, linesAbove);
-
+                        final TriangleMesh meshStorage = Band3D.connect(linepoints3d[i], linepoints3d[i + 1], geom, bandWidth, linesAbove, false);
                         bandMesh = combineTriangleMesh(bandMesh, meshStorage); // adds mesh Storage to linemesh
-
+                        if (tilingStyle.isShowBackEdges()) {
+                            final TriangleMesh backSideMesh = Band3D.connect(linepoints3d[i], linepoints3d[i + 1], geom, bandWidth, linesAbove, true);
+                            bandMesh = combineTriangleMesh(bandMesh, backSideMesh); // adds back side Storage to linemesh
+                        }
                     }
 
                     // adds band mesh to group
@@ -408,11 +406,15 @@ public class FundamentalDomain {
                         }
 
                         // gets circle coordinates
-                        Point3D[] coordinates = Circle3D.circle(center, direction, badCapDiameter, bandCapFineness, geom);
+                        Point3D[] coordinates = BandCap3D.circle(center, direction, badCapDiameter, bandCapFineness, geom);
 
                         // creates Triangle Mesh for circle coordinates
-                        TriangleMesh meshStorage = Circle3D.CircleMesh(center, coordinates, geom, linesAbove);
+                        TriangleMesh meshStorage = BandCap3D.CircleMesh(center, coordinates, geom, linesAbove, false);
                         bandCapMesh = combineTriangleMesh(bandCapMesh, meshStorage);
+                        if (tilingStyle.isShowBackEdges()) {
+                            final TriangleMesh backSideMesh = BandCap3D.CircleMesh(center, coordinates, geom, linesAbove, true);
+                            bandCapMesh = combineTriangleMesh(bandCapMesh, backSideMesh); // adds back side Storage to linemesh
+                        }
 
                     }
 
@@ -639,18 +641,6 @@ public class FundamentalDomain {
         return group;
     }
 
-    // additional functions
-
-    public static int[] invertOrientation(int[] arr) {
-        int[] invArr = Arrays.copyOf(arr, arr.length);
-        for (int i = 0; i < invArr.length / 6; i++) {
-            int save = invArr[i * 6 + 2];
-            invArr[i * 6 + 2] = invArr[i * 6 + 4];
-            invArr[i * 6 + 4] = save;
-        }
-
-        return invArr;
-    }
 
     public static double computeWindingNumber(Point3D a0, Point3D a1, Point3D a2) {
         return (a1.getX() - a0.getX()) * (a1.getY() + a0.getY()) + (a2.getX() - a1.getX()) * (a2.getY() + a1.getY())
@@ -700,5 +690,21 @@ public class FundamentalDomain {
 
         return newMesh;
 
+    }
+
+    /**
+     * flip the orientation of faces
+     *
+     * @param faces
+     */
+    static void invertOrientationOfFaces(int[] faces) {
+        for (int i = 0; i < faces.length; i += 6) {
+            int tmp = faces[i + 2];
+            faces[i + 2] = faces[i + 4];
+            faces[i + 4] = tmp;
+            tmp = faces[i + 3];
+            faces[i + 3] = faces[i + 5];
+            faces[i + 5] = tmp;
+        }
     }
 }

@@ -27,11 +27,11 @@ import javafx.stage.Stage;
  * todo: this will replace Main.java in the future
  * Daniel Huson, 11.2018
  */
-public class Tiler_new extends Application {
+public class TileDesign extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle("Tiler");
+        primaryStage.setTitle("TileDesign");
 
         new MainView(primaryStage);
         primaryStage.sizeToScene();
