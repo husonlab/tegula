@@ -33,7 +33,7 @@ public class Tiling {
 
     private final DSymbol ds;
     private final String groupName;
-    private final FDomain fDomain;
+    public static FDomain fDomain;
 
     private final Transforms generators;
     private final Constraints constraints;

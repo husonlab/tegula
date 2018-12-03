@@ -612,6 +612,7 @@ public class Document {
      */
     public void increaseTiling(){
         setLimitHyperbolicGroup(getLimitHyperbolicGroup() + 1);
+        Tiling.fDomain = getCurrentTiling().fDomain;
 
         final Tiling tiling = tilings.get(currentIndex.get());
         double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());
@@ -620,13 +621,15 @@ public class Document {
             insertKeptHyperbolicCopy(tiles.getChildren().get(i).getRotationAxis()); // Add existing tiles to tree structure
         }
 
-        // Empty recycler (because not in translate mode).
-        //getRecycler().getChildren().clear();
+
 
         if (getRecycler().getChildren().size() == 0){ // Fill recycler if necessary
             Group recycler2 = JavaFXUtils.copyFundamentalDomain(getHyperbolicFund()); // Copy original fundamental domain which was used to build "tiles"
             getRecycler().getChildren().addAll(recycler2); // Add copy to recycler
         }
+
+        // Empty recycler (because not in translate mode).
+        //getRecycler().getChildren().clear();
 
         tiling.setNumberOfCopies(0);
         // Add new tiles
