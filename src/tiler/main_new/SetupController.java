@@ -32,7 +32,6 @@ import tiler.core.dsymbols.Geometry;
 import tiler.main.Document;
 import tiler.main.HyperbolicModelCameraSettings;
 import tiler.main.Main;
-import tiler.main.SetupTileColors;
 import tiler.tiling.Tiling;
 
 import java.io.File;
@@ -45,6 +44,7 @@ import java.util.Optional;
  * Daniel Huson, 11.2018
  */
 public class SetupController {
+
     /**
      * setup the menu items
      *
@@ -101,7 +101,7 @@ public class SetupController {
         controller.getQuitMenuItem().setOnAction((e) -> {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Confirmation");
-            alert.setHeaderText("Quit TileDesign");
+            alert.setHeaderText("Quit PeriodicTiler");
             alert.setContentText("Sure you want to quit?");
 
             Optional<ButtonType> result = alert.showAndWait();
@@ -260,24 +260,22 @@ public class SetupController {
         controller.getSmoothEdgesCheckBox().disableProperty().bind(document.geometryProperty().isNotEqualTo(Geometry.Spherical));
 
         controller.getBandsColorPicker().setOnAction((e) -> {
+            PeriodicTiler.customColors.addAll(controller.getBandsColorPicker().getCustomColors());
             document.getTilingStyle().setBandColor(controller.getBandsColorPicker().getValue());
             document.update();
         });
         controller.getBandsColorPicker().setOnShowing((e) -> {
+            controller.getBandsColorPicker().getCustomColors().setAll(PeriodicTiler.customColors);
             controller.getBandsColorPicker().setValue(document.getTilingStyle().getBandColor());
         });
 
         controller.getBackgroundColorPicker().setOnAction((e) -> {
+            PeriodicTiler.customColors.addAll(controller.getBackgroundColorPicker().getCustomColors());
             controller.getMainPane().setBackground(new Background(new BackgroundFill(controller.getBackgroundColorPicker().getValue(), null, null)));
             document.update();
         });
-
-        controller.getTile1ColorPicker().setOnAction((e) -> {
-            document.getTilingStyle().setTileColor(0, controller.getTile1ColorPicker().getValue());
-            document.update();
-        });
-        controller.getTile1ColorPicker().setOnShowing((e) -> {
-            controller.getTile1ColorPicker().setValue(document.getTilingStyle().getTileColor(0));
+        controller.getBackgroundColorPicker().setOnShowing((e) -> {
+            controller.getBackgroundColorPicker().getCustomColors().setAll(PeriodicTiler.customColors);
         });
 
         controller.getBackEdgesCheckBox().setSelected(document.getTilingStyle().isShowBackEdges());
@@ -287,6 +285,5 @@ public class SetupController {
         });
         controller.getBackEdgesCheckBox().disableProperty().bind(document.geometryProperty().isEqualTo(Geometry.Euclidean));
     }
-
 }
 

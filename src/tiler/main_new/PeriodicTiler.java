@@ -20,6 +20,9 @@
 package tiler.main_new;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableSet;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 /**
@@ -27,11 +30,12 @@ import javafx.stage.Stage;
  * todo: this will replace Main.java in the future
  * Daniel Huson, 11.2018
  */
-public class TileDesign extends Application {
+public class PeriodicTiler extends Application {
+    public static final ObservableSet<Color> customColors = FXCollections.observableSet();
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle("TileDesign");
+        primaryStage.setTitle("PeriodicTiler");
 
         new MainView(primaryStage);
         primaryStage.sizeToScene();
