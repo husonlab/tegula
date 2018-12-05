@@ -9,6 +9,7 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import tiler.core.dsymbols.Geometry;
+import tiler.tiling.Tiling;
 
 /**
  * mouse handler
