@@ -33,7 +33,7 @@ public class Tiling {
 
     private final DSymbol ds;
     private final String groupName;
-    public static FDomain fDomain;
+    private final FDomain fDomain;
 
     private final Transforms generators;
     private final Constraints constraints;
@@ -479,6 +479,7 @@ public class Tiling {
         //addHandles(doc);
 
         refPointHyperbolic = fDomain.getChamberCenter3D(Document.getChamberIndex()).multiply(0.01);
+        System.out.println(refPointHyperbolic);
         final OctTree seen = new OctTree();
         seen.insert(fDomain, refPointHyperbolic, tol); // root of OctTree is point of reference
 

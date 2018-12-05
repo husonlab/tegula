@@ -318,7 +318,6 @@ public class Document {
 
             tiles.getChildren().setAll(tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist, tol, tilingStyle).getChildren());
             tiling.setNumberOfCopies(tiles.getChildren().size());
-
         }
 
         // Build up world
@@ -612,7 +611,6 @@ public class Document {
      */
     public void increaseTiling(){
         setLimitHyperbolicGroup(getLimitHyperbolicGroup() + 1);
-        Tiling.fDomain = getCurrentTiling().fDomain;
 
         final Tiling tiling = tilings.get(currentIndex.get());
         double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());

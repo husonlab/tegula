@@ -122,7 +122,7 @@ public class Main extends Application {
             });
         }
 
-        document.update();
+        //document.update();
 
 
         /*mainViewController.getFieldOfViewSlider().valueProperty().addListener(new ChangeListener<Number>() {
