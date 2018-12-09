@@ -42,13 +42,13 @@ public class Cylinderline {
         return line;
     }
 
-    public static Node PolyLine3D(List<Point3D> points, Color color, double width){
+    public static Node PolyLine3D(List<Point3D> points, Color color, double width) {
         Group g = new Group();
         if (points.size() > 2) {
-            for (int i=0; i<points.size()-1; i++) {
-                g.getChildren().add(createConnection(points.get(i), points.get(i+1), color, width));
+            for (int i = 0; i < points.size() - 1; i++) {
+                g.getChildren().add(createConnection(points.get(i), points.get(i + 1), color, width));
             }
         }
-        return  g;
+        return g;
     }
 }

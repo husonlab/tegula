@@ -23,16 +23,13 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
-
-import java.util.Random;
+import tiler.color.ColorSchemeManager;
 
 /**
  * class representing styling choices for tiling
  * Daniel Huson, 11.18
  */
 public class TilingStyle {
-    public enum ColorScheme {Random}
-
     private final IntegerProperty bandWidth = new SimpleIntegerProperty(15);
     private final SimpleObjectProperty<Color> bandColor = new SimpleObjectProperty<>(Color.WHITE);
     private final IntegerProperty bandCapFineness = new SimpleIntegerProperty(24);
@@ -44,46 +41,34 @@ public class TilingStyle {
     private final BooleanProperty showBackEdges = new SimpleBooleanProperty(false);
     private final BooleanProperty smoothEdges = new SimpleBooleanProperty(true);
 
-    private final ObservableList<SimpleObjectProperty<Color>> tileColors = FXCollections.observableArrayList();
-    private int randomTileColorSeed = 666;
+    private final ObservableList<Color> tileColors = FXCollections.observableArrayList();
 
-    TilingStyle() {
-        setupTileColors(ColorScheme.Random);
+    private final StringProperty tileColorsScheme = new SimpleStringProperty();
+
+    public TilingStyle() {
+        setTileColorsScheme(ColorSchemeManager.getInstance().getLastColorScheme());
     }
 
-    /**
-     * setup the tile colors scheme
-     *
-     * @param colorScheme
-     */
-    public void setupTileColors(ColorScheme colorScheme) {
-        switch (colorScheme) {
-            default:
-            case Random: {
-                tileColors.clear();
-                final Random random = new Random(randomTileColorSeed);
-                for (int i = 0; i < 255; i++) {
-                    final Color color = new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1);
-                    tileColors.add(new SimpleObjectProperty<>(color));
-                }
-            }
-        }
+    public void setTileColorsScheme(String colorSchemeName) {
+        tileColorsScheme.set(colorSchemeName);
+        tileColors.setAll(ColorSchemeManager.getInstance().getColorScheme(colorSchemeName));
     }
 
-    public void changeRandomColors() {
-        randomTileColorSeed = (new Random()).nextInt();
+    public String getTileColorsScheme() {
+        return tileColorsScheme.get();
     }
 
-    public SimpleObjectProperty<Color> tileColor(int tileNumber) {
+    public ObservableList<Color> getTileColors() {
+        return tileColors;
+    }
+
+
+    public Color getTileColor(int tileNumber) {
         return tileColors.get(tileNumber % tileColors.size());
     }
 
-    public Color getTileColor(int tileNumber) {
-        return tileColor(tileNumber).get();
-    }
-
     public void setTileColor(int tileNumber, Color color) {
-        tileColor(tileNumber).set(color);
+        tileColors.set(tileNumber % tileColors.size(), color);
     }
 
     public int getBandWidth() {
@@ -181,4 +166,6 @@ public class TilingStyle {
     public void setShowBackEdges(boolean showBackEdges) {
         this.showBackEdges.set(showBackEdges);
     }
+
+
 }

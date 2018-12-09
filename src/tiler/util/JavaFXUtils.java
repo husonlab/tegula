@@ -69,8 +69,7 @@ public class JavaFXUtils {
                 target.setMaterial(src.getMaterial());
                 target.getTransforms().addAll(src.getTransforms());
                 result.getChildren().add(target);
-            }
-            else if (node instanceof Text) {
+            } else if (node instanceof Text) {
                 Text src = (Text) node;
                 Text target = new Text(src.getText());
                 target.setFont(src.getFont());

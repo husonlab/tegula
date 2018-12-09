@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015 F(X)yz, 
+ * Copyright (C) 2013-2015 F(X)yz,
  * Sean Phillips, Jason Pollastrini and Jose Pereda
  * All rights reserved.
  *
@@ -25,17 +25,18 @@ import java.util.List;
 
 /**
  * Sets up a line through a list of 3d-points
+ *
  * @author Ruediger
  */
 public class PolyLine3D extends TriangleMesh {
     public PolyLine3D(List<Point3D> points) {
-        for(Point3D point: points) {
+        for (Point3D point : points) {
             getPoints().addAll((float) (point.getX()), (float) (point.getY()), (float) (point.getZ())); //Add points from list
         }
         //Dummy texture coordinates
-        getTexCoords().addAll(0,0);
+        getTexCoords().addAll(0, 0);
         //Add each line segments
-        for(int i=0; i<points.size()-1; i++) {
+        for (int i = 0; i < points.size() - 1; i++) {
             getFaces().addAll(i, 0, i + 1, 0, i, 0);  // Endpoints of line segment serve as points for Triangle
         }
     }

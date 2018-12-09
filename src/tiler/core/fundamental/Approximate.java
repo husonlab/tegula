@@ -99,11 +99,11 @@ public class Approximate {
 
     static private double regula_falsi(DELANEY d, double lr, double la, double hr, double ha) {
         int count = 0;
-        double olr, ola;	/*	    lower value		*/
-        double ohr, oha;	/*	   higher value		*/
-        double dr, da;		/*	    value range		*/
-        double mr, ma;		/*	     mean value		*/
-        double cr, ca;		/*	estimated value		*/
+        double olr, ola;    /*	    lower value		*/
+        double ohr, oha;    /*	   higher value		*/
+        double dr, da;        /*	    value range		*/
+        double mr, ma;        /*	     mean value		*/
+        double cr, ca;        /*	estimated value		*/
         double buffer;
         dr = hr - lr;
         da = ha - la;
@@ -255,7 +255,7 @@ public class Approximate {
                     Base.check_ocr(d, ocx);
                     Base.check_ocr(d, ocy);
                     is_circle = SphericalGeometry.Compute_Sph_Line(d.getOcr()[ocx].getDist(), d.getOcr()[ocx].getBeta(),
-                                        /* 1.0,d.getOcr()[ocy].getBeta(),*/
+                            /* 1.0,d.getOcr()[ocy].getBeta(),*/
                             d.getOcr()[ocy].getDist(), d.getOcr()[ocy].getBeta(), Math.tan(0.5 * d.getRad()),
                             false, Cen_Re, Cen_Im, Cen_R, Ang_B, Ang_E,
                             d.getOcr()[ocx].accessPosx(), d.getOcr()[ocx].accessPosy(),

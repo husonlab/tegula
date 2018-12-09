@@ -194,7 +194,6 @@ public class MainViewController implements Initializable {
     private BorderPane borderPane;
 
 
-
     private Document document;
     private Stage stage;
 
@@ -273,21 +272,27 @@ public class MainViewController implements Initializable {
 
 
     @FXML
-    void setCbPullFDomain(ActionEvent event){
-        if (cbPullFDomain.isSelected()){setCBPullFDomain(true);}
-        else{setCBPullFDomain(false);}
+    void setCbPullFDomain(ActionEvent event) {
+        if (cbPullFDomain.isSelected()) {
+            setCBPullFDomain(true);
+        } else {
+            setCBPullFDomain(false);
+        }
     }
 
-    private void setCBPullFDomain(boolean b){ MouseHandler.cbPullFDomain = b; }
+    private void setCBPullFDomain(boolean b) {
+        MouseHandler.cbPullFDomain = b;
+    }
 
-    public CheckBox getCBPullFDomain(){ return cbPullFDomain; }
+    public CheckBox getCBPullFDomain() {
+        return cbPullFDomain;
+    }
 
     @FXML
-    void setCbShowLines(ActionEvent event){
-        if (cbShowLines.isSelected()){
+    void setCbShowLines(ActionEvent event) {
+        if (cbShowLines.isSelected()) {
             document.addLinesToFDomain();
-        }
-        else {
+        } else {
             document.removeLinesFromFDomain();
         }
     }
@@ -472,7 +477,7 @@ public class MainViewController implements Initializable {
 
 
     @FXML
-    void fireReset(ActionEvent event){
+    void fireReset(ActionEvent event) {
         document.reset();
         document.update();
     }

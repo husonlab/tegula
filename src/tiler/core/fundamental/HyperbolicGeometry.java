@@ -10,8 +10,8 @@ import tiler.core.fundamental.utils.Wrap;
  */
 class HyperbolicGeometry {
     static boolean Compute_Hyp_Line(double Beg_R, double Beg_A, double End_R, double End_A, double Aux_R, boolean infinite,
-                                           Wrap<Double> Cen_Re, Wrap<Double> Cen_Im, Wrap<Double> Cen_R, Wrap<Double> Ang_B, Wrap<Double> Ang_E,
-                                           Wrap<Double> Beg_Re, Wrap<Double> Beg_Im, Wrap<Double> End_Re, Wrap<Double> End_Im) {
+                                    Wrap<Double> Cen_Re, Wrap<Double> Cen_Im, Wrap<Double> Cen_R, Wrap<Double> Ang_B, Wrap<Double> Ang_E,
+                                    Wrap<Double> Beg_Re, Wrap<Double> Beg_Im, Wrap<Double> End_Re, Wrap<Double> End_Im) {
         boolean is_circle;
         double Beg_D_Re, Beg_D_Im, Beg_M_Re, Beg_M_Im;
         double End_D_Re, End_D_Im, End_M_Re, End_M_Im;

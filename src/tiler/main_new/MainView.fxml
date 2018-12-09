@@ -117,6 +117,13 @@
                                 </Menu>
                             </items>
                         </Menu>
+                        <Menu fx:id="colorsMenu" mnemonicParsing="false" text="Colors">
+                            <items>
+                                <SeparatorMenuItem mnemonicParsing="false"/>
+                                <MenuItem fx:id="addColorSchemeMenuItem" mnemonicParsing="false"
+                                          text="Add Color Scheme..."/>
+                            </items>
+                        </Menu>
                         <Menu text="Layout">
                             <items>
                                 <CheckMenuItem fx:id="showFDomainMenuItem" text="Show F. Domain">

@@ -10,8 +10,8 @@ import tiler.core.fundamental.utils.Wrap;
 class ParabolicGeometry {
 
     static boolean Compute_Par_Line(double Beg_R, double Beg_A, double End_R, double End_A, double Aux_R, boolean infinite,
-                                           Wrap<Double> Cen_Re, Wrap<Double> Cen_Im, Wrap<Double> Cen_R, Wrap<Double> Ang_B, Wrap<Double> Ang_E,
-                                           Wrap<Double> Beg_Re, Wrap<Double> Beg_Im, Wrap<Double> End_Re, Wrap<Double> End_Im) {
+                                    Wrap<Double> Cen_Re, Wrap<Double> Cen_Im, Wrap<Double> Cen_R, Wrap<Double> Ang_B, Wrap<Double> Ang_E,
+                                    Wrap<Double> Beg_Re, Wrap<Double> Beg_Im, Wrap<Double> End_Re, Wrap<Double> End_Im) {
         double Del_Re, Del_Im;
         Beg_Re.set(Beg_R * Math.cos(Beg_A));
         Beg_Im.set(Beg_R * Math.sin(Beg_A));

@@ -120,13 +120,13 @@ public class Util {
                     d.getOrb(op).setR(d.getOrb(op).getR() + 1);
                     d.getNod(nk).setOp(ot, op);
                     def_orb(d, nk, op, ti, tj);
-                /* d.getNod(nk).p[ot] = */
+                    /* d.getNod(nk).p[ot] = */
                     Base.create_orb_nod(d, op, nk);
                     d.getNod(nk).setMk(d.getNod(nk).getMk() + 1);
                     nk = d.getNod(nk).getNp(ti);
                     d.getNod(nk).setOp(ot, op);
                     def_orb(d, nk, op, tj, ti);
-				/* d.getNod(nk).p[ot] = */
+                    /* d.getNod(nk).p[ot] = */
                     Base.create_orb_nod(d, op, nk);
                     d.getNod(nk).setMk(d.getNod(nk).getMk() + 1);
                     nk = d.getNod(nk).getNp(tj);

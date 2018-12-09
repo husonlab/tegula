@@ -13,23 +13,23 @@ public class QuadTree {
         Point2D a;
         Node NE, SE, SW, NW; // Four nodes for each direction in plane
 
-        Node (Point2D a){
+        Node(Point2D a) {
             this.a = a;
         }
     }
 
-    public boolean insert (double b1, double b2, double tol){   //Returns true if point b is added to the tree structure.
-        Point2D b = new Point2D(b1,b2);
+    public boolean insert(double b1, double b2, double tol) {   //Returns true if point b is added to the tree structure.
+        Point2D b = new Point2D(b1, b2);
         if (root == null) {
             root = new Node(b);
             return true;
         }
         Node h = root;
         double posSlope, negSlope;
-        while (h != null){
+        while (h != null) {
             if (b.distance(h.a) > tol) {
-                posSlope = Math.E*(b1-h.a.getX())+h.a.getY();
-                negSlope = -1/Math.E*(b1-h.a.getX())+h.a.getY();
+                posSlope = Math.E * (b1 - h.a.getX()) + h.a.getY();
+                negSlope = -1 / Math.E * (b1 - h.a.getX()) + h.a.getY();
                 if (b2 >= posSlope && b2 >= negSlope) {
                     if (h.NE == null) {
                         h.NE = new Node(b);
@@ -51,8 +51,9 @@ public class QuadTree {
                         h = null;
                     } else h = h.SW;
                 }
+            } else {
+                return false;
             }
-            else {return false;}
         }
         return true;
     }

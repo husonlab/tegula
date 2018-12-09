@@ -18,6 +18,8 @@
  */
 package tiler.main_new;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -61,6 +63,9 @@ public class MainViewController {
 
     @FXML
     private MenuItem selectAllMenuItem;
+
+    @FXML
+    private MenuItem addColorSchemeMenuItem;
 
     @FXML
     private MenuItem lineWidthMenuItem;
@@ -238,6 +243,10 @@ public class MainViewController {
     @FXML
     private CheckBox backEdgesCheckBox;
 
+    @FXML
+    private Menu colorsMenu;
+
+
     public BorderPane getBorderPane() {
         return borderPane;
     }
@@ -280,6 +289,10 @@ public class MainViewController {
 
     public MenuItem getSelectAllMenuItem() {
         return selectAllMenuItem;
+    }
+
+    public MenuItem getAddColorSchemeMenuItem() {
+        return addColorSchemeMenuItem;
     }
 
     public MenuItem getLineWidthMenuItem() {
@@ -474,6 +487,10 @@ public class MainViewController {
         return backEdgesCheckBox;
     }
 
+    public Menu getColorsMenu() {
+        return colorsMenu;
+    }
+
     /**
      * gets a V label
      *
@@ -512,4 +529,13 @@ public class MainViewController {
             getVSpinner(i).setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 24));
         bandWidthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100));
     }
+
+    public final ObservableList<ColorPicker> tileColorPickers = FXCollections.observableArrayList();
+
+    final ToggleGroup colorsMenuToggleGroup = new ToggleGroup();
+
+    public ToggleGroup getColorsMenuToggleGroup() {
+        return colorsMenuToggleGroup;
+    }
+
 }

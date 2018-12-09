@@ -41,7 +41,7 @@ public class Glue {
 /*			if((orb_is_complete (op) && orb_is_cut (op)) ||
                 (orb_is_loop (op) &&
 			     (orb_is_split (op) || orb_is_rotation (op)))) {	*/
-/**/
+                /**/
                 if (orb_is_loop(op) && (orb_is_cut(op) || orb_is_split(op) || orb_is_rotation(op))) {
                     ep = find_weakest_edg(op);
                     if (ep < 0) {
@@ -54,15 +54,15 @@ public class Glue {
                         throw new RuntimeException("ep inconsistent");
                     }
                     if (d.getEdg(ep).getNpa() != d.getEdg(ep).getNpb()) {
-                        d.getEdg(ep).incrMk();	/* inhibit gluing */
-                        d.getOrb(oq).incrMk();	/* cut orbit */
+                        d.getEdg(ep).incrMk();    /* inhibit gluing */
+                        d.getOrb(oq).incrMk();    /* cut orbit */
                     }
                 }
                 if (glue_orb(op))
                     change = true;
                 if (change) {
                     continue;
-                }	/*	ok	*/
+                }    /*	ok	*/
             }
             ep = find_optimal_edg();
             if (ep >= 0) {
@@ -70,7 +70,7 @@ public class Glue {
                     change = true;
                 if (change) {
                     continue;
-                }	/*	ok	*/
+                }    /*	ok	*/
             }
         } while (change);
         if (ncnt != d.getNods()) {
@@ -185,9 +185,9 @@ public class Glue {
         int op;
         int opt_o, min_i, max_m, min_b;
         opt_o = -1;
-        min_i = +Integer.MAX_VALUE;	/*	Rotation * Mirror	*/
-        max_m = -Integer.MAX_VALUE;	/*	Size		*/
-        min_b = +Integer.MAX_VALUE;	/*	Remaining	*/
+        min_i = +Integer.MAX_VALUE;    /*	Rotation * Mirror	*/
+        max_m = -Integer.MAX_VALUE;    /*	Size		*/
+        min_b = +Integer.MAX_VALUE;    /*	Remaining	*/
         for (op = 0; op < d.getOrbs(); ++op) {
             if (orb_is_glued(op)) {
                 continue;
@@ -198,19 +198,19 @@ public class Glue {
             if (orb_is_complete(op) && orb_is_cut(op)) {
                 continue;
             }
-/*		if(orb_is_split (op) && orb_is_loop (op)) { continue;}	*/
+            /*		if(orb_is_split (op) && orb_is_loop (op)) { continue;}	*/
             if (orb_is_split(op)) {
                 continue;
             }
             if (greater_than(
-                    min_i, d.getOrb(op).getI(),	/*	Rotation * Mirror	*/
-                    -max_m, -d.getOrb(op).getM(),	/*	Size		*/
-                    min_b, d.getOrb(op).getB()		/*	Remaining	*/
+                    min_i, d.getOrb(op).getI(),    /*	Rotation * Mirror	*/
+                    -max_m, -d.getOrb(op).getM(),    /*	Size		*/
+                    min_b, d.getOrb(op).getB()        /*	Remaining	*/
             )) {
                 opt_o = op;
-                min_i = d.getOrb(op).getI();	/*	Rotation * Mirror	*/
-                max_m = d.getOrb(op).getM();	/*	Size		*/
-                min_b = d.getOrb(op).getB();	/*	Remaining	*/
+                min_i = d.getOrb(op).getI();    /*	Rotation * Mirror	*/
+                max_m = d.getOrb(op).getM();    /*	Size		*/
+                min_b = d.getOrb(op).getB();    /*	Remaining	*/
             }
         }
         return (opt_o);
@@ -222,9 +222,9 @@ public class Glue {
         int p;
         int opt_e, max_i, min_m, max_b;
         opt_e = -1;
-        max_i = -Integer.MAX_VALUE;	/*	Rotation * Mirror	*/
-        min_m = +Integer.MAX_VALUE;	/*	Size		*/
-        max_b = -Integer.MAX_VALUE;	/*	Remaining	*/
+        max_i = -Integer.MAX_VALUE;    /*	Rotation * Mirror	*/
+        min_m = +Integer.MAX_VALUE;    /*	Size		*/
+        max_b = -Integer.MAX_VALUE;    /*	Remaining	*/
         for (p = 0; p < d.getOrb(oq).getEps(); ++p) {
             ep = d.getOrb(oq).getEp()[p];
             if (edg_is_glued(ep)) {
@@ -249,31 +249,31 @@ public class Glue {
             if (orb_is_cut(op)) {
                 return (ep);
             }
-/*		if(orb_is_split (op) && orb_is_loop (op)) { return (ep);}	*/
-/**/
+            /*		if(orb_is_split (op) && orb_is_loop (op)) { return (ep);}	*/
+            /**/
             if (orb_is_split(op)) {
                 return (ep);
             }
-/**/
+            /**/
             na = d.getEdg(ep).getNpa();
             nb = d.getEdg(ep).getNpb();
-/**/
+            /**/
             if (na == nb) {
                 continue;
-            }	/*	Mirror	*/
-/**/
+            }    /*	Mirror	*/
+            /**/
             if (nod_is_glued(na) && nod_is_glued(nb)) {
                 return (ep);
             }
             if (less_or_equal(
-                    max_i, d.getOrb(op).getI(),	/*	Rotation * Mirror	*/
-                    -min_m, -d.getOrb(op).getM(),	/*	Size		*/
-                    max_b, d.getOrb(op).getB()		/*	Remaining	*/
+                    max_i, d.getOrb(op).getI(),    /*	Rotation * Mirror	*/
+                    -min_m, -d.getOrb(op).getM(),    /*	Size		*/
+                    max_b, d.getOrb(op).getB()        /*	Remaining	*/
             )) {
                 opt_e = ep;
-                max_i = d.getOrb(op).getI();	/*	Rotation * Mirror	*/
-                min_m = d.getOrb(op).getM();	/*	Size		*/
-                max_b = d.getOrb(op).getB();	/*	Remaining	*/
+                max_i = d.getOrb(op).getI();    /*	Rotation * Mirror	*/
+                min_m = d.getOrb(op).getM();    /*	Size		*/
+                max_b = d.getOrb(op).getB();    /*	Remaining	*/
             }
         }
         return (opt_e);
@@ -293,7 +293,7 @@ public class Glue {
             nb = d.getEdg(ep).getNpb();
             if (na == nb) {
                 continue;
-            }	/*	Mirror	*/
+            }    /*	Mirror	*/
             if (nod_is_glued(na) == nod_is_glued(nb)) {
                 continue;
             }
@@ -337,7 +337,7 @@ public class Glue {
                 change = true;
             np = d.getNod(np).getNp(tj);
         } while (np != na);
-        d.getOrb(op).setId(++ocnt);		/*	glue orbit	*/
+        d.getOrb(op).setId(++ocnt);        /*	glue orbit	*/
         change = true;
         return change;
     }
@@ -356,7 +356,7 @@ public class Glue {
         nb = d.getEdg(ep).getNpb();
         ox = d.getEdg(ep).getOpx();
         oy = d.getEdg(ep).getOpy();
-        if (na == nb) {				/*	Mirror	*/
+        if (na == nb) {                /*	Mirror	*/
             if (glue_nod(na))
                 change = true;
             return change;
@@ -364,18 +364,18 @@ public class Glue {
         switch ((nod_is_glued(na) ? 1 : 0) + (nod_is_glued(nb) ? 1 : 0)) {
             case 0:
                 d.getOrb(ox).setS(d.getOrb(ox).getS() + 1);
-                d.getOrb(oy).setS(d.getOrb(oy).getS() + 1);	/*	split orbs	*/
+                d.getOrb(oy).setS(d.getOrb(oy).getS() + 1);    /*	split orbs	*/
                 break;
             case 2:
                 d.getOrb(ox).setS(d.getOrb(ox).getS() - 1);
-                d.getOrb(oy).setS(d.getOrb(oy).getS() - 1);	/*	join splits	*/
+                d.getOrb(oy).setS(d.getOrb(oy).getS() - 1);    /*	join splits	*/
                 break;
             default:
                 break;
         }
         d.getOrb(ox).setB(d.getOrb(ox).getB() - 1);
-        d.getOrb(oy).setB(d.getOrb(oy).getB() - 1);	/*	count remaining boundary edges	*/
-        d.getEdg(ep).setId(++ecnt);		/*	glue edge	*/
+        d.getOrb(oy).setB(d.getOrb(oy).getB() - 1);    /*	count remaining boundary edges	*/
+        d.getEdg(ep).setId(++ecnt);        /*	glue edge	*/
         change = true;
         if (glue_nod(na))
             change = true;
@@ -390,11 +390,11 @@ public class Glue {
         int ti, ei, ni;
         int tj, ej, nj;
         boolean change = false;
-        d.getNod(np).incrMk();			/*	count glued edges of node	*/
+        d.getNod(np).incrMk();            /*	count glued edges of node	*/
         if (nod_is_glued(np)) {
             return change;
         }
-        d.getNod(np).setId(++ncnt);		/*	glue node	*/
+        d.getNod(np).setId(++ncnt);        /*	glue node	*/
         change = true;
         for (ty = 0; ty < 3; ++ty) {
             op = d.getNod(np).getOp(ty);
@@ -436,7 +436,7 @@ public class Glue {
                     d.getEdg(ep).setSg(-1);
                     d.getOrb(op).setSg(-1);
                 }
-                continue;		/*	sign ok		*/
+                continue;        /*	sign ok		*/
             }
             if (!edg_is_glued(ep)) {
                 continue;
@@ -565,11 +565,11 @@ public class Glue {
                 op = d.getNod(np).getOp(ot);
                 oc = Base.create_ocr(d, op);
                 Base.create_orb_crd(d, op, oc);
-/*			od = d.getNcr()[nc].oc[3-ot-et];	*/
+                /*			od = d.getNcr()[nc].oc[3-ot-et];	*/
                 Base.create_fcr(d, oc);
                 Base.create_ocr_ncr(d, oc, nc);
                 Base.create_ocr_ecr(d, oc, ec);
-/*			Base.create_ocr_ocr (d, oc, od);	*/
+                /*			Base.create_ocr_ocr (d, oc, od);	*/
             } else {
                 np = d.getNod(np).getNp()[et];
                 nc = d.getNod(np).getCr();
@@ -633,10 +633,10 @@ public class Glue {
                 } else {
                     throw new RuntimeException("ep inconsistent");
                 }
-/*			od = d.getNcr()[nc].oc[3-ot-et];	*/
+                /*			od = d.getNcr()[nc].oc[3-ot-et];	*/
                 Base.create_ocr_ncr(d, oc, nc);
                 Base.create_ocr_ecr(d, oc, ec);
-/*			Base.create_ocr_ocr (d, oc, od);	*/
+                /*			Base.create_ocr_ocr (d, oc, od);	*/
             }
         }
         for (ec = 0; ec < d.getEcrs(); ++ec) {

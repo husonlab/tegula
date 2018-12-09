@@ -6,7 +6,6 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
 
 
-
 /**
  * Spherical geometry
  * Created by Huson and Zeller on 4/19/16.
@@ -36,21 +35,18 @@ public class SphericalGeometry {
         if (n1.angle(n2) == 180) {              // Case a1-b1 and a2-b2 lie on same geodesic with different orientation
             rotate = new Rotate(180, n1.crossProduct(a1.add(b1)));
             a1Rotate = rotate.transform(a1);        // Rotates a1 to geodesic through a2, b2
-            if(a1Rotate.angle(a2) == 180){          // Case that a1Rotate = -a2
-                geodesicRotate = new Rotate(180,n2);    // Matches a1Rotate with a2
+            if (a1Rotate.angle(a2) == 180) {          // Case that a1Rotate = -a2
+                geodesicRotate = new Rotate(180, n2);    // Matches a1Rotate with a2
+            } else {
+                geodesicRotate = new Rotate(a1Rotate.angle(a2), a1Rotate.crossProduct(a2)); // Matches a1Rotate with a2
             }
-            else {
-                geodesicRotate = new Rotate(a1Rotate.angle(a2),a1Rotate.crossProduct(a2)); // Matches a1Rotate with a2
-            }
-        }
-        else {              // Case a1-b1 and a2-b2 lie on different geodesics or on the same geodesic with same orientation
+        } else {              // Case a1-b1 and a2-b2 lie on different geodesics or on the same geodesic with same orientation
             rotate = new Rotate(n1.angle(n2), n1.crossProduct(n2));    // Maps the geodesic through a1, b1 to geodesic through a2, b2
             a1Rotate = rotate.transform(a1);             // Rotates a1 to geodesic through a2, b2
-            if(a1Rotate.angle(a2) == 180){      //Case a1Rotate = -a2
-                geodesicRotate = new Rotate(180,n2); // Matches a1Rotate with a2
-            }
-            else {
-                geodesicRotate = new Rotate(a1Rotate.angle(a2),a1Rotate.crossProduct(a2)); // Matches a1Rotate with a2
+            if (a1Rotate.angle(a2) == 180) {      //Case a1Rotate = -a2
+                geodesicRotate = new Rotate(180, n2); // Matches a1Rotate with a2
+            } else {
+                geodesicRotate = new Rotate(a1Rotate.angle(a2), a1Rotate.crossProduct(a2)); // Matches a1Rotate with a2
             }
         }
 

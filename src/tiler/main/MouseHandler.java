@@ -9,7 +9,6 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import tiler.core.dsymbols.Geometry;
-import tiler.tiling.Tiling;
 
 /**
  * mouse handler
@@ -62,20 +61,18 @@ public class MouseHandler {
                     double dy = mouseDeltaY * modifierFactor;
 
                     if (dx != 0 || dy != 0) {
-                        if (cbPullFDomain && !animation.isPlaying()){
+                        if (cbPullFDomain && !animation.isPlaying()) {
                             document.translateFDomain(dx, dy);
-                        }
-                        else {
+                        } else {
                             document.translateTiling(dx, dy);
                         }
 
                         // Checks whether (dx,dy) has been modified.
-                        if (document.directionChanged()){
+                        if (document.directionChanged()) {
                             // Modify mouse position in hyperbolic case.
                             mouseDownX = me.getSceneX() - document.getTranslation().getX();
                             mouseDownY = me.getSceneY() - document.getTranslation().getY();
-                        }
-                        else {
+                        } else {
                             mouseDownX = me.getSceneX();
                             mouseDownY = me.getSceneY();
                         }
@@ -94,7 +91,7 @@ public class MouseHandler {
             }
         });
         scene.setOnMouseReleased((me) -> {
-            if (cbPullFDomain){
+            if (cbPullFDomain) {
                 document.update();
             }
             if (me.isShiftDown()) {

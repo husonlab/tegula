@@ -9,24 +9,25 @@ import tiler.core.dsymbols.FDomain;
  */
 public class OctTree {
     private Node root; //Root node of the tree.
+
     private class Node {
         Point3D a;
         Node ppp, mpp, pmp, ppm, mmp, mpm, pmm, mmm; // Eight nodes for each direction in space
 
-        Node (Point3D a){
+        Node(Point3D a) {
             this.a = a;
         }
     }
 
 
-    public boolean insert (FDomain geom, Point3D b, double tol){   //Returns true if point b is added to the tree structure.
+    public boolean insert(FDomain geom, Point3D b, double tol) {   //Returns true if point b is added to the tree structure.
 
         if (root == null) {
             root = new Node(b);
             return true;
         }
         Node h = root;
-        while (h != null){
+        while (h != null) {
             if (Tools.distance(geom, b, h.a) > tol) {
                 if (b.getX() >= h.a.getX() && b.getY() >= h.a.getY() && b.getZ() >= h.a.getZ()) {
                     if (h.ppp == null) {
@@ -69,8 +70,9 @@ public class OctTree {
                         h = null;
                     } else h = h.mmm;
                 }
+            } else {
+                return false;
             }
-            else {return false;}
         }
         return true;
     }

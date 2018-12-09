@@ -11,8 +11,8 @@ import tiler.core.fundamental.utils.Wrap;
 class SphericalGeometry {
 
     static boolean Compute_Sph_Line(double Beg_R, double Beg_A, double End_R, double End_A, double Aux_R, boolean infinite,
-                                           Wrap<Double> Cen_Re, Wrap<Double> Cen_Im, Wrap<Double> Cen_R, Wrap<Double> Ang_B, Wrap<Double> Ang_E,
-                                           Wrap<Double> Beg_Re, Wrap<Double> Beg_Im, Wrap<Double> End_Re, Wrap<Double> End_Im) {
+                                    Wrap<Double> Cen_Re, Wrap<Double> Cen_Im, Wrap<Double> Cen_R, Wrap<Double> Ang_B, Wrap<Double> Ang_E,
+                                    Wrap<Double> Beg_Re, Wrap<Double> Beg_Im, Wrap<Double> End_Re, Wrap<Double> End_Im) {
         boolean is_circle;
         double Del_Re, Del_Im;
         double Beg_F, End_F, Cen_F;

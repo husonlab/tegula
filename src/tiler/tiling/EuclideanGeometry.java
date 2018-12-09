@@ -36,9 +36,9 @@ public class EuclideanGeometry {
             return translate.createConcatenation(rotate);
         } else {
             final Transform rotate1 = new Rotate(-computeAngleXY(b1.subtract(a1)), a1.getX(), a1.getY(), 0, Z_AXIS); // rotate so that a1-b1 parallel to  x-axis
-            final Translate transToXAxis = new Translate(0,-a1.getY(),0); //Translate to x-axis
+            final Translate transToXAxis = new Translate(0, -a1.getY(), 0); //Translate to x-axis
             final Affine rotateX = reflection; // Reflect at a-z-plane
-            final Translate transBack = new Translate(0,a1.getY(),0); // Translate back from x-axis
+            final Translate transBack = new Translate(0, a1.getY(), 0); // Translate back from x-axis
             //final Transform rotateX = new Rotate(180, 0, a1.getY(), 0, X_AXIS); // rotate around axis parallel to x-axis by 180 to create flip
             final Transform rotate2 = new Rotate(computeAngleXY(b2.subtract(a2)), a1.getX(), a1.getY(), 0, Z_AXIS); // rotate to match angle of a2-b2
             final Transform translate = new Translate(a2.getX() - a1.getX(), a2.getY() - a1.getY()); // translate a1 to a2

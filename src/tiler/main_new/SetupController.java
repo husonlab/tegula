@@ -20,12 +20,13 @@
 package tiler.main_new;
 
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
+import javafx.scene.control.*;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import tiler.color.ColorSchemeDialog;
+import tiler.color.ColorSchemeManager;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.DSymbolAlgorithms;
 import tiler.core.dsymbols.Geometry;
@@ -55,7 +56,7 @@ public class SetupController {
     public static void setup(MainViewController controller, Document document, Stage mainStage) {
         //document.showLinesProperty().bind(mainViewController.getCbShowLines().selectedProperty());
         controller.getStatusTextField().textProperty().bind(document.statusLineProperty());
-        document.statusLineProperty().addListener((c, o, n) -> {
+        document.updateNumberProperty().addListener((c, o, n) -> {
             SetupGroupEditing.apply(controller, document);
             SetupTileColors.apply(controller, document);
             controller.getTilingNumberTextField().setText(document.getCurrentTiling().getDSymbol().getNr1() + "."
@@ -67,6 +68,12 @@ public class SetupController {
             controller.getShowBandsCheckBox().setSelected(document.getTilingStyle().isShowBands());
             controller.getShowFacesCheckBox().setSelected(document.getTilingStyle().isShowFaces());
             controller.getSmoothEdgesCheckBox().setSelected(document.getTilingStyle().isSmoothEdges());
+            {
+                int tileNumber = 0;
+                for (ColorPicker colorPicker : controller.tileColorPickers) {
+                    colorPicker.setValue(document.getTilingStyle().getTileColor(tileNumber++));
+                }
+            }
                 }
         );
 
@@ -99,7 +106,7 @@ public class SetupController {
         controller.getCloseMenuItem().setOnAction((e) -> System.err.print("Not implemented"));
 
         controller.getQuitMenuItem().setOnAction((e) -> {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Confirmation");
             alert.setHeaderText("Quit PeriodicTiler");
             alert.setContentText("Sure you want to quit?");
@@ -248,7 +255,6 @@ public class SetupController {
         });
 
         controller.getShowBandsCheckBox().setOnAction((e) -> {
-            document.getTilingStyle().setShowBands(controller.getShowBandsCheckBox().isSelected());
             document.getTilingStyle().setShowBandCaps(controller.getShowBandsCheckBox().isSelected());
             document.update();
         });
@@ -260,22 +266,21 @@ public class SetupController {
         controller.getSmoothEdgesCheckBox().disableProperty().bind(document.geometryProperty().isNotEqualTo(Geometry.Spherical));
 
         controller.getBandsColorPicker().setOnAction((e) -> {
-            PeriodicTiler.customColors.addAll(controller.getBandsColorPicker().getCustomColors());
             document.getTilingStyle().setBandColor(controller.getBandsColorPicker().getValue());
             document.update();
         });
         controller.getBandsColorPicker().setOnShowing((e) -> {
-            controller.getBandsColorPicker().getCustomColors().setAll(PeriodicTiler.customColors);
+            controller.getBandsColorPicker().getCustomColors().setAll(ColorSchemeManager.getInstance().getColorScheme(document.getTilingStyle().getTileColorsScheme()));
             controller.getBandsColorPicker().setValue(document.getTilingStyle().getBandColor());
         });
 
         controller.getBackgroundColorPicker().setOnAction((e) -> {
-            PeriodicTiler.customColors.addAll(controller.getBackgroundColorPicker().getCustomColors());
             controller.getMainPane().setBackground(new Background(new BackgroundFill(controller.getBackgroundColorPicker().getValue(), null, null)));
             document.update();
         });
         controller.getBackgroundColorPicker().setOnShowing((e) -> {
-            controller.getBackgroundColorPicker().getCustomColors().setAll(PeriodicTiler.customColors);
+            controller.getBackgroundColorPicker().getCustomColors().setAll(ColorSchemeManager.getInstance().getColorScheme(document.getTilingStyle().getTileColorsScheme()));
+            controller.getBackgroundColorPicker().setValue(document.getTilingStyle().getBandColor());
         });
 
         controller.getBackEdgesCheckBox().setSelected(document.getTilingStyle().isShowBackEdges());
@@ -284,6 +289,38 @@ public class SetupController {
             document.update();
         });
         controller.getBackEdgesCheckBox().disableProperty().bind(document.geometryProperty().isEqualTo(Geometry.Euclidean));
+
+        controller.getAddColorSchemeMenuItem().setOnAction((e) -> {
+            try {
+                new ColorSchemeDialog(document, controller);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        });
+
+        for (String name : ColorSchemeManager.getInstance().getNames()) {
+            addToColorsMenu(controller, document, name);
+        }
+    }
+
+    public static void addToColorsMenu(MainViewController controller, Document document, String name) {
+        for (int pos = 0; pos < controller.getColorsMenu().getItems().size(); pos++) {
+            if (controller.getColorsMenu().getItems().get(pos) instanceof SeparatorMenuItem) {
+                final RadioMenuItem menuItem = new RadioMenuItem(name);
+                menuItem.setUserData(name);
+                menuItem.setOnAction((e) -> {
+                    document.getTilingStyle().setTileColorsScheme(name);
+                    document.update();
+                });
+                controller.getColorsMenuToggleGroup().getToggles().add(menuItem);
+                controller.getColorsMenu().getItems().add(pos, menuItem);
+                break;
+            }
+        }
+        for (Toggle toggle : controller.getColorsMenuToggleGroup().getToggles()) {
+            if (toggle.getUserData().equals(document.getTilingStyle().getTileColorsScheme()))
+                toggle.setSelected(true);
+        }
     }
 }
 

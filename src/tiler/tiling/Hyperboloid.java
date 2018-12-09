@@ -43,9 +43,9 @@ public class Hyperboloid extends TriangleMesh {
         float zDelta = height / levels;
 
         for (int l = 1; l <= levels; l++) {
-            double radius = 100 * Math.sqrt((zDelta*(l) / 100 + 1) * (zDelta*(l) / 100 + 1)  - 1);
+            double radius = 100 * Math.sqrt((zDelta * (l) / 100 + 1) * (zDelta * (l) / 100 + 1) - 1);
             for (int i = 0; i < parts; i++) {
-                getPoints().addAll((float) (radius * Math.cos((i * 2.0 * Math.PI) / parts)), (float) (radius * Math.sin((i * 2.0 * Math.PI) / parts)), zDelta * (l)+100);
+                getPoints().addAll((float) (radius * Math.cos((i * 2.0 * Math.PI) / parts)), (float) (radius * Math.sin((i * 2.0 * Math.PI) / parts)), zDelta * (l) + 100);
             }
         }
         getTexCoords().setAll(0, 0, 1, 1, 2, 2);
@@ -60,12 +60,12 @@ public class Hyperboloid extends TriangleMesh {
 
         if (true)
             for (int l = 1; l < levels; l++) {
-                int firstPrev = (l-1) * parts + 1;
+                int firstPrev = (l - 1) * parts + 1;
                 int firstNext = (l) * parts + 1;
                 for (int i = 0; i < parts; i++) {
                     int a = firstPrev + i;
                     int b = firstNext + i;
-                    int c = (b < (l+1) * parts ? b + 1 : firstNext);
+                    int c = (b < (l + 1) * parts ? b + 1 : firstNext);
                     int d = (a < l * parts ? a + 1 : firstPrev);
 
                     getFaces().addAll(a, 0, b, 1, c, 2);
