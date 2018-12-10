@@ -62,13 +62,17 @@ public class TilingStyle {
         return tileColors;
     }
 
-
     public Color getTileColor(int tileNumber) {
         return tileColors.get(tileNumber % tileColors.size());
     }
 
     public void setTileColor(int tileNumber, Color color) {
-        tileColors.set(tileNumber % tileColors.size(), color);
+        { // pad to size
+            final ObservableList<Color> colorScheme = ColorSchemeManager.getInstance().getColorScheme(getTileColorsScheme());
+            while (tileNumber >= tileColors.size())
+                tileColors.add(colorScheme.get(tileNumber % colorScheme.size()));
+        }
+        tileColors.set(tileNumber, color);
     }
 
     public int getBandWidth() {

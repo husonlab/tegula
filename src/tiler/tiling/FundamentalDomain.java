@@ -51,8 +51,10 @@ public class FundamentalDomain {
             }
         }
 
+        final Geometry geom = fDomain.getGeometry();
+
         // For bands and the band caps (i.e. circles at the ends of bands)
-        final double bandWidth = 0.1 * tilingStyle.getBandWidth(); // size of edges
+        final double bandWidth = (fDomain.getGeometry() == Geometry.Euclidean ? 0.5 : 0.1) * tilingStyle.getBandWidth(); // size of edges
         final Color bandColor = tilingStyle.getBandColor();
 
         final double badCapDiameter = bandWidth;
@@ -67,9 +69,6 @@ public class FundamentalDomain {
         boolean drawFaces = tilingStyle.isShowFaces();
         boolean drawBands = tilingStyle.isShowBands();
         boolean drawBandCaps = tilingStyle.isShowBandCaps();
-
-        // defines length of the matrix
-        Geometry geom = fDomain.getGeometry();
 
         // construct triangles as meshes:
 
@@ -415,7 +414,6 @@ public class FundamentalDomain {
                             final TriangleMesh backSideMesh = BandCap3D.CircleMesh(center, coordinates, geom, linesAbove, true);
                             bandCapMesh = combineTriangleMesh(bandCapMesh, backSideMesh); // adds back side Storage to linemesh
                         }
-
                     }
 
                     // adds bandCapMesh to group
