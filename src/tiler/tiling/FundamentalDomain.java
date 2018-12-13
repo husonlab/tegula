@@ -648,6 +648,7 @@ public class FundamentalDomain {
         return group;
     }
 
+
     public static double computeWindingNumber(Point3D a0, Point3D a1, Point3D a2) {
         return (a1.getX() - a0.getX()) * (a1.getY() + a0.getY()) + (a2.getX() - a1.getX()) * (a2.getY() + a1.getY())
                 + (a0.getX() - a2.getX()) * (a0.getY() + a2.getY());
