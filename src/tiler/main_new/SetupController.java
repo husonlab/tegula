@@ -21,10 +21,14 @@ package tiler.main_new;
 
 import javafx.application.Platform;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import jloda.fx.Print;
 import tiler.color.ColorSchemeDialog;
 import tiler.color.ColorSchemeManager;
 import tiler.core.dsymbols.DSymbol;
@@ -103,8 +107,6 @@ public class SetupController {
 
         controller.getOpenFileButton().setOnAction((e) -> controller.getOpenMenuItem().fire());
 
-        controller.getCloseMenuItem().setOnAction((e) -> System.err.print("Not implemented"));
-
         controller.getQuitMenuItem().setOnAction((e) -> {
             final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Confirmation");
@@ -118,6 +120,16 @@ public class SetupController {
             } else {
                 alert.close();
             }
+        });
+
+        controller.getPageSetupMenuItem().setOnAction((e) -> Print.showPageLayout(mainStage));
+        controller.getPrintMenuItem().setOnAction((e) -> Print.print(mainStage, new ImageView(controller.getMainPane().snapshot(null, null))));
+        controller.getPrintButton().setOnAction((e) -> controller.getPrintMenuItem().fire());
+
+        controller.getCopyMenuItem().setOnAction((e) -> {
+            final ClipboardContent content = new ClipboardContent();
+            content.putImage(controller.getMainPane().snapshot(null, null));
+            Clipboard.getSystemClipboard().setContent(content);
         });
 
         controller.getFirstTilingMenuItem().setOnAction((e) -> {

@@ -73,9 +73,10 @@ public class MainView {
 
         // setup world and subscene
         final Group world = new Group();
-        final SubScene subScene = new SubScene(world, 800, 800, false, SceneAntialiasing.BALANCED);
-        subScene.setCamera(camera);
+        final Group universe = new Group(world);
 
+        final SubScene subScene = new SubScene(new Group(universe), 800, 800, false, SceneAntialiasing.BALANCED);
+        subScene.setCamera(camera);
 
         world.getTransforms().add(worldTranslate);
         world.getTransforms().add(worldScale);
@@ -101,7 +102,7 @@ public class MainView {
         stage.sizeToScene();
         stage.show();
 
-        final Document document = new Document(stage, world, camera);
+        final Document document = new Document(universe, world, camera);
 
         SetupController.setup(mainViewController, document, stage);
 

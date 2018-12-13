@@ -50,6 +50,9 @@ public class MainViewController {
     private MenuItem printMenuItem;
 
     @FXML
+    private MenuItem pageSetupMenuItem;
+
+    @FXML
     private MenuItem closeMenuItem;
 
     @FXML
@@ -269,6 +272,10 @@ public class MainViewController {
 
     public MenuItem getPrintMenuItem() {
         return printMenuItem;
+    }
+
+    public MenuItem getPageSetupMenuItem() {
+        return pageSetupMenuItem;
     }
 
     public MenuItem getCloseMenuItem() {

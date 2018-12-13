@@ -37,7 +37,7 @@ public class HyperbolicModelCameraSettings {
      */
     public static void setModel(Document document, Document.HyperbolicModel model, boolean animate) {
 
-        document.getCamera().setFieldOfView(90);
+        document.getPerspectiveCamera().setFieldOfView(90);
 
         final double cameraAngle;
         final double cameraTranslateX;
@@ -70,20 +70,20 @@ public class HyperbolicModelCameraSettings {
             duration = Duration.ONE;
 
         final RotateTransition rotateTransition = new RotateTransition();
-        rotateTransition.setNode(document.getCamera());
+        rotateTransition.setNode(document.getPerspectiveCamera());
         rotateTransition.setAxis(new Point3D(0, 1, 0));
         rotateTransition.setToAngle(cameraAngle);
         rotateTransition.setDuration(duration);
 
         final TranslateTransition translateTransition = new TranslateTransition();
-        translateTransition.setNode(document.getCamera());
+        translateTransition.setNode(document.getPerspectiveCamera());
         translateTransition.setToX(cameraTranslateX);
         translateTransition.setToZ(cameraTranslateZ);
         translateTransition.setDuration(duration);
 
         final ParallelTransition parallelTransition = new ParallelTransition(rotateTransition, translateTransition);
         parallelTransition.setOnFinished((e) -> {
-            document.getCamera().setFarClip(10000);
+            document.getPerspectiveCamera().setFarClip(10000);
         });
         parallelTransition.play();
 

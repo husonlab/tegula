@@ -33,7 +33,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
-import javafx.stage.Stage;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
@@ -67,11 +66,13 @@ public class Document {
     private final SimpleObjectProperty<Tiling> currentTiling = new SimpleObjectProperty<>(null);
     private final IntegerProperty numberOfTilings = new SimpleIntegerProperty(0);
 
+    private final Group universe;
     private final Group world;
     //private final MainViewController mainViewController;
-    private PerspectiveCamera camera;
-    private AmbientLight ambientLight = new AmbientLight();
-    private PointLight pointLight = new PointLight();
+    private PerspectiveCamera perspectiveCamera;
+
+    private final PointLight pointLight;
+    private final AmbientLight ambientLight;
 
     private boolean drawFundamentalDomainOnly = false;
 
@@ -85,14 +86,10 @@ public class Document {
 
     private final SimpleObjectProperty<Geometry> geometryProperty = new SimpleObjectProperty<>();
 
-    public Point3D windowCorner = new Point3D(0, 0, 0); // Upper left corner of window in Euclidean case
+    private Point3D windowCorner = new Point3D(0, 0, 0); // Upper left corner of window in Euclidean case
 
     private final Group tiles = new Group();
     private final Group linesInFDomain = new Group();
-
-    private static int chamberIndex = 0;
-
-    private static double tol;
 
     private final DoubleProperty width = new SimpleDoubleProperty(1000);
     private final DoubleProperty height = new SimpleDoubleProperty(1000);
@@ -110,9 +107,10 @@ public class Document {
     /**
      * constructor
      */
-    public Document(Stage stage, Group world, PerspectiveCamera camera) {
+    public Document(Group universe, Group world, PerspectiveCamera perspectiveCamera) {
+        this.universe = universe;
         this.world = world;
-        this.camera = camera;
+        this.perspectiveCamera = perspectiveCamera;
 
         currentIndex.addListener((c, o, n) -> {
             if (n.intValue() >= 0 && n.intValue() < tilings.size()) {
@@ -128,6 +126,16 @@ public class Document {
         heightProperty().addListener((c, o, n) -> update());
 
         numberOfTilings.bind(Bindings.size(tilings));
+
+        pointLight = new PointLight(Color.WHITE);
+        pointLight.setTranslateX(-1000);
+        pointLight.setTranslateY(-1000);
+        pointLight.setTranslateZ(-10000);
+        pointLight.setRotate(90);
+
+        ambientLight = new AmbientLight(Color.WHITE);
+        pointLight.setTranslateZ(-10000);
+        pointLight.setRotate(90);
     }
 
     /**
@@ -236,12 +244,8 @@ public class Document {
 
         geometryProperty.setValue(tiling.getGeometry());
 
-
-        // Calculate optimal chamber, where chamber center is as far away from boundary as possible
-        chamberIndex = optimalChamber(tiling.getfDomain());
         // Compute tolerance for rounding errors (depends on shape of fundamental domain):
         tiling.computeConstraintsAndGenerators();
-        tol = tiling.computeTolerance();
 
         // Empty recycler for copies and reset transform for recycled copies.
         getRecycler().getChildren().clear();
@@ -250,16 +254,23 @@ public class Document {
 
         final Group additionalStuff = new Group();
 
-        //Euclidean case -----------------------------------------------------------------------------------------------
-        if (tiling.getGeometry() == Geometry.Euclidean) {
+
+        if (tiling.getGeometry() == Geometry.Euclidean) { //Euclidean case ---------------------------------------------
+            universe.getChildren().remove(pointLight);
+            if (!universe.getChildren().contains(ambientLight))
+                universe.getChildren().add(ambientLight);
+
             // Reset Euclidean fundamental domain and QuadTree
             setEuclideanFund(new Group());
             setKeptEuclideanCopy(new QuadTree());
 
+            // Calculate optimal chamber, where chamber center is as far away from boundary as possible
+            tiling.setReferenceChamberIndex(computeOptimalChamberIndex(tiling.getfDomain()));
+
             if (!tiling.isInWindowEuclidean(Tiling.refPointEuclidean, windowCorner, width.get(), height.get())) { // Fund. domain is not in visible window
-                recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width.get(), height.get(), tol)); // Shifts back fDomain into valid range for fund. domain
+                recenterFDomain(tiling.calculateBackShiftEuclidean(windowCorner, width.get(), height.get())); // Shifts back fDomain into valid range for fund. domain
             }
-            tiles.getChildren().setAll(tiling.createTilingEuclidean(this, isDrawFundamentalDomainOnly(), windowCorner, width.get(), height.get(), tol, tilingStyle).getChildren());
+            tiles.getChildren().setAll(tiling.createTilingEuclidean(this, isDrawFundamentalDomainOnly(), windowCorner, width.get(), height.get(), tilingStyle).getChildren());
             tiling.setNumberOfCopies(tiles.getChildren().size());
 
             //Add rectangles for debugging
@@ -279,28 +290,32 @@ public class Document {
                 additionalStuff.getChildren().addAll(rect, range, test, test2);
             }
 
-            //Camera options
-            camera.setRotate(0);
-            camera.setTranslateZ(-50);
-            camera.setFieldOfView(10);
-            camera.setFarClip(10000);
-        }
+            // no camera options to set
+        } else if (tiling.getGeometry() == Geometry.Spherical) { // Spherical case --------------------------------------
+            // Calculate optimal chamber, where chamber center is as far away from boundary as possible
+            tiling.setReferenceChamberIndex(computeOptimalChamberIndex(tiling.getfDomain()));
 
-        // Spherical case ----------------------------------------------------------------------------------------------
-        else if (tiling.getGeometry() == Geometry.Spherical) {
-            tiles.getChildren().setAll(tiling.createTilingSpherical(tol, tilingStyle).getChildren());
+            tiles.getChildren().setAll(tiling.createTilingSpherical(getTilingStyle()).getChildren());
             tiling.setNumberOfCopies(tiles.getChildren().size());
 
-            camera.setRotate(0);
-            camera.setTranslateX(0);
-            camera.setTranslateZ(-700);
-            camera.setFieldOfView(15);
-            camera.setFarClip(10000);
-        }
+            if (!universe.getChildren().contains(pointLight))
+                universe.getChildren().add(pointLight);
+            universe.getChildren().remove(ambientLight);
 
-        // Hyperbolic case ---------------------------------------------------------------------------------------------
-        else if (tiling.getGeometry() == Geometry.Hyperbolic) {
+            perspectiveCamera.setRotate(0);
+            perspectiveCamera.setTranslateX(0);
+            perspectiveCamera.setTranslateZ(-700);
+            perspectiveCamera.setFieldOfView(15);
+            perspectiveCamera.setFarClip(10000);
+        } else if (tiling.getGeometry() == Geometry.Hyperbolic) {         // Hyperbolic case -----------------------------
+            universe.getChildren().remove(pointLight);
+            if (!universe.getChildren().contains(ambientLight))
+                universe.getChildren().add(ambientLight);
+
             HyperbolicModelCameraSettings.setModel(this, getHyperbolicModel(), false);
+
+            // Calculate optimal chamber, where chamber center is as far away from boundary as possible
+            tiling.setReferenceChamberIndex(computeOptimalChamberIndex(tiling.getfDomain()));
 
             double diameterFDomain = calculateDiameter(tiling.getfDomain());
             if (2.8 * diameterFDomain > getLimitHyperbolicGroup()) {
@@ -315,19 +330,15 @@ public class Document {
 
             //Reset Fundamental Domain if necessary:
             if (Tiling.refPointHyperbolic.getZ() >= validHyperbolicRange) {// Fundamental domain is shifted back
-                recenterFDomain(tiling.calculateBackShiftHyperbolic(tol)); // Shifts back fDomain into valid range (slower algorithm)
+                recenterFDomain(tiling.calculateBackShiftHyperbolic()); // Shifts back fDomain into valid range (slower algorithm)
             }
 
-            tiles.getChildren().setAll(tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist, tol, tilingStyle).getChildren());
+            tiles.getChildren().setAll(tiling.createTilingHyperbolic(isDrawFundamentalDomainOnly(), maxDist, tilingStyle).getChildren());
             tiling.setNumberOfCopies(tiles.getChildren().size());
         }
 
         // Build up world
         getWorld().getChildren().setAll(tiles, additionalStuff);
-
-        if (tiling.getGeometry() != Geometry.Spherical) {
-            getWorld().getChildren().add(ambientLight);
-        }
 
         if (isShowLines()) {
             removeLinesFromFDomain();
@@ -370,7 +381,7 @@ public class Document {
                 linesInFDomain.getTransforms().add(lineTrans);
             }
 
-            tiles.getChildren().setAll(tiling.createTilingEuclidean(this, true, windowCorner, width.get(), height.get(), tol, tilingStyle).getChildren());
+            tiles.getChildren().setAll(tiling.createTilingEuclidean(this, true, windowCorner, width.get(), height.get(), tilingStyle).getChildren());
             tiling.setNumberOfCopies(tiles.getChildren().size());
         }
 
@@ -389,7 +400,7 @@ public class Document {
             setKeptHyperbolicCopy(new OctTree()); // Reset Tree (see tiling.makeCopyEuclidean())
 
             // Insert a boarder so that fundamental domain is not pulled away too far
-            Point3D refPoint = tiling.getfDomain().getChamberCenter3D(chamberIndex).multiply(0.01);
+            Point3D refPoint = tiling.getfDomain().getChamberCenter3D(tiling.getReferenceChamberIndex()).multiply(0.01);
             double a = refPoint.getX();
             double b = refPoint.getY();
             if (refPoint.getZ() >= 7 && a * dx + b * dy >= 0) { // Left condition: boarder. Right condition: Calculates whether (dx,dy) points into unit circle (scalar product).
@@ -432,7 +443,7 @@ public class Document {
                 changeDirection = false;
             }
 
-            tiles.getChildren().setAll(tiling.createTilingHyperbolic(true, maxDist, tol, tilingStyle).getChildren());
+            tiles.getChildren().setAll(tiling.createTilingHyperbolic(true, maxDist, tilingStyle).getChildren());
             tiling.setNumberOfCopies(tiles.getChildren().size());
         }
     }
@@ -459,10 +470,10 @@ public class Document {
             }
 
 
-            final Point3D refPoint = tiling.getfDomain().getChamberCenter3D(chamberIndex); // Point of reference in Euclidean fundamental domain
+            final Point3D refPoint = tiling.getfDomain().getChamberCenter3D(tiling.getReferenceChamberIndex()); // Point of reference in Euclidean fundamental domain
 
             if (!tiling.isInWindowEuclidean(refPoint, windowCorner, width.get(), height.get())) { // If fundamental domain is out of visible window
-                Transform t = tiling.calculateBackShiftEuclidean(windowCorner, width.get(), height.get(), tol);
+                Transform t = tiling.calculateBackShiftEuclidean(windowCorner, width.get(), height.get());
                 setTransformRecycled(t.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
                 recenterFDomain(t); // Shifts back fDomain into visible window
                 if (isShowLines()) {
@@ -499,7 +510,7 @@ public class Document {
 
             //Second step: Create new tiles ----------------------------------------------------------------------------
             // Create new tiles to fill empty space of valid range. Add new tiles to the group "tiles"
-            Group newTiles = tiling.createTilingEuclidean(this, false, windowCorner, width.get(), height.get(), tol, tilingStyle);
+            Group newTiles = tiling.createTilingEuclidean(this, false, windowCorner, width.get(), height.get(), tilingStyle);
 
             if (tiling.isBreak()) { // Generates new tiling if too much rounding errors
                 tiling.setBreak(false);
@@ -539,9 +550,9 @@ public class Document {
             }
 
             // Recenter fDomain if too far away from center
-            Point3D refPoint = tiling.getfDomain().getChamberCenter3D(chamberIndex).multiply(0.01);
+            Point3D refPoint = tiling.getfDomain().getChamberCenter3D(tiling.getReferenceChamberIndex()).multiply(0.01);
             if (refPoint.getZ() >= validHyperbolicRange) {
-                Transform t = tiling.calculateBackShiftHyperbolic(tol);
+                Transform t = tiling.calculateBackShiftHyperbolic();
                 recenterFDomain(t); // Shifts back fDomain into valid range
                 setTransformRecycled(t.createConcatenation(getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
                 if (isShowLines()) {
@@ -576,7 +587,7 @@ public class Document {
             }
 
             //Second step: Create new tiles ----------------------------------------------------------------------------
-            Group newTiles = tiling.createTilingHyperbolic(false, maxDist, tol, tilingStyle);
+            Group newTiles = tiling.createTilingHyperbolic(false, maxDist, tilingStyle);
             if (tiling.isBreak()) { // Generates new tiling if too much rounding errors
                 tiling.setBreak(false);
                 reset(); // Reset fundamental domain
@@ -614,6 +625,7 @@ public class Document {
         setLimitHyperbolicGroup(getLimitHyperbolicGroup() + 1);
 
         final Tiling tiling = tilings.get(currentIndex.get());
+
         double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());
         setKeptHyperbolicCopy(new OctTree());
         for (int i = 0; i < tiles.getChildren().size(); i++) {
@@ -628,9 +640,11 @@ public class Document {
         // Empty recycler (because not in translate mode).
         //getRecycler().getChildren().clear();
 
+        tiling.setReferenceChamberIndex(computeOptimalChamberIndex(tiling.getfDomain()));
+
         tiling.setNumberOfCopies(0);
         // Add new tiles
-        Group newTiles = tiling.createTilingHyperbolic(false, maxDist, tol, tilingStyle);
+        Group newTiles = tiling.createTilingHyperbolic(false, maxDist, tilingStyle);
         tiles.getChildren().addAll(newTiles.getChildren());
         tiling.setNumberOfCopies(tiles.getChildren().size());
     }
@@ -684,7 +698,7 @@ public class Document {
         }
     }
 
-    private int optimalChamber(FDomain f) {
+    private int computeOptimalChamberIndex(FDomain f) {
         double dMax = 0, dMin = 1000, dist;
         int index = 1;
         for (int i = 1; i <= f.size(); i++) {
@@ -772,11 +786,12 @@ public class Document {
 
     private void insertKeptHyperbolicCopy(Point3D point) {
         final Tiling tiling = getCurrentTiling();
-        Tiling.keptHyperbolicCopy.insert(tiling.getfDomain(), point, tol);
+        Tiling.keptHyperbolicCopy.insert(tiling.getfDomain(), point, tiling.getTolerance());
     }
 
     private void insertKeptEuclideanCopy(Point3D point) {
-        Tiling.keptEuclideanCopy.insert(point.getX(), point.getY(), tol);
+        final Tiling tiling = getCurrentTiling();
+        Tiling.keptEuclideanCopy.insert(point.getX(), point.getY(), tiling.getTolerance());
     }
 
     private void setKeptEuclideanCopy(QuadTree seen) {
@@ -791,10 +806,6 @@ public class Document {
         getCurrentTiling().getfDomain().recenterFDomain(t);
     }
 
-    public static int getChamberIndex() {
-        return chamberIndex;
-    }
-
     /**
      * determine whether to use depth buffer
      *
@@ -804,27 +815,22 @@ public class Document {
         SubScene subScene = (SubScene) mainPane.getChildren().get(0);
         if (useDepthBuffer != subScene.isDepthBuffer()) {
             mainPane.getChildren().remove(subScene);
-            final Group group = (Group) subScene.getRoot();
-            group.getChildren().removeAll();
+            ((Group) subScene.getRoot()).getChildren().remove(universe);
 
-            subScene = new SubScene(new Group(getWorld()), subScene.getWidth(), subScene.getHeight(), useDepthBuffer, subScene.getAntiAliasing());
+            subScene = new SubScene(new Group(universe), subScene.getWidth(), subScene.getHeight(), useDepthBuffer, subScene.getAntiAliasing());
             subScene.heightProperty().bind(mainPane.heightProperty());
             subScene.widthProperty().bind(mainPane.widthProperty());
             if (useDepthBuffer) {
-                PerspectiveCamera newCamera = new PerspectiveCamera(camera.isFixedEyeAtCameraZero());
-                newCamera.setNearClip(camera.getNearClip());
-                newCamera.setFarClip(camera.getFarClip());
-                newCamera.setFieldOfView(camera.getFieldOfView());
-                newCamera.setTranslateZ(camera.getTranslateZ());
-                camera = newCamera;
-                subScene.setCamera(camera);
-            }
+                perspectiveCamera = new PerspectiveCamera(true);
+                subScene.setCamera(perspectiveCamera);
+            } else
+                perspectiveCamera = null;
             mainPane.getChildren().add(0, subScene);
         }
     }
 
-    public PerspectiveCamera getCamera() {
-        return camera;
+    public PerspectiveCamera getPerspectiveCamera() {
+        return perspectiveCamera;
     }
 
 
@@ -852,10 +858,6 @@ public class Document {
     public void setLimitHyperbolicGroup(int limitHyperbolicGroup) {
         if (limitHyperbolicGroup >= 5)
             this.limitHyperbolicGroup = limitHyperbolicGroup;
-    }
-
-    public static double getTol() {
-        return tol;
     }
 
     public static double getValidHyperbolicRange() {

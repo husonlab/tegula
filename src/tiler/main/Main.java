@@ -50,7 +50,9 @@ public class Main extends Application {
 
         // setup world and subscene
         final Group world = new Group();
-        final SubScene subScene = new SubScene(world, 800, 800, false, SceneAntialiasing.BALANCED);
+        final Group universe = new Group(world);
+
+        final SubScene subScene = new SubScene(universe, 800, 800, false, SceneAntialiasing.BALANCED);
         subScene.setCamera(camera);
 
 
@@ -78,7 +80,7 @@ public class Main extends Application {
         stage.sizeToScene();
         stage.show();
 
-        final Document document = new Document(stage, world, camera);
+        final Document document = new Document(universe, world, camera);
         mainViewController.setDocument(document);
         mainViewController.setStage(stage);
         document.setWidth(800);

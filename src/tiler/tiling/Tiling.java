@@ -67,6 +67,9 @@ public class Tiling {
     private boolean isBreak = false;
     private int numberOfCopies = 0;
 
+    private double tolerance = 0.0;
+    private int referenceChamberIndex = 0;
+
     /**
      * constructor
      *
@@ -97,6 +100,24 @@ public class Tiling {
 
         for (int a = 1, count = 1; a <= ds.size(); a = ds.nextOrbit(0, 1, a, flag2tile, count++)) // this also sets flag2vert
             tile2flag[count] = a;
+    }
+
+    /**
+     * set the reference chamber index and the corresponding tolerance
+     *
+     * @param referenceChamberIndex
+     */
+    public void setReferenceChamberIndex(int referenceChamberIndex) {
+        this.referenceChamberIndex = referenceChamberIndex;
+        tolerance = computeTolerance(referenceChamberIndex);
+    }
+
+    public double getTolerance() {
+        return tolerance;
+    }
+
+    public int getReferenceChamberIndex() {
+        return referenceChamberIndex;
     }
 
     /**
@@ -386,21 +407,21 @@ public class Tiling {
      *
      * @return tolerance
      */
-    public double computeTolerance() {
+    public double computeTolerance(int referenceChamberIndex) {
         final Point3D refPoint;
         if (fDomain.getGeometry() == Geometry.Euclidean) {
-            refPoint = fDomain.getChamberCenter3D(Document.getChamberIndex());
+            refPoint = fDomain.getChamberCenter3D(referenceChamberIndex);
         } else {
-            refPoint = fDomain.getChamberCenter3D(Document.getChamberIndex()).multiply(0.01);
+            refPoint = fDomain.getChamberCenter3D(referenceChamberIndex).multiply(0.01);
         }
-        double tol = 100;
+        double tolerance = 100;
         for (Transform g : generators.getTransforms()) {
             double dist = Tools.distance(fDomain, g.transform(refPoint), refPoint);
-            if (dist < tol) {
-                tol = dist;
+            if (dist < tolerance) {
+                tolerance = dist;
             }
         }
-        return 0.8 * tol;
+        return 0.8 * tolerance;
     }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -410,7 +431,7 @@ public class Tiling {
      *
      * @return tiles
      */
-    public Group createTilingSpherical(double tol, TilingStyle tilingStyle) {
+    public Group createTilingSpherical(TilingStyle tilingStyle) {
         //Add handles
         handles.getChildren().clear();
         //addHandles(doc);
@@ -422,13 +443,13 @@ public class Tiling {
 
         // Make copies of fundamental domain.
         final OctTree seen = new OctTree();
-        final Point3D refPoint = fDomain.getChamberCenter3D(Document.getChamberIndex()).multiply(0.01); // refPoint lies on unit sphere
-        seen.insert(fDomain, refPoint, tol); //root node of OctTree is point of reference.
+        final Point3D refPoint = fDomain.getChamberCenter3D(referenceChamberIndex).multiply(0.01); // refPoint lies on unit sphere
+        seen.insert(fDomain, refPoint, tolerance); //root node of OctTree is point of reference.
 
         final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
         for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
             Point3D genRef = g.transform(refPoint);
-            if (seen.insert(fDomain, genRef, tol)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
+            if (seen.insert(fDomain, genRef, tolerance)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
                 Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                 group2.getTransforms().add(g);
                 group.getChildren().add(group2);
@@ -441,7 +462,7 @@ public class Tiling {
             for (Transform g : generators.getTransforms()) {
                 Transform tg = t.createConcatenation(g);
                 Point3D bpt = tg.transform(refPoint);
-                if (seen.insert(fDomain, bpt, tol)) {
+                if (seen.insert(fDomain, bpt, tolerance)) {
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                     group2.getTransforms().add(tg);
                     group.getChildren().add(group2);
@@ -450,7 +471,7 @@ public class Tiling {
 
                 Transform gt = g.createConcatenation(t);
                 bpt = gt.transform(refPoint);
-                if (seen.insert(fDomain, bpt, tol)) {
+                if (seen.insert(fDomain, bpt, tolerance)) {
                     Group group2 = JavaFXUtils.copyFundamentalDomain(fund);
                     group2.getTransforms().add(gt);
                     group.getChildren().add(group2);
@@ -469,7 +490,7 @@ public class Tiling {
      * @param maxDist
      * @return group
      */
-    public Group createTilingHyperbolic(boolean drawFundamentalDomainOnly, double maxDist, double tol, TilingStyle tilingStyle) {
+    public Group createTilingHyperbolic(boolean drawFundamentalDomainOnly, double maxDist, TilingStyle tilingStyle) {
 
         //Add all generators
         computeConstraintsAndGenerators();
@@ -478,10 +499,10 @@ public class Tiling {
         handles.getChildren().clear();
         //addHandles(doc);
 
-        refPointHyperbolic = fDomain.getChamberCenter3D(Document.getChamberIndex()).multiply(0.01);
+        refPointHyperbolic = fDomain.getChamberCenter3D(referenceChamberIndex).multiply(0.01);
         //System.out.println(refPointHyperbolic);
         final OctTree seen = new OctTree();
-        seen.insert(fDomain, refPointHyperbolic, tol); // root of OctTree is point of reference
+        seen.insert(fDomain, refPointHyperbolic, tolerance); // root of OctTree is point of reference
 
         final Group group = new Group();
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
@@ -503,7 +524,7 @@ public class Tiling {
 
             for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
                 Point3D genRef = g.transform(refPointHyperbolic);
-                if (seen.insert(fDomain, genRef, tol)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
+                if (seen.insert(fDomain, genRef, tolerance)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
                     if (makeCopyHyperbolic(genRef)) {
                         if (translateOrIncreaseTiling()) {
                             useRecycler(group, g, genRef, HyperbolicFund);
@@ -529,7 +550,7 @@ public class Tiling {
                 for (Transform g : generators.getTransforms()) {
                     Transform tg = t.createConcatenation(g);
                     Point3D bpt = tg.transform(refPointHyperbolic);
-                    if (seen.insert(fDomain, bpt, tol) && bpt.getZ() < maxDist) {
+                    if (seen.insert(fDomain, bpt, tolerance) && bpt.getZ() < maxDist) {
                         countChildren++;
                         queue.add(tg);
                         if (makeCopyHyperbolic(bpt)) {
@@ -543,7 +564,7 @@ public class Tiling {
 
                     Transform gt = g.createConcatenation(t);
                     bpt = gt.transform(refPointHyperbolic);
-                    if (seen.insert(fDomain, bpt, tol) && bpt.getZ() < maxDist) {
+                    if (seen.insert(fDomain, bpt, tolerance) && bpt.getZ() < maxDist) {
                         countChildren++;
                         queue.add(gt);
                         if (makeCopyHyperbolic(bpt)) {
@@ -569,7 +590,7 @@ public class Tiling {
      * @param height
      * @return group
      */
-    public Group createTilingEuclidean(Document doc, boolean drawFundamentalDomainOnly, Point3D windowCorner, double width, double height, double tol, TilingStyle tilingStyle) {
+    public Group createTilingEuclidean(Document doc, boolean drawFundamentalDomainOnly, Point3D windowCorner, double width, double height, TilingStyle tilingStyle) {
 
         //Add all generators
         computeConstraintsAndGenerators();
@@ -579,7 +600,7 @@ public class Tiling {
         addHandles(doc);
 
         //Calculation of point of reference:
-        refPointEuclidean = fDomain.getChamberCenter3D(Document.getChamberIndex()); // Reference point of actual fundamental domain
+        refPointEuclidean = fDomain.getChamberCenter3D(referenceChamberIndex); // Reference point of actual fundamental domain
 
         final Group group = new Group();
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle); // Build fundamental domain
@@ -599,14 +620,14 @@ public class Tiling {
         if (!drawFundamentalDomainOnly) {
 
             final QuadTree seen = new QuadTree(); // Saves reference points of tiles
-            seen.insert(refPointEuclidean.getX(), refPointEuclidean.getY(), tol); // Insert reference point of fDomain
+            seen.insert(refPointEuclidean.getX(), refPointEuclidean.getY(), tolerance); // Insert reference point of fDomain
 
             // Saves transforms for copies
             final Queue<Transform> queue = new LinkedList<>(generators.getTransforms()); // Add generators
 
             for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
                 Point3D genRef = g.transform(refPointEuclidean); // Reference point for new copy
-                if (isInRangeEuclidean(genRef, windowCorner, width, height) && seen.insert(genRef.getX(), genRef.getY(), tol)) { // Checks whether reference point is in valid range and if it is in QuadTree "seen". Adds it if not.
+                if (isInRangeEuclidean(genRef, windowCorner, width, height) && seen.insert(genRef.getX(), genRef.getY(), tolerance)) { // Checks whether reference point is in valid range and if it is in QuadTree "seen". Adds it if not.
                     if (makeCopyEuclidean(genRef)) { // Checks whether copy fills empty space after translation of tiles
                         if (translateOrIncreaseTiling()) { // Translate mode of tiling
                             useRecycler(group, g, genRef, EuclideanFund);
@@ -633,7 +654,7 @@ public class Tiling {
                     Transform tg = t.createConcatenation(g);
                     Point3D bpt = tg.transform(refPointEuclidean); // Reference point corresponding to transform tg
 
-                    if (isInRangeEuclidean(bpt, windowCorner, width, height) && seen.insert(bpt.getX(), bpt.getY(), tol)) {
+                    if (isInRangeEuclidean(bpt, windowCorner, width, height) && seen.insert(bpt.getX(), bpt.getY(), tolerance)) {
                         queue.add(tg);
                         if (makeCopyEuclidean(bpt)) {
                             if (translateOrIncreaseTiling()) {
@@ -647,7 +668,7 @@ public class Tiling {
                     Transform gt = g.createConcatenation(t);
                     bpt = gt.transform(refPointEuclidean);
 
-                    if (isInRangeEuclidean(bpt, windowCorner, width, height) && seen.insert(bpt.getX(), bpt.getY(), tol)) {
+                    if (isInRangeEuclidean(bpt, windowCorner, width, height) && seen.insert(bpt.getX(), bpt.getY(), tolerance)) {
                         queue.add(gt);
                         if (makeCopyEuclidean(bpt)) {
                             if (translateOrIncreaseTiling()) {
@@ -674,7 +695,7 @@ public class Tiling {
      * @param windowCorner
      * @return transform
      */
-    public Transform calculateBackShiftEuclidean(Point3D windowCorner, double width, double height, double tol) {
+    public Transform calculateBackShiftEuclidean(Point3D windowCorner, double width, double height) {
 
         if (width < 450) {
             width = 450;
@@ -688,9 +709,9 @@ public class Tiling {
 
         final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
 
-        Point3D refPoint = fDomain.getChamberCenter3D(Document.getChamberIndex());
+        Point3D refPoint = fDomain.getChamberCenter3D(referenceChamberIndex);
         final QuadTree seen = new QuadTree();
-        seen.insert(refPoint.getX(), refPoint.getY(), tol);
+        seen.insert(refPoint.getX(), refPoint.getY(), tolerance);
 
         Transform backShift = new Translate(), t;
         Point3D point = refPoint, apt = refPoint;
@@ -699,7 +720,7 @@ public class Tiling {
 
         for (Transform g : generators.getTransforms()) {
             point = g.transform(refPoint);
-            if (seen.insert(point.getX(), point.getY(), tol)) { // Creates a tree of points lying in the copies of fDomain
+            if (seen.insert(point.getX(), point.getY(), tolerance)) { // Creates a tree of points lying in the copies of fDomain
                 if (point.distance(midpoint) < d) { // Optimizes the choice of the transformation copying fDomain back to the valid range
                     d = point.distance(midpoint);
                     backShift = g;
@@ -716,7 +737,7 @@ public class Tiling {
                 Transform tg = t.createConcatenation(g);
                 point = tg.transform(refPoint);
 
-                if (seen.insert(point.getX(), point.getY(), tol)) { // Creates a tree of points lying in the copies of fDomain
+                if (seen.insert(point.getX(), point.getY(), tolerance)) { // Creates a tree of points lying in the copies of fDomain
                     if (point.distance(midpoint) < d) { // Optimizes the choice of the transformation copying fDomain back to the valid range
                         d = point.distance(midpoint);
                         backShift = tg;
@@ -728,7 +749,7 @@ public class Tiling {
                 Transform gt = g.createConcatenation(t);
                 point = gt.transform(refPoint);
 
-                if (seen.insert(point.getX(), point.getY(), tol)) {
+                if (seen.insert(point.getX(), point.getY(), tolerance)) {
                     if (point.distance(midpoint) < d) {
                         d = point.distance(midpoint);
                         backShift = gt;
@@ -748,16 +769,16 @@ public class Tiling {
      *
      * @return transform
      */
-    public Transform calculateBackShiftHyperbolic(double tol) {
+    public Transform calculateBackShiftHyperbolic() {
 
         //Add all generators
         computeConstraintsAndGenerators();
 
         final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
 
-        Point3D refPoint = fDomain.getChamberCenter3D(Document.getChamberIndex());
+        Point3D refPoint = fDomain.getChamberCenter3D(referenceChamberIndex);
         final OctTree seen = new OctTree();
-        seen.insert(fDomain, refPoint, tol);
+        seen.insert(fDomain, refPoint, tolerance);
 
         Transform backShift = new Translate(), t;
         Point3D apt = refPoint, point = refPoint;
@@ -777,7 +798,7 @@ public class Tiling {
                 Transform tg = t.createConcatenation(g);
                 point = tg.transform(refPoint);
 
-                if (seen.insert(fDomain, point, tol)) { // Creates a tree of points lying in the copies of fDomain
+                if (seen.insert(fDomain, point, tolerance)) { // Creates a tree of points lying in the copies of fDomain
                     if (point.getZ() < d) { // Optimizes the choice of the transformation copying fDomain back to the valid range
                         d = point.getZ();
                         backShift = tg;
@@ -789,7 +810,7 @@ public class Tiling {
                 Transform gt = g.createConcatenation(t);
                 point = gt.transform(refPoint);
 
-                if (seen.insert(fDomain, point, tol)) {
+                if (seen.insert(fDomain, point, tolerance)) {
                     if (point.getZ() < d) {
                         d = point.getZ();
                         backShift = gt;
@@ -895,11 +916,11 @@ public class Tiling {
     }
 
     private boolean makeCopyHyperbolic(Point3D p) {
-        return keptHyperbolicCopy.insert(fDomain, p, Document.getTol());
+        return keptHyperbolicCopy.insert(fDomain, p, tolerance);
     }
 
     private boolean makeCopyEuclidean(Point3D p) {
-        return keptEuclideanCopy.insert(p.getX(), p.getY(), Document.getTol());
+        return keptEuclideanCopy.insert(p.getX(), p.getY(), tolerance);
     }
 
     private boolean translateOrIncreaseTiling() {

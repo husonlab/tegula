@@ -37,8 +37,8 @@ public class FundamentalDomain {
 
         final Group group = new Group();
 
-        final BitSet visitLines = new BitSet(fDomain.size());
-        final BitSet visitEdges = new BitSet(fDomain.size());
+        final BitSet visitBands = new BitSet(fDomain.size());
+        final BitSet visitBandCaps = new BitSet(fDomain.size());
 
         // set colors
         final Color[] colors = new Color[fDomain.size() + 1];
@@ -367,8 +367,10 @@ public class FundamentalDomain {
 
             TriangleMesh bandMesh = new TriangleMesh();
             if (drawBands) {
-                if (!visitLines.get(a)) {
-                    visitLines.set(a);
+                if (!visitBands.get(a)) {
+                    visitBands.set(a);
+                    if (geom != Geometry.Euclidean)
+                        visitBands.set(dsymbol.getS2(a));
 
                     for (int i = 0; i < linepoints3d.length - 1; i++) {
                         final TriangleMesh meshStorage = Band3D.connect(linepoints3d[i], linepoints3d[i + 1], geom, bandWidth, linesAbove, false);
@@ -392,8 +394,8 @@ public class FundamentalDomain {
 
             TriangleMesh bandCapMesh = new TriangleMesh();
             if (drawBandCaps) {
-                if (!visitEdges.get(a)) {
-                    visitEdges.set(a);
+                if (!visitBandCaps.get(a)) {
+                    visitBandCaps.set(a);
 
                     for (int i = 0; i < edgepoints3d.length; i++) {
                         Point3D direction;
@@ -424,7 +426,6 @@ public class FundamentalDomain {
 
                     // group.getChildren().addAll(edgeView); //adds edgemesh seperately
                 }
-
             }
 
             // combines linemesh and edgemesh
@@ -636,9 +637,16 @@ public class FundamentalDomain {
                 group.getChildren().add(sphere);
             }
         }
+
+        if (false) {
+            Sphere sphere = new Sphere(10);
+            sphere.setTranslateZ(100);
+            sphere.setMaterial(new PhongMaterial(Color.RED));
+            group.getChildren().add(sphere);
+        }
+
         return group;
     }
-
 
     public static double computeWindingNumber(Point3D a0, Point3D a1, Point3D a2) {
         return (a1.getX() - a0.getX()) * (a1.getY() + a0.getY()) + (a2.getX() - a1.getX()) * (a2.getY() + a1.getY())

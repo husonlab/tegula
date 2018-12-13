@@ -57,6 +57,7 @@
                                     </accelerator>
                                 </MenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
+                                <MenuItem fx:id="pageSetupMenuItem" text="Page Setup..."/>
                                 <MenuItem fx:id="printMenuItem" text="Print...">
                                     <accelerator>
                                         <KeyCodeCombination alt="UP" code="P" control="UP" meta="DOWN" shift="UP"
