@@ -54,7 +54,7 @@ public class FundamentalDomain {
         final Geometry geom = fDomain.getGeometry();
 
         // For bands and the band caps (i.e. circles at the ends of bands)
-        final double bandWidth = (fDomain.getGeometry() == Geometry.Euclidean ? 0.5 : 0.1) * tilingStyle.getBandWidth(); // size of edges
+        final double bandWidth = (fDomain.getGeometry() == Geometry.Euclidean ? 0.1 : 0.1) * tilingStyle.getBandWidth(); // size of edges
         final Color bandColor = tilingStyle.getBandColor();
 
         final double badCapDiameter = bandWidth;

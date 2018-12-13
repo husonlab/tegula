@@ -281,7 +281,7 @@ public class Document {
 
             //Camera options
             camera.setRotate(0);
-            camera.setTranslateZ(-5);
+            camera.setTranslateZ(-50);
             camera.setFieldOfView(10);
             camera.setFarClip(10000);
         }
