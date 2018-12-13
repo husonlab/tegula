@@ -369,6 +369,9 @@ public class FundamentalDomain {
             if (drawBands) {
                 if (!visitLines.get(a)) {
                     visitLines.set(a);
+                    if (geom != Geometry.Euclidean) {
+                        visitLines.set(dsymbol.getS2(a)); // draw lines only one times
+                    }
 
                     for (int i = 0; i < linepoints3d.length - 1; i++) {
                         final TriangleMesh meshStorage = Band3D.connect(linepoints3d[i], linepoints3d[i + 1], geom, bandWidth, linesAbove, false);
