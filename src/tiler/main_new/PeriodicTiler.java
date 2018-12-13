@@ -49,8 +49,8 @@ public class PeriodicTiler extends Application {
         ProgramProperties.setProgramVersion(Version.SHORT_DESCRIPTION);
 
         final ArgsOptions options = new ArgsOptions(argv, PeriodicTiler.class, "PeriodicTiler - 2D tiler");
-        options.setAuthors("Daniel H. Huson, Klaus Westphal, Ruediger Zeller with contributions from Julius Vetter and Cornelius Wiehl");
-        options.setLicense("This is an early (ALPHA) version of Periodic, made available for testing purposes. Source code will be released wih first official version");
+        options.setAuthors("Daniel H. Huson, Klaus Westphal and Ruediger Zeller, with contributions from Julius Vetter and Cornelius Wiehl");
+        options.setLicense("This is an early (ALPHA) version of Periodic, made available for testing purposes. Source code will be released on publication.");
         options.setVersion(ProgramProperties.getProgramVersion());
         final String defaultPropertiesFile;
         if (ProgramProperties.isMacOS())
