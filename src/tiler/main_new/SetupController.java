@@ -58,8 +58,6 @@ public class SetupController {
      * @param mainStage
      */
     public static void setup(MainViewController controller, Document document, Stage mainStage) {
-        //document.showLinesProperty().bind(mainViewController.getCbShowLines().selectedProperty());
-        controller.getStatusTextField().textProperty().bind(document.statusLineProperty());
         document.updateNumberProperty().addListener((c, o, n) -> {
             SetupGroupEditing.apply(controller, document);
             SetupTileColors.apply(controller, document);
@@ -80,6 +78,10 @@ public class SetupController {
             }
                 }
         );
+
+        //document.showLinesProperty().bind(mainViewController.getCbShowLines().selectedProperty());
+
+        controller.getStatusTextField().textProperty().bind(document.statusLineProperty());
 
         controller.getNewMenuItem().setOnAction((e) -> System.err.print("Not implemented"));
 
@@ -191,19 +193,19 @@ public class SetupController {
         });
         controller.getModelChoiceBox().disableProperty().bind(document.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
 
-        controller.getIncreaseHyperbolicTilesButton().setOnAction((e) -> {
+        controller.getShowMoreTilesButton().setOnAction((e) -> {
             document.increaseTiling();
         });
-        controller.getShowMoreTilesMenuItem().setOnAction((e) -> controller.getIncreaseHyperbolicTilesButton().fire());
+        controller.getShowMoreTilesMenuItem().setOnAction((e) -> controller.getShowMoreTilesButton().fire());
 
-        controller.getIncreaseHyperbolicTilesButton().disableProperty().bind(document.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
-        controller.getShowMoreTilesMenuItem().disableProperty().bind(controller.getIncreaseHyperbolicTilesButton().disableProperty());
+        controller.getShowMoreTilesButton().disableProperty().bind(document.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
+        controller.getShowMoreTilesMenuItem().disableProperty().bind(controller.getShowMoreTilesButton().disableProperty());
 
-        controller.getDecreaseHyperbolicTilesButton().setOnAction((e) -> document.decreaseTiling());
-        controller.getShowLessTilesMenuItem().setOnAction((e) -> controller.getDecreaseHyperbolicTilesButton().fire());
+        controller.getShowLessTilesButton().setOnAction((e) -> document.decreaseTiling());
+        controller.getShowLessTilesMenuItem().setOnAction((e) -> controller.getShowLessTilesButton().fire());
 
-        controller.getDecreaseHyperbolicTilesButton().disableProperty().bind(document.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
-        controller.getShowLessTilesMenuItem().disableProperty().bind(controller.getDecreaseHyperbolicTilesButton().disableProperty());
+        controller.getShowLessTilesButton().disableProperty().bind(document.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
+        controller.getShowLessTilesMenuItem().disableProperty().bind(controller.getShowLessTilesButton().disableProperty());
 
         controller.getShowRotationsToggleButton().setSelected(false);
         controller.getRotationsToolBar().visibleProperty().bind(controller.getShowRotationsToggleButton().selectedProperty());

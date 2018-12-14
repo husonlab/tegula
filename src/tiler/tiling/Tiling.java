@@ -1,3 +1,21 @@
+/*
+ *  Copyright (C) 2018 University of Tuebingen
+ *
+ *  (Some files contain contributions from other authors, who are then mentioned separately.)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package tiler.tiling;
 
 import javafx.geometry.Point2D;
@@ -26,7 +44,7 @@ import java.util.Queue;
 
 /**
  * a tiling
- * Created by huson on 4/11/16.
+ * Daniel Huson and Ruediger Zeller, 2016
  */
 public class Tiling {
     boolean verbose = false;
@@ -49,8 +67,7 @@ public class Tiling {
     public static Group EuclideanFund = new Group();
     public static Group HyperbolicFund = new Group();
 
-    public static Group handles = new Group();
-
+    private static Group handles = new Group();
 
     private final int[] flag2vert;
     private final int[] flag2edge;
@@ -1049,8 +1066,8 @@ public class Tiling {
                 v = fDomain.getVertex3D(1 - i, a);
                 // Add handles if v is no symmetry centre
                 if ((ds.getVij(1, 2, a) == 1 && i == 1) || (ds.getVij(0, 2, a) == 1 && i == 0 && a != ds.getS2(a))) {
-                    Handle handle = new Handle();
-                    Circle circle = new Circle(4);
+                    final Handle handle = new Handle();
+                    final Circle circle = new Circle(4);
                     circle.setTranslateX(v.getX());
                     circle.setTranslateY(v.getY());
                     circle.setFill(Color.WHITE);
@@ -1075,8 +1092,8 @@ public class Tiling {
                 e = fDomain.getEdgeCenter3D(2, a);
                 // Add handles if e does not lie on a mirror axis
                 if (a != ds.getS2(a)) {
-                    Handle handle = new Handle();
-                    Circle circle = new Circle(4);
+                    final Handle handle = new Handle();
+                    final Circle circle = new Circle(4);
                     circle.setTranslateX(e.getX());
                     circle.setTranslateY(e.getY());
                     circle.setFill(Color.WHITE);

@@ -197,10 +197,10 @@ public class MainViewController {
     private ChoiceBox<String> modelChoiceBox;
 
     @FXML
-    private Button increaseHyperbolicTilesButton;
+    private Button showMoreTilesButton;
 
     @FXML
-    private Button decreaseHyperbolicTilesButton;
+    private Button showLessTilesButton;
 
     @FXML
     private TextField groupTextField;
@@ -434,12 +434,12 @@ public class MainViewController {
         return modelChoiceBox;
     }
 
-    public Button getIncreaseHyperbolicTilesButton() {
-        return increaseHyperbolicTilesButton;
+    public Button getShowMoreTilesButton() {
+        return showMoreTilesButton;
     }
 
-    public Button getDecreaseHyperbolicTilesButton() {
-        return decreaseHyperbolicTilesButton;
+    public Button getShowLessTilesButton() {
+        return showLessTilesButton;
     }
 
     public ToggleButton getToolsToggleButton() {

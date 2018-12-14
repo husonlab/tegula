@@ -53,7 +53,6 @@ public class MouseHandler {
             double mouseDeltaX = me.getSceneX() - mouseDownX;
             double mouseDeltaY = me.getSceneY() - mouseDownY;
 
-
             if (me.isPrimaryButtonDown()) {
                 if (document.geometryProperty().getValue() != Geometry.Spherical) { // slide
                     double modifierFactor = 1;
@@ -76,7 +75,6 @@ public class MouseHandler {
                             mouseDownX = me.getSceneX();
                             mouseDownY = me.getSceneY();
                         }
-
                     }
 
                 } else { //// rotate
@@ -151,8 +149,5 @@ public class MouseHandler {
                     break;
             }
         });
-
-
     }
-
 }

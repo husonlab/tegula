@@ -46,9 +46,8 @@ import java.io.StringReader;
 import java.util.LinkedList;
 
 /**
- * document
  * This contains all the data associated with a single document.
- * Created by huson on 4/22/16.
+ * Daniel Huson and Ruediger Zeller, 2016
  */
 public class Document {
     static public final int FIRST = 0;
@@ -301,7 +300,7 @@ public class Document {
 
             perspectiveCamera.setRotate(0);
             perspectiveCamera.setTranslateX(0);
-            perspectiveCamera.setTranslateZ(-700);
+            perspectiveCamera.setTranslateZ(-850);
             perspectiveCamera.setFieldOfView(15);
             perspectiveCamera.setFarClip(10000);
         } else if (tiling.getGeometry() == Geometry.Hyperbolic) {         // Hyperbolic case -----------------------------
