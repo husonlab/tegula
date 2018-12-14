@@ -165,7 +165,6 @@ public class SetupController {
         controller.getLastTilingButton().setOnAction((e) -> controller.getLastTilingMenuItem().fire());
         controller.getLastTilingButton().disableProperty().bind(controller.getLastTilingMenuItem().disableProperty());
 
-
         controller.getTilingNumberTextField().setOnAction((e) ->
         {
             if (document.findAndMoveTo(controller.getTilingNumberTextField().getText())) {
@@ -175,7 +174,6 @@ public class SetupController {
                         + document.getCurrentTiling().getDSymbol().getNr2());
             }
         });
-
 
         controller.getModelChoiceBox().getSelectionModel().selectedIndexProperty().addListener((c, o, n) -> {
             switch (n.intValue()) {
@@ -267,6 +265,7 @@ public class SetupController {
         });
 
         controller.getShowBandsCheckBox().setOnAction((e) -> {
+            document.getTilingStyle().setShowBands(controller.getShowBandsCheckBox().isSelected());
             document.getTilingStyle().setShowBandCaps(controller.getShowBandsCheckBox().isSelected());
             document.update();
         });

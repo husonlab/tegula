@@ -134,8 +134,6 @@ public class Document {
         pointLight.setRotate(90);
 
         ambientLight = new AmbientLight(Color.WHITE);
-        pointLight.setTranslateZ(-10000);
-        pointLight.setRotate(90);
     }
 
     /**
@@ -253,7 +251,6 @@ public class Document {
         changeDirection = false; // No direction has to be changed
 
         final Group additionalStuff = new Group();
-
 
         if (tiling.getGeometry() == Geometry.Euclidean) { //Euclidean case ---------------------------------------------
             universe.getChildren().remove(pointLight);
@@ -526,7 +523,6 @@ public class Document {
         // Translation of whole tiling in hyperbolic case
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         if (tiling.getGeometry() == Geometry.Hyperbolic) {
-
             changeDirection = false;
 
             dx /= 300;
