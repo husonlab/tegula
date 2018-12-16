@@ -384,8 +384,8 @@ public class FundamentalDomain {
                     // adds band mesh to group
                     bandMesh.getTexCoords().addAll(texCoord);
 
-                    final MeshView lineView = new MeshView(bandMesh);
-                    lineView.setMaterial(bandMaterial);
+                    final MeshView bandMeshView = new MeshView(bandMesh);
+                    bandMeshView.setMaterial(bandMaterial);
 
                     // group.getChildren().addAll(lineView); //adds linemesh seperately
 
@@ -421,8 +421,8 @@ public class FundamentalDomain {
                     // adds bandCapMesh to group
                     bandCapMesh.getTexCoords().addAll(texCoord);
 
-                    final MeshView edgeView = new MeshView(bandCapMesh);
-                    edgeView.setMaterial(bandCapMaterial);
+                    final MeshView bandCapMeshView = new MeshView(bandCapMesh);
+                    bandCapMeshView.setMaterial(bandCapMaterial);
 
                     // group.getChildren().addAll(edgeView); //adds edgemesh seperately
                 }
@@ -638,7 +638,7 @@ public class FundamentalDomain {
             }
         }
 
-        if (false) {
+        if (false) { // to test what happens if we add other stuff into the group...
             Sphere sphere = new Sphere(10);
             sphere.setTranslateZ(100);
             sphere.setMaterial(new PhongMaterial(Color.RED));
