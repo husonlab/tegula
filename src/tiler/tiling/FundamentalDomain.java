@@ -79,7 +79,7 @@ public class FundamentalDomain {
             final float[] points;
             final Point3D[] points3d; // points that create the triangles
             final Point3D[] linepoints3d;
-            final Point3D[] edgepoints3d;
+            final Point3D[] bandCapPoinst3D;
 
             final int[] faces;
 
@@ -213,16 +213,15 @@ public class FundamentalDomain {
                 linepoints3d = array;
 
                 // sets points for edges
-                edgepoints3d = new Point3D[3];
-                edgepoints3d[0] = points3d[0];
-                edgepoints3d[1] = points3d[5];
-                edgepoints3d[2] = points3d[1];
+                bandCapPoinst3D = new Point3D[3];
+                bandCapPoinst3D[0] = points3d[0];
+                bandCapPoinst3D[1] = points3d[5];
+                bandCapPoinst3D[2] = points3d[1];
 
                 // scales the points on sphere to reduce rendering problems
                 for (int i = 0; i < points3d.length; i++) {
                     points3d[i] = points3d[i].multiply(0.995);
                 }
-
             } else if (geom == Geometry.Euclidean) { // Euclidean
 
                 /// Original mesh structure
@@ -262,8 +261,7 @@ public class FundamentalDomain {
                 linepoints3d[0] = points3d[0];
                 linepoints3d[1] = points3d[5];
                 linepoints3d[2] = points3d[1];
-                edgepoints3d = linepoints3d;
-
+                bandCapPoinst3D = linepoints3d;
             } else { // hyperbolic
                 points3d = new Point3D[13];
 
@@ -307,10 +305,10 @@ public class FundamentalDomain {
                 }
 
                 // sets points for edges
-                edgepoints3d = new Point3D[3];
-                edgepoints3d[0] = points3d[0];
-                edgepoints3d[1] = points3d[5];
-                edgepoints3d[2] = points3d[1];
+                bandCapPoinst3D = new Point3D[3];
+                bandCapPoinst3D[0] = points3d[0];
+                bandCapPoinst3D[1] = points3d[5];
+                bandCapPoinst3D[2] = points3d[1];
 
                 // scales points to reduce rendering problems
                 for (int i = 0; i < points3d.length; i++) {
@@ -386,7 +384,6 @@ public class FundamentalDomain {
 
                     final MeshView bandMeshView = new MeshView(bandMesh);
                     bandMeshView.setMaterial(bandMaterial);
-
                     // group.getChildren().addAll(lineView); //adds linemesh seperately
 
                 }
@@ -397,13 +394,13 @@ public class FundamentalDomain {
                 if (!visitBandCaps.get(a)) {
                     visitBandCaps.set(a);
 
-                    for (int i = 0; i < edgepoints3d.length; i++) {
+                    for (int i = 0; i < bandCapPoinst3D.length; i++) {
                         Point3D direction;
-                        Point3D center = edgepoints3d[i];
-                        if (i == edgepoints3d.length - 1) {
-                            direction = edgepoints3d[i].subtract(edgepoints3d[i - 1]);
+                        Point3D center = bandCapPoinst3D[i];
+                        if (i == bandCapPoinst3D.length - 1) {
+                            direction = bandCapPoinst3D[i].subtract(bandCapPoinst3D[i - 1]);
                         } else {
-                            direction = edgepoints3d[i].subtract(edgepoints3d[i + 1]);
+                            direction = bandCapPoinst3D[i].subtract(bandCapPoinst3D[i + 1]);
                         }
 
                         // gets circle coordinates
@@ -428,7 +425,7 @@ public class FundamentalDomain {
                 }
             }
 
-            // combines linemesh and edgemesh
+            // combines band mesh and band cap mesh
             // only one mesh for both reduces computation and errors
 
             final TriangleMesh combinedMesh1 = combineTriangleMesh(bandMesh, bandCapMesh);
@@ -643,6 +640,8 @@ public class FundamentalDomain {
             sphere.setTranslateZ(100);
             sphere.setMaterial(new PhongMaterial(Color.RED));
             group.getChildren().add(sphere);
+            sphere.setOnMouseClicked((e) -> System.err.println("Clicked " + e));
+            sphere.setOnMouseEntered((e) -> System.err.println("Entered " + e));
         }
 
         return group;

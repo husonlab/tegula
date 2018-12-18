@@ -56,18 +56,18 @@ public class Tiling {
     private final Transforms generators;
     private final Constraints constraints;
 
-    public static OctTree keptHyperbolicCopy;
-    public static QuadTree keptEuclideanCopy = new QuadTree();
+    private OctTree keptHyperbolicCopy;
+    private QuadTree keptEuclideanCopy = new QuadTree();
 
-    public static Point3D refPointHyperbolic = new Point3D(0, 0, 1);
-    public static Point3D refPointEuclidean = new Point3D(1, 1, 0);
+    private Point3D refPointHyperbolic = new Point3D(0, 0, 1);
+    private Point3D refPointEuclidean = new Point3D(1, 1, 0);
 
-    public static Group recycler = new Group();
-    public static Transform transformRecycled = new Translate();
-    public static Group EuclideanFund = new Group();
-    public static Group HyperbolicFund = new Group();
+    private Group recycler = new Group();
+    private Transform transformRecycled = new Translate();
+    private Group euclideanFund = new Group();
+    private Group hyperbolicFund = new Group();
 
-    private static Group handles = new Group();
+    private Group handles = new Group();
 
     private final int[] flag2vert;
     private final int[] flag2edge;
@@ -528,10 +528,10 @@ public class Tiling {
             fund.setRotationAxis(refPointHyperbolic);
             fund.getTransforms().add(new Translate());
             if (translateOrIncreaseTiling()) {// Translate mode of tiling
-                useRecycler(group, new Translate(), refPointHyperbolic, HyperbolicFund);
+                useRecycler(group, new Translate(), refPointHyperbolic, hyperbolicFund);
             } else { // Builds up tiling from fundamental domain
                 group.getChildren().addAll(fund);
-                HyperbolicFund = fund; // Saves the original fundamental domain
+                hyperbolicFund = fund; // Saves the original fundamental domain
             }
         }
 
@@ -544,7 +544,7 @@ public class Tiling {
                 if (seen.insert(fDomain, genRef, tolerance)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
                     if (makeCopyHyperbolic(genRef)) {
                         if (translateOrIncreaseTiling()) {
-                            useRecycler(group, g, genRef, HyperbolicFund);
+                            useRecycler(group, g, genRef, hyperbolicFund);
                         } else {
                             generateNewCopy(group, g, genRef, fund);
                         }
@@ -572,7 +572,7 @@ public class Tiling {
                         queue.add(tg);
                         if (makeCopyHyperbolic(bpt)) {
                             if (translateOrIncreaseTiling()) {
-                                useRecycler(group, tg, bpt, HyperbolicFund);
+                                useRecycler(group, tg, bpt, hyperbolicFund);
                             } else {
                                 generateNewCopy(group, tg, bpt, fund);
                             }
@@ -586,7 +586,7 @@ public class Tiling {
                         queue.add(gt);
                         if (makeCopyHyperbolic(bpt)) {
                             if (translateOrIncreaseTiling()) {
-                                useRecycler(group, gt, bpt, HyperbolicFund);
+                                useRecycler(group, gt, bpt, hyperbolicFund);
                             } else {
                                 generateNewCopy(group, gt, bpt, fund);
                             }
@@ -626,10 +626,10 @@ public class Tiling {
             fund.getTransforms().add(new Translate()); // Add transform (= identity)
             fund.setRotationAxis(refPointEuclidean); // Reference point of fundamental domain
             if (translateOrIncreaseTiling()) { // Translate mode of tiling
-                useRecycler(group, new Translate(), refPointEuclidean, EuclideanFund);
+                useRecycler(group, new Translate(), refPointEuclidean, euclideanFund);
             } else { // Builds up tile from fundamental domain
                 group.getChildren().addAll(fund);
-                EuclideanFund = fund; // Saves the original fundamental domain
+                euclideanFund = fund; // Saves the original fundamental domain
             }
 
         }
@@ -647,7 +647,7 @@ public class Tiling {
                 if (isInRangeEuclidean(genRef, windowCorner, width, height) && seen.insert(genRef.getX(), genRef.getY(), tolerance)) { // Checks whether reference point is in valid range and if it is in QuadTree "seen". Adds it if not.
                     if (makeCopyEuclidean(genRef)) { // Checks whether copy fills empty space after translation of tiles
                         if (translateOrIncreaseTiling()) { // Translate mode of tiling
-                            useRecycler(group, g, genRef, EuclideanFund);
+                            useRecycler(group, g, genRef, euclideanFund);
                         } else {
                             generateNewCopy(group, g, genRef, fund);
                         }
@@ -675,7 +675,7 @@ public class Tiling {
                         queue.add(tg);
                         if (makeCopyEuclidean(bpt)) {
                             if (translateOrIncreaseTiling()) {
-                                useRecycler(group, tg, bpt, EuclideanFund);
+                                useRecycler(group, tg, bpt, euclideanFund);
                             } else {
                                 generateNewCopy(group, tg, bpt, fund);
                             }
@@ -689,7 +689,7 @@ public class Tiling {
                         queue.add(gt);
                         if (makeCopyEuclidean(bpt)) {
                             if (translateOrIncreaseTiling()) {
-                                useRecycler(group, gt, bpt, EuclideanFund);
+                                useRecycler(group, gt, bpt, euclideanFund);
                             } else {
                                 generateNewCopy(group, gt, bpt, fund);
                             }
@@ -1519,5 +1519,57 @@ public class Tiling {
 
     public int getNumberOfCopies() {
         return numberOfCopies;
+    }
+
+    public void setHyperbolicFund(Group g) {
+        hyperbolicFund = g;
+    }
+
+    public Group getHyperbolicFund() {
+        return hyperbolicFund;
+    }
+
+    public void setEuclideanFund(Group g) {
+        euclideanFund = g;
+    }
+
+    public Group getEuclideanFund() {
+        return euclideanFund;
+    }
+
+    public OctTree getKeptHyperbolicCopy() {
+        return keptHyperbolicCopy;
+    }
+
+    public QuadTree getKeptEuclideanCopy() {
+        return keptEuclideanCopy;
+    }
+
+    public void setKeptHyperbolicCopy(OctTree keptHyperbolicCopy) {
+        this.keptHyperbolicCopy = keptHyperbolicCopy;
+    }
+
+    public void setKeptEuclideanCopy(QuadTree keptEuclideanCopy) {
+        this.keptEuclideanCopy = keptEuclideanCopy;
+    }
+
+    public Point3D getRefPointHyperbolic() {
+        return refPointHyperbolic;
+    }
+
+    public Point3D getRefPointEuclidean() {
+        return refPointEuclidean;
+    }
+
+    public Group getRecycler() {
+        return recycler;
+    }
+
+    public Transform getTransformRecycled() {
+        return transformRecycled;
+    }
+
+    public void setTransformRecycled(Transform transformRecycled) {
+        this.transformRecycled = transformRecycled;
     }
 }
