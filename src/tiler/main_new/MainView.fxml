@@ -310,125 +310,113 @@
         <TextField fx:id="statusTextField" BorderPane.alignment="CENTER"/>
     </bottom>
     <center>
-        <StackPane BorderPane.alignment="CENTER">
+        <AnchorPane BorderPane.alignment="CENTER">
             <children>
                 <Pane fx:id="mainPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-                      prefHeight="20.0" prefWidth="200.0" style="-fx-background-color: white;"/>
-                <BorderPane fx:id="topBorderPane" prefHeight="200.0" prefWidth="200.0">
-                    <left>
-                        <ToolBar fx:id="rotationsToolBar" maxWidth="-Infinity" minWidth="-Infinity"
-                                 orientation="VERTICAL" BorderPane.alignment="CENTER">
-                            <items>
-                                <TextField fx:id="groupTextField" editable="false" prefHeight="27.0" prefWidth="40.0"
-                                           promptText="Group" style="-fx-background-color: transparent;"/>
-                                <Spinner fx:id="v1Spinner" editable="true" maxHeight="24.0" maxWidth="60.0"
-                                         minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
-                                    <opaqueInsets>
-                                        <Insets/>
-                                    </opaqueInsets>
-                                </Spinner>
-                                <Spinner fx:id="v2Spinner" layoutX="10.0" layoutY="10.0" maxHeight="24.0"
-                                         maxWidth="60.0" minHeight="24.0" minWidth="60.0" prefHeight="24.0"
-                                         prefWidth="60.0">
-                                    <opaqueInsets>
-                                        <Insets/>
-                                    </opaqueInsets>
-                                </Spinner>
-                                <Spinner fx:id="v3Spinner" layoutX="78.0" layoutY="10.0" maxHeight="24.0"
-                                         maxWidth="60.0" minHeight="24.0" minWidth="60.0" prefHeight="24.0"
-                                         prefWidth="60.0">
-                                    <opaqueInsets>
-                                        <Insets/>
-                                    </opaqueInsets>
-                                </Spinner>
-                                <Spinner fx:id="v4Spinner" layoutX="146.0" layoutY="10.0" maxHeight="24.0"
-                                         maxWidth="60.0" minHeight="24.0" minWidth="60.0" prefHeight="24.0"
-                                         prefWidth="60.0">
-                                    <opaqueInsets>
-                                        <Insets/>
-                                    </opaqueInsets>
-                                </Spinner>
-                                <Spinner fx:id="v5Spinner" layoutX="214.0" layoutY="10.0" maxHeight="24.0"
-                                         maxWidth="60.0" minHeight="24.0" minWidth="60.0" prefHeight="24.0"
-                                         prefWidth="60.0">
-                                    <opaqueInsets>
-                                        <Insets/>
-                                    </opaqueInsets>
-                                </Spinner>
-                                <Spinner fx:id="v6Spinner" layoutX="282.0" layoutY="10.0" maxHeight="24.0"
-                                         maxWidth="60.0" minHeight="24.0" minWidth="60.0" prefHeight="24.0"
-                                         prefWidth="60.0">
-                                    <opaqueInsets>
-                                        <Insets/>
-                                    </opaqueInsets>
-                                </Spinner>
-                                <Spinner fx:id="v7Spinner" layoutX="350.0" layoutY="10.0" maxHeight="24.0"
-                                         maxWidth="60.0" minHeight="24.0" minWidth="60.0" prefHeight="24.0"
-                                         prefWidth="60.0">
-                                    <opaqueInsets>
-                                        <Insets/>
-                                    </opaqueInsets>
-                                </Spinner>
-                                <Spinner fx:id="v8Spinner" layoutX="418.0" layoutY="10.0" maxHeight="24.0"
-                                         maxWidth="60.0" minHeight="24.0" minWidth="60.0" prefHeight="24.0"
-                                         prefWidth="60.0">
-                                    <opaqueInsets>
-                                        <Insets/>
-                                    </opaqueInsets>
-                                </Spinner>
-                                <Spinner fx:id="v9Spinner" layoutX="486.0" layoutY="10.0" maxHeight="24.0"
-                                         maxWidth="60.0" minHeight="24.0" minWidth="60.0" prefHeight="24.0"
-                                         prefWidth="60.0">
-                                    <opaqueInsets>
-                                        <Insets/>
-                                    </opaqueInsets>
-                                </Spinner>
-                                <Spinner fx:id="v10Spinner" layoutX="554.0" layoutY="10.0" maxHeight="24.0"
-                                         maxWidth="60.0" minHeight="24.0" minWidth="60.0" prefHeight="24.0"
-                                         prefWidth="60.0">
-                                    <opaqueInsets>
-                                        <Insets/>
-                                    </opaqueInsets>
-                                </Spinner>
-                            </items>
+                      pickOnBounds="false" prefHeight="20.0" prefWidth="200.0" style="-fx-background-color: WHITE;"
+                      AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                      AnchorPane.topAnchor="0.0"/>
+                <ToolBar fx:id="rotationsToolBar" maxWidth="-Infinity" minWidth="-Infinity" orientation="VERTICAL"
+                         AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <items>
+                        <TextField fx:id="groupTextField" editable="false" prefHeight="27.0" prefWidth="40.0"
+                                   promptText="Group" style="-fx-background-color: transparent;"/>
+                        <Spinner fx:id="v1Spinner" editable="true" maxHeight="24.0" maxWidth="60.0" minHeight="24.0"
+                                 minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
                             <opaqueInsets>
                                 <Insets/>
                             </opaqueInsets>
-                        </ToolBar>
-                    </left>
-                    <right>
-                        <ToolBar fx:id="toolsToolBar" maxWidth="-Infinity" minWidth="-Infinity" orientation="VERTICAL"
-                                 prefWidth="110.0" BorderPane.alignment="CENTER">
-                            <items>
-                                <Label alignment="CENTER" layoutX="10.0" layoutY="110.0"
-                                       maxWidth="1.7976931348623157E308" text="Change Tiling"/>
-                                <Button fx:id="dualizeButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                        text="Dualize"/>
-                                <Button fx:id="orientateButton" layoutX="10.0" layoutY="103.0"
-                                        maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Orientate"/>
-                                <Button fx:id="maximizeButton" layoutX="10.0" layoutY="134.0"
-                                        maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Max Symm"/>
-                                <Separator prefWidth="200.0"/>
-                                <CheckBox fx:id="showBandsCheckBox" maxWidth="1.7976931348623157E308"
-                                          mnemonicParsing="false" text="Bands"/>
-                                <Spinner fx:id="bandWidthSpinner" editable="true"/>
-                                <ColorPicker fx:id="bandsColorPicker"/>
-                                <Separator prefWidth="200.0"/>
-                                <CheckBox fx:id="showFacesCheckBox" mnemonicParsing="false" text="Faces"/>
-                                <CheckBox fx:id="smoothEdgesCheckBox" layoutX="10.0" layoutY="170.0"
-                                          mnemonicParsing="false" text="Smooth"/>
-                                <CheckBox fx:id="backEdgesCheckBox" layoutX="10.0" layoutY="244.0"
-                                          mnemonicParsing="false" text="Back Edges"/>
-                                <ColorPicker fx:id="tile1ColorPicker" promptText="tile1ColorPicker"/>
-                                <Separator prefWidth="200.0"/>
-                                <Label alignment="CENTER" layoutX="10.0" layoutY="10.0"
-                                       maxWidth="1.7976931348623157E308" text="Background"/>
-                                <ColorPicker fx:id="backgroundColorPicker"/>
-                            </items>
-                        </ToolBar>
-                    </right>
-                </BorderPane>
+                        </Spinner>
+                        <Spinner fx:id="v2Spinner" layoutX="10.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v3Spinner" layoutX="78.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v4Spinner" layoutX="146.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v5Spinner" layoutX="214.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v6Spinner" layoutX="282.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v7Spinner" layoutX="350.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v8Spinner" layoutX="418.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v9Spinner" layoutX="486.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v10Spinner" layoutX="554.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                    </items>
+                    <opaqueInsets>
+                        <Insets/>
+                    </opaqueInsets>
+                </ToolBar>
+                <ToolBar fx:id="toolsToolBar" maxWidth="-Infinity" minWidth="-Infinity" orientation="VERTICAL"
+                         prefWidth="110.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                         AnchorPane.topAnchor="0.0">
+                    <items>
+                        <Label alignment="CENTER" layoutX="10.0" layoutY="110.0" maxWidth="1.7976931348623157E308"
+                               text="Change Tiling"/>
+                        <Button fx:id="dualizeButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                text="Dualize"/>
+                        <Button fx:id="orientateButton" layoutX="10.0" layoutY="103.0" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" text="Orientate"/>
+                        <Button fx:id="maximizeButton" layoutX="10.0" layoutY="134.0" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" text="Max Symm"/>
+                        <Separator prefWidth="200.0"/>
+                        <CheckBox fx:id="showBandsCheckBox" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                  text="Bands"/>
+                        <Spinner fx:id="bandWidthSpinner" editable="true"/>
+                        <ColorPicker fx:id="bandsColorPicker"/>
+                        <Separator prefWidth="200.0"/>
+                        <CheckBox fx:id="showFacesCheckBox" mnemonicParsing="false" text="Faces"/>
+                        <CheckBox fx:id="smoothEdgesCheckBox" layoutX="10.0" layoutY="170.0" mnemonicParsing="false"
+                                  text="Smooth"/>
+                        <CheckBox fx:id="backEdgesCheckBox" layoutX="10.0" layoutY="244.0" mnemonicParsing="false"
+                                  text="Back Edges"/>
+                        <ColorPicker fx:id="tile1ColorPicker" promptText="tile1ColorPicker"/>
+                        <Separator prefWidth="200.0"/>
+                        <Label alignment="CENTER" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308"
+                               text="Background"/>
+                        <ColorPicker fx:id="backgroundColorPicker"/>
+                    </items>
+                </ToolBar>
             </children>
-        </StackPane>
+        </AnchorPane>
     </center>
 </BorderPane>

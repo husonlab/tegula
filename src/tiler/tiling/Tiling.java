@@ -37,10 +37,7 @@ import tiler.main.TilingStyle;
 import tiler.util.JavaFXUtils;
 import tiler.util.ShapeHandler;
 
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * a tiling
@@ -449,9 +446,7 @@ public class Tiling {
      * @return tiles
      */
     public Group createTilingSpherical(TilingStyle tilingStyle) {
-        //Add handles
         handles.getChildren().clear();
-        //addHandles(doc);
 
         final Group group = new Group();
         final Group fund = FundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
@@ -508,13 +503,11 @@ public class Tiling {
      * @return group
      */
     public Group createTilingHyperbolic(boolean drawFundamentalDomainOnly, double maxDist, TilingStyle tilingStyle) {
+        handles.getChildren().clear();
 
         //Add all generators
         computeConstraintsAndGenerators();
 
-        //Add handles
-        handles.getChildren().clear();
-        //addHandles(doc);
 
         refPointHyperbolic = fDomain.getChamberCenter3D(referenceChamberIndex).multiply(0.01);
         //System.out.println(refPointHyperbolic);
@@ -613,8 +606,7 @@ public class Tiling {
         computeConstraintsAndGenerators();
 
         //Add handles
-        handles.getChildren().clear();
-        addHandles(doc);
+        handles.getChildren().setAll(createHandles(doc));
 
         //Calculation of point of reference:
         refPointEuclidean = fDomain.getChamberCenter3D(referenceChamberIndex); // Reference point of actual fundamental domain
@@ -656,9 +648,7 @@ public class Tiling {
                 }
             }
 
-
             while (queue.size() > 0) {
-
                 // Breaks while loop if too many copies (rounding errors)
                 if (translateOrIncreaseTiling() && queue.size() >= 1.5 * getNumberOfCopies()) {
                     setBreak(true);
@@ -1050,9 +1040,12 @@ public class Tiling {
 
 
     /**
-     * Add handles to change shape
+     * create handles to control shape
+     * @param doc
+     * @return handles
      */
-    private void addHandles(Document doc) {
+    private Collection<Node> createHandles(Document doc) {
+        final ArrayList<Node> handles = new ArrayList<>();
         // Straighten 0- and 1-edges
         straighten01Edges();
 
@@ -1075,7 +1068,7 @@ public class Tiling {
                     handle.setShape(circle);
                     handle.setType(1 - i);
                     handle.setFlag(a);
-                    handles.getChildren().add(handle.getShape());
+                    handles.add(handle.getShape());
                     ShapeHandler.setHandler(doc, handle);
                 }
                 a = ds.nextOrbit(i, 2, a, visited);
@@ -1101,13 +1094,14 @@ public class Tiling {
                     handle.setShape(circle);
                     handle.setFlag(a);
                     handle.setType(2);
-                    handles.getChildren().add(handle.getShape());
+                    handles.add(handle.getShape());
                     ShapeHandler.setHandler(doc, handle);
                 }
                 visited.set(ds.getS2(a));
             }
             a++;
         }
+        return handles;
     }
 
     /**
@@ -1537,20 +1531,13 @@ public class Tiling {
         return euclideanFund;
     }
 
-    public OctTree getKeptHyperbolicCopy() {
-        return keptHyperbolicCopy;
+
+    public void clearKeptHyperbolicCopy() {
+        keptHyperbolicCopy = new OctTree();
     }
 
-    public QuadTree getKeptEuclideanCopy() {
-        return keptEuclideanCopy;
-    }
-
-    public void setKeptHyperbolicCopy(OctTree keptHyperbolicCopy) {
-        this.keptHyperbolicCopy = keptHyperbolicCopy;
-    }
-
-    public void setKeptEuclideanCopy(QuadTree keptEuclideanCopy) {
-        this.keptEuclideanCopy = keptEuclideanCopy;
+    public void clearKeptEuclideanCopy() {
+        this.keptEuclideanCopy = new QuadTree();
     }
 
     public Point3D getRefPointHyperbolic() {
@@ -1572,4 +1559,13 @@ public class Tiling {
     public void setTransformRecycled(Transform transformRecycled) {
         this.transformRecycled = transformRecycled;
     }
+
+    public void insertKeptHyperbolicCopy(Point3D point) {
+        keptHyperbolicCopy.insert(getfDomain(), point, getTolerance());
+    }
+
+    public void insertKeptEuclideanCopy(Point3D point) {
+        keptEuclideanCopy.insert(point.getX(), point.getY(), getTolerance());
+    }
+
 }

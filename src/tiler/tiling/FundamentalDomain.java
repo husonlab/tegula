@@ -212,7 +212,7 @@ public class FundamentalDomain {
 
                 linepoints3d = array;
 
-                // sets points for edges
+                // sets points for band caps
                 bandCapPoinst3D = new Point3D[3];
                 bandCapPoinst3D[0] = points3d[0];
                 bandCapPoinst3D[1] = points3d[5];
@@ -304,7 +304,7 @@ public class FundamentalDomain {
                     linepoints3d[i] = points3d[pointsOf2EdgeSorted[i]];
                 }
 
-                // sets points for edges
+                // sets points for band caps
                 bandCapPoinst3D = new Point3D[3];
                 bandCapPoinst3D[0] = points3d[0];
                 bandCapPoinst3D[1] = points3d[5];
@@ -349,7 +349,7 @@ public class FundamentalDomain {
                 group.getChildren().addAll(meshView);
             }
 
-            // defines the height of line and edges above the surface
+            // defines the height of band and caps above the surface
             if (geom == Geometry.Euclidean) {
                 linesAbove = 1;
             } else if (geom == Geometry.Hyperbolic) {
@@ -692,6 +692,7 @@ public class FundamentalDomain {
         // handles smoothing groups of mesh
         newMesh.getFaceSmoothingGroups().addAll(mesh1.getFaceSmoothingGroups());
         newMesh.getFaceSmoothingGroups().addAll(mesh2.getFaceSmoothingGroups());
+
         newMesh.getFaces().addAll(faces);
 
         return newMesh;

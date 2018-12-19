@@ -36,7 +36,9 @@ import javafx.scene.transform.Translate;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
-import tiler.tiling.*;
+import tiler.tiling.Cylinderline;
+import tiler.tiling.Tiling;
+import tiler.tiling.Tools;
 import tiler.util.JavaFXUtils;
 
 import java.io.BufferedReader;
@@ -249,6 +251,8 @@ public class Document {
         tiling.setTransformRecycled(new Translate());
         changeDirection = false; // No direction has to be changed
 
+        getWorld().getChildren().clear();
+
         final Group additionalStuff = new Group();
 
         if (tiling.getGeometry() == Geometry.Euclidean) { //Euclidean case ---------------------------------------------
@@ -258,7 +262,7 @@ public class Document {
 
             // Reset Euclidean fundamental domain and QuadTree
             getCurrentTiling().setEuclideanFund(new Group());
-            tiling.setKeptEuclideanCopy(new QuadTree());
+            tiling.clearKeptEuclideanCopy();
 
             // Calculate optimal chamber, where chamber center is as far away from boundary as possible
             tiling.setReferenceChamberIndex(computeOptimalChamberIndex(tiling.getfDomain()));
@@ -285,6 +289,8 @@ public class Document {
                 test2.setStroke(Color.BLACK);
                 additionalStuff.getChildren().addAll(rect, range, test, test2);
             }
+
+            additionalStuff.getChildren().add(tiling.getHandles());
 
             // no camera options to set
         } else if (tiling.getGeometry() == Geometry.Spherical) { // Spherical case --------------------------------------
@@ -322,7 +328,7 @@ public class Document {
 
             // Reset hyperbolic fundamental domain.
             tiling.setHyperbolicFund(new Group());
-            tiling.setKeptHyperbolicCopy(new OctTree());
+            tiling.clearKeptHyperbolicCopy();
 
             //Reset Fundamental Domain if necessary:
             if (tiling.getRefPointHyperbolic().getZ() >= validHyperbolicRange) {// Fundamental domain is shifted back
@@ -334,14 +340,13 @@ public class Document {
         }
 
         // Build up world
-        getWorld().getChildren().setAll(tiles, additionalStuff);
+        getWorld().getChildren().setAll(tiles);
+        getWorld().getChildren().addAll(additionalStuff.getChildren());
 
         if (isShowLines()) {
             removeLinesFromFDomain();
             addLinesToFDomain();
         }
-
-        getWorld().getChildren().add(tiling.getHandles());
 
         statusLine.set(getCurrentTiling().getStatusLine());
         updateNumber.setValue(updateNumber.get() + 1);
@@ -366,7 +371,7 @@ public class Document {
                 tiling.getRecycler().getChildren().clear();
             }
 
-            tiling.setKeptEuclideanCopy(new QuadTree()); // Reset Tree (see tiling.makeCopyEuclidean())
+            tiling.clearKeptEuclideanCopy();
 
             translate(dx, dy); // Translates fDomain by vector (dx,dy).
             if (isShowLines()) {
@@ -393,7 +398,7 @@ public class Document {
                 tiling.getRecycler().getChildren().clear();
             }
 
-            tiling.setKeptHyperbolicCopy(new OctTree()); // Reset Tree (see tiling.makeCopyEuclidean())
+            tiling.clearKeptHyperbolicCopy();
 
             // Insert a boarder so that fundamental domain is not pulled away too far
             Point3D refPoint = tiling.getfDomain().getChamberCenter3D(tiling.getReferenceChamberIndex()).multiply(0.01);
@@ -453,7 +458,7 @@ public class Document {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         if (tiling.getGeometry() == Geometry.Euclidean) {
 
-            tiling.setKeptEuclideanCopy(new QuadTree()); // Saves copies which are kept under translation
+            tiling.clearKeptEuclideanCopy();
             Translate translate = new Translate(dx, dy, 0); // Mouse translation (MouseHandler)
 
             translate(dx, dy); // Translates fDomain by vector (dx,dy).
@@ -492,7 +497,7 @@ public class Document {
                     node.getTransforms().remove(0); // remove old transforms
                     node.getTransforms().add(translate.createConcatenation(nodeTransform)); // new transform = (translate)*(old transform)
                     node.setRotationAxis(point); // "point" serves as new reference of copy
-                    insertKeptEuclideanCopy(point); // Save copy as a kept one
+                    tiling.insertKeptEuclideanCopy(point); // Save copy as a kept one
                     i++;
                 } else { // when point is out of valid range
                     tiling.getRecycler().getChildren().add(node); // Remove node and add to recycler
@@ -532,7 +537,7 @@ public class Document {
             Transform translate = Tools.hyperbolicTranslation(dx, dy);
 
             // OctTree is used for saving copies which are kept under translation
-            tiling.setKeptHyperbolicCopy(new OctTree());
+            tiling.clearKeptHyperbolicCopy();
 
             // Translates fDomain by vector (dx,dy).
             translate(dx, dy);
@@ -571,7 +576,7 @@ public class Document {
                     node.getTransforms().remove(0);
                     node.getTransforms().add(translate.createConcatenation(nodeTransform));
                     node.setRotationAxis(point);
-                    insertKeptHyperbolicCopy(point); // Save kept copy
+                    tiling.insertKeptHyperbolicCopy(point); // Save kept copy
                     i++;
                 }
             }
@@ -622,9 +627,9 @@ public class Document {
         final Tiling tiling = getCurrentTiling();
 
         double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());
-        tiling.setKeptHyperbolicCopy(new OctTree());
+        tiling.clearKeptHyperbolicCopy();
         for (int i = 0; i < tiles.getChildren().size(); i++) {
-            insertKeptHyperbolicCopy(tiles.getChildren().get(i).getRotationAxis()); // Add existing tiles to tree structure
+            tiling.insertKeptHyperbolicCopy(tiles.getChildren().get(i).getRotationAxis()); // Add existing tiles to tree structure
         }
 
         if (tiling.getRecycler().getChildren().size() == 0) { // Fill recycler if necessary
@@ -747,17 +752,6 @@ public class Document {
         return vec;
     }
 
-
-
-    private void insertKeptHyperbolicCopy(Point3D point) {
-        final Tiling tiling = getCurrentTiling();
-        tiling.getKeptHyperbolicCopy().insert(tiling.getfDomain(), point, tiling.getTolerance());
-    }
-
-    private void insertKeptEuclideanCopy(Point3D point) {
-        final Tiling tiling = getCurrentTiling();
-        tiling.getKeptEuclideanCopy().insert(point.getX(), point.getY(), tiling.getTolerance());
-    }
 
     public void translate(double dx, double dy) {
         getCurrentTiling().getfDomain().translate(dx, dy);

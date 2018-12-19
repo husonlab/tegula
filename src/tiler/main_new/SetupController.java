@@ -78,7 +78,7 @@ public class SetupController {
             }
                 }
         );
-
+        
         //document.showLinesProperty().bind(mainViewController.getCbShowLines().selectedProperty());
 
         controller.getStatusTextField().textProperty().bind(document.statusLineProperty());

@@ -158,9 +158,6 @@ public class MainViewController {
     private Pane mainPane;
 
     @FXML
-    private BorderPane topBorderPane;
-
-    @FXML
     private ToolBar rotationsToolBar;
 
     @FXML
@@ -416,10 +413,6 @@ public class MainViewController {
 
     public Pane getMainPane() {
         return mainPane;
-    }
-
-    public BorderPane getTopBorderPane() {
-        return topBorderPane;
     }
 
     public ToolBar getRotationsToolBar() {
