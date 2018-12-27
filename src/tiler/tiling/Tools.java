@@ -193,9 +193,9 @@ public class Tools {
         // creates points on of equal distance to urpsrung that are perpendicular to the
         // moved end point
         Point3D returnpoint1 = new Point3D(0, arcsinh(-distance * 0.01),
-                Math.sqrt(Math.pow(arcsinh(distance) * 0.01, 2) + 1));
+                Math.sqrt(Math.pow(Math.sinh(distance) * 0.01, 2) + 1));
         Point3D returnpoint2 = new Point3D(0, arcsinh(distance * 0.01),
-                Math.sqrt(Math.pow(arcsinh(distance) * 0.01, 2) + 1));
+                Math.sqrt(Math.pow(Math.sinh(distance) * 0.01, 2) + 1));
 
         // uses same rotations and translations that were used on end point
         returnpoints[0] = rotateToXInv.transform(translate1Inv.transform(rotat2Inv.transform(returnpoint1)))
@@ -262,8 +262,8 @@ public class Tools {
         Point3D[] returncoordinates = new Point3D[fine];
         double zvalue = Math.sqrt(Math.pow(radius * 0.01, 2) + 1);
         for (int n = 0; n < fine; n++) {
-            coordinates[n] = new Point3D(arcsinh(radius * 0.01) * Math.cos(2 * Math.PI * n / fine),
-                    arcsinh(radius * 0.01) * Math.sin(2 * Math.PI * n / fine), zvalue);
+            coordinates[n] = new Point3D(Math.sinh(radius * 0.01) * Math.cos(2 * Math.PI * n / fine),
+                    Math.sinh(radius * 0.01) * Math.sin(2 * Math.PI * n / fine), zvalue);
         }
 
         // rotates and translates circle points back to original center
