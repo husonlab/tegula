@@ -25,7 +25,7 @@ import javafx.scene.shape.Shape;
  * handle used for reshaping edges
  * Ruediger Zeller, 2017
  */
-public class Handle extends Group {
+public class ReshapeHandle extends Group {
     private Shape shape;
     private int type;
     private int flag;

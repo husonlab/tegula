@@ -33,7 +33,6 @@ import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.Geometry;
 import tiler.main.Document;
-import tiler.main.MouseHandler;
 
 import java.io.IOException;
 import java.io.StringReader;

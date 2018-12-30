@@ -321,8 +321,8 @@
                     <items>
                         <TextField fx:id="groupTextField" editable="false" prefHeight="27.0" prefWidth="40.0"
                                    promptText="Group" style="-fx-background-color: transparent;"/>
-                        <Spinner fx:id="v1Spinner" editable="true" maxHeight="24.0" maxWidth="60.0" minHeight="24.0"
-                                 minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                        <Spinner fx:id="v1Spinner" maxHeight="24.0" maxWidth="60.0" minHeight="24.0" minWidth="60.0"
+                                 prefHeight="24.0" prefWidth="60.0">
                             <opaqueInsets>
                                 <Insets/>
                             </opaqueInsets>

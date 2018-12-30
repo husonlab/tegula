@@ -5,27 +5,25 @@ import javafx.geometry.Point3D;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
-import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
 
 /**
- * Tools for calculation Created by Ruediger on 2017.05.22.
+ * Tools for calculation
  * Ruediger Zeller, 2017
  */
 public class Tools {
-
     /**
      * Distance of points a,b. In hyperbolic case: Hyperbolic distance between
      * normalized points on z^2=x^2+y^2+1). In spherical and Euclidean case:
      * Euclidean distance between points.
      *
-     * @param f
+     * @param geom
      * @param a
      * @param b
      * @return distance
      */
-    public static double distance(FDomain f, Point3D a, Point3D b) {
-        if (f.getGeometry() == Geometry.Hyperbolic) {
+    public static double distance(Geometry geom, Point3D a, Point3D b) {
+        if (geom == Geometry.Hyperbolic) {
             double scalar = a.getZ() * b.getZ() - a.getX() * b.getX() - a.getY() * b.getY();
             return Math.log(Math.abs(scalar + Math.sqrt(Math.abs(scalar * scalar - 1))));
         } else {
@@ -211,7 +209,7 @@ public class Tools {
      * * by Cornelius calculates circle coordinates as an n sided polygon to a given
      * center point on hyperboloid with a given orientation
      *
-     * @param point
+     * @param point0
      * @param orientation
      * @param radius
      * @param fine

@@ -209,7 +209,6 @@ public class FDomain {
      * @param dy
      */
     public void translate(double dx, double dy) {
-
         if (geometry == Geometry.Euclidean) {
             dx /= 100;
             dy /= 100;
@@ -324,7 +323,6 @@ public class FDomain {
      * @param posY
      * @return Point2D
      */
-
     private Point2D HyperbolicTranslation(double dx, double dy, double posX, double posY) {
         final double distance = Math.sqrt(dx * dx + dy * dy); //Distance for translation along vector (dx,dy)
         final Point2D Y_AXIS = new Point2D(0, 1);  // For definition of hyperbolic translation along y-axis
@@ -339,7 +337,6 @@ public class FDomain {
         final Rotate rotateForward = new Rotate(angle, rotAxis); // Rotates fundamental domain forward to perform translation along y-axis
         final Rotate rotateBack = new Rotate(-angle, rotAxis); // Rotates backward to original position
 
-
         final Point2D posRotated = rotateBack.transform(posX, posY); // Rotates a given point of fundamental domain forward
 
         // Translation of rotated point "posRotated" along y-Axis (calculated from concatenation of translations on hyperboloid and mapping from Poincare to hyperboloid model):
@@ -348,5 +345,49 @@ public class FDomain {
         final double newPosY = (Math.cosh(distance) * 2 * posRotated.getY() + Math.sinh(distance) * (1 + d)) / (1 - d + Math.sinh(distance) * 2 * posRotated.getY() + Math.cosh(distance) * (1 + d));
 
         return rotateForward.transform(newPosX, newPosY); //Returns the result of the transform by rotating backward.
+    }
+
+    /**
+     * get all coordinates
+     *
+     * @return coordinates
+     */
+    public Point2D[][] getCoordinates() {
+        final Point2D[][] array = new Point2D[dSymbol.size() + 1][7];
+        // 0-vertex, 1-vertex, 2-vertex, 0-edge-center, 1-edge-center, 2-edge-center, chamber center
+
+        for (int a = 1; a <= dSymbol.size(); a++) {
+            for (int i = 0; i <= 2; i++) {
+                array[a][i] = getVertex(i, a);
+            }
+            for (int i = 0; i <= 2; i++) {
+                array[a][i + 3] = getEdgeCenter(i, a);
+            }
+            array[a][6] = getChamberCenter(a);
+        }
+        return array;
+    }
+
+    /**
+     * set all coordinates (previously saved using getCoordinates)
+     *
+     * @param array
+     */
+    public void setCoordinates(Point2D[][] array) {
+        for (int a = 1; a <= dSymbol.size(); a++) {
+            for (int i = 0; i <= 2; i++) {
+                System.err.println(String.format("vertex(%d,%d): (%.2f,%.2f) -> (%.2f,%.2f)",
+                        a, i, getVertex(i, a).getX(), getVertex(i, a).getY(), array[a][i].getX(), array[a][i].getY()));
+                setVertex(array[a][i], i, a);
+            }
+            for (int i = 0; i <= 2; i++) {
+                System.err.println(String.format("edge(%d,%d): (%.2f,%.2f) -> (%.2f,%.2f)",
+                        a, i, getEdgeCenter(i, a).getX(), getEdgeCenter(i, a).getY(), array[a][i + 3].getX(), array[a][i + 3].getY()));
+                setEdgeCenter(array[a][i + 3], i, a);
+            }
+            System.err.println(String.format("chamber(%d): (%.2f,%.2f) -> (%.2f,%.2f)",
+                    a, getChamberCenter(a).getX(), getChamberCenter(a).getY(), array[a][6].getX(), array[a][6].getY()));
+            setChamberCenter(array[a][6], a);
+        }
     }
 }

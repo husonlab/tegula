@@ -32,6 +32,7 @@ import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.Geometry;
+import tiler.main_new.MouseHandler;
 
 import java.io.StringReader;
 import java.util.Properties;
@@ -142,7 +143,7 @@ public class Main extends Application {
             });
         }
 
-        //document.update();
+        document.update();
 
 
         /*mainViewController.getFieldOfViewSlider().valueProperty().addListener(new ChangeListener<Number>() {

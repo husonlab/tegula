@@ -37,6 +37,7 @@ import tiler.core.dsymbols.Geometry;
 import tiler.main.Document;
 import tiler.main.HyperbolicModelCameraSettings;
 import tiler.main.Main;
+import tiler.tiling.StraightenEdges;
 import tiler.tiling.Tiling;
 
 import java.io.File;
@@ -243,7 +244,7 @@ public class SetupController {
         controller.getOrientateButton().disableProperty().bind(controller.getOrientateMenuItem().disableProperty());
 
         controller.getStraightenAllMenuItem().setOnAction((e) -> {
-            document.getCurrentTiling().straightenAllEdges();
+            StraightenEdges.straightenAllEdges(document.getCurrentTiling());
             document.update();
         });
 
@@ -268,7 +269,6 @@ public class SetupController {
 
         controller.getShowBandsCheckBox().setOnAction((e) -> {
             document.getTilingStyle().setShowBands(controller.getShowBandsCheckBox().isSelected());
-            document.getTilingStyle().setShowBandCaps(controller.getShowBandsCheckBox().isSelected());
             document.update();
         });
 
@@ -314,6 +314,16 @@ public class SetupController {
         for (String name : ColorSchemeManager.getInstance().getNames()) {
             addToColorsMenu(controller, document, name);
         }
+
+        controller.getShowFDomainMenuItem().setOnAction((e) -> {
+            document.getTilingStyle().setShowFundamentalChambers(controller.getShowFDomainMenuItem().isSelected());
+            document.update();
+        });
+
+        controller.getShowChambersMenuItem().setOnAction((e) -> {
+            document.getTilingStyle().setShowAllChambers(controller.getShowChambersMenuItem().isSelected());
+            document.update();
+        });
     }
 
     public static void addToColorsMenu(MainViewController controller, Document document, String name) {

@@ -27,18 +27,22 @@ import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Sphere;
 import javafx.scene.text.Text;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * some Java FX utilities
  * Created by huson on 4/19/16.
  */
 public class JavaFXUtils {
+    private final static Set<Class> warned = new HashSet<>();
     /**
      * copy a group meshes and shapes
      *
      * @param group
      * @return copy of group
      */
-    public static Group copyFundamentalDomain(Group group) {
+    public static Group copyGroup(Group group) {
         final Group result = new Group();
 
         for (Node node : group.getChildren()) {
@@ -76,6 +80,13 @@ public class JavaFXUtils {
                 target.setFill(src.getFill());
                 target.getTransforms().addAll(src.getTransforms());
                 result.getChildren().add(target);
+            } else if (node instanceof Group) {
+                Group src = (Group) node;
+                Group target = copyGroup(src);
+                target.getTransforms().addAll(src.getTransforms());
+                result.getChildren().add(target);
+            } else if (!warned.contains(node.getClass())) {
+                System.err.println("Warning: copyGroup(): not implemented for class: " + node.getClass());
             }
         }
         return result;

@@ -3,15 +3,14 @@ package tiler.tiling;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.MeshView;
-import javafx.scene.shape.Sphere;
-import javafx.scene.shape.TriangleMesh;
+import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
-import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
@@ -23,9 +22,29 @@ import java.util.Arrays;
 import java.util.BitSet;
 
 /**
- * builds fundamental domain in JavaFX Created by huson on 4/5/16.
+ * Fundamental domain for tiling
+ * Daniel Huson and Ruediger Zeller, 2016
  */
 public class FundamentalDomain {
+    private final Group tiles = new Group();
+    private final Group bands = new Group();
+    private final Group chambers = new Group(); // not implemented yet
+    private final Group handles = new Group(); // not implemented here yet
+    private final Group symmetryIcons = new Group(); // not implemented yet
+    private final Group otherStuff = new Group();
+
+    /**
+     * clear
+     */
+    private void clear() {
+        tiles.getChildren().clear();
+        bands.getChildren().clear();
+        chambers.getChildren().clear();
+        handles.getChildren().clear();
+        symmetryIcons.getChildren().clear();
+        otherStuff.getChildren().clear();
+    }
+
     /**
      * construct a fundamental domain
      *
@@ -33,9 +52,10 @@ public class FundamentalDomain {
      * @param fDomain domain computed by KW
      * @return fundamental domain
      */
-    public static Group buildFundamentalDomain(final DSymbol dsymbol, final FDomain fDomain, TilingStyle tilingStyle) {
+    public void buildFundamentalDomain(final DSymbol dsymbol, final FDomain fDomain, TilingStyle tilingStyle) {
+        clear();
 
-        final Group group = new Group();
+        computeChambers(fDomain);
 
         final BitSet visitBands = new BitSet(fDomain.size());
         final BitSet visitBandCaps = new BitSet(fDomain.size());
@@ -57,7 +77,7 @@ public class FundamentalDomain {
         final double bandWidth = (fDomain.getGeometry() == Geometry.Euclidean ? 0.1 : 0.1) * tilingStyle.getBandWidth(); // size of edges
         final Color bandColor = tilingStyle.getBandColor();
 
-        final double badCapDiameter = bandWidth;
+        final double bandCapDiameter = bandWidth;
         final int bandCapFineness = tilingStyle.getBandCapFineness(); // defines how smooth the edges are
         final Color bandCapColor = bandColor;
 
@@ -68,7 +88,7 @@ public class FundamentalDomain {
         // Booleans
         boolean drawFaces = tilingStyle.isShowFaces();
         boolean drawBands = tilingStyle.isShowBands();
-        boolean drawBandCaps = tilingStyle.isShowBandCaps();
+        boolean drawBandCaps = tilingStyle.isShowBands();
 
         // construct triangles as meshes:
 
@@ -346,7 +366,7 @@ public class FundamentalDomain {
                 PhongMaterial material = new PhongMaterial(colors[a]);
                 // material.setSpecularColor(Color.YELLOW);
                 meshView.setMaterial(material);
-                group.getChildren().addAll(meshView);
+                tiles.getChildren().addAll(meshView);
             }
 
             // defines the height of band and caps above the surface
@@ -404,7 +424,7 @@ public class FundamentalDomain {
                         }
 
                         // gets circle coordinates
-                        Point3D[] coordinates = BandCap3D.circle(center, direction, badCapDiameter, bandCapFineness, geom);
+                        Point3D[] coordinates = BandCap3D.circle(center, direction, bandCapDiameter, bandCapFineness, geom);
 
                         // creates Triangle Mesh for circle coordinates
                         TriangleMesh meshStorage = BandCap3D.CircleMesh(center, coordinates, geom, linesAbove, false);
@@ -434,7 +454,7 @@ public class FundamentalDomain {
 
             final MeshView View = new MeshView(combinedMesh2);
             View.setMaterial(bandCapMaterial);
-            group.getChildren().addAll(View);
+            bands.getChildren().addAll(View);
         }
 
         // Add lines
@@ -484,7 +504,7 @@ public class FundamentalDomain {
                 double w = 0.01;
                 double h = (1 + w * w) / (1 - w * w);
                 // Length of translation
-                double t = Tools.distance(fDomain, refPoint, origin);
+                double t = Tools.distance(fDomain.getGeometry(), refPoint, origin);
                 // Affine translation:
                 Affine translateT = new Affine(Math.cosh(t), Math.sinh(t), 0, Math.sinh(t), Math.cosh(t), 0); // Translation
                 // along
@@ -512,8 +532,8 @@ public class FundamentalDomain {
                         v0 = fDomain.getVertex3D(0, a);
                         v1 = fDomain.getVertex3D(1, a);
                         e2 = fDomain.getEdgeCenter3D(2, a);
-                        group.getChildren().add(Cylinderline.createConnection(v0, e2, Color.BLACK, width));
-                        group.getChildren().add(Cylinderline.createConnection(e2, v1, Color.BLACK, width));
+                        chambers.getChildren().add(Cylinderline.createConnection(v0, e2, Color.BLACK, width));
+                        chambers.getChildren().add(Cylinderline.createConnection(e2, v1, Color.BLACK, width));
                         visited.set(a);
                         visited.set(dsymbol.getS2(a));
                     }
@@ -538,7 +558,7 @@ public class FundamentalDomain {
                             linePoints[i] = Tools.interpolateHyperbolicPoints(e2, v1, i / 8d);
                         }
                         for (int i = 0; i < 8; i++) {
-                            group.getChildren().add(Cylinderline.createConnection(linePoints[i], linePoints[i + 1],
+                            chambers.getChildren().add(Cylinderline.createConnection(linePoints[i], linePoints[i + 1],
                                     Color.BLACK, width));
                         }
                         visited.set(dsymbol.getS2(a));
@@ -566,8 +586,7 @@ public class FundamentalDomain {
                             linePoints[i] = Tools.interpolateSpherePoints(e2, v1, i / 32.0);
                         }
                         for (int j = 0; j < 32; j++) {
-                            group.getChildren().add(Cylinderline.createConnection(linePoints[j], linePoints[j + 1],
-                                    Color.BLACK, width));
+                            chambers.getChildren().add(Cylinderline.createConnection(linePoints[j], linePoints[j + 1], Color.BLACK, width));
                         }
                         visited.set(dsymbol.getS2(a));
                     }
@@ -586,69 +605,38 @@ public class FundamentalDomain {
                 label.getTransforms().add(new Translate(apt.getX() - 4, apt.getY() + 4, apt.getZ()));
 
                 label.setFill(Color.BLACK.deriveColor(0, 1, 1, 0.4));
-                group.getChildren().add(label);
+                chambers.getChildren().add(label);
             }
         }
 
-        // add some points to debug transforms:
 
         if (false) {
-            for (int i = 0; i < 3; i++) {
-                final Point3D a = fDomain.getVertex3D(i, 16);
-                final Sphere sphere = new Sphere(2);
-                switch (i) {
-                    case 0:
-                        sphere.setMaterial(new PhongMaterial(Color.GREEN));
-                        break;
-                    case 1:
-                        sphere.setMaterial(new PhongMaterial(Color.YELLOW));
-                        break;
-                    case 2:
-                        sphere.setMaterial(new PhongMaterial(Color.RED));
-                        break;
-                }
-                sphere.getTransforms().add(new Translate(a.getX(), a.getY(), a.getZ()));
-                group.getChildren().add(sphere);
-            }
+            DropShadow dropShadow = new DropShadow();
+            dropShadow.setRadius(5.0);
+            dropShadow.setOffsetX(6.0);
+            dropShadow.setOffsetY(4.0);
+            dropShadow.setColor(Color.BLACK);
 
-            final Transform transform = Tiling.getTransform(fDomain.getGeometry(), fDomain.getVertex3D(0, 16),
-                    fDomain.getVertex3D(1, 16), fDomain.getVertex3D(0, 19), fDomain.getVertex3D(1, 19), true);
-
-            for (int i = 0; i < 3; i++) {
-                final Point3D a = fDomain.getVertex3D(i, 16);
-                final Sphere sphere = new Sphere(2);
-                sphere.getTransforms().addAll(transform, new Translate(a.getX(), a.getY(), a.getZ()));
-
-                switch (i) {
-                    case 0:
-                        sphere.setMaterial(new PhongMaterial(Color.LIGHTGREEN));
-                        break;
-                    case 1:
-                        sphere.setMaterial(new PhongMaterial(Color.LIGHTYELLOW));
-                        break;
-                    case 2:
-                        sphere.setMaterial(new PhongMaterial(Color.PINK));
-                        break;
-
-                }
-                group.getChildren().add(sphere);
-            }
+            Text text = new Text("Hello");
+            text.setFont(Font.font(30));
+            text.setFill(Color.GOLDENROD);
+            text.setEffect(dropShadow);
+            otherStuff.getChildren().add(text);
         }
+
 
         if (false) { // to test what happens if we add other stuff into the group...
             Sphere sphere = new Sphere(10);
             sphere.setTranslateZ(100);
             sphere.setMaterial(new PhongMaterial(Color.RED));
-            group.getChildren().add(sphere);
+            otherStuff.getChildren().add(sphere);
             sphere.setOnMouseClicked((e) -> System.err.println("Clicked " + e));
             sphere.setOnMouseEntered((e) -> System.err.println("Entered " + e));
         }
-
-        return group;
     }
 
 
-    public static double computeWindingNumber(Point3D a0, Point3D a1, Point3D a2) {
+    private static double computeWindingNumber(Point3D a0, Point3D a1, Point3D a2) {
         return (a1.getX() - a0.getX()) * (a1.getY() + a0.getY()) + (a2.getX() - a1.getX()) * (a2.getY() + a1.getY())
                 + (a0.getX() - a2.getX()) * (a0.getY() + a2.getY());
     }
@@ -660,7 +648,7 @@ public class FundamentalDomain {
      * @param mesh2
      * @return combined mesh of mesh1 and mesh2
      */
-    public static TriangleMesh combineTriangleMesh(TriangleMesh mesh1, TriangleMesh mesh2) {
+    private static TriangleMesh combineTriangleMesh(TriangleMesh mesh1, TriangleMesh mesh2) {
 
         TriangleMesh newMesh = new TriangleMesh(); // mesh that is returned later
         int mesh1pointsize = mesh1.getPoints().size(); // number of points of mesh1
@@ -704,7 +692,7 @@ public class FundamentalDomain {
      *
      * @param faces
      */
-    static void invertOrientationOfFaces(int[] faces) {
+    public static void invertOrientationOfFaces(int[] faces) {
         for (int i = 0; i < faces.length; i += 6) {
             int tmp = faces[i + 2];
             faces[i + 2] = faces[i + 4];
@@ -713,5 +701,71 @@ public class FundamentalDomain {
             faces[i + 3] = faces[i + 5];
             faces[i + 5] = tmp;
         }
+    }
+
+    /**
+     * Adds lines to fundamental domain
+     */
+    private void computeChambers(FDomain fDomain) {
+
+        for (int k = 1; k <= fDomain.size(); k++) {
+            chambers.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, k), fDomain.getEdgeCenter3D(1, k), fDomain.getVertex3D(2, k), Color.LIGHTGRAY, 1));
+
+            chambers.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, k), fDomain.getEdgeCenter3D(0, k), fDomain.getVertex3D(1, k), Color.LIGHTGRAY, 1));
+
+            chambers.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, k), fDomain.getChamberCenter3D(k), fDomain.getEdgeCenter3D(0, k), Color.LIGHTGRAY, 0.5f));
+            chambers.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(1, k), fDomain.getChamberCenter3D(k), fDomain.getEdgeCenter3D(1, k), Color.LIGHTGRAY, 0.5f));
+            chambers.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, k), fDomain.getChamberCenter3D(k), fDomain.getEdgeCenter3D(2, k), Color.LIGHTGRAY, 0.5f));
+
+        }
+        for (int k = 1; k <= fDomain.size(); k++) {
+            final Point3D v0 = fDomain.getVertex3D(0, k);
+            final Point3D e2 = fDomain.getEdgeCenter3D(2, k);
+            final Point3D v1 = fDomain.getVertex3D(1, k);
+            chambers.getChildren().add(makeLine(fDomain.getGeometry(), v0, e2, v1, Color.DARKGRAY, 1));
+        }
+
+        chambers.getTransforms().clear();
+        chambers.getTransforms().add(new Translate());
+    }
+
+    private static Node makeLine(Geometry geometry, Point3D a, Point3D b, Point3D c, Color color, float width) {
+        if (geometry == Geometry.Euclidean) {
+            Polyline polyLine = new Polyline(a.getX(), a.getY(), b.getX(), b.getY(), c.getX(), c.getY());
+            polyLine.setStroke(color);
+            polyLine.setStrokeWidth(width);
+            polyLine.setStrokeLineCap(StrokeLineCap.ROUND);
+            return polyLine;
+
+        } else {
+            Group g = new Group();
+            g.getChildren().add(Cylinderline.createConnection(a, b, color, width));
+            g.getChildren().addAll(Cylinderline.createConnection(b, c, color, width));
+            return g;
+        }
+    }
+
+    public Group getTiles() {
+        return tiles;
+    }
+
+    public Group getBands() {
+        return bands;
+    }
+
+    public Group getChambers() {
+        return chambers;
+    }
+
+    public Group getHandles() {
+        return handles;
+    }
+
+    public Group getSymmetryIcons() {
+        return symmetryIcons;
+    }
+
+    public Group getOtherStuff() {
+        return otherStuff;
     }
 }

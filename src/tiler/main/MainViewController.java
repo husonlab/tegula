@@ -11,6 +11,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import tiler.main_new.MouseHandler;
+import tiler.tiling.StraightenEdges;
 
 import java.io.File;
 import java.io.FileReader;
@@ -467,7 +469,7 @@ public class MainViewController implements Initializable {
 
     @FXML
     void fireStraigthenAll(ActionEvent event) {
-        document.getCurrentTiling().straightenAllEdges();
+        StraightenEdges.straightenAllEdges(document.getCurrentTiling());
         document.update();
     }
 

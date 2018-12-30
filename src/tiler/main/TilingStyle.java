@@ -36,7 +36,6 @@ public class TilingStyle {
 
     private final BooleanProperty showFaces = new SimpleBooleanProperty(true);
     private final BooleanProperty showBands = new SimpleBooleanProperty(true);
-    private final BooleanProperty showBandCaps = new SimpleBooleanProperty(true);
 
     private final BooleanProperty showBackEdges = new SimpleBooleanProperty(false);
     private final BooleanProperty smoothEdges = new SimpleBooleanProperty(true);
@@ -44,6 +43,13 @@ public class TilingStyle {
     private final ObservableList<Color> tileColors = FXCollections.observableArrayList();
 
     private final StringProperty tileColorsScheme = new SimpleStringProperty();
+
+    private final BooleanProperty showFundamentalChambers = new SimpleBooleanProperty(false);
+    private final BooleanProperty showAllChambers = new SimpleBooleanProperty(false);
+    private final BooleanProperty showHandles = new SimpleBooleanProperty(false);
+    private final BooleanProperty showSymmetryIcons = new SimpleBooleanProperty(false);
+    private final BooleanProperty showOtherStuff = new SimpleBooleanProperty(false);
+
 
     public TilingStyle() {
         setTileColorsScheme(ColorSchemeManager.getInstance().getLastColorScheme());
@@ -123,17 +129,6 @@ public class TilingStyle {
         this.showBands.set(showBands);
     }
 
-    public boolean isShowBandCaps() {
-        return showBandCaps.get();
-    }
-
-    public BooleanProperty showBandCapsProperty() {
-        return showBandCaps;
-    }
-
-    public void setShowBandCaps(boolean showBandCaps) {
-        this.showBandCaps.set(showBandCaps);
-    }
 
     public boolean isShowFaces() {
         return showFaces.get();
@@ -171,5 +166,63 @@ public class TilingStyle {
         this.showBackEdges.set(showBackEdges);
     }
 
+    public boolean isShowFundamentalChambers() {
+        return showFundamentalChambers.get();
+    }
 
+    public BooleanProperty showFundamentalChambersProperty() {
+        return showFundamentalChambers;
+    }
+
+    public void setShowFundamentalChambers(boolean showFundamentalChambers) {
+        this.showFundamentalChambers.set(showFundamentalChambers);
+    }
+
+    public boolean isShowAllChambers() {
+        return showAllChambers.get();
+    }
+
+    public BooleanProperty showAllChambersProperty() {
+        return showAllChambers;
+    }
+
+    public void setShowAllChambers(boolean showAllChambers) {
+        this.showAllChambers.set(showAllChambers);
+    }
+
+    public boolean isShowHandles() {
+        return showHandles.get();
+    }
+
+    public BooleanProperty showHandlesProperty() {
+        return showHandles;
+    }
+
+    public void setShowHandles(boolean showHandles) {
+        this.showHandles.set(showHandles);
+    }
+
+    public boolean isShowSymmetryIcons() {
+        return showSymmetryIcons.get();
+    }
+
+    public BooleanProperty showSymmetryIconsProperty() {
+        return showSymmetryIcons;
+    }
+
+    public void setShowSymmetryIcons(boolean showSymmetryIcons) {
+        this.showSymmetryIcons.set(showSymmetryIcons);
+    }
+
+    public boolean isShowOtherStuff() {
+        return showOtherStuff.get();
+    }
+
+    public BooleanProperty showOtherStuffProperty() {
+        return showOtherStuff;
+    }
+
+    public void setShowOtherStuff(boolean showOtherStuff) {
+        this.showOtherStuff.set(showOtherStuff);
+    }
 }
