@@ -37,7 +37,7 @@ import java.util.Set;
 public class JavaFXUtils {
     private final static Set<Class> warned = new HashSet<>();
     /**
-     * copy a group meshes and shapes
+     * copy a group of meshes, shapes and texts
      *
      * @param group
      * @return copy of group
@@ -87,8 +87,16 @@ public class JavaFXUtils {
                 result.getChildren().add(target);
             } else if (!warned.contains(node.getClass())) {
                 System.err.println("Warning: copyGroup(): not implemented for class: " + node.getClass());
+                warned.add(node.getClass());
             }
         }
+        result.setRotationAxis(group.getRotationAxis());
+        result.setRotate(group.getRotate());
+        result.setTranslateX(group.getTranslateX());
+        result.setTranslateY(group.getTranslateY());
+        result.setTranslateZ(group.getTranslateZ());
+
         return result;
     }
+
 }

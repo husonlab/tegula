@@ -109,11 +109,11 @@ public class MainView {
         document.setHeight(600);
 
         mainPane.widthProperty().addListener((c, o, n) -> {
-            document.setWidth(2 * mainPane.getWidth() + 100);
+            document.setWidth(2 * n.doubleValue() + 100);
         });
 
         mainPane.heightProperty().addListener((c, o, n) -> {
-            document.setHeight(2 * mainPane.getHeight() + 100);
+            document.setHeight(2 * n.doubleValue() + 100);
         });
 
         document.geometryProperty().addListener((c, o, n) -> {

@@ -499,8 +499,8 @@ public class Document {
             }
 
             if (tiling.getRecycler().getChildren().size() == 0) { // Fill recycler if necessary
-                Group recycler2 = JavaFXUtils.copyGroup(getCurrentTiling().getEuclideanFund()); // Copy original fundamental domain which was used to build "tiles"
-                tiling.getRecycler().getChildren().addAll(recycler2); // Add copy to recycler
+                final Group fund = JavaFXUtils.copyGroup(getCurrentTiling().getEuclideanFund()); // Copy original fundamental domain which was used to build "tiles"
+                tiling.getRecycler().getChildren().addAll(fund); // Add copy to recycler
             }
 
             //Second step: Create new tiles ----------------------------------------------------------------------------
@@ -531,7 +531,6 @@ public class Document {
             Transform translate = Tools.hyperbolicTranslation(dx, dy);
 
             // OctTree is used for saving copies which are kept under translation
-            tiling.setHyperbolicFund(new Group());
             tiling.clearKeptHyperbolicCopy();
 
             // Translates fDomain by vector (dx,dy).
@@ -542,15 +541,21 @@ public class Document {
             // Recenter fDomain if too far away from center
             Point3D refPoint = tiling.getfDomain().getChamberCenter3D(tiling.getReferenceChamberIndex()).multiply(0.01);
             if (refPoint.getZ() >= validHyperbolicRange) {
-                Transform t = tiling.calculateBackShiftHyperbolic();
+                final Transform t = tiling.calculateBackShiftHyperbolic();
                 recenterFDomain(t); // Shifts back fDomain into valid range
                 tiling.setTransformRecycled(t.createConcatenation(tiling.getTransformRecycled())); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
+                // todo: need to shift chamber drawing, too
             }
 
             //First step: Translate tiles by vector (dx,dy) ------------------------------------------------------------
             int i = 0;
             while (i < tiles.getChildren().size()) {
                 final Node node = tiles.getChildren().get(i);
+                if (node instanceof Group) {
+                    if (((Group) node).getChildren().size() == 0)
+                        throw new RuntimeException("Fund copy empty");
+                }
+
                 final Transform nodeTransform = node.getTransforms().get(0);
                 final Point3D point = translate.transform(node.getRotationAxis()); // point = translated reference point of node
 
@@ -566,8 +571,10 @@ public class Document {
             }
 
             if (tiling.getRecycler().getChildren().size() == 0) { // Fill recycler if necessary
-                Group recycler2 = JavaFXUtils.copyGroup(getCurrentTiling().getHyperbolicFund()); // Copy original fundamental domain which was used to build "tiles"
-                tiling.getRecycler().getChildren().addAll(recycler2); // Add copy to recycler
+                final Group fund = JavaFXUtils.copyGroup(getCurrentTiling().getHyperbolicFund()); // Copy original fundamental domain which was used to build "tiles"
+                if (fund.getChildren().size() == 0)
+                    throw new RuntimeException("Fund copy empty");
+                tiling.getRecycler().getChildren().add(fund); // Add copy to recycler
             }
 
             //Second step: Create new tiles ----------------------------------------------------------------------------

@@ -24,6 +24,7 @@ import javafx.geometry.Point3D;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Shape;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
@@ -41,9 +42,8 @@ import java.util.Collection;
  * setup and manage edge reshape handles
  * Daniel HUson and Ruediger Zeller, 2016
  */
-public class ReshapeHandlesManager {
+public class ReshapeManager {
     private final Document document;
-    private final Tiling tiling;
     private final FDomain fDomain;
     private final DSymbol ds;
     private final Transforms generators;
@@ -53,13 +53,12 @@ public class ReshapeHandlesManager {
      *
      * @param document
      */
-    public ReshapeHandlesManager(Document document) {
+    public ReshapeManager(Document document) {
         this.document = document;
-        tiling = document.getCurrentTiling();
+        final Tiling tiling = document.getCurrentTiling();
         fDomain = tiling.getfDomain();
         ds = tiling.getDSymbol();
         generators = tiling.getGenerators();
-
     }
 
     /**
@@ -81,83 +80,43 @@ public class ReshapeHandlesManager {
 
             final BitSet visited = new BitSet();
             for (int a = 1; a <= size; a = ds.nextOrbit(i, j, a, visited)) {
-                final Point3D v = fDomain.getVertex3D(k, a);
-                // Add handles if v is no symmetry centre
-
                 if ((ds.getVij(i, j, a) == 1) && !(i == 0 && j == 2 && a == ds.getS2(a))) {
-                    final ReshapeHandle reshapeHandle = new ReshapeHandle();
-                    final Circle circle = new Circle(4);
-                    circle.setTranslateX(v.getX());
-                    circle.setTranslateY(v.getY());
-                    circle.setFill(ds.isCycle(i, j, a) ? Color.GREEN : Color.YELLOW);
-                    circle.setStroke(Color.DARKGRAY);
-                    reshapeHandle.setShape(circle);
-                    reshapeHandle.setType(1 - i);
-                    reshapeHandle.setFlag(a);
-                    handles.add(reshapeHandle.getShape());
-                    setMouseHandler(reshapeHandle);
+                    final Shape shape = makeReshapeHandle(fDomain.getVertex3D(k, a), ds.isCycle(i, j, a) ? Color.GREEN : Color.YELLOW);
+                    handles.add(shape);
+                    setMouseHandler(shape, 1 - i, a);
                 } else {
-                    final Circle circle = new Circle(4);
-                    circle.setTranslateX(v.getX());
-                    circle.setTranslateY(v.getY());
-                    circle.setFill(Color.RED);
-                    circle.setStroke(Color.DARKGRAY);
-                    handles.add(circle);
+                    handles.add(makeReshapeHandle(fDomain.getVertex3D(k, a), Color.RED));
                 }
             }
         }
 
         // Compute handles for 2-edge-centers
-
-        {
-            final BitSet visited = new BitSet();
-            for (int a = 1; a <= size; a = ds.nextOrbit(0, 2, a, visited)) {
-                final Point3D e = fDomain.getEdgeCenter3D(2, a);
-                // Add handles if e does not lie on a mirror axis
-                if (a != ds.getS2(a)) {
-                    final ReshapeHandle reshapeHandle = new ReshapeHandle();
-                    final Circle circle = new Circle(4);
-                    circle.setTranslateX(e.getX());
-                    circle.setTranslateY(e.getY());
-                    circle.setFill(Color.GREEN);
-                    circle.setStroke(Color.DARKGRAY);
-                    reshapeHandle.setShape(circle);
-                    reshapeHandle.setFlag(a);
-                    reshapeHandle.setType(2);
-                    handles.add(reshapeHandle.getShape());
-                    setMouseHandler(reshapeHandle);
-                } else {
-                    final Circle circle = new Circle(4);
-                    circle.setTranslateX(e.getX());
-                    circle.setTranslateY(e.getY());
-                    circle.setFill(Color.DARKRED);
-                    circle.setStroke(Color.DARKGRAY);
-                    handles.add(circle);
-                }
-            }
-        }
-
-
-        // Compute handles for chamber centers
-        if (false) {
-            final BitSet visited = new BitSet();
-            for (int a = 1; a <= size; a = ds.nextOrbit(0, 1, a, visited)) {
-                final Point3D p = fDomain.getChamberCenter3D(a);
-                // Add handles if e does not lie on a mirror axis
-                final ReshapeHandle reshapeHandle = new ReshapeHandle();
-                final Circle circle = new Circle(4);
-                circle.setTranslateX(p.getX());
-                circle.setTranslateY(p.getY());
-                circle.setFill(Color.WHITE);
-                circle.setStroke(Color.DARKGRAY);
-                reshapeHandle.setShape(circle);
-                reshapeHandle.setFlag(a);
-                reshapeHandle.setType(2);
-                handles.add(reshapeHandle.getShape());
-                // setMouseHandler(reshapeHandle);
+        for (int a = 1; a <= size; a++) {
+            if (a < ds.getS2(a)) {
+                final Shape shape = makeReshapeHandle(fDomain.getEdgeCenter3D(2, a), Color.GREEN);
+                handles.add(shape);
+                setMouseHandler(shape, 2, a);
+            } else if (a == ds.getS2(a)) {
+                handles.add(makeReshapeHandle(fDomain.getEdgeCenter3D(2, a), Color.DARKRED));
             }
         }
         return handles;
+    }
+
+    /**
+     * make a reshape handle
+     *
+     * @param v
+     * @param color
+     * @return reshape handle
+     */
+    private static Shape makeReshapeHandle(Point3D v, Color color) {
+        final Circle shape = new Circle(4);
+        shape.setTranslateX(v.getX());
+        shape.setTranslateY(v.getY());
+        shape.setStroke(Color.DARKGRAY);
+        shape.setFill(color);
+        return shape;
     }
 
     /**
@@ -165,50 +124,47 @@ public class ReshapeHandlesManager {
      *
      * @param deltaX
      * @param deltaY
-     * @param reshapeHandle
      */
-    public Point2D resetShape(double deltaX, double deltaY, ReshapeHandle reshapeHandle) {
+    public Point2D resetShape(double deltaX, double deltaY, int type, int a) {
         // Reset Point in fundamental domain
         Point2D transVector = new Point2D(deltaX, deltaY);
 
-        int i = reshapeHandle.getType(), a = reshapeHandle.getFlag();
-        if (i <= 1) {
-            int l = ds.computeOrbitLength(1 - i, 2, a);
+        if (type <= 1) {
+            final int length = ds.computeOrbitLength(1 - type, 2, a);
             // Add restrictions:
-            if (i == 1) {
+            if (type == 1) {
                 transVector = add1Restriction(transVector.getX(), transVector.getY(), a); // Restrictions for 1-handles
             } else {
-                transVector = add0Restriction(transVector.getX(), transVector.getY(), a, l); // Restrictions for 0-handles
+                transVector = add0Restriction(transVector.getX(), transVector.getY(), a, length); // Restrictions for 0-handles
             }
 
-            transVector = addMirrorRestriction(transVector.getX(), transVector.getY(), l, i, a); // Mirror axis restriction
+            transVector = addMirrorRestriction(transVector.getX(), transVector.getY(), length, type, a); // Mirror axis restriction
 
-
-            final Translate t = new Translate(transVector.getX(), transVector.getY());
+            final Translate translate = new Translate(transVector.getX(), transVector.getY());
 
             // Translate Point of type i in chamber a
-            Point3D pt = fDomain.getVertex3D(i, a);
-            pt = t.transform(pt);
+            Point3D pt = fDomain.getVertex3D(type, a);
+            pt = translate.transform(pt);
             javafx.geometry.Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt);
-            fDomain.setVertex(pt2d, i, a);
+            fDomain.setVertex(pt2d, type, a);
 
             // Consider all points in orbit of a (especially if chamber contains boundary edges)
-            for (int k = 1; k <= l; k++) {
+            for (int k = 1; k <= length; k++) {
                 // If (1-i)-edge is on boundary
-                if (fDomain.isBoundaryEdge(1 - i, a)) {
-                    final Transform g = generators.get(1 - i, a);
+                if (fDomain.isBoundaryEdge(1 - type, a)) {
+                    final Transform g = generators.get(1 - type, a);
                     pt = g.transform(pt);
                     pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt);
-                    fDomain.setVertex(pt2d, i, ds.getSi(1 - i, a));
+                    fDomain.setVertex(pt2d, type, ds.getSi(1 - type, a));
                 }
-                a = ds.getSi(1 - i, a);
+                a = ds.getSi(1 - type, a);
 
                 // If 2-edge is on boundary
                 if (fDomain.isBoundaryEdge(2, a)) {
                     final Transform g = generators.get(2, a);
                     pt = g.transform(pt);
                     pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt);
-                    fDomain.setVertex(pt2d, i, ds.getSi(2, a));
+                    fDomain.setVertex(pt2d, type, ds.getSi(2, a));
                 }
                 a = ds.getSi(2, a);
             }
@@ -243,7 +199,9 @@ public class ReshapeHandlesManager {
      * @return
      */
     private Point2D addMirrorRestriction(double deltaX, double deltaY, int orbitLength, int type, int flag) {
-        Point3D r = new Point3D(0, 0, 0), n = new Point3D(0, 0, 0), q = new Point3D(0, 0, 0);
+        Point3D r = new Point3D(0, 0, 0);
+        Point3D n = new Point3D(0, 0, 0);
+        Point3D q = new Point3D(0, 0, 0);
         final int m = fDomain.size();
         // Count number of chambers lying in (1-type)-2-orbit containing flag
         final BitSet visited = new BitSet(m);
@@ -511,26 +469,25 @@ public class ReshapeHandlesManager {
     /**
      * set the mouse handler
      *
-     * @param reshapeHandle
      */
-    private void setMouseHandler(ReshapeHandle reshapeHandle) {
+    private void setMouseHandler(Shape shape, int type, int a) {
         final Pair<Double, Double> mouse = new Pair<>();
 
-        reshapeHandle.getShape().setOnMousePressed((e) -> {
+        shape.setOnMousePressed((e) -> {
             mouse.set(e.getSceneX(), e.getSceneY());
             e.consume();
         });
 
-        reshapeHandle.getShape().setOnMouseDragged((e) -> {
+        shape.setOnMouseDragged((e) -> {
             double deltaX = e.getSceneX() - mouse.getFirst();
             double deltaY = e.getSceneY() - mouse.getSecond();
 
             // Reset shape of fundamental domain
-            javafx.geometry.Point2D transVector = (new ReshapeHandlesManager(document)).resetShape(deltaX, deltaY, reshapeHandle);
+            javafx.geometry.Point2D transVector = resetShape(deltaX, deltaY, type,a);
 
             // Move handles along transVector
-            reshapeHandle.setTransX(reshapeHandle.getTransX() + transVector.getX());
-            reshapeHandle.setTransY(reshapeHandle.getTransY() + transVector.getY());
+            shape.setTranslateX(shape.getTranslateX() + transVector.getX());
+            shape.setTranslateY(shape.getTranslateY() + transVector.getY());
 
             mouse.setFirst(e.getSceneX() - deltaX + transVector.getX());
             mouse.setSecond(e.getSceneY() - deltaY + transVector.getY());
@@ -538,6 +495,6 @@ public class ReshapeHandlesManager {
             e.consume();
         });
 
-        reshapeHandle.getShape().setOnMouseReleased((e) -> document.update());
+        shape.setOnMouseReleased((e) -> document.update());
     }
 }

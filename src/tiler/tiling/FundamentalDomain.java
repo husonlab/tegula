@@ -3,11 +3,12 @@ package tiler.tiling;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.*;
+import javafx.scene.shape.MeshView;
+import javafx.scene.shape.Sphere;
+import javafx.scene.shape.TriangleMesh;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
@@ -55,7 +56,8 @@ public class FundamentalDomain {
     public void buildFundamentalDomain(final DSymbol dsymbol, final FDomain fDomain, TilingStyle tilingStyle) {
         clear();
 
-        computeChambers(fDomain);
+        chambers.getChildren().addAll(computeChambers(fDomain));
+        chambers.getTransforms().setAll(new Translate());
 
         final BitSet visitBands = new BitSet(fDomain.size());
         final BitSet visitBandCaps = new BitSet(fDomain.size());
@@ -462,38 +464,38 @@ public class FundamentalDomain {
             // Lines for barycentric subdivision of chambers:
 
             // for (int a = 1; a <= fDomain.size(); a++) {
-            // group.getChildren().add(Cylinderline.createConnection(fDomain.
+            // group.getChildren().add(Lines.createConnection(fDomain.
             // getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a),
             // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-            // group.getChildren().add(Cylinderline.createConnection(fDomain.
+            // group.getChildren().add(Lines.createConnection(fDomain.
             // getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a),
             // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
             //
-            // group.getChildren().add(Cylinderline.createConnection(fDomain.
+            // group.getChildren().add(Lines.createConnection(fDomain.
             // getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a),
             // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-            // group.getChildren().add(Cylinderline.createConnection(fDomain.
+            // group.getChildren().add(Lines.createConnection(fDomain.
             // getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a),
             // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
             //
-            // group.getChildren().add(Cylinderline.createConnection(fDomain.
+            // group.getChildren().add(Lines.createConnection(fDomain.
             // getVertex3D(0, a), fDomain.getChamberCenter3D(a),
             // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-            // group.getChildren().add(Cylinderline.createConnection(fDomain.
+            // group.getChildren().add(Lines.createConnection(fDomain.
             // getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a),
             // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
             //
-            // group.getChildren().add(Cylinderline.createConnection(fDomain.
+            // group.getChildren().add(Lines.createConnection(fDomain.
             // getVertex3D(1, a), fDomain.getChamberCenter3D(a),
             // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-            // group.getChildren().add(Cylinderline.createConnection(fDomain.
+            // group.getChildren().add(Lines.createConnection(fDomain.
             // getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a),
             // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
             //
-            // group.getChildren().add(Cylinderline.createConnection(fDomain.
+            // group.getChildren().add(Lines.createConnection(fDomain.
             // getVertex3D(2, a), fDomain.getChamberCenter3D(a),
             // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-            // group.getChildren().add(Cylinderline.createConnection(fDomain.
+            // group.getChildren().add(Lines.createConnection(fDomain.
             // getChamberCenter3D(a), fDomain.getEdgeCenter3D(2, a),
             // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f)); }
 
@@ -532,8 +534,8 @@ public class FundamentalDomain {
                         v0 = fDomain.getVertex3D(0, a);
                         v1 = fDomain.getVertex3D(1, a);
                         e2 = fDomain.getEdgeCenter3D(2, a);
-                        chambers.getChildren().add(Cylinderline.createConnection(v0, e2, Color.BLACK, width));
-                        chambers.getChildren().add(Cylinderline.createConnection(e2, v1, Color.BLACK, width));
+                        chambers.getChildren().add(Lines.createLine3D(v0, e2, Color.BLACK, width));
+                        chambers.getChildren().add(Lines.createLine3D(e2, v1, Color.BLACK, width));
                         visited.set(a);
                         visited.set(dsymbol.getS2(a));
                     }
@@ -558,7 +560,7 @@ public class FundamentalDomain {
                             linePoints[i] = Tools.interpolateHyperbolicPoints(e2, v1, i / 8d);
                         }
                         for (int i = 0; i < 8; i++) {
-                            chambers.getChildren().add(Cylinderline.createConnection(linePoints[i], linePoints[i + 1],
+                            chambers.getChildren().add(Lines.createLine3D(linePoints[i], linePoints[i + 1],
                                     Color.BLACK, width));
                         }
                         visited.set(dsymbol.getS2(a));
@@ -586,7 +588,7 @@ public class FundamentalDomain {
                             linePoints[i] = Tools.interpolateSpherePoints(e2, v1, i / 32.0);
                         }
                         for (int j = 0; j < 32; j++) {
-                            chambers.getChildren().add(Cylinderline.createConnection(linePoints[j], linePoints[j + 1], Color.BLACK, width));
+                            chambers.getChildren().add(Lines.createLine3D(linePoints[j], linePoints[j + 1], Color.BLACK, width));
                         }
                         visited.set(dsymbol.getS2(a));
                     }
@@ -704,45 +706,29 @@ public class FundamentalDomain {
     }
 
     /**
-     * Adds lines to fundamental domain
+     * computes the representation of chambers
+     * @param fDomain
      */
-    private void computeChambers(FDomain fDomain) {
+    public Group computeChambers(FDomain fDomain) {
+        final Group all = new Group();
 
-        for (int k = 1; k <= fDomain.size(); k++) {
-            chambers.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, k), fDomain.getEdgeCenter3D(1, k), fDomain.getVertex3D(2, k), Color.LIGHTGRAY, 1));
+        for (int a = 1; a <= fDomain.size(); a++) {
+            all.getChildren().add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a), Color.LIGHTGRAY, 1));
 
-            chambers.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, k), fDomain.getEdgeCenter3D(0, k), fDomain.getVertex3D(1, k), Color.LIGHTGRAY, 1));
+            all.getChildren().add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a), Color.LIGHTGRAY, 1));
 
-            chambers.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(0, k), fDomain.getChamberCenter3D(k), fDomain.getEdgeCenter3D(0, k), Color.LIGHTGRAY, 0.5f));
-            chambers.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(1, k), fDomain.getChamberCenter3D(k), fDomain.getEdgeCenter3D(1, k), Color.LIGHTGRAY, 0.5f));
-            chambers.getChildren().add(makeLine(fDomain.getGeometry(), fDomain.getVertex3D(2, k), fDomain.getChamberCenter3D(k), fDomain.getEdgeCenter3D(2, k), Color.LIGHTGRAY, 0.5f));
+            all.getChildren().add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a), Color.LIGHTGRAY, 0.5f));
+            all.getChildren().add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(1, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a), Color.LIGHTGRAY, 0.5f));
+            all.getChildren().add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(2, a), Color.LIGHTGRAY, 0.5f));
 
         }
         for (int k = 1; k <= fDomain.size(); k++) {
             final Point3D v0 = fDomain.getVertex3D(0, k);
             final Point3D e2 = fDomain.getEdgeCenter3D(2, k);
             final Point3D v1 = fDomain.getVertex3D(1, k);
-            chambers.getChildren().add(makeLine(fDomain.getGeometry(), v0, e2, v1, Color.DARKGRAY, 1));
+            all.getChildren().add(Lines.createLine(fDomain.getGeometry(), v0, e2, v1, Color.DARKGRAY, 1));
         }
-
-        chambers.getTransforms().clear();
-        chambers.getTransforms().add(new Translate());
-    }
-
-    private static Node makeLine(Geometry geometry, Point3D a, Point3D b, Point3D c, Color color, float width) {
-        if (geometry == Geometry.Euclidean) {
-            Polyline polyLine = new Polyline(a.getX(), a.getY(), b.getX(), b.getY(), c.getX(), c.getY());
-            polyLine.setStroke(color);
-            polyLine.setStrokeWidth(width);
-            polyLine.setStrokeLineCap(StrokeLineCap.ROUND);
-            return polyLine;
-
-        } else {
-            Group g = new Group();
-            g.getChildren().add(Cylinderline.createConnection(a, b, color, width));
-            g.getChildren().addAll(Cylinderline.createConnection(b, c, color, width));
-            return g;
-        }
+        return all;
     }
 
     public Group getTiles() {
