@@ -42,6 +42,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
@@ -71,8 +72,8 @@ public class MouseHandler {
      * @param worldTranslate
      * @param worldRotateProperty
      */
-    public static void addMouseHandler(final Scene scene, final Translate worldTranslate, final Scale worldScale, final ObjectProperty<Transform> worldRotateProperty, final Document document) {
-        new MouseHandler(scene, worldTranslate, worldScale, worldRotateProperty, document);
+    public static void addMouseHandler(final Scene scene, final Pane mainPane, final Translate worldTranslate, final Scale worldScale, final ObjectProperty<Transform> worldRotateProperty, final Document document) {
+        new MouseHandler(scene, mainPane, worldTranslate, worldScale, worldRotateProperty, document);
     }
 
     /**
@@ -81,7 +82,7 @@ public class MouseHandler {
      * @param worldTranslate
      * @param worldRotateProperty
      */
-    private MouseHandler(final Scene scene, final Translate worldTranslate, final Scale worldScale, final ObjectProperty<Transform> worldRotateProperty, final Document document) {
+    private MouseHandler(final Scene scene, final Pane mainPane, final Translate worldTranslate, final Scale worldScale, final ObjectProperty<Transform> worldRotateProperty, final Document document) {
         animation = new TranslationAnimation(document);
 
         scene.setOnMousePressed((me) -> {
@@ -156,11 +157,16 @@ public class MouseHandler {
                         double factor = (me.getDeltaY() > 0 ? 1.1 : 0.9);
                         worldScale.setX(factor * worldScale.getX());
                         worldScale.setY(factor * worldScale.getY());
-                        document.setWidth(document.getWidth() / factor);
-                        document.setHeight(document.getHeight() / factor);
+                        document.setWidth((document.getWidth()) / factor);
+                        document.setHeight((document.getHeight()) / factor);
                     }
                 }
         );
+
+        scene.setOnScrollFinished(me -> {
+            if (document.getGeometry() == Geometry.Euclidean)
+                document.update();
+        });
 
         scene.setOnKeyPressed(event -> {
             switch (event.getCode()) {

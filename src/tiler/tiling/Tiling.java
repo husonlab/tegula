@@ -668,13 +668,11 @@ public class Tiling {
                 fund.getChildren().add(fundamentalDomain.getSymmetryIcons());
 
             all.getChildren().add(fund);
-            euclideanFund = fund; // Saves the original fundamental domain
-        }
-
-        if (makeCopyEuclidean(refPointEuclidean)) { // Fill empty space with tiles
             fund.getTransforms().add(new Translate()); // Add transform (= identity)
             fund.setRotationAxis(refPointEuclidean); // Reference point of fundamental domain
+            setEuclideanFund(fund); // Saves the original fundamental domain
         }
+
 
         if (!drawFundamentalDomainOnly) {
             final QuadTree seen = new QuadTree(); // Saves reference points of tiles
@@ -688,7 +686,7 @@ public class Tiling {
                 if (isInRangeEuclidean(genRef, windowCorner, width, height) && seen.insert(genRef.getX(), genRef.getY(), tolerance)) { // Checks whether reference point is in valid range and if it is in QuadTree "seen". Adds it if not.
                     if (makeCopyEuclidean(genRef)) { // Checks whether copy fills empty space after translation of tiles
                         if (translateOrIncreaseTiling()) { // Translate mode of tiling
-                            useRecycler(all, g, genRef, euclideanFund);
+                            useRecycler(all, g, genRef, getEuclideanFund());
                         } else {
                             generateNewCopy(all, g, genRef, fund);
                         }
@@ -707,13 +705,13 @@ public class Tiling {
 
                 for (Transform g : generators.getTransforms()) { // Creates new transforms for copies
                     Transform tg = t.createConcatenation(g);
-                    Point3D bpt = tg.transform(refPointEuclidean); // Reference point corresponding to transform tg
+                    Point3D bpt = tg.transform(getRefPointEuclidean()); // Reference point corresponding to transform tg
 
                     if (isInRangeEuclidean(bpt, windowCorner, width, height) && seen.insert(bpt.getX(), bpt.getY(), tolerance)) {
                         queue.add(tg);
                         if (makeCopyEuclidean(bpt)) {
                             if (translateOrIncreaseTiling()) {
-                                useRecycler(all, tg, bpt, euclideanFund);
+                                useRecycler(all, tg, bpt, getEuclideanFund());
                             } else {
                                 generateNewCopy(all, tg, bpt, fund);
                             }
@@ -721,13 +719,13 @@ public class Tiling {
                     }
 
                     Transform gt = g.createConcatenation(t);
-                    bpt = gt.transform(refPointEuclidean);
+                    bpt = gt.transform(getRefPointEuclidean());
 
                     if (isInRangeEuclidean(bpt, windowCorner, width, height) && seen.insert(bpt.getX(), bpt.getY(), tolerance)) {
                         queue.add(gt);
                         if (makeCopyEuclidean(bpt)) {
                             if (translateOrIncreaseTiling()) {
-                                useRecycler(all, gt, bpt, euclideanFund);
+                                useRecycler(all, gt, bpt, getEuclideanFund());
                             } else {
                                 generateNewCopy(all, gt, bpt, fund);
                             }

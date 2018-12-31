@@ -121,12 +121,6 @@ public class Document {
             }
         });
 
-        widthProperty().addListener((c, o, n) -> {
-            if (getGeometry() == Geometry.Euclidean) update();
-        });
-        heightProperty().addListener((c, o, n) -> {
-            if (getGeometry() == Geometry.Euclidean) update();
-        });
 
         numberOfTilings.bind(Bindings.size(tilings));
 

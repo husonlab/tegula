@@ -108,14 +108,6 @@ public class MainView {
         document.setWidth(800);
         document.setHeight(600);
 
-        mainPane.widthProperty().addListener((c, o, n) -> {
-            document.setWidth(2 * n.doubleValue() + 100);
-        });
-
-        mainPane.heightProperty().addListener((c, o, n) -> {
-            document.setHeight(2 * n.doubleValue() + 100);
-        });
-
         document.geometryProperty().addListener((c, o, n) -> {
             document.setUseDepthBuffer(mainPane, n != Geometry.Euclidean);
         });
@@ -123,7 +115,7 @@ public class MainView {
         // read in a symbol for debugging:
         document.read(new StringReader("<23.1:20:2 4 6 8 10 12 14 16 18 20,2 10 5 9 8 20 13 15 17 19,11 12 13 14 15 16 17 18 19 20:3 3 5 5,4 4 4>"));
 
-        MouseHandler.addMouseHandler(scene, worldTranslate, worldScale, worldRotateProperty, document);
+        MouseHandler.addMouseHandler(scene, mainPane, worldTranslate, worldScale, worldRotateProperty, document);
 
         document.update();
 

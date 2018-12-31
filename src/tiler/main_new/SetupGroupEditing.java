@@ -78,7 +78,6 @@ public class SetupGroupEditing {
                                 // save coordinate changes:
 
                                 if (tiling.getGeometry() == Geometry.Euclidean) {
-                                    System.err.println("change:");
                                     Reshape.applyEdits(newTiling.getfDomain(), edits, prevGeometry);
                                 }
 
@@ -94,7 +93,6 @@ public class SetupGroupEditing {
                                 // save coordinate changes:
 
                                 if (tiling.getGeometry() == Geometry.Euclidean) {
-                                    System.err.println("change:");
                                     Reshape.applyEdits(newTiling.getfDomain(), edits, prevGeometry);
                                 }
 
