@@ -17,11 +17,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tiler.main_new;
+package tiler.main;
 
 import javafx.scene.control.ColorPicker;
 import tiler.color.ColorSchemeManager;
-import tiler.main.Document;
 
 /**
  * setup tile color controls

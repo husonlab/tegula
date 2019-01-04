@@ -17,11 +17,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tiler.main;
+package tiler.main_deprecated;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import tiler.core.dsymbols.DSymbol;
+import tiler.main.Document;
 import tiler.tiling.Tiling;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import java.util.BitSet;
 /**
  * manages editing of symmetry group
  * Created by huson on 4/22/16.
+ * @deprecated
  */
 public class GroupEditing {
     /**

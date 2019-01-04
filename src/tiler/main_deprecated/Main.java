@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package tiler.main;
+package tiler.main_deprecated;
 
 import javafx.application.Application;
 import javafx.beans.property.ObjectProperty;
@@ -32,13 +32,16 @@ import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.Geometry;
-import tiler.main_new.MouseHandler;
+import tiler.main.Document;
+import tiler.main.HyperbolicModelCameraSettings;
+import tiler.main.MouseHandler;
 
 import java.io.StringReader;
 import java.util.Properties;
 
 /**
  * main program
+ * @deprecated
  */
 public class Main extends Application {
 
@@ -130,7 +133,7 @@ public class Main extends Application {
         // read in a symbol for debugging:
         document.read(new StringReader("<23.1:20:2 4 6 8 10 12 14 16 18 20,2 10 5 9 8 20 13 15 17 19,11 12 13 14 15 16 17 18 19 20:3 3 5 5,4 4 4>"));
 
-        MouseHandler.addMouseHandler(scene, mainPane, worldTranslate, worldScale, worldRotateProperty, document);
+        MouseHandler.addMouseHandler(scene, worldTranslate, worldScale, worldRotateProperty, document);
 
         {
             mainViewController.getPoincareButton().setOnAction((e) -> HyperbolicModelCameraSettings.setModel(document, Document.HyperbolicModel.Poincare, true));

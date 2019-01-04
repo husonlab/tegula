@@ -17,7 +17,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tiler.main_new;
+package tiler.main;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -32,7 +32,6 @@ import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import tiler.core.dsymbols.Geometry;
-import tiler.main.Document;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -115,7 +114,7 @@ public class MainView {
         // read in a symbol for debugging:
         document.read(new StringReader("<23.1:20:2 4 6 8 10 12 14 16 18 20,2 10 5 9 8 20 13 15 17 19,11 12 13 14 15 16 17 18 19 20:3 3 5 5,4 4 4>"));
 
-        MouseHandler.addMouseHandler(scene, mainPane, worldTranslate, worldScale, worldRotateProperty, document);
+        MouseHandler.addMouseHandler(scene, worldTranslate, worldScale, worldRotateProperty, document);
 
         document.update();
 

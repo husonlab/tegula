@@ -547,6 +547,37 @@ public class DSymbol {
         w.write(">");
     }
 
+    /**
+     * computes the curvature
+     *
+     * @return curvature
+     */
+    public Rational computeCurvature() {
+        Rational curve = new Rational(-size(), 2);
+
+        for (int a = 1; a <= size(); a++)
+            curve = curve.add(1, getM01(a)).add(1, getM12(a));
+        return curve;
+    }
+
+    /**
+     * compute the geometry for this symbol
+     *
+     * @return geometry
+     */
+    public Geometry computeGeometry() {
+        switch (computeCurvature().sign()) {
+            case -1:
+                return Geometry.Hyperbolic;
+            case 1:
+                return Geometry.Spherical;
+            default:
+            case 0:
+                return Geometry.Euclidean;
+        }
+    }
+
+
     public interface OrbitVisitor {
         void visit(int a);
     }

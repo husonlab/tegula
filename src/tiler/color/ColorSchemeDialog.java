@@ -30,8 +30,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import tiler.main.Document;
-import tiler.main_new.MainViewController;
-import tiler.main_new.SetupController;
+import tiler.main.MainViewController;
+import tiler.main.SetupController;
 
 import java.io.IOException;
 import java.util.ArrayList;

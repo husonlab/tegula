@@ -1,35 +1,101 @@
+/*
+ *  Copyright (C) 2018 Daniel H. Huson
+ *
+ *  (Some files contain contributions from other authors, who are then mentioned separately.)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package tiler.main;
 
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import javafx.stage.Window;
-import tiler.main_new.MouseHandler;
-import tiler.tiling.StraightenEdges;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Optional;
-import java.util.ResourceBundle;
+/**
+ * main view controller
+ * Daniel Huson, 11.2018
+ */
+public class MainViewController {
 
-public class MainViewController implements Initializable {
     @FXML
-    private Pane mainPane;
+    private BorderPane borderPane;
 
     @FXML
     private MenuBar menuBar;
 
     @FXML
-    private Pane topPane;
+    private MenuItem newMenuItem;
+
+    @FXML
+    private MenuItem openMenuItem;
+
+    @FXML
+    private MenuItem saveMenuItem;
+
+    @FXML
+    private MenuItem printMenuItem;
+
+    @FXML
+    private MenuItem pageSetupMenuItem;
+
+    @FXML
+    private MenuItem closeMenuItem;
+
+    @FXML
+    private MenuItem quitMenuItem;
+
+    @FXML
+    private MenuItem copyMenuItem;
+
+    @FXML
+    private MenuItem pasteMenuItem;
+
+    @FXML
+    private MenuItem selectAllMenuItem;
+
+    @FXML
+    private MenuItem addColorSchemeMenuItem;
+
+    @FXML
+    private MenuItem lineWidthMenuItem;
+
+    @FXML
+    private MenuItem straightenSelectedMenuItem;
+
+    @FXML
+    private MenuItem straightenAllMenuItem;
+
+    @FXML
+    private CheckMenuItem straightenAlwaysCheckMenuItem;
+
+    @FXML
+    private CheckMenuItem showFDomainMenuItem;
+
+    @FXML
+    private CheckMenuItem showChambersMenuItem;
+
+    @FXML
+    private MenuItem showMoreTilesMenuItem;
+
+    @FXML
+    private MenuItem showLessTilesMenuItem;
+
+    @FXML
+    private MenuItem resetMenuItem;
 
     @FXML
     private MenuItem firstTilingMenuItem;
@@ -44,450 +110,386 @@ public class MainViewController implements Initializable {
     private MenuItem lastTilingMenuItem;
 
     @FXML
-    private MenuItem maxSymmetryMenuItem;
-
-    @FXML
     private MenuItem dualizeMenuItem;
 
     @FXML
-    private Button firstTilingButton;
+    private MenuItem maxSymmetryMenuItem;
 
     @FXML
-    private Button nextTilingButton;
-
-    @FXML
-    private Button previousTilingButton;
-
-    @FXML
-    private Button lastTilingButton;
+    private MenuItem orientateMenuItem;
 
     @FXML
     private CheckMenuItem editSymmetryGroupMenuItem;
 
     @FXML
-    private ToggleButton editSymmetryGroupButton;
+    private MenuItem aboutMenuItem;
 
+    @FXML
+    private ToolBar mainToolBar;
+
+    @FXML
+    private Button openFileButton;
+
+    @FXML
+    private Button printButton;
+
+    @FXML
+    private Button firstTilingButton;
+
+    @FXML
+    private Button previousTilingButton;
+
+    @FXML
+    private TextField tilingNumberTextField;
+
+    @FXML
+    private Button nextTilingButton;
+
+    @FXML
+    private Button lastTilingButton;
+
+    @FXML
+    private ToggleButton showRotationsToggleButton;
 
     @FXML
     private TextField statusTextField;
 
     @FXML
-    private VBox groupVBox;
+    private Pane mainPane;
 
     @FXML
-    private Button decreasev0;
+    private ToolBar rotationsToolBar;
 
     @FXML
-    private Button increaseV0;
+    private Spinner<Integer> v1Spinner;
 
     @FXML
-    private Label labelV0;
+    private Spinner<Integer> v2Spinner;
 
     @FXML
-    private Button decreaseV1;
+    private Spinner<Integer> v3Spinner;
 
     @FXML
-    private Button increaseV1;
+    private Spinner<Integer> v4Spinner;
 
     @FXML
-    private Label labelV1;
+    private Spinner<Integer> v5Spinner;
 
     @FXML
-    private Button decreaseV2;
+    private Spinner<Integer> v6Spinner;
 
     @FXML
-    private Button increaseV2;
+    private Spinner<Integer> v7Spinner;
 
     @FXML
-    private Label labelV2;
+    private Spinner<Integer> v8Spinner;
 
     @FXML
-    private Button decreaseV3;
+    private Spinner<Integer> v9Spinner;
 
     @FXML
-    private Button increaseV3;
+    private Spinner<Integer> v10Spinner;
 
     @FXML
-    private Label labelV3;
+    private ChoiceBox<String> modelChoiceBox;
 
     @FXML
-    private Button decreaseV4;
+    private Button showMoreTilesButton;
 
     @FXML
-    private Button increaseV4;
+    private Button showLessTilesButton;
 
     @FXML
-    private Label labelV4;
+    private TextField groupTextField;
 
     @FXML
-    private Button decreaseV5;
+    private ToggleButton toolsToggleButton;
 
     @FXML
-    private Button increaseV5;
+    private Button maximizeButton;
 
     @FXML
-    private Label labelV5;
+    private Button orientateButton;
 
     @FXML
-    private Button decreaseV6;
-
-    @FXML
-    private Button increaseV6;
-
-    @FXML
-    private Label labelV6;
-
-    @FXML
-    private Button decreaseV7;
-
-    @FXML
-    private Button increaseV7;
-
-    @FXML
-    private Label labelV7;
-
-    @FXML
-    private Button decreaseV8;
-
-    @FXML
-    private Button increaseV8;
-
-    @FXML
-    private Label labelV8;
-
-    @FXML
-    private Button decreaseV9;
-
-    @FXML
-    private Button increaseV9;
-
-    @FXML
-    private Label labelV9;
-
-    @FXML
-    private RadioButton poincareRadioButton;
-
-    @FXML
-    private RadioButton kleinRadioButton;
-
-    @FXML
-    private RadioButton hyperboloidRadioButton;
+    private Button dualizeButton;
 
 
     @FXML
-    private Button increaseButton;
+    private ColorPicker bandsColorPicker;
 
     @FXML
-    private Button decreaseButton;
+    private ColorPicker backgroundColorPicker;
+
 
     @FXML
-    private Button resetButton;
+    private Spinner<Integer> bandWidthSpinner;
 
     @FXML
-    private CheckBox cbPullFDomain;
+    private CheckBox showFacesCheckBox;
 
     @FXML
-    private CheckBox cbShowLines;
+    private CheckBox showBandsCheckBox;
 
     @FXML
-    private VBox hyperbolicControlsVBox;
+    private CheckBox smoothEdgesCheckBox;
 
     @FXML
-    private BorderPane borderPane;
+    private ColorPicker tile1ColorPicker;
+
+    @FXML
+    private ToolBar toolsToolBar;
+
+    @FXML
+    private CheckBox backEdgesCheckBox;
+
+    @FXML
+    private Menu colorsMenu;
 
 
-    private Document document;
-    private Stage stage;
-
-    /**
-     * initialize
-     *
-     * @param fxmlFileLocation
-     * @param resources
-     */
-    @Override
-    public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
-        if (System.getProperty("os.name") != null && System.getProperty("os.name").toLowerCase().startsWith("mac")) {
-            menuBar.setUseSystemMenuBar(true);
-        }
-
-        borderPane.setRight(null);
-        editSymmetryGroupMenuItem.setSelected(false);
-        editSymmetryGroupButton.setSelected(false);
-
-        statusTextField.setEditable(false);
-
-        final ToggleGroup toggleGroup = new ToggleGroup();
-        poincareRadioButton.setToggleGroup(toggleGroup);
-        kleinRadioButton.setToggleGroup(toggleGroup);
-        hyperboloidRadioButton.setToggleGroup(toggleGroup);
+    public BorderPane getBorderPane() {
+        return borderPane;
     }
-
-    public Document getDocument() {
-        return document;
-    }
-
-    public void setDocument(Document document) {
-        this.document = document;
-    }
-
-    public Window getStage() {
-        return stage;
-    }
-
-    public void setStage(Stage stage) {
-        this.stage = stage;
-    }
-
 
     public MenuBar getMenuBar() {
         return menuBar;
     }
 
-    public Pane getTopPane() {
-        return topPane;
+    public MenuItem getNewMenuItem() {
+        return newMenuItem;
+    }
+
+    public MenuItem getOpenMenuItem() {
+        return openMenuItem;
+    }
+
+    public MenuItem getSaveMenuItem() {
+        return saveMenuItem;
+    }
+
+    public MenuItem getPrintMenuItem() {
+        return printMenuItem;
+    }
+
+    public MenuItem getPageSetupMenuItem() {
+        return pageSetupMenuItem;
+    }
+
+    public MenuItem getCloseMenuItem() {
+        return closeMenuItem;
+    }
+
+    public MenuItem getQuitMenuItem() {
+        return quitMenuItem;
+    }
+
+    public MenuItem getCopyMenuItem() {
+        return copyMenuItem;
+    }
+
+    public MenuItem getPasteMenuItem() {
+        return pasteMenuItem;
+    }
+
+    public MenuItem getSelectAllMenuItem() {
+        return selectAllMenuItem;
+    }
+
+    public MenuItem getAddColorSchemeMenuItem() {
+        return addColorSchemeMenuItem;
+    }
+
+    public MenuItem getLineWidthMenuItem() {
+        return lineWidthMenuItem;
+    }
+
+    public MenuItem getStraightenSelectedMenuItem() {
+        return straightenSelectedMenuItem;
+    }
+
+    public MenuItem getStraightenAllMenuItem() {
+        return straightenAllMenuItem;
+    }
+
+    public CheckMenuItem getStraightenAlwaysCheckMenuItem() {
+        return straightenAlwaysCheckMenuItem;
+    }
+
+    public CheckMenuItem getShowFDomainMenuItem() {
+        return showFDomainMenuItem;
+    }
+
+    public CheckMenuItem getShowChambersMenuItem() {
+        return showChambersMenuItem;
+    }
+
+    public MenuItem getShowMoreTilesMenuItem() {
+        return showMoreTilesMenuItem;
+    }
+
+    public MenuItem getShowLessTilesMenuItem() {
+        return showLessTilesMenuItem;
+    }
+
+    public MenuItem getResetMenuItem() {
+        return resetMenuItem;
+    }
+
+    public MenuItem getFirstTilingMenuItem() {
+        return firstTilingMenuItem;
+    }
+
+    public MenuItem getNextTilingMenuItem() {
+        return nextTilingMenuItem;
+    }
+
+    public MenuItem getPreviousTilingMenuItem() {
+        return previousTilingMenuItem;
+    }
+
+    public MenuItem getLastTilingMenuItem() {
+        return lastTilingMenuItem;
+    }
+
+    public MenuItem getDualizeMenuItem() {
+        return dualizeMenuItem;
+    }
+
+    public MenuItem getMaxSymmetryMenuItem() {
+        return maxSymmetryMenuItem;
+    }
+
+    public MenuItem getOrientateMenuItem() {
+        return orientateMenuItem;
+    }
+
+    public CheckMenuItem getEditSymmetryGroupMenuItem() {
+        return editSymmetryGroupMenuItem;
+    }
+
+    public MenuItem getAboutMenuItem() {
+        return aboutMenuItem;
+    }
+
+    public ToolBar getMainToolBar() {
+        return mainToolBar;
+    }
+
+    public Button getOpenFileButton() {
+        return openFileButton;
+    }
+
+    public Button getPrintButton() {
+        return printButton;
+    }
+
+    public Button getFirstTilingButton() {
+        return firstTilingButton;
+    }
+
+    public Button getPreviousTilingButton() {
+        return previousTilingButton;
+    }
+
+    public TextField getTilingNumberTextField() {
+        return tilingNumberTextField;
+    }
+
+    public Button getNextTilingButton() {
+        return nextTilingButton;
+    }
+
+    public Button getLastTilingButton() {
+        return lastTilingButton;
+    }
+
+    public ToggleButton getShowRotationsToggleButton() {
+        return showRotationsToggleButton;
     }
 
     public TextField getStatusTextField() {
         return statusTextField;
     }
 
-    public RadioButton getPoincareButton() {
-        return poincareRadioButton;
-    }
-
-    public RadioButton getKleinButton() {
-        return kleinRadioButton;
-    }
-
-    public RadioButton getHyperboloidButton() {
-        return hyperboloidRadioButton;
-    }
-
-    public Button getIncreaseButton() {
-        return increaseButton;
-    }
-
-    public Button getDecreaseButton() {
-        return decreaseButton;
-    }
-
-
-    @FXML
-    void setCbPullFDomain(ActionEvent event) {
-        if (cbPullFDomain.isSelected()) {
-            setCBPullFDomain(true);
-        } else {
-            setCBPullFDomain(false);
-        }
-    }
-
-    private void setCBPullFDomain(boolean b) {
-        MouseHandler.cbPullFDomain = b;
-    }
-
-    public CheckBox getCBPullFDomain() {
-        return cbPullFDomain;
-    }
-
-    @FXML
-    void setCbShowLines(ActionEvent event) {
-        if (cbShowLines.isSelected()) {
-            document.addLinesToFDomain();
-        } else {
-            document.removeLinesFromFDomain();
-        }
-    }
-
-    public CheckBox getCbShowLines() {
-        return cbShowLines;
-    }
-
-    @FXML
-    void fireAbout(ActionEvent event) {
-
-    }
-
-    @FXML
-    void fireAlwaysStraighten(ActionEvent event) {
-
-    }
-
-    @FXML
-    void fireClose(ActionEvent event) {
-
-    }
-
-    @FXML
-    void fireCopy(ActionEvent event) {
-
-    }
-
-    @FXML
-    void fireDualize(ActionEvent event) {
-
-    }
-
-    @FXML
-    void fireFirstTiling(ActionEvent event) {
-        if (getDocument().moveTo(Document.FIRST))
-            getDocument().update();
-    }
-
-    @FXML
-    void fireNextTiling(ActionEvent event) {
-        if (getDocument().moveTo(Document.NEXT))
-            getDocument().update();
-    }
-
-
-    @FXML
-    void firePreviousTiling(ActionEvent event) {
-        if (getDocument().moveTo(Document.PREV))
-            getDocument().update();
-    }
-
-    @FXML
-    void fireLastTiling(ActionEvent event) {
-        if (getDocument().moveTo(Document.LAST))
-            getDocument().update();
-    }
-
-    public void updateNavigateTilings() {
-        firstTilingMenuItem.setDisable(getDocument().atFirstTiling());
-        previousTilingMenuItem.setDisable(getDocument().atFirstTiling());
-        lastTilingMenuItem.setDisable(getDocument().atLastTiling());
-        nextTilingMenuItem.setDisable(getDocument().atLastTiling());
-
-        firstTilingButton.setDisable(getDocument().atFirstTiling());
-        previousTilingButton.setDisable(getDocument().atFirstTiling());
-        nextTilingButton.setDisable(getDocument().atLastTiling());
-        lastTilingButton.setDisable(getDocument().atLastTiling());
-
-    }
-
-    @FXML
-    void fireLineWidth(ActionEvent event) {
-
-    }
-
-    @FXML
-    void fireMaxSymmetry(ActionEvent event) {
-    }
-
-    @FXML
-    void fireOpenFile(ActionEvent event) {
-        final FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open file of tilings");
-        fileChooser.setInitialDirectory(
-                new File(Main.getProgramPreferences().getProperty("InputDirectory", ".")));
-        fileChooser.setInitialFileName(Main.getProgramPreferences().getProperty("InputFile", ""));
-
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Tilings", "*.tgs"));
-
-        final File file = fileChooser.showOpenDialog(getStage());
-
-        if (file != null) {
-            try (FileReader reader = new FileReader(file)) {
-                getDocument().clear();
-                getDocument().read(reader);
-                getDocument().update();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @FXML
-    void firePaste(ActionEvent event) {
-    }
-
-    @FXML
-    void firePrint(ActionEvent event) {
-    }
-
-    @FXML
-    void fireQuit(ActionEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Quit PeriodicTiler");
-        alert.setContentText("Sure you want to quit?");
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK) {
-            alert.close();
-            Platform.exit();
-        } else {
-            alert.close();
-        }
-    }
-
-    @FXML
-    void fireResetLayout(ActionEvent event) {
-
-    }
-
-    @FXML
-    void fireSaveFile(ActionEvent event) {
-
-    }
-
-    @FXML
-    void fireSelectAll(ActionEvent event) {
-
-    }
-
-    @FXML
-    void fireShowChambers(ActionEvent event) {
-
-    }
-
-    @FXML
-    void fireShowFundamentalDomain(ActionEvent event) {
-
-    }
-
-    @FXML
-    void fireShowLessTiles(ActionEvent event) {
-        document.decreaseTiling();
-    }
-
-    @FXML
-    void fireShowMoreTiles(ActionEvent event) {
-        document.increaseTiling();
-    }
-
-    @FXML
-    void fireEditSymmetryGroup(ActionEvent event) {
-        if (editSymmetryGroupButton.isSelected()) {
-            borderPane.setRight(groupVBox);
-        } else
-            borderPane.setRight(null);
-        editSymmetryGroupMenuItem.setSelected(borderPane.getRight() == groupVBox);
-        editSymmetryGroupButton.setSelected(borderPane.getRight() == groupVBox);
-    }
-
-    @FXML
-    void fireStraigthenAll(ActionEvent event) {
-        StraightenEdges.straightenAllEdges(document.getCurrentTiling());
-        document.update();
-    }
-
-    @FXML
-    void fireStraigthenSelected(ActionEvent event) {
-    }
-
-
-    @FXML
-    void fireReset(ActionEvent event) {
-        document.reset();
-        document.update();
-    }
-
     public Pane getMainPane() {
         return mainPane;
     }
 
+    public ToolBar getRotationsToolBar() {
+        return rotationsToolBar;
+    }
+
+    public TextField getGroupTextField() {
+        return groupTextField;
+    }
+
+    public ChoiceBox<String> getModelChoiceBox() {
+        return modelChoiceBox;
+    }
+
+    public Button getShowMoreTilesButton() {
+        return showMoreTilesButton;
+    }
+
+    public Button getShowLessTilesButton() {
+        return showLessTilesButton;
+    }
+
+    public ToggleButton getToolsToggleButton() {
+        return toolsToggleButton;
+    }
+
+    public Button getMaximizeButton() {
+        return maximizeButton;
+    }
+
+    public Button getOrientateButton() {
+        return orientateButton;
+    }
+
+    public Button getDualizeButton() {
+        return dualizeButton;
+    }
+
+    public ToolBar getToolsToolBar() {
+        return toolsToolBar;
+    }
+
+    public Spinner<Integer> getBandWidthSpinner() {
+        return bandWidthSpinner;
+    }
+
+    public CheckBox getShowFacesCheckBox() {
+        return showFacesCheckBox;
+    }
+
+    public CheckBox getShowBandsCheckBox() {
+        return showBandsCheckBox;
+    }
+
+    public CheckBox getSmoothEdgesCheckBox() {
+        return smoothEdgesCheckBox;
+    }
+
+    public ColorPicker getBandsColorPicker() {
+        return bandsColorPicker;
+    }
+
+    public ColorPicker getBackgroundColorPicker() {
+        return backgroundColorPicker;
+    }
+
+    public ColorPicker getTile1ColorPicker() {
+        return tile1ColorPicker;
+    }
+
+    public CheckBox getBackEdgesCheckBox() {
+        return backEdgesCheckBox;
+    }
+
+    public Menu getColorsMenu() {
+        return colorsMenu;
+    }
 
     /**
      * gets a V label
@@ -495,103 +497,45 @@ public class MainViewController implements Initializable {
      * @param i
      * @return
      */
-    public Label getLabelV(int i) {
+    public Spinner<Integer> getVSpinner(int i) {
         switch (i) {
             case 0:
-                return labelV0;
+                return v1Spinner;
             case 1:
-                return labelV1;
+                return v2Spinner;
             case 2:
-                return labelV2;
+                return v3Spinner;
             case 3:
-                return labelV3;
+                return v4Spinner;
             case 4:
-                return labelV4;
+                return v5Spinner;
             case 5:
-                return labelV5;
+                return v6Spinner;
             case 6:
-                return labelV6;
+                return v7Spinner;
             case 7:
-                return labelV7;
+                return v8Spinner;
             case 8:
-                return labelV8;
+                return v9Spinner;
             default:
             case 9:
-                return labelV9;
+                return v10Spinner;
         }
     }
 
-    /**
-     * gets a V decreaser
-     *
-     * @param i
-     * @return
-     */
-    public Button getDecreaseV(int i) {
-        switch (i) {
-            case 0:
-                return decreasev0;
-            case 1:
-                return decreaseV1;
-            case 2:
-                return decreaseV2;
-            case 3:
-                return decreaseV3;
-            case 4:
-                return decreaseV4;
-            case 5:
-                return decreaseV5;
-            case 6:
-                return decreaseV6;
-            case 7:
-                return decreaseV7;
-            case 8:
-                return decreaseV8;
-            default:
-            case 9:
-                return decreaseV9;
-        }
+    @FXML
+    void initialize() {
+        for (int i = 0; i < 10; i++)
+            getVSpinner(i).setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 24));
+        bandWidthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100));
     }
 
-    /**
-     * gets a V increaser
-     *
-     * @param i
-     * @return
-     */
-    public Button getIncreaseV(int i) {
-        switch (i) {
-            case 0:
-                return increaseV0;
-            case 1:
-                return increaseV1;
-            case 2:
-                return increaseV2;
-            case 3:
-                return increaseV3;
-            case 4:
-                return increaseV4;
-            case 5:
-                return increaseV5;
-            case 6:
-                return increaseV6;
-            case 7:
-                return increaseV7;
-            case 8:
-                return increaseV8;
-            default:
-            case 9:
-                return increaseV9;
-        }
+    public final ObservableList<ColorPicker> tileColorPickers = FXCollections.observableArrayList();
+
+    final ToggleGroup colorsMenuToggleGroup = new ToggleGroup();
+
+    public ToggleGroup getColorsMenuToggleGroup() {
+        return colorsMenuToggleGroup;
     }
 
-    public void showHyperbolicControls(boolean show) {
-        if (show) {
-            if (borderPane.getLeft() != hyperbolicControlsVBox) {
-                borderPane.setLeft(hyperbolicControlsVBox);
-            }
-        } else {
-            borderPane.setLeft(null);
-        }
-    }
 }

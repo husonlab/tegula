@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package tiler.main_new;
+package tiler.main;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -26,7 +26,6 @@ import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.Geometry;
 import tiler.core.reshape.Reshape;
 import tiler.core.reshape.ReshapeEdit;
-import tiler.main.Document;
 import tiler.tiling.Tiling;
 
 import java.util.ArrayList;

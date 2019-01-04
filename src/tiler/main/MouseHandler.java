@@ -16,40 +16,17 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-/*
- *  Copyright (C) 2018 University of Tuebingen
- *
- *  (Some files contain contributions from other authors, who are then mentioned separately.)
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-package tiler.main_new;
+package tiler.main;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import tiler.core.dsymbols.Geometry;
-import tiler.main.Document;
-import tiler.main.TranslationAnimation;
 
 /**
  * mouse handler
@@ -67,22 +44,20 @@ public class MouseHandler {
 
     /**
      * add a mouse handler to the scene
-     *
-     * @param scene
+     *  @param scene
      * @param worldTranslate
      * @param worldRotateProperty
      */
-    public static void addMouseHandler(final Scene scene, final Pane mainPane, final Translate worldTranslate, final Scale worldScale, final ObjectProperty<Transform> worldRotateProperty, final Document document) {
-        new MouseHandler(scene, mainPane, worldTranslate, worldScale, worldRotateProperty, document);
+    public static void addMouseHandler(final Scene scene, final Translate worldTranslate, final Scale worldScale, final ObjectProperty<Transform> worldRotateProperty, final Document document) {
+        new MouseHandler(scene, worldTranslate, worldScale, worldRotateProperty, document);
     }
 
     /**
      * constructor
-     *
-     * @param worldTranslate
+     *  @param worldTranslate
      * @param worldRotateProperty
      */
-    private MouseHandler(final Scene scene, final Pane mainPane, final Translate worldTranslate, final Scale worldScale, final ObjectProperty<Transform> worldRotateProperty, final Document document) {
+    private MouseHandler(final Scene scene, final Translate worldTranslate, final Scale worldScale, final ObjectProperty<Transform> worldRotateProperty, final Document document) {
         animation = new TranslationAnimation(document);
 
         scene.setOnMousePressed((me) -> {

@@ -17,7 +17,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tiler.main_new;
+package tiler.main;
 
 /**
  * Maintains the version string

@@ -369,6 +369,33 @@ public class FDomain {
     }
 
     /**
+     * compute the barycenter of all coordinates
+     *
+     * @return center
+     */
+    public Point2D computerCenter() {
+        double x = 0;
+        double y = 0;
+        int count = 0;
+
+        final Point2D[][] arrays = getCoordinates();
+        for (Point2D[] array : arrays) {
+            for (Point2D point : array) {
+                if (point != null) {
+                    x += point.getX();
+                    y += point.getY();
+                    count++;
+                }
+            }
+        }
+        if (count == 0)
+            return new Point2D(0, 0);
+        else
+            return new Point2D(x / count, y / count);
+
+    }
+
+    /**
      * set all coordinates (previously saved using getCoordinates)
      *
      * @param array

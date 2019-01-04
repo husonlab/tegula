@@ -495,6 +495,8 @@ public class ReshapeManager {
             e.consume();
         });
 
-        shape.setOnMouseReleased((e) -> document.update());
+        shape.setOnMouseReleased((e) -> {
+            document.update();
+        });
     }
 }

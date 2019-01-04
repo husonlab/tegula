@@ -39,12 +39,13 @@ public class Reshape {
     public static ArrayList<ReshapeEdit> computeEdits(FDomain fDomain) {
         final ArrayList<ReshapeEdit> edits = new ArrayList<>();
 
-
         if (true)
-            return edits; // todo: this doesn't work!!!!
+            return edits; // disabled because it doesn't work
 
         final DSymbol ds = fDomain.getDSymbol();
         final FDomain original = (new Tiling(ds)).getfDomain(); // compute the original coordinates
+        final Point2D originalCenter = original.computerCenter();
+        final Point2D center = fDomain.computerCenter();
 
         for (int m = 0; m <= 2; m++) {
             final int i, j;
@@ -66,15 +67,16 @@ public class Reshape {
             }
             final BitSet visited = new BitSet();
             for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, j, a, visited)) {
-                final Point2D offset = fDomain.getVertex(m, a).subtract(original.getVertex(m, a));
+                final Point2D currentOffset = fDomain.getVertex(m, a).subtract(center);
+                final Point2D originalOffset = original.getVertex(m, a).subtract(originalCenter);
+                final Point2D offset = currentOffset.subtract(originalOffset);
 
-                System.err.println("Orig: " + original.getVertex(m, a));
-                System.err.println("Curr: " + fDomain.getVertex(m, a));
+                System.err.println("Orig: " + originalOffset);
+                System.err.println("Curr: " + currentOffset);
                 System.err.println("Off:  " + offset);
 
                 if (offset.magnitude() > 0) {
-                    final int constraint = 0; // todo: set this properly
-                    final ReshapeEdit edit = new ReshapeEdit(0, m, a, constraint, offset);
+                    final ReshapeEdit edit = new ReshapeEdit(0, m, a, offset);
                     edits.add(edit);
                 }
             }
@@ -85,8 +87,7 @@ public class Reshape {
                 if (a <= ds.getSi(m, a)) {
                     final Point2D offset = fDomain.getEdgeCenter(m, a).subtract(original.getEdgeCenter(m, a));
                     if (offset.magnitude() > 0) {
-                        final int constraint = 0; // todo: set this properly
-                        final ReshapeEdit edit = new ReshapeEdit(1, m, a, constraint, offset);
+                        final ReshapeEdit edit = new ReshapeEdit(1, m, a, offset);
                         edits.add(edit);
                     }
                 }
@@ -96,7 +97,7 @@ public class Reshape {
         for (int a = 1; a <= ds.size(); a++) {
             final Point2D offset = fDomain.getChamberCenter(a).subtract(original.getChamberCenter(a));
             if (offset.magnitude() > 0.000001) {
-                final ReshapeEdit edit = new ReshapeEdit(2, -1, a, 0, offset);
+                final ReshapeEdit edit = new ReshapeEdit(2, -1, a, offset);
                 edits.add(edit);
             }
         }

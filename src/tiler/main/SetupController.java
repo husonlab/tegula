@@ -17,7 +17,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tiler.main_new;
+package tiler.main;
 
 import javafx.application.Platform;
 import javafx.scene.control.*;
@@ -34,9 +34,7 @@ import tiler.color.ColorSchemeManager;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.DSymbolAlgorithms;
 import tiler.core.dsymbols.Geometry;
-import tiler.main.Document;
-import tiler.main.HyperbolicModelCameraSettings;
-import tiler.main.Main;
+import tiler.main_deprecated.Main;
 import tiler.tiling.StraightenEdges;
 import tiler.tiling.Tiling;
 

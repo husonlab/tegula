@@ -29,14 +29,12 @@ public class ReshapeEdit {
     private final int kind;
     private final int m;
     private final int a;
-    private final int constraint;
     private final Point2D offset;
 
-    public ReshapeEdit(int kind, int m, int a, int constraint, Point2D offset) {
+    public ReshapeEdit(int kind, int m, int a, Point2D offset) {
         this.kind = kind;
         this.m = m;
         this.a = a;
-        this.constraint = constraint;
         this.offset = offset;
         System.err.println("offset: " + offset);
     }
@@ -53,9 +51,6 @@ public class ReshapeEdit {
         return a;
     }
 
-    public int getConstraint() {
-        return constraint;
-    }
 
     public Point2D getOffset() {
         return offset;

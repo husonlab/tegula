@@ -1,11 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<!--
+  ~  Copyright (C) 2018 University of Tuebingen
+  ~
+  ~  (Some files contain contributions from other authors, who are then mentioned separately.)
+  ~
+  ~  This program is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~  (at your option) any later version.
+  ~
+  ~  This program is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~  GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License
+  ~  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
+<?import java.lang.String?>
 <BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111"
+            prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.111"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="tiler.main.MainViewController">
     <top>
         <VBox prefHeight="40.0" prefWidth="600.0" BorderPane.alignment="CENTER">
@@ -14,210 +36,271 @@
                     <menus>
                         <Menu text="File">
                             <items>
-                                <MenuItem onAction="#fireOpenFile" text="New...">
+                                <MenuItem fx:id="newMenuItem" text="New...">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="N" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="N" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
-                                <MenuItem onAction="#fireOpenFile" text="Open...">
+                                <MenuItem fx:id="openMenuItem" text="Open...">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="O" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="O" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
                                 <SeparatorMenuItem/>
-                                <MenuItem onAction="#fireSaveFile" text="Save...">
+                                <MenuItem fx:id="saveMenuItem" text="Save...">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="S" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
-                                <MenuItem onAction="#firePrint" text="Print...">
+                                <MenuItem fx:id="pageSetupMenuItem" text="Page Setup..."/>
+                                <MenuItem fx:id="printMenuItem" text="Print...">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="P" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="P" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
-                                <MenuItem onAction="#fireClose" text="Close">
+                                <MenuItem fx:id="closeMenuItem" text="Close">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="W" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="W" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
-                                <MenuItem onAction="#fireQuit" text="Quit">
+                                <MenuItem fx:id="quitMenuItem" text="Quit">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="Q" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="Q" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
                             </items>
                         </Menu>
                         <Menu text="Edit">
                             <items>
-                                <MenuItem onAction="#fireCopy" text="Copy">
+                                <MenuItem fx:id="copyMenuItem" text="Copy">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="C" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="C" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
-                                <MenuItem onAction="#firePaste" text="Paste">
+                                <MenuItem fx:id="pasteMenuItem" text="Paste">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="V" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
-                                    </accelerator>
-                                </MenuItem>
-                                <SeparatorMenuItem mnemonicParsing="false"/>
-                                <MenuItem onAction="#fireSelectAll" text="Select All">
-                                    <accelerator>
-                                        <KeyCodeCombination alt="UP" code="A" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="V" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
-                                <MenuItem mnemonicParsing="false" onAction="#fireLineWidth" text="Line Width"/>
+                                <MenuItem fx:id="selectAllMenuItem" text="Select All">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="A" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
+                                    </accelerator>
+                                </MenuItem>
+                                <SeparatorMenuItem mnemonicParsing="false"/>
+                                <MenuItem fx:id="lineWidthMenuItem" text="Line Width"/>
                                 <Menu text="Straigthen">
                                     <items>
-                                        <MenuItem onAction="#fireStraigthenSelected" text="Selected">
+                                        <MenuItem fx:id="straightenSelectedMenuItem" text="Selected">
                                             <accelerator>
-                                                <KeyCodeCombination alt="UP" code="S" control="UP" meta="DOWN"
-                                                                    shift="DOWN" shortcut="UP"/>
+                                                <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP"
+                                                                    shift="DOWN" shortcut="DOWN"/>
                                             </accelerator>
                                         </MenuItem>
-                                        <MenuItem onAction="#fireStraigthenAll" text="All"/>
+                                        <MenuItem fx:id="straightenAllMenuItem" text="All"/>
                                         <SeparatorMenuItem mnemonicParsing="false"/>
-                                        <CheckMenuItem onAction="#fireAlwaysStraighten" text="Always"/>
+                                        <CheckMenuItem fx:id="straightenAlwaysCheckMenuItem" text="Always"/>
                                     </items>
                                 </Menu>
                             </items>
                         </Menu>
+                        <Menu fx:id="colorsMenu" mnemonicParsing="false" text="Colors">
+                            <items>
+                                <SeparatorMenuItem mnemonicParsing="false"/>
+                                <MenuItem fx:id="addColorSchemeMenuItem" mnemonicParsing="false"
+                                          text="Add Color Scheme..."/>
+                            </items>
+                        </Menu>
                         <Menu text="Layout">
                             <items>
-                                <CheckMenuItem mnemonicParsing="false" onAction="#fireShowFundamentalDomain"
-                                               text="Show F. Domain">
+                                <CheckMenuItem fx:id="showFDomainMenuItem" text="Show F. Domain">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="F" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="F" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </CheckMenuItem>
-                                <CheckMenuItem onAction="#fireShowChambers" text="Show Chambers">
+                                <CheckMenuItem fx:id="showChambersMenuItem" text="Show Chambers">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="K" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="K" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </CheckMenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
-                                <MenuItem onAction="#fireShowMoreTiles" text="Show More Tiles">
+                                <MenuItem fx:id="showMoreTilesMenuItem" text="Show More Tiles">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="GREATER" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="M" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
-                                <MenuItem onAction="#fireShowLessTiles" text="Show Less Tiles">
+                                <MenuItem fx:id="showLessTilesMenuItem" text="Show Less Tiles">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="LESS" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="L" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
-                                <MenuItem onAction="#fireResetLayout" text="Reset">
+                                <MenuItem fx:id="resetMenuItem" text="Reset">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="EQUALS" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="EQUALS" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
                             </items>
                         </Menu>
                         <Menu mnemonicParsing="false" text="Tiling">
                             <items>
-                                <MenuItem fx:id="firstTilingMenuItem" onAction="#fireFirstTiling" text="First">
+                                <MenuItem fx:id="firstTilingMenuItem" text="First">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="DIGIT1" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="DIGIT1" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
-                                <MenuItem fx:id="nextTilingMenuItem" onAction="#fireNextTiling" text="Next">
+                                <MenuItem fx:id="nextTilingMenuItem" text="Next">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="N" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="N" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
-                                <MenuItem fx:id="previousTilingMenuItem" onAction="#firePreviousTiling" text="Previous">
+                                <MenuItem fx:id="previousTilingMenuItem" text="Previous">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="P" control="UP" meta="DOWN" shift="DOWN"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="P" control="UP" meta="UP" shift="DOWN"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
-                                <MenuItem fx:id="lastTilingMenuItem" onAction="#fireLastTiling" text="Last">
+                                <MenuItem fx:id="lastTilingMenuItem" text="Last">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="DIGIT0" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
-                                    </accelerator>
-                                </MenuItem>
-                                <SeparatorMenuItem mnemonicParsing="false"/>
-                                <MenuItem onAction="#fireDualize" text="Dualize">
-                                    <accelerator>
-                                        <KeyCodeCombination alt="UP" code="D" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
-                                    </accelerator>
-                                </MenuItem>
-                                <MenuItem fx:id="maxSymmetryMenuItem" onAction="#fireMaxSymmetry" text="Max Symmetry">
-                                    <accelerator>
-                                        <KeyCodeCombination alt="UP" code="M" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
-                                    </accelerator>
-                                </MenuItem>
-                                <MenuItem fx:id="dualizeMenuItem" onAction="#fireDualize" text="Orientate">
-                                    <accelerator>
-                                        <KeyCodeCombination alt="UP" code="O" control="UP" meta="DOWN" shift="DOWN"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="DIGIT0" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
                                 <SeparatorMenuItem mnemonicParsing="false"/>
-                                <CheckMenuItem fx:id="editSymmetryGroupMenuItem" onAction="#fireEditSymmetryGroup"
-                                               text="Symmetry Group">
+                                <MenuItem fx:id="dualizeMenuItem" text="Dualize">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="G" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="D" control="UP" meta="UP" shift="DOWN"
+                                                            shortcut="DOWN"/>
+                                    </accelerator>
+                                </MenuItem>
+                                <MenuItem fx:id="maxSymmetryMenuItem" text="Max Symmetry">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="M" control="UP" meta="UP" shift="DOWN"
+                                                            shortcut="DOWN"/>
+                                    </accelerator>
+                                </MenuItem>
+                                <MenuItem fx:id="orientateMenuItem" text="Orientate">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="O" control="UP" meta="UP" shift="DOWN"
+                                                            shortcut="DOWN"/>
+                                    </accelerator>
+                                </MenuItem>
+                                <SeparatorMenuItem mnemonicParsing="false"/>
+                                <CheckMenuItem fx:id="editSymmetryGroupMenuItem" text="Symmetry Group">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="G" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </CheckMenuItem>
                             </items>
                         </Menu>
                         <Menu text="Help">
                             <items>
-                                <MenuItem onAction="#fireAbout" text="About">
+                                <MenuItem fx:id="aboutMenuItem" text="About">
                                     <accelerator>
-                                        <KeyCodeCombination alt="UP" code="H" control="UP" meta="DOWN" shift="UP"
-                                                            shortcut="UP"/>
+                                        <KeyCodeCombination alt="UP" code="H" control="UP" meta="UP" shift="UP"
+                                                            shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
                             </items>
                         </Menu>
                     </menus>
                 </MenuBar>
-                <ToolBar maxWidth="1.7976931348623157E308" prefHeight="40.0" prefWidth="600.0">
+                <ToolBar fx:id="mainToolBar" maxHeight="-Infinity" maxWidth="1.7976931348623157E308"
+                         minHeight="-Infinity" prefHeight="40.0" prefWidth="600.0">
                     <items>
-                        <Button mnemonicParsing="false" onAction="#fireOpenFile" text="Open..."/>
-                        <Button layoutX="10.0" layoutY="11.0" mnemonicParsing="false" onAction="#firePrint"
-                                text="Print..."/>
-                        <Button fx:id="firstTilingButton" layoutX="77.0" layoutY="11.0" mnemonicParsing="false"
-                                onAction="#fireFirstTiling" text="First"/>
-                        <Button fx:id="nextTilingButton" layoutX="144.0" layoutY="11.0" mnemonicParsing="false"
-                                onAction="#fireNextTiling" text="Next"/>
-                        <Button fx:id="previousTilingButton" layoutX="211.0" layoutY="11.0" mnemonicParsing="false"
-                                onAction="#firePreviousTiling" text="Previous"/>
-                        <Button fx:id="lastTilingButton" layoutX="278.0" layoutY="11.0" mnemonicParsing="false"
-                                onAction="#fireLastTiling" text="Last"/>
-                        <ToggleButton fx:id="editSymmetryGroupButton" mnemonicParsing="false"
-                                      onAction="#fireEditSymmetryGroup" text="Edit Group..."/>
-                        <Button fx:id="resetButton" mnemonicParsing="false" onAction="#fireReset" text="Reset"/>
-                        <CheckBox fx:id="cbShowLines" mnemonicParsing="false" onAction="#setCbShowLines"
-                                  prefHeight="17.0" prefWidth="111.0" text="Show Lines"/>
-                        <CheckBox fx:id="cbPullFDomain" mnemonicParsing="false" onAction="#setCbPullFDomain"
-                                  text="Pull FDomain only"/>
+                        <Button fx:id="openFileButton" accessibleText="Open..." mnemonicParsing="false">
+                            <graphic>
+                                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="/resources/icons/sun/toolbarButtonGraphics/general/Open24.gif"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                        <Button fx:id="printButton" accessibleText="Print..." layoutX="10.0" layoutY="11.0">
+                            <graphic>
+                                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="/resources/icons/sun/toolbarButtonGraphics/general/Print24.gif"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                        <Button fx:id="firstTilingButton" layoutX="77.0" layoutY="11.0" mnemonicParsing="false">
+                            <graphic>
+                                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="/resources/icons/First16.gif"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                        <Button fx:id="previousTilingButton" accessibleText="Previous" layoutX="211.0" layoutY="11.0"
+                                mnemonicParsing="false">
+                            <graphic>
+                                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="/resources/icons/sun/toolbarButtonGraphics/navigation/Back16.gif"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                        <TextField fx:id="tilingNumberTextField" prefHeight="27.0" prefWidth="66.0"/>
+                        <Button fx:id="nextTilingButton" layoutX="144.0" layoutY="11.0" mnemonicParsing="false">
+                            <graphic>
+                                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="/resources/icons/sun/toolbarButtonGraphics/navigation/Forward16.gif"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                        <Button fx:id="lastTilingButton" layoutX="278.0" layoutY="11.0" mnemonicParsing="false">
+                            <graphic>
+                                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="/resources/icons/Last16.gif"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                        <Separator orientation="VERTICAL" prefHeight="200.0"/>
+                        <ChoiceBox fx:id="modelChoiceBox" value="Poincare Model">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <String fx:value="Poincare Model"/>
+                                    <String fx:value="Klein Model"/>
+                                    <String fx:value="Hyperboloid"/>
+                                </FXCollections>
+                            </items>
+                        </ChoiceBox>
+                        <Button fx:id="showMoreTilesButton" mnemonicParsing="false" text="++"/>
+                        <Button fx:id="showLessTilesButton" mnemonicParsing="false" text="--"/>
+                        <Separator orientation="VERTICAL" prefHeight="200.0"/>
+                        <ToggleButton fx:id="showRotationsToggleButton" mnemonicParsing="false" text="Symmetries"/>
+                        <ToggleButton fx:id="toolsToggleButton" layoutX="529.0" layoutY="11.0" mnemonicParsing="false"
+                                      text="Tools"/>
                     </items>
                 </ToolBar>
             </children>
@@ -226,156 +309,114 @@
     <bottom>
         <TextField fx:id="statusTextField" BorderPane.alignment="CENTER"/>
     </bottom>
-    <right>
-        <VBox fx:id="groupVBox" prefHeight="304.0" prefWidth="88.0">
-            <children>
-                <BorderPane prefHeight="31.0" prefWidth="88.0">
-                    <left>
-                        <Button fx:id="decreasev0" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
-                                BorderPane.alignment="CENTER"/>
-                    </left>
-                    <right>
-                        <Button fx:id="increaseV0" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
-                    </right>
-                    <center>
-                        <Label fx:id="labelV0" text="1" textAlignment="CENTER" BorderPane.alignment="CENTER"/>
-                    </center>
-                </BorderPane>
-                <BorderPane layoutX="10.0" layoutY="10.0" prefHeight="31.0" prefWidth="88.0">
-                    <left>
-                        <Button fx:id="decreaseV1" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
-                                BorderPane.alignment="CENTER"/>
-                    </left>
-                    <right>
-                        <Button fx:id="increaseV1" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
-                    </right>
-                    <center>
-                        <Label fx:id="labelV1" text="1" textAlignment="CENTER" BorderPane.alignment="CENTER"/>
-                    </center>
-                </BorderPane>
-                <BorderPane layoutX="10.0" layoutY="41.0" prefHeight="31.0" prefWidth="88.0">
-                    <left>
-                        <Button fx:id="decreaseV2" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
-                                BorderPane.alignment="CENTER"/>
-                    </left>
-                    <right>
-                        <Button fx:id="increaseV2" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
-                    </right>
-                    <center>
-                        <Label fx:id="labelV2" text="1" textAlignment="CENTER" BorderPane.alignment="CENTER"/>
-                    </center>
-                </BorderPane>
-                <BorderPane layoutX="10.0" layoutY="72.0" prefHeight="31.0" prefWidth="88.0">
-                    <left>
-                        <Button fx:id="decreaseV3" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
-                                BorderPane.alignment="CENTER"/>
-                    </left>
-                    <right>
-                        <Button fx:id="increaseV3" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
-                    </right>
-                    <center>
-                        <Label fx:id="labelV3" text="1" BorderPane.alignment="CENTER"/>
-                    </center>
-                </BorderPane>
-                <BorderPane layoutX="10.0" layoutY="103.0" prefHeight="31.0" prefWidth="88.0">
-                    <left>
-                        <Button fx:id="decreaseV4" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
-                                BorderPane.alignment="CENTER"/>
-                    </left>
-                    <right>
-                        <Button fx:id="increaseV4" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
-                    </right>
-                    <center>
-                        <Label fx:id="labelV4" text="1" BorderPane.alignment="CENTER"/>
-                    </center>
-                </BorderPane>
-                <BorderPane layoutX="10.0" layoutY="134.0" prefHeight="31.0" prefWidth="88.0">
-                    <left>
-                        <Button fx:id="decreaseV5" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
-                                BorderPane.alignment="CENTER"/>
-                    </left>
-                    <right>
-                        <Button fx:id="increaseV5" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
-                    </right>
-                    <center>
-                        <Label fx:id="labelV5" text="1" BorderPane.alignment="CENTER"/>
-                    </center>
-                </BorderPane>
-                <BorderPane layoutX="10.0" layoutY="165.0" prefHeight="31.0" prefWidth="88.0">
-                    <left>
-                        <Button fx:id="decreaseV6" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
-                                BorderPane.alignment="CENTER"/>
-                    </left>
-                    <right>
-                        <Button fx:id="increaseV6" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
-                    </right>
-                    <center>
-                        <Label fx:id="labelV6" text="1" BorderPane.alignment="CENTER"/>
-                    </center>
-                </BorderPane>
-                <BorderPane layoutX="10.0" layoutY="196.0" prefHeight="31.0" prefWidth="88.0">
-                    <left>
-                        <Button fx:id="decreaseV7" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
-                                BorderPane.alignment="CENTER"/>
-                    </left>
-                    <right>
-                        <Button fx:id="increaseV7" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
-                    </right>
-                    <center>
-                        <Label fx:id="labelV7" text="1" BorderPane.alignment="CENTER"/>
-                    </center>
-                </BorderPane>
-                <BorderPane prefHeight="31.0" prefWidth="88.0">
-                    <left>
-                        <Button fx:id="decreaseV8" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
-                                BorderPane.alignment="CENTER"/>
-                    </left>
-                    <right>
-                        <Button fx:id="increaseV8" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
-                    </right>
-                    <center>
-                        <Label fx:id="labelV8" text="1" BorderPane.alignment="CENTER"/>
-                    </center>
-                </BorderPane>
-                <BorderPane prefHeight="31.0" prefWidth="88.0">
-                    <left>
-                        <Button fx:id="decreaseV9" mnemonicParsing="false" prefHeight="27.0" prefWidth="31.0" text="-"
-                                BorderPane.alignment="CENTER"/>
-                    </left>
-                    <right>
-                        <Button fx:id="increaseV9" mnemonicParsing="false" text="+" BorderPane.alignment="CENTER"/>
-                    </right>
-                    <center>
-                        <Label fx:id="labelV9" text="1" BorderPane.alignment="CENTER"/>
-                    </center>
-                </BorderPane>
-            </children>
-            <padding>
-                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-            </padding>
-        </VBox>
-    </right>
-    <left>
-        <VBox fx:id="hyperbolicControlsVBox" prefHeight="200.0" prefWidth="123.0" spacing="10.0"
-              BorderPane.alignment="CENTER">
-            <children>
-                <RadioButton fx:id="poincareRadioButton" mnemonicParsing="false" selected="true" text="Poincare model"/>
-                <RadioButton fx:id="kleinRadioButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false"
-                             text="Klein model"/>
-                <RadioButton fx:id="hyperboloidRadioButton" layoutX="10.0" layoutY="186.0" mnemonicParsing="false"
-                             text="Hyperboloid"/>
-                <Button fx:id="increaseButton" layoutX="10.0" layoutY="37.0" mnemonicParsing="false"
-                        onAction="#fireShowMoreTiles" prefHeight="27.0" prefWidth="112.0" text="Increase"/>
-                <Button fx:id="decreaseButton" layoutX="10.0" layoutY="64.0" mnemonicParsing="false"
-                        onAction="#fireShowLessTiles" prefHeight="27.0" prefWidth="112.0" text="Decrease"/>
-            </children>
-            <BorderPane.margin>
-                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-            </BorderPane.margin>
-        </VBox>
-    </left>
     <center>
-        <Pane fx:id="mainPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-              style="-fx-background-color: white;" BorderPane.alignment="CENTER"/>
+        <AnchorPane BorderPane.alignment="CENTER">
+            <children>
+                <Pane fx:id="mainPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                      pickOnBounds="false" prefHeight="20.0" prefWidth="200.0" style="-fx-background-color: WHITE;"
+                      AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                      AnchorPane.topAnchor="0.0"/>
+                <ToolBar fx:id="rotationsToolBar" maxWidth="-Infinity" minWidth="-Infinity" orientation="VERTICAL"
+                         AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <items>
+                        <TextField fx:id="groupTextField" editable="false" prefHeight="27.0" prefWidth="40.0"
+                                   promptText="Group" style="-fx-background-color: transparent;"/>
+                        <Spinner fx:id="v1Spinner" maxHeight="24.0" maxWidth="60.0" minHeight="24.0" minWidth="60.0"
+                                 prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v2Spinner" layoutX="10.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v3Spinner" layoutX="78.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v4Spinner" layoutX="146.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v5Spinner" layoutX="214.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v6Spinner" layoutX="282.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v7Spinner" layoutX="350.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v8Spinner" layoutX="418.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v9Spinner" layoutX="486.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v10Spinner" layoutX="554.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                    </items>
+                    <opaqueInsets>
+                        <Insets/>
+                    </opaqueInsets>
+                </ToolBar>
+                <ToolBar fx:id="toolsToolBar" maxWidth="-Infinity" minWidth="-Infinity" orientation="VERTICAL"
+                         prefWidth="110.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                         AnchorPane.topAnchor="0.0">
+                    <items>
+                        <Label alignment="CENTER" layoutX="10.0" layoutY="110.0" maxWidth="1.7976931348623157E308"
+                               text="Change Tiling"/>
+                        <Button fx:id="dualizeButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                text="Dualize"/>
+                        <Button fx:id="orientateButton" layoutX="10.0" layoutY="103.0" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" text="Orientate"/>
+                        <Button fx:id="maximizeButton" layoutX="10.0" layoutY="134.0" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" text="Max Symm"/>
+                        <Separator prefWidth="200.0"/>
+                        <CheckBox fx:id="showBandsCheckBox" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                  text="Bands"/>
+                        <Spinner fx:id="bandWidthSpinner" editable="true"/>
+                        <ColorPicker fx:id="bandsColorPicker"/>
+                        <Separator prefWidth="200.0"/>
+                        <CheckBox fx:id="showFacesCheckBox" mnemonicParsing="false" text="Faces"/>
+                        <CheckBox fx:id="smoothEdgesCheckBox" layoutX="10.0" layoutY="170.0" mnemonicParsing="false"
+                                  text="Smooth"/>
+                        <CheckBox fx:id="backEdgesCheckBox" layoutX="10.0" layoutY="244.0" mnemonicParsing="false"
+                                  text="Back Edges"/>
+                        <ColorPicker fx:id="tile1ColorPicker" promptText="tile1ColorPicker"/>
+                        <Separator prefWidth="200.0"/>
+                        <Label alignment="CENTER" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308"
+                               text="Background"/>
+                        <ColorPicker fx:id="backgroundColorPicker"/>
+                    </items>
+                </ToolBar>
+            </children>
+        </AnchorPane>
     </center>
 </BorderPane>
