@@ -43,7 +43,7 @@ import javafx.animation.Timeline;
 import javafx.util.Duration;
 
 /**
- * animation
+ * translation animation
  * Created by huson on 11/11/16.
  */
 public class TranslationAnimation {

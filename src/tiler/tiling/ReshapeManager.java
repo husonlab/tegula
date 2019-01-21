@@ -126,6 +126,8 @@ public class ReshapeManager {
      * @param deltaY
      */
     public Point2D resetShape(double deltaX, double deltaY, int type, int a) {
+
+
         // Reset Point in fundamental domain
         Point2D transVector = new Point2D(deltaX, deltaY);
 

@@ -80,9 +80,6 @@ public class MainView {
         world.getTransforms().add(worldScale);
         world.getTransforms().add(worldRotateProperty.get());
 
-        //final Pane topPane = mainViewController.getMainPane();
-        // topPane.setPickOnBounds(false);
-
         final Pane mainPane = mainViewController.getMainPane();
         mainPane.getChildren().add(0, subScene);
 
