@@ -30,7 +30,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import tiler.main.Document;
-import tiler.main.MainViewController;
+import tiler.main.MainWindowController;
 import tiler.main.SetupController;
 
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class ColorSchemeDialog {
      * @param document
      * @throws IOException
      */
-    public ColorSchemeDialog(Document document, MainViewController mainViewController) throws IOException {
+    public ColorSchemeDialog(Document document, MainWindowController mainViewController) throws IOException {
         final FXMLLoader fxmlLoader = new FXMLLoader();
         Pane root = fxmlLoader.load(getClass().getResource("ColorSchemeDialog.fxml").openStream());
         final ColorSchemeDialogController controller = fxmlLoader.getController();

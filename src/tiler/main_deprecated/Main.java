@@ -67,7 +67,7 @@ public class Main extends Application {
         stage.setTitle("PeriodicTiler");
 
         final FXMLLoader fxmlLoader = new FXMLLoader();
-        Pane root = fxmlLoader.load(getClass().getResource("MainView.fxml").openStream());
+        Pane root = fxmlLoader.load(getClass().getResource("MainWindow.fxml").openStream());
         final MainViewController mainViewController = fxmlLoader.getController();
 
         // setup world and subscene

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ *  Copyright (C) 2018. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -16,40 +16,30 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package tiler.util;
 
-package tiler.core.reshape;
+import javafx.stage.FileChooser;
 
-import javafx.geometry.Point2D;
+import java.io.File;
 
 /**
- * reshape edits that need to be applied when changing the symmetry group
- * Daniel Husonb, 12.2018
+ * tiling file filter
+ * Daniel Huson, 3.2019
  */
-public class ReshapeEdit {
-    private final int m;
-    private final int a;
-    private final Point2D offset;
+public class TilingFileFilter {
+    private static FileChooser.ExtensionFilter instance;
 
-    public ReshapeEdit(int m, int a, Point2D offset) {
-        this.m = m;
-        this.a = a;
-        this.offset = offset;
+    public static FileChooser.ExtensionFilter getInstance() {
+        if (instance == null)
+            instance = new FileChooser.ExtensionFilter("Tiling File", "*.tgs", "*.tgs.gz");
+        return instance;
     }
 
-    public int getM() {
-        return m;
-    }
-
-    public int getA() {
-        return a;
-    }
-
-
-    public Point2D getOffset() {
-        return offset;
-    }
-
-    public String toString() {
-        return "Edit: " + m + " " + a + ": " + offset;
+    public static boolean accepts(File selectedFile) {
+        for (String ex : getInstance().getExtensions()) {
+            if (selectedFile.getName().toLowerCase().endsWith(ex))
+                return true;
+        }
+        return false;
     }
 }

@@ -23,9 +23,8 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.control.Spinner;
 import tiler.core.dsymbols.DSymbol;
-import tiler.core.dsymbols.Geometry;
-import tiler.core.reshape.Reshape;
 import tiler.core.reshape.ReshapeEdit;
+import tiler.core.reshape.ReshapeManager;
 import tiler.tiling.Tiling;
 
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ public class SetupGroupEditing {
      *
      * @param document
      */
-    public static void apply(MainViewController mainViewController, Document document) {
+    public static void apply(MainWindowController mainViewController, Document document) {
 
         final Tiling tiling = document.getCurrentTiling();
         final DSymbol ds = tiling.getDSymbol();
@@ -68,35 +67,28 @@ public class SetupGroupEditing {
                     final ChangeListener<Integer> listener = ((c, o, n) -> {
                         if (!ignoreUpdatesDuringSetup.get()) {
                             if (n < o && isOkDecreaseVij(ds, fa, fi, fi + 1, ds.getVij(fi, fi + 1, fa))) {
-                                final ArrayList<ReshapeEdit> edits = Reshape.computeEdits(tiling.getfDomain());
-                                final Geometry prevGeometry = tiling.getGeometry();
-
                                 ds.setVij(fi, fi + 1, fa, n);
                                 ensureNNForSpherical(ds, n);
                                 final Tiling newTiling = new Tiling(ds);
-                                // save coordinate changes:
-
-                                if (tiling.getGeometry() == Geometry.Euclidean) {
-                                    Reshape.applyEdits(newTiling.getfDomain(), edits, prevGeometry);
-                                }
-
+                                final ArrayList<ReshapeEdit> reshapeEdits = new ArrayList<>(document.getCurrentTiling().getListOfEdits());
                                 document.changeCurrentTiling(newTiling);
-                                document.update();
+                                if (reshapeEdits.size() > 0) {
+                                    newTiling.getListOfEdits().setAll(reshapeEdits);
+                                    ReshapeManager.replay(document);
+                                } else
+                                    document.update();
                             } else if (n > o) {
-                                final ArrayList<ReshapeEdit> edits = Reshape.computeEdits(tiling.getfDomain());
-                                final Geometry prevGeometry = tiling.getGeometry();
-
                                 ds.setVij(fi, fi + 1, fa, n);
                                 ensureNNForSpherical(ds, n);
                                 final Tiling newTiling = new Tiling(ds);
-                                // save coordinate changes:
-
-                                if (tiling.getGeometry() == Geometry.Euclidean) {
-                                    Reshape.applyEdits(newTiling.getfDomain(), edits, prevGeometry);
-                                }
-
+                                final ArrayList<ReshapeEdit> reshapeEdits = new ArrayList<>(document.getCurrentTiling().getListOfEdits());
                                 document.changeCurrentTiling(newTiling);
-                                document.update();
+                                document.changeCurrentTiling(newTiling);
+                                if (reshapeEdits.size() > 0) {
+                                    newTiling.getListOfEdits().setAll(reshapeEdits);
+                                    ReshapeManager.replay(document);
+                                } else
+                                    document.update();
                             }
                         }
                     });

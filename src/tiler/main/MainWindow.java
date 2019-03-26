@@ -21,7 +21,6 @@ package tiler.main;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.layout.Pane;
@@ -31,6 +30,8 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
+import jloda.fx.util.ExtendedFXMLLoader;
+import jloda.fx.window.IMainWindow;
 import tiler.core.dsymbols.Geometry;
 
 import java.io.IOException;
@@ -41,16 +42,34 @@ import java.io.StringReader;
  * todo: extensive refactoring required
  * Daniel Huson, 1.2018
  */
-public class MainView {
+public class MainWindow implements IMainWindow {
+    private Document document;
+    private Stage stage;
+
+    private final MainWindowController controller;
+    private final Parent root;
+
+    private final Pane statusPane;
+
     /**
      * create a new main view
      *
-     * @param stage
-     * @throws IOException
      */
-    public MainView(Stage stage) throws IOException {
+    public MainWindow() {
+        // todo: need to init. document here
+        final ExtendedFXMLLoader<MainWindowController> extendedFXMLLoader = new ExtendedFXMLLoader<>(this.getClass());
+        root = extendedFXMLLoader.getRoot();
+        controller = extendedFXMLLoader.getController();
+        statusPane = controller.getStatusFlowPane();
+    }
+
+    /**
+     * show this main window
+     */
+    public void show(Stage stage, double screenX, double screenY, double width, double height) {
         if (stage == null)
             stage = new Stage();
+        this.stage = stage;
 
         final PerspectiveCamera camera = new PerspectiveCamera(true);
         camera.setNearClip(0.1);
@@ -65,10 +84,6 @@ public class MainView {
 
         stage.setTitle("PeriodicTiler");
 
-        final FXMLLoader fxmlLoader = new FXMLLoader();
-        Pane root = fxmlLoader.load(getClass().getResource("MainView.fxml").openStream());
-        final MainViewController mainViewController = fxmlLoader.getController();
-
         // setup world and subscene
         final Group world = new Group();
         final Group universe = new Group(world);
@@ -80,7 +95,7 @@ public class MainView {
         world.getTransforms().add(worldScale);
         world.getTransforms().add(worldRotateProperty.get());
 
-        final Pane mainPane = mainViewController.getMainPane();
+        final Pane mainPane = controller.getMainPane();
         mainPane.getChildren().add(0, subScene);
 
         //StackPane.setAlignment(topPane, Pos.CENTER);
@@ -97,9 +112,9 @@ public class MainView {
         stage.sizeToScene();
         stage.show();
 
-        final Document document = new Document(universe, world, camera);
+        document = new Document(universe, world, camera);
 
-        SetupController.setup(mainViewController, document, stage);
+        SetupController.setup(controller, document, stage);
 
         document.setWidth(800);
         document.setHeight(600);
@@ -109,7 +124,11 @@ public class MainView {
         });
 
         // read in a symbol for debugging:
-        document.read(new StringReader("<23.1:20:2 4 6 8 10 12 14 16 18 20,2 10 5 9 8 20 13 15 17 19,11 12 13 14 15 16 17 18 19 20:3 3 5 5,4 4 4>"));
+        try {
+            document.read(new StringReader("<23.1:20:2 4 6 8 10 12 14 16 18 20,2 10 5 9 8 20 13 15 17 19,11 12 13 14 15 16 17 18 19 20:3 3 5 5,4 4 4>"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         MouseHandler.addMouseHandler(scene, worldTranslate, worldScale, worldRotateProperty, document);
 
@@ -128,5 +147,32 @@ public class MainView {
             int indexOf = world.getTransforms().indexOf(oldValue);
             world.getTransforms().set(indexOf, newValue);
         });
+    }
+
+    public Document getDocument() {
+        return document;
+    }
+
+    @Override
+    public Stage getStage() {
+        return stage;
+    }
+
+    @Override
+    public IMainWindow createNew() {
+        return new MainWindow();
+    }
+
+    public MainWindowController getController() {
+        return controller;
+    }
+
+    public Pane getStatusPane() {
+        return statusPane;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return false;
     }
 }

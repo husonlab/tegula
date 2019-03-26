@@ -25,8 +25,8 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
+import jloda.fx.util.ProgramPropertiesFX;
 import jloda.util.Basic;
-import jloda.util.ProgramProperties;
 
 import java.util.Collection;
 import java.util.Map;
@@ -56,7 +56,7 @@ public class ColorSchemeManager {
     }
 
     private ColorSchemeManager() {
-        parseTables(ProgramProperties.get("ColorSchemes", BuiltInColorTables));
+        parseTables(ProgramPropertiesFX.get("ColorSchemes", BuiltInColorTables));
     }
 
     /**
@@ -65,7 +65,7 @@ public class ColorSchemeManager {
      * @param tables
      */
     public void parseTables(String... tables) {
-        int alpha = Math.max(0, Math.min(255, ProgramProperties.get("ColorAlpha", 255)));
+        int alpha = Math.max(0, Math.min(255, ProgramPropertiesFX.get("ColorAlpha", 255)));
 
         for (String table : tables) {
             final String[] tokens = Basic.split(table, ';');
@@ -110,7 +110,7 @@ public class ColorSchemeManager {
 
     public void setColorScheme(String name, ObservableList<Color> colors) {
         name2ColorSchemes.put(name, colors);
-        ProgramProperties.put("ColorSchemes", writeTables());
+        ProgramPropertiesFX.put("ColorSchemes", writeTables());
     }
 
     public String getLastColorScheme() {

@@ -1,6 +1,5 @@
 package tiler.core.fundamental;
 
-
 import tiler.core.fundamental.utils.Maths;
 import tiler.core.fundamental.utils.Wrap;
 

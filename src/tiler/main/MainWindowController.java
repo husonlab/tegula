@@ -1,21 +1,3 @@
-/*
- *  Copyright (C) 2018 Daniel H. Huson
- *
- *  (Some files contain contributions from other authors, who are then mentioned separately.)
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 package tiler.main;
 
 import javafx.collections.FXCollections;
@@ -23,13 +5,19 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 
-/**
- * main view controller
- * Daniel Huson, 11.2018
- */
-public class MainViewController {
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class MainWindowController {
+
+    @FXML
+    private ResourceBundle resources;
+
+    @FXML
+    private URL location;
 
     @FXML
     private BorderPane borderPane;
@@ -44,13 +32,16 @@ public class MainViewController {
     private MenuItem openMenuItem;
 
     @FXML
+    private Menu openRecentMenu;
+
+    @FXML
     private MenuItem saveMenuItem;
 
     @FXML
-    private MenuItem printMenuItem;
+    private MenuItem pageSetupMenuItem;
 
     @FXML
-    private MenuItem pageSetupMenuItem;
+    private MenuItem printMenuItem;
 
     @FXML
     private MenuItem closeMenuItem;
@@ -68,9 +59,6 @@ public class MainViewController {
     private MenuItem selectAllMenuItem;
 
     @FXML
-    private MenuItem addColorSchemeMenuItem;
-
-    @FXML
     private MenuItem lineWidthMenuItem;
 
     @FXML
@@ -81,6 +69,12 @@ public class MainViewController {
 
     @FXML
     private CheckMenuItem straightenAlwaysCheckMenuItem;
+
+    @FXML
+    private Menu colorsMenu;
+
+    @FXML
+    private MenuItem addColorSchemeMenuItem;
 
     @FXML
     private CheckMenuItem showFDomainMenuItem;
@@ -149,49 +143,7 @@ public class MainViewController {
     private Button lastTilingButton;
 
     @FXML
-    private ToggleButton showRotationsToggleButton;
-
-    @FXML
-    private TextField statusTextField;
-
-    @FXML
-    private Pane mainPane;
-
-    @FXML
-    private ToolBar rotationsToolBar;
-
-    @FXML
-    private Spinner<Integer> v1Spinner;
-
-    @FXML
-    private Spinner<Integer> v2Spinner;
-
-    @FXML
-    private Spinner<Integer> v3Spinner;
-
-    @FXML
-    private Spinner<Integer> v4Spinner;
-
-    @FXML
-    private Spinner<Integer> v5Spinner;
-
-    @FXML
-    private Spinner<Integer> v6Spinner;
-
-    @FXML
-    private Spinner<Integer> v7Spinner;
-
-    @FXML
-    private Spinner<Integer> v8Spinner;
-
-    @FXML
-    private Spinner<Integer> v9Spinner;
-
-    @FXML
-    private Spinner<Integer> v10Spinner;
-
-    @FXML
-    private ChoiceBox<String> modelChoiceBox;
+    private ChoiceBox<?> modelChoiceBox;
 
     @FXML
     private Button showMoreTilesButton;
@@ -200,52 +152,100 @@ public class MainViewController {
     private Button showLessTilesButton;
 
     @FXML
-    private TextField groupTextField;
+    private ToggleButton showRotationsToggleButton;
 
     @FXML
     private ToggleButton toolsToggleButton;
 
     @FXML
-    private Button maximizeButton;
+    private Button testButton;
 
     @FXML
-    private Button orientateButton;
+    private FlowPane statusFlowPane;
 
     @FXML
-    private Button dualizeButton;
-
-
-    @FXML
-    private ColorPicker bandsColorPicker;
+    private Pane mainPane;
 
     @FXML
-    private ColorPicker backgroundColorPicker;
-
-
-    @FXML
-    private Spinner<Integer> bandWidthSpinner;
+    private ToolBar rotationsToolBar;
 
     @FXML
-    private CheckBox showFacesCheckBox;
+    private TextField groupTextField;
 
     @FXML
-    private CheckBox showBandsCheckBox;
+    private Spinner<?> v1Spinner;
 
     @FXML
-    private CheckBox smoothEdgesCheckBox;
+    private Spinner<?> v2Spinner;
 
     @FXML
-    private ColorPicker tile1ColorPicker;
+    private Spinner<?> v3Spinner;
+
+    @FXML
+    private Spinner<?> v4Spinner;
+
+    @FXML
+    private Spinner<?> v5Spinner;
+
+    @FXML
+    private Spinner<?> v6Spinner;
+
+    @FXML
+    private Spinner<?> v7Spinner;
+
+    @FXML
+    private Spinner<?> v8Spinner;
+
+    @FXML
+    private Spinner<?> v9Spinner;
+
+    @FXML
+    private Spinner<?> v10Spinner;
 
     @FXML
     private ToolBar toolsToolBar;
 
     @FXML
+    private Button dualizeButton;
+
+    @FXML
+    private Button orientateButton;
+
+    @FXML
+    private Button maximizeButton;
+
+    @FXML
+    private CheckBox showBandsCheckBox;
+
+    @FXML
+    private Spinner<Integer> bandWidthSpinner;
+
+    @FXML
+    private ColorPicker bandsColorPicker;
+
+    @FXML
+    private CheckBox showFacesCheckBox;
+
+    @FXML
+    private CheckBox smoothEdgesCheckBox;
+
+    @FXML
     private CheckBox backEdgesCheckBox;
 
     @FXML
-    private Menu colorsMenu;
+    private ColorPicker tile1ColorPicker;
 
+    @FXML
+    private ColorPicker backgroundColorPicker;
+
+
+    public ResourceBundle getResources() {
+        return resources;
+    }
+
+    public URL getLocation() {
+        return location;
+    }
 
     public BorderPane getBorderPane() {
         return borderPane;
@@ -263,16 +263,20 @@ public class MainViewController {
         return openMenuItem;
     }
 
+    public Menu getOpenRecentMenu() {
+        return openRecentMenu;
+    }
+
     public MenuItem getSaveMenuItem() {
         return saveMenuItem;
     }
 
-    public MenuItem getPrintMenuItem() {
-        return printMenuItem;
-    }
-
     public MenuItem getPageSetupMenuItem() {
         return pageSetupMenuItem;
+    }
+
+    public MenuItem getPrintMenuItem() {
+        return printMenuItem;
     }
 
     public MenuItem getCloseMenuItem() {
@@ -295,10 +299,6 @@ public class MainViewController {
         return selectAllMenuItem;
     }
 
-    public MenuItem getAddColorSchemeMenuItem() {
-        return addColorSchemeMenuItem;
-    }
-
     public MenuItem getLineWidthMenuItem() {
         return lineWidthMenuItem;
     }
@@ -313,6 +313,14 @@ public class MainViewController {
 
     public CheckMenuItem getStraightenAlwaysCheckMenuItem() {
         return straightenAlwaysCheckMenuItem;
+    }
+
+    public Menu getColorsMenu() {
+        return colorsMenu;
+    }
+
+    public MenuItem getAddColorSchemeMenuItem() {
+        return addColorSchemeMenuItem;
     }
 
     public CheckMenuItem getShowFDomainMenuItem() {
@@ -403,12 +411,28 @@ public class MainViewController {
         return lastTilingButton;
     }
 
+    public ChoiceBox<?> getModelChoiceBox() {
+        return modelChoiceBox;
+    }
+
+    public Button getShowMoreTilesButton() {
+        return showMoreTilesButton;
+    }
+
+    public Button getShowLessTilesButton() {
+        return showLessTilesButton;
+    }
+
     public ToggleButton getShowRotationsToggleButton() {
         return showRotationsToggleButton;
     }
 
-    public TextField getStatusTextField() {
-        return statusTextField;
+    public ToggleButton getToolsToggleButton() {
+        return toolsToggleButton;
+    }
+
+    public FlowPane getStatusFlowPane() {
+        return statusFlowPane;
     }
 
     public Pane getMainPane() {
@@ -423,72 +447,96 @@ public class MainViewController {
         return groupTextField;
     }
 
-    public ChoiceBox<String> getModelChoiceBox() {
-        return modelChoiceBox;
+    public Spinner<?> getV1Spinner() {
+        return v1Spinner;
     }
 
-    public Button getShowMoreTilesButton() {
-        return showMoreTilesButton;
+    public Spinner<?> getV2Spinner() {
+        return v2Spinner;
     }
 
-    public Button getShowLessTilesButton() {
-        return showLessTilesButton;
+    public Spinner<?> getV3Spinner() {
+        return v3Spinner;
     }
 
-    public ToggleButton getToolsToggleButton() {
-        return toolsToggleButton;
+    public Spinner<?> getV4Spinner() {
+        return v4Spinner;
     }
 
-    public Button getMaximizeButton() {
-        return maximizeButton;
+    public Spinner<?> getV5Spinner() {
+        return v5Spinner;
     }
 
-    public Button getOrientateButton() {
-        return orientateButton;
+    public Spinner<?> getV6Spinner() {
+        return v6Spinner;
     }
 
-    public Button getDualizeButton() {
-        return dualizeButton;
+    public Spinner<?> getV7Spinner() {
+        return v7Spinner;
+    }
+
+    public Spinner<?> getV8Spinner() {
+        return v8Spinner;
+    }
+
+    public Spinner<?> getV9Spinner() {
+        return v9Spinner;
+    }
+
+    public Spinner<?> getV10Spinner() {
+        return v10Spinner;
     }
 
     public ToolBar getToolsToolBar() {
         return toolsToolBar;
     }
 
-    public Spinner<Integer> getBandWidthSpinner() {
-        return bandWidthSpinner;
+    public Button getDualizeButton() {
+        return dualizeButton;
     }
 
-    public CheckBox getShowFacesCheckBox() {
-        return showFacesCheckBox;
+    public Button getOrientateButton() {
+        return orientateButton;
+    }
+
+    public Button getMaximizeButton() {
+        return maximizeButton;
     }
 
     public CheckBox getShowBandsCheckBox() {
         return showBandsCheckBox;
     }
 
-    public CheckBox getSmoothEdgesCheckBox() {
-        return smoothEdgesCheckBox;
+    public Spinner<Integer> getBandWidthSpinner() {
+        return bandWidthSpinner;
     }
 
     public ColorPicker getBandsColorPicker() {
         return bandsColorPicker;
     }
 
-    public ColorPicker getBackgroundColorPicker() {
-        return backgroundColorPicker;
+    public CheckBox getShowFacesCheckBox() {
+        return showFacesCheckBox;
     }
 
-    public ColorPicker getTile1ColorPicker() {
-        return tile1ColorPicker;
+    public CheckBox getSmoothEdgesCheckBox() {
+        return smoothEdgesCheckBox;
     }
 
     public CheckBox getBackEdgesCheckBox() {
         return backEdgesCheckBox;
     }
 
-    public Menu getColorsMenu() {
-        return colorsMenu;
+    public ColorPicker getTile1ColorPicker() {
+        return tile1ColorPicker;
+    }
+
+    public ColorPicker getBackgroundColorPicker() {
+        return backgroundColorPicker;
+    }
+
+    public ObservableList<ColorPicker> getTileColorPickers() {
+        return tileColorPickers;
     }
 
     /**
@@ -500,26 +548,26 @@ public class MainViewController {
     public Spinner<Integer> getVSpinner(int i) {
         switch (i) {
             case 0:
-                return v1Spinner;
+                return (Spinner<Integer>) v1Spinner;
             case 1:
-                return v2Spinner;
+                return (Spinner<Integer>) v2Spinner;
             case 2:
-                return v3Spinner;
+                return (Spinner<Integer>) v3Spinner;
             case 3:
-                return v4Spinner;
+                return (Spinner<Integer>) v4Spinner;
             case 4:
-                return v5Spinner;
+                return (Spinner<Integer>) v5Spinner;
             case 5:
-                return v6Spinner;
+                return (Spinner<Integer>) v6Spinner;
             case 6:
-                return v7Spinner;
+                return (Spinner<Integer>) v7Spinner;
             case 7:
-                return v8Spinner;
+                return (Spinner<Integer>) v8Spinner;
             case 8:
-                return v9Spinner;
+                return (Spinner<Integer>) v9Spinner;
             default:
             case 9:
-                return v10Spinner;
+                return (Spinner<Integer>) v10Spinner;
         }
     }
 
@@ -527,7 +575,7 @@ public class MainViewController {
     void initialize() {
         for (int i = 0; i < 10; i++)
             getVSpinner(i).setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 24));
-        bandWidthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100));
+        ((Spinner<Integer>) bandWidthSpinner).setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100));
     }
 
     public final ObservableList<ColorPicker> tileColorPickers = FXCollections.observableArrayList();
@@ -538,4 +586,7 @@ public class MainViewController {
         return colorsMenuToggleGroup;
     }
 
+    public Button getTestButton() {
+        return testButton;
+    }
 }

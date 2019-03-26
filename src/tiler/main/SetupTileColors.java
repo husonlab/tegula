@@ -33,7 +33,7 @@ public class SetupTileColors {
      * @param controller
      * @param document
      */
-    public static void apply(MainViewController controller, Document document) {
+    public static void apply(MainWindowController controller, Document document) {
         final int numberOfTiles = document.getCurrentTiling().getDSymbol().countOrbits(0, 1);
 
         // remove all but the first

@@ -17,8 +17,29 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tiler.tiling;
+/*
+ *  Copyright (C) 2018 University of Tuebingen
+ *
+ *  (Some files contain contributions from other authors, who are then mentioned separately.)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
+package tiler.core.reshape;
+
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Node;
@@ -28,10 +49,14 @@ import javafx.scene.shape.Shape;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
-import jloda.util.Pair;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
+import tiler.core.dsymbols.Geometry;
 import tiler.main.Document;
+import tiler.tiling.StraightenEdges;
+import tiler.tiling.Tiling;
+import tiler.tiling.Tools;
+import tiler.tiling.Transforms;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -126,8 +151,6 @@ public class ReshapeManager {
      * @param deltaY
      */
     public Point2D resetShape(double deltaX, double deltaY, int type, int a) {
-
-
         // Reset Point in fundamental domain
         Point2D transVector = new Point2D(deltaX, deltaY);
 
@@ -472,33 +495,64 @@ public class ReshapeManager {
      * set the mouse handler
      *
      */
-    private void setMouseHandler(Shape shape, int type, int a) {
-        final Pair<Double, Double> mouse = new Pair<>();
+    private void setMouseHandler(Shape shape, int m, int a) {
+        final ObjectProperty<Point2D> start = new SimpleObjectProperty<>(null);
+        final ObjectProperty<Point2D> location = new SimpleObjectProperty<>(null);
 
         shape.setOnMousePressed((e) -> {
-            mouse.set(e.getSceneX(), e.getSceneY());
+            start.set(new Point2D(e.getSceneX(), e.getSceneY()));
+            location.set(start.get());
             e.consume();
         });
 
         shape.setOnMouseDragged((e) -> {
-            double deltaX = e.getSceneX() - mouse.getFirst();
-            double deltaY = e.getSceneY() - mouse.getSecond();
+            final double deltaX = e.getSceneX() - location.get().getX();
+            final double deltaY = e.getSceneY() - location.get().getY();
 
             // Reset shape of fundamental domain
-            javafx.geometry.Point2D transVector = resetShape(deltaX, deltaY, type,a);
+            final Point2D transVector = resetShape(deltaX, deltaY, m, a);
 
             // Move handles along transVector
             shape.setTranslateX(shape.getTranslateX() + transVector.getX());
             shape.setTranslateY(shape.getTranslateY() + transVector.getY());
 
-            mouse.setFirst(e.getSceneX() - deltaX + transVector.getX());
-            mouse.setSecond(e.getSceneY() - deltaY + transVector.getY());
+            location.set(new Point2D(e.getSceneX() - deltaX + transVector.getX(), e.getSceneY() - deltaY + transVector.getY()));
 
             e.consume();
         });
 
         shape.setOnMouseReleased((e) -> {
+            final ReshapeEdit edit = new ReshapeEdit(m, a, location.get().subtract(start.get()));
+
+            document.getCurrentTiling().getListOfEdits().add(edit);
+
             document.update();
         });
+    }
+
+    /**
+     * this is supposed to transfer all edge shape edits from one symmetry group to the next
+     *
+     * @param document
+     */
+    public static void replay(Document document) {
+        if (document.getCurrentTiling().getListOfEdits().size() > 0) {
+            final ArrayList<ReshapeEdit> edits = new ArrayList<>(document.getCurrentTiling().getListOfEdits());
+            document.moveTo(Document.RELOAD);
+            document.update();
+
+            ReshapeManager reshapeManager = new ReshapeManager(document);
+            for (ReshapeEdit edit : edits) {
+                System.err.println("applying edit: " + edit);
+                double factor;
+                if (document.getCurrentTiling().getGeometry() == Geometry.Spherical)
+                    factor = 1;
+                else
+                    factor = 1;
+                reshapeManager.resetShape(factor * edit.getOffset().getX(), factor * edit.getOffset().getY(), edit.getM(), edit.getA());
+                document.update();
+            }
+            document.getCurrentTiling().getListOfEdits().setAll(edits);
+        }
     }
 }

@@ -28,7 +28,7 @@
 <?import java.lang.String?>
 <BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
             prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.111"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="tiler.main.MainViewController">
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="tiler.main.MainWindowController">
     <top>
         <VBox prefHeight="40.0" prefWidth="600.0" BorderPane.alignment="CENTER">
             <children>
@@ -49,6 +49,11 @@
                                                             shortcut="DOWN"/>
                                     </accelerator>
                                 </MenuItem>
+                                <Menu fx:id="openRecentMenu" mnemonicParsing="false" text="Open Recent">
+                                    <items>
+                                        <MenuItem mnemonicParsing="false" text="Action 1"/>
+                                    </items>
+                                </Menu>
                                 <SeparatorMenuItem/>
                                 <MenuItem fx:id="saveMenuItem" text="Save...">
                                     <accelerator>
@@ -214,7 +219,7 @@
                                 </CheckMenuItem>
                             </items>
                         </Menu>
-                        <Menu text="Help">
+                        <Menu text="Window">
                             <items>
                                 <MenuItem fx:id="aboutMenuItem" text="About">
                                     <accelerator>
@@ -301,13 +306,19 @@
                         <ToggleButton fx:id="showRotationsToggleButton" mnemonicParsing="false" text="Symmetries"/>
                         <ToggleButton fx:id="toolsToggleButton" layoutX="529.0" layoutY="11.0" mnemonicParsing="false"
                                       text="Tools"/>
+                        <Button fx:id="testButton" mnemonicParsing="false" text="Test"/>
                     </items>
                 </ToolBar>
             </children>
         </VBox>
     </top>
     <bottom>
-        <TextField fx:id="statusTextField" BorderPane.alignment="CENTER"/>
+        <FlowPane fx:id="statusFlowPane" hgap="5.0" minHeight="32.0" style="-fx-border-color: lightgray;" vgap="5.0"
+                  BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </FlowPane>
     </bottom>
     <center>
         <AnchorPane BorderPane.alignment="CENTER">

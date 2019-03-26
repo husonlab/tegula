@@ -22,8 +22,16 @@ package tiler.main;
 import com.briksoftware.javafx.platform.osx.OSXIntegration;
 import javafx.application.Application;
 import javafx.stage.Stage;
-import jloda.fx.SplashScreen;
-import jloda.util.*;
+import jloda.fx.util.ArgsOptions;
+import jloda.fx.util.ProgramPropertiesFX;
+import jloda.fx.util.RecentFilesManager;
+import jloda.fx.window.MainWindowManager;
+import jloda.fx.window.SplashScreen;
+import jloda.fx.window.WindowGeometry;
+import jloda.util.Basic;
+import jloda.util.CanceledException;
+import jloda.util.UsageException;
+import tiler.actions.OpenFileAction;
 
 import java.io.File;
 import java.time.Duration;
@@ -34,26 +42,41 @@ import java.time.Duration;
  * Daniel Huson, 11.2018
  */
 public class PeriodicTiler extends Application {
+    private static String[] inputFilesAtStartup;
+
+    @Override
+    public void init() throws Exception {
+        ProgramPropertiesFX.setUseGUI(true);
+    }
+
     /**
-     * launch the program
+     * main
      *
-     * @param argv
-     * @throws CanceledException
-     * @throws UsageException
+     * @param args
      */
-    public static void main(String[] argv) throws CanceledException, UsageException {
+    public static void main(String[] args) throws CanceledException, UsageException {
+        parseArguments(args);
+        launch(args);
+    }
+
+    private static void parseArguments(String[] args) throws CanceledException, UsageException {
         Basic.restoreSystemOut(System.err); // send system out to system err
         Basic.startCollectionStdErr();
 
-        ProgramProperties.setProgramName(Version.NAME);
-        ProgramProperties.setProgramVersion(Version.SHORT_DESCRIPTION);
+        ProgramPropertiesFX.setProgramName(Version.NAME);
+        ProgramPropertiesFX.setProgramVersion(Version.SHORT_DESCRIPTION);
 
-        final ArgsOptions options = new ArgsOptions(argv, PeriodicTiler.class, "PeriodicTiler - 2D tiler");
+        final ArgsOptions options = new ArgsOptions(args, PeriodicTiler.class, "PeriodicTiler - 2D tiler");
         options.setAuthors("Daniel H. Huson, Klaus Westphal and Ruediger Zeller, with contributions from Julius Vetter and Cornelius Wiehl");
         options.setLicense("This is an early (ALPHA) version of Periodic, made available for testing purposes. Source code will be released on publication.");
-        options.setVersion(ProgramProperties.getProgramVersion());
+        options.setVersion(ProgramPropertiesFX.getProgramVersion());
+
+        options.comment("Input:");
+        inputFilesAtStartup = options.getOption("-i", "input", "Input file(s)", new String[0]);
+
+
         final String defaultPropertiesFile;
-        if (ProgramProperties.isMacOS())
+        if (ProgramPropertiesFX.isMacOS())
             defaultPropertiesFile = System.getProperty("user.home") + "/Library/Preferences/PeriodicTiler.def";
         else
             defaultPropertiesFile = System.getProperty("user.home") + File.separator + ".PeriodicTiler.def";
@@ -62,7 +85,7 @@ public class PeriodicTiler extends Application {
         final boolean silentMode = options.getOption("-S", "silentMode", "Silent mode", false);
         options.done();
 
-        ProgramProperties.load(propertiesFile);
+        ProgramPropertiesFX.load(propertiesFile);
 
         if (silentMode) {
             Basic.stopCollectingStdErr();
@@ -71,23 +94,32 @@ public class PeriodicTiler extends Application {
         }
 
         if (showVersion) {
-            System.err.println(ProgramProperties.getProgramVersion());
-            System.err.println(jloda.util.Version.getVersion(PeriodicTiler.class, ProgramProperties.getProgramName()));
+            System.err.println(ProgramPropertiesFX.getProgramVersion());
+            System.err.println(jloda.util.Version.getVersion(PeriodicTiler.class, ProgramPropertiesFX.getProgramName()));
             System.err.println("Java version: " + System.getProperty("java.version"));
         }
-
-        Application.launch(argv);
     }
 
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle(ProgramProperties.getProgramName());
+        primaryStage.setTitle(ProgramPropertiesFX.getProgramName());
 
-        new MainView(primaryStage);
-        primaryStage.sizeToScene();
+        final MainWindow mainWindow = new MainWindow();
+        MainWindowManager.getInstance().addMainWindow(mainWindow);
+
+        RecentFilesManager.getInstance().setFileOpener(OpenFileAction.fileOpener());
+
+        final WindowGeometry windowGeometry = new WindowGeometry(ProgramPropertiesFX.get("WindowGeometry", "50 50 800 800"));
+
+
+        mainWindow.show(primaryStage, windowGeometry.getX(), windowGeometry.getY(), windowGeometry.getWidth(), windowGeometry.getHeight());
+        for (String fileName : inputFilesAtStartup) {
+            OpenFileAction.fileOpener().accept(fileName);
+        }
 
         // setup about and preferences menu for apple:
+        SplashScreen.setVersionString(Version.SHORT_DESCRIPTION);
         OSXIntegration.init();
         OSXIntegration.populateAppleMenu(() -> SplashScreen.getInstance().showSplash(Duration.ofMinutes(1)), () -> System.err.println("Preferences"));
 
@@ -100,8 +132,9 @@ public class PeriodicTiler extends Application {
     }
 
     @Override
-    public void stop() throws Exception {
-        super.stop();
-        ProgramProperties.store();
+    public void stop() {
+        ProgramPropertiesFX.store();
+        System.exit(0);
+
     }
 }

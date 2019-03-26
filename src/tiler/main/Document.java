@@ -50,6 +50,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
+import jloda.util.Basic;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
@@ -69,10 +70,12 @@ import java.util.LinkedList;
  * Daniel Huson and Ruediger Zeller, 2016
  */
 public class Document {
+    private final StringProperty fileName = new SimpleStringProperty("Untitled");
     static public final int FIRST = 0;
     static public final int NEXT = -1;
     static public final int PREV = -2;
     static public final int LAST = -3;
+    static public final int RELOAD = -4;
 
     public enum HyperbolicModel {Poincare, Klein, Hyperboloid}
 
@@ -140,7 +143,6 @@ public class Document {
             }
         });
 
-
         numberOfTilings.bind(Bindings.size(tilings));
 
         pointLight = new PointLight(Color.WHITE);
@@ -205,6 +207,11 @@ public class Document {
             case LAST:
                 currentIndex.set(size() - 1);
                 break;
+            case RELOAD: {
+                tilings.set(old, new Tiling(tilings.get(old).getDSymbol()));
+                currentTiling.set(tilings.get(old));
+                break;
+            }
             default:
                 currentIndex.set(Math.max(0, Math.min(size() - 1, which)));
                 break;
@@ -877,5 +884,21 @@ public class Document {
 
     public TilingStyle getTilingStyle() {
         return tilingStyle;
+    }
+
+    public String getFileName() {
+        return fileName.get();
+    }
+
+    public StringProperty fileNameProperty() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName.set(fileName);
+    }
+
+    public String getName() {
+        return Basic.getFileNameWithoutPath(getFileName());
     }
 }

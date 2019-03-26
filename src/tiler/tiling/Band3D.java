@@ -143,8 +143,7 @@ public class Band3D extends Group {
 
     // Attempt to draw band with band caps needs a lot of refactoring, not sure if
     // useful
-    public static TriangleMesh[] connectEdges(Point3D point0, Point3D point1, FDomain fDomain, double bandWidth,
-                                              double capSize, double above) {
+    public static TriangleMesh[] connectEdges(Point3D point0, Point3D point1, FDomain fDomain, double bandWidth, double capSize, double above) {
 
         final int[] faces;
         final int[] facesedges;

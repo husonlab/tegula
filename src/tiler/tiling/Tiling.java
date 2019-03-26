@@ -18,6 +18,9 @@
  */
 package tiler.tiling;
 
+import javafx.beans.InvalidationListener;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
@@ -29,6 +32,8 @@ import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
 import tiler.core.dsymbols.OrbifoldGroupName;
+import tiler.core.reshape.ReshapeEdit;
+import tiler.core.reshape.ReshapeManager;
 import tiler.main.Document;
 import tiler.main.TilingStyle;
 import tiler.util.JavaFXUtils;
@@ -83,6 +88,8 @@ public class Tiling {
     private double tolerance = 0.0;
     private int referenceChamberIndex = 0;
 
+    private final ObservableList<ReshapeEdit> listOfEdits = FXCollections.observableArrayList();
+
     /**
      * constructor
      *
@@ -113,6 +120,13 @@ public class Tiling {
 
         for (int a = 1, count = 1; a <= ds.size(); a = ds.nextOrbit(0, 1, a, flag2tile, count++)) // this also sets flag2vert
             tile2flag[count] = a;
+
+        getListOfEdits().addListener((InvalidationListener) (c) -> {
+            System.err.println("Edits: ");
+            for (ReshapeEdit edit : getListOfEdits()) {
+                System.err.println(edit);
+            }
+        });
     }
 
     /**
@@ -1119,5 +1133,9 @@ public class Tiling {
 
     public Transforms getGenerators() {
         return generators;
+    }
+
+    public ObservableList<ReshapeEdit> getListOfEdits() {
+        return listOfEdits;
     }
 }

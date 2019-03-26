@@ -28,7 +28,8 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import jloda.fx.Print;
+import jloda.fx.util.CopyableLabel;
+import jloda.fx.util.Print;
 import tiler.color.ColorSchemeDialog;
 import tiler.color.ColorSchemeManager;
 import tiler.core.dsymbols.DSymbol;
@@ -56,7 +57,7 @@ public class SetupController {
      * @param document
      * @param mainStage
      */
-    public static void setup(MainViewController controller, Document document, Stage mainStage) {
+    public static void setup(MainWindowController controller, Document document, Stage mainStage) {
         document.updateNumberProperty().addListener((c, o, n) -> {
             SetupGroupEditing.apply(controller, document);
             SetupTileColors.apply(controller, document);
@@ -80,7 +81,9 @@ public class SetupController {
         
         //document.showLinesProperty().bind(mainViewController.getCbShowLines().selectedProperty());
 
-        controller.getStatusTextField().textProperty().bind(document.statusLineProperty());
+        final CopyableLabel statusLabel = new CopyableLabel();
+        controller.getStatusFlowPane().getChildren().add(statusLabel);
+        statusLabel.textProperty().bind(document.statusLineProperty());
 
         controller.getNewMenuItem().setOnAction((e) -> System.err.print("Not implemented"));
 
@@ -252,8 +255,7 @@ public class SetupController {
                 controller.getStraightenAllMenuItem().fire();
         });
         document.alwaysStraightenEdgesProperty().addListener((c, o, n) -> controller.getStraightenAlwaysCheckMenuItem().setSelected(n));
-        controller.getBandWidthSpinner().valueProperty().addListener((c, o, n) -> {
-        });
+
 
         controller.getBandWidthSpinner().valueProperty().addListener((c, o, n) -> {
             document.getTilingStyle().setBandWidth(n);
@@ -322,9 +324,13 @@ public class SetupController {
             document.getTilingStyle().setShowAllChambers(controller.getShowChambersMenuItem().isSelected());
             document.update();
         });
+
+        controller.getTestButton().setOnAction((e) -> {
+            System.err.println("Not implemented");
+        });
     }
 
-    public static void addToColorsMenu(MainViewController controller, Document document, String name) {
+    public static void addToColorsMenu(MainWindowController controller, Document document, String name) {
         for (int pos = 0; pos < controller.getColorsMenu().getItems().size(); pos++) {
             if (controller.getColorsMenu().getItems().get(pos) instanceof SeparatorMenuItem) {
                 final RadioMenuItem menuItem = new RadioMenuItem(name);
