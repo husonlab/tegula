@@ -28,7 +28,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import jloda.fx.util.CopyableLabel;
+import jloda.fx.control.CopyableLabel;
 import jloda.fx.util.Print;
 import tiler.color.ColorSchemeDialog;
 import tiler.color.ColorSchemeManager;
