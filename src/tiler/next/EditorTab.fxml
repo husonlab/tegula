@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~  Copyright (C) 2019. Daniel H. Huson
+  ~  
+  ~  (Some files contain contributions from other authors, who are then mentioned separately.)
+  ~  
+  ~  This program is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~  (at your option) any later version.
+  ~  
+  ~  This program is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~  GNU General Public License for more details.
+  ~  
+  ~  You should have received a copy of the GNU General Public License
+  ~  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.111"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="tiler.next.EditorTabController">
+    <top>
+        <ToolBar fx:id="mainToolBar" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity"
+                 prefHeight="40.0" prefWidth="600.0">
+            <items>
+                <ChoiceBox fx:id="modelChoiceBox" value="Poincare Model">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Poincare Model"/>
+                            <String fx:value="Klein Model"/>
+                            <String fx:value="Hyperboloid"/>
+                        </FXCollections>
+                    </items>
+                </ChoiceBox>
+                <Button fx:id="showMoreTilesButton" mnemonicParsing="false" text="++"/>
+                <Button fx:id="showLessTilesButton" mnemonicParsing="false" text="--"/>
+                <Separator orientation="VERTICAL" prefHeight="200.0"/>
+                <ToggleButton fx:id="showRotationsToggleButton" mnemonicParsing="false" text="Symmetries"/>
+                <ToggleButton fx:id="toolsToggleButton" layoutX="529.0" layoutY="11.0" mnemonicParsing="false"
+                              text="Tools"/>
+                <Button fx:id="testButton" mnemonicParsing="false" text="Test"/>
+            </items>
+        </ToolBar>
+    </top>
+    <center>
+        <AnchorPane fx:id="mainAnchorPane" BorderPane.alignment="CENTER">
+            <children>
+                <Pane fx:id="mainPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                </Pane>
+                <ToolBar fx:id="rotationsToolBar" maxWidth="-Infinity" minWidth="-Infinity" orientation="VERTICAL"
+                         style="-fx-border-color: lightgray;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                         AnchorPane.topAnchor="0.0">
+                    <items>
+                        <TextField fx:id="groupTextField" editable="false" prefHeight="27.0" prefWidth="40.0"
+                                   promptText="Group" style="-fx-background-color: transparent;"/>
+                        <Spinner fx:id="v1Spinner" maxHeight="24.0" maxWidth="60.0" minHeight="24.0" minWidth="60.0"
+                                 prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v2Spinner" layoutX="10.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v3Spinner" layoutX="78.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v4Spinner" layoutX="146.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v5Spinner" layoutX="214.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v6Spinner" layoutX="282.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v7Spinner" layoutX="350.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v8Spinner" layoutX="418.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v9Spinner" layoutX="486.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                        <Spinner fx:id="v10Spinner" layoutX="554.0" layoutY="10.0" maxHeight="24.0" maxWidth="60.0"
+                                 minHeight="24.0" minWidth="60.0" prefHeight="24.0" prefWidth="60.0">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                        </Spinner>
+                    </items>
+                    <opaqueInsets>
+                        <Insets/>
+                    </opaqueInsets>
+                </ToolBar>
+                <ToolBar fx:id="toolsToolBar" maxWidth="-Infinity" minWidth="-Infinity" orientation="VERTICAL"
+                         prefWidth="110.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                         AnchorPane.topAnchor="0.0">
+                    <items>
+                        <Label alignment="CENTER" layoutX="10.0" layoutY="110.0" maxWidth="1.7976931348623157E308"
+                               text="Change Tiling"/>
+                        <Button fx:id="dualizeButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                text="Dualize"/>
+                        <Button fx:id="orientateButton" layoutX="10.0" layoutY="103.0" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" text="Orientate"/>
+                        <Button fx:id="maximizeButton" layoutX="10.0" layoutY="134.0" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" text="Max Symm"/>
+                        <Separator prefWidth="200.0"/>
+                        <CheckBox fx:id="showBandsCheckBox" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                  text="Bands"/>
+                        <Spinner fx:id="bandWidthSpinner" editable="true"/>
+                        <ColorPicker fx:id="bandsColorPicker"/>
+                        <Separator prefWidth="200.0"/>
+                        <CheckBox fx:id="showFacesCheckBox" mnemonicParsing="false" text="Faces"/>
+                        <CheckBox fx:id="smoothEdgesCheckBox" layoutX="10.0" layoutY="170.0" mnemonicParsing="false"
+                                  text="Smooth"/>
+                        <CheckBox fx:id="backEdgesCheckBox" layoutX="10.0" layoutY="244.0" mnemonicParsing="false"
+                                  text="Back Edges"/>
+                        <ColorPicker fx:id="tile1ColorPicker" promptText="tile1ColorPicker"/>
+                        <Separator prefWidth="200.0"/>
+                        <Label alignment="CENTER" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308"
+                               text="Background"/>
+                        <ColorPicker fx:id="backgroundColorPicker"/>
+                    </items>
+                </ToolBar>
+
+            </children>
+        </AnchorPane>
+    </center>
+    <bottom>
+        <FlowPane hgap="5.0" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="36.0"
+                  style="-fx-border-color: lightgray;" vgap="5.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </FlowPane>
+    </bottom>
+</BorderPane>

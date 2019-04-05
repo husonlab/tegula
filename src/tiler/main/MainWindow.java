@@ -175,4 +175,8 @@ public class MainWindow implements IMainWindow {
     public boolean isEmpty() {
         return false;
     }
+
+    @Override
+    public void close() {
+    }
 }

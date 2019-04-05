@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~  Copyright (C) 2019. Daniel H. Huson
+  ~  
+  ~  (Some files contain contributions from other authors, who are then mentioned separately.)
+  ~  
+  ~  This program is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~  (at your option) any later version.
+  ~  
+  ~  This program is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~  GNU General Public License for more details.
+  ~  
+  ~  You should have received a copy of the GNU General Public License
+  ~  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane fx:id="borderPane" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.111"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="tiler.next.CollectionTabController">
+    <top>
+        <AnchorPane>
+            <children>
+
+                <ToolBar fx:id="mainToolBar" maxHeight="-Infinity" maxWidth="1.7976931348623157E308"
+                         minHeight="-Infinity" prefHeight="36.0" AnchorPane.bottomAnchor="0.0"
+                         AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <items>
+                        <Button fx:id="firstTilingButton" layoutX="77.0" layoutY="11.0" mnemonicParsing="false">
+                            <graphic>
+                                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="/resources/icons/First16.gif"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                        <Button fx:id="previousTilingButton" accessibleText="Previous" layoutX="211.0" layoutY="11.0"
+                                mnemonicParsing="false">
+                            <graphic>
+                                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="/resources/icons/sun/toolbarButtonGraphics/navigation/Back16.gif"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                        <TextField fx:id="tilingNumberTextField" prefHeight="27.0" prefWidth="66.0"/>
+                        <Button fx:id="nextTilingButton" layoutX="144.0" layoutY="11.0" mnemonicParsing="false">
+                            <graphic>
+                                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="/resources/icons/sun/toolbarButtonGraphics/navigation/Forward16.gif"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                        <Button fx:id="lastTilingButton" layoutX="278.0" layoutY="11.0" mnemonicParsing="false">
+                            <graphic>
+                                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="/resources/icons/Last16.gif"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                    </items>
+                </ToolBar>
+                <Slider fx:id="sizeSlider" max="1000.0" min="10.0" snapToTicks="true" value="100.0"
+                        AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0"/>
+            </children>
+        </AnchorPane>
+
+    </top>
+    <center>
+        <AnchorPane fx:id="mainAnchorPane" BorderPane.alignment="CENTER">
+            <children>
+                <ScrollPane fx:id="scrollPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <content>
+                        <FlowPane fx:id="flowPane" hgap="10.0" vgap="10.0">
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                            </padding>
+                        </FlowPane>
+                    </content>
+                </ScrollPane>
+            </children>
+        </AnchorPane>
+    </center>
+</BorderPane>

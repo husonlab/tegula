@@ -30,12 +30,12 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import jloda.fx.control.CopyableLabel;
 import jloda.fx.util.Print;
+import jloda.swing.util.ProgramProperties;
 import tiler.color.ColorSchemeDialog;
 import tiler.color.ColorSchemeManager;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.DSymbolAlgorithms;
 import tiler.core.dsymbols.Geometry;
-import tiler.main_deprecated.Main;
 import tiler.tiling.StraightenEdges;
 import tiler.tiling.Tiling;
 
@@ -91,8 +91,8 @@ public class SetupController {
             final FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Open file of tilings");
             fileChooser.setInitialDirectory(
-                    new File(Main.getProgramPreferences().getProperty("InputDirectory", ".")));
-            fileChooser.setInitialFileName(Main.getProgramPreferences().getProperty("InputFile", ""));
+                    new File(ProgramProperties.get("InputDirectory", ".")));
+            fileChooser.setInitialFileName(ProgramProperties.get("InputFile", ""));
 
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Tilings", "*.tgs"));
 
