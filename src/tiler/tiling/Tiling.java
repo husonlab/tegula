@@ -547,7 +547,7 @@ public class Tiling {
 
         //System.out.println(refPointHyperbolic);
 
-        final Group group = new Group();
+        final Group all = new Group();
         final Group fund = new Group();
 
         refPointHyperbolic = fDomain.getChamberCenter3D(referenceChamberIndex).multiply(0.01);
@@ -569,6 +569,7 @@ public class Tiling {
             fund.setRotationAxis(refPointHyperbolic);
             fund.getTransforms().add(new Translate());
             setHyperbolicFund(fund);
+            all.getChildren().add(fund);
         }
 
         if (!drawFundamentalDomainOnly) {
@@ -582,9 +583,9 @@ public class Tiling {
                 if (seen.insert(fDomain.getGeometry(), genRef, tolerance)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
                     if (makeCopyHyperbolic(genRef)) {
                         if (translateOrIncreaseTiling()) {
-                            useRecycler(group, g, genRef, getHyperbolicFund());
+                            useRecycler(all, g, genRef, getHyperbolicFund());
                         } else {
-                            generateNewCopy(group, g, genRef, fund);
+                            generateNewCopy(all, g, genRef, fund);
                         }
                     }
                 }
@@ -609,9 +610,9 @@ public class Tiling {
                         queue.add(tg);
                         if (makeCopyHyperbolic(bpt)) {
                             if (translateOrIncreaseTiling()) {
-                                useRecycler(group, tg, bpt, getHyperbolicFund());
+                                useRecycler(all, tg, bpt, getHyperbolicFund());
                             } else {
-                                generateNewCopy(group, tg, bpt, fund);
+                                generateNewCopy(all, tg, bpt, fund);
                             }
                         }
                     }
@@ -623,9 +624,9 @@ public class Tiling {
                         queue.add(gt);
                         if (makeCopyHyperbolic(bpt)) {
                             if (translateOrIncreaseTiling()) {
-                                useRecycler(group, gt, bpt, getHyperbolicFund());
+                                useRecycler(all, gt, bpt, getHyperbolicFund());
                             } else {
-                                generateNewCopy(group, gt, bpt, fund);
+                                generateNewCopy(all, gt, bpt, fund);
                             }
                         }
                     }
@@ -635,12 +636,12 @@ public class Tiling {
 
         // only what one copy of these things:
         if (tilingStyle.isShowFundamentalChambers() && !tilingStyle.isShowAllChambers())
-            group.getChildren().add(fundamentalDomain.getChambers());
+            all.getChildren().add(fundamentalDomain.getChambers());
 
         if (tilingStyle.isShowHandles())
-            group.getChildren().add(fundamentalDomain.getHandles());
+            all.getChildren().add(fundamentalDomain.getHandles());
 
-        return group;
+        return all;
     }
 //----------------------------------------------------------------------------------------------------------------------
 

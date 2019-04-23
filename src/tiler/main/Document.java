@@ -550,6 +550,8 @@ public class Document {
             // Calculate hyperbolic translation of group:
             Transform translate = Tools.hyperbolicTranslation(dx, dy);
 
+            System.err.println("translate: " + translate);
+
             // OctTree is used for saving copies which are kept under translation
             tiling.clearKeptHyperbolicCopy();
 
