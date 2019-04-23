@@ -7,10 +7,10 @@ import javafx.scene.transform.Transform;
 import tegula.core.fundamental.Approximate;
 import tegula.core.fundamental.Glue;
 import tegula.core.fundamental.data.*;
+import tegula.geometry.Tools;
 import tegula.tiling.ComputeGeneratorsAndConstraints;
 import tegula.tiling.Constraints;
 import tegula.tiling.Generators;
-import tegula.tiling.Tools;
 
 import java.io.IOException;
 import java.io.StringWriter;

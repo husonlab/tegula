@@ -25,6 +25,9 @@ import javafx.util.Pair;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
 import tegula.core.dsymbols.Geometry;
+import tegula.geometry.EuclideanGeometry;
+import tegula.geometry.HyperbolicGeometry;
+import tegula.geometry.SphericalGeometry;
 
 /**
  * Symmetry group constraints and generators

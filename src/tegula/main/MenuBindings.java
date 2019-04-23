@@ -27,8 +27,8 @@ import jloda.fx.util.Print;
 import jloda.fx.util.Printable;
 import jloda.fx.window.MainWindowManager;
 import tegula.core.dsymbols.DSymbol;
-import tegula.main.collection.TilingCollectionTab;
-import tegula.main.editor.TilingEditorTab;
+import tegula.tilingcollection.TilingCollectionTab;
+import tegula.tilingeditor.TilingEditorTab;
 
 import java.util.Collection;
 

@@ -30,8 +30,8 @@ import javafx.stage.Stage;
 import jloda.fx.control.SplittableTabPane;
 import jloda.fx.util.ExtendedFXMLLoader;
 import jloda.fx.window.IMainWindow;
-import tegula.main.collection.TilingCollection;
-import tegula.main.collection.TilingCollectionTab;
+import tegula.tilingcollection.TilingCollection;
+import tegula.tilingcollection.TilingCollectionTab;
 
 import java.io.File;
 

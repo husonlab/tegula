@@ -21,7 +21,7 @@ package tegula.main;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-import tegula.main.collection.TilingCollection;
+import tegula.tilingcollection.TilingCollection;
 
 import java.io.File;
 
