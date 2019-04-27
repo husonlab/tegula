@@ -1,6 +1,27 @@
+/*
+ * FundamentalDomain.java Copyright (C) 2019. Daniel H. Huson
+ *
+ *  (Some files contain contributions from other authors, who are then mentioned separately.)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package tiler.tiling;
 
-import javafx.geometry.Point2D;
+import javafx.beans.InvalidationListener;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.effect.DropShadow;
@@ -11,28 +32,64 @@ import javafx.scene.shape.Sphere;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.transform.Affine;
 import javafx.scene.transform.Translate;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
 import tiler.core.fundamental.utils.WrapInt;
+import tiler.geometry.Tools;
 import tiler.main.TilingStyle;
+import tiler.tiling.parts.Band3D;
+import tiler.tiling.parts.BandCap3D;
+import tiler.tiling.parts.Lines;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collection;
 
 /**
  * Fundamental domain for tiling
  * Daniel Huson and Ruediger Zeller, 2016
  */
 public class FundamentalDomain {
+    private final ArrayList<Group> allRequested = new ArrayList<>();
+
     private final Group tiles = new Group();
     private final Group bands = new Group();
     private final Group chambers = new Group(); // not implemented yet
+    private final Group decorations = new Group();
     private final Group handles = new Group(); // not implemented here yet
-    private final Group symmetryIcons = new Group(); // not implemented yet
-    private final Group otherStuff = new Group();
+
+    private final BooleanProperty includeTiles = new SimpleBooleanProperty(true);
+    private final BooleanProperty includeBands = new SimpleBooleanProperty(true);
+    private final BooleanProperty includeChambers = new SimpleBooleanProperty(true);
+    private final BooleanProperty includeDecorations = new SimpleBooleanProperty(false);
+    private final BooleanProperty includeHandles = new SimpleBooleanProperty(false);
+
+    /**
+     * constructor
+     */
+    public FundamentalDomain() {
+        InvalidationListener listener = observable -> {
+            allRequested.clear();
+            if (isIncludeTiles())
+                allRequested.add(tiles);
+            if (isIncludeBands())
+                allRequested.add(bands);
+            if (isIncludeChambers())
+                allRequested.add(chambers);
+            if (isIncludeDecorations())
+                allRequested.add(decorations);
+            if (isIncludeHandles())
+                allRequested.add(handles);
+        };
+        includeTilesProperty().addListener(listener);
+        includeBandsProperty().addListener(listener);
+        includeChambersProperty().addListener(listener);
+        includeDecorationsProperty().addListener(listener);
+        includeHandlesProperty().addListener(listener);
+    }
 
     /**
      * clear
@@ -42,8 +99,7 @@ public class FundamentalDomain {
         bands.getChildren().clear();
         chambers.getChildren().clear();
         handles.getChildren().clear();
-        symmetryIcons.getChildren().clear();
-        otherStuff.getChildren().clear();
+        decorations.getChildren().clear();
     }
 
     /**
@@ -58,9 +114,6 @@ public class FundamentalDomain {
 
         chambers.getChildren().addAll(computeChambers(fDomain));
         chambers.getTransforms().setAll(new Translate());
-
-        final BitSet visitBands = new BitSet(fDomain.size());
-        final BitSet visitBandCaps = new BitSet(fDomain.size());
 
         // set colors
         final Color[] colors = new Color[fDomain.size() + 1];
@@ -85,7 +138,6 @@ public class FundamentalDomain {
 
         double linesAbove; // defines the height of the line above the faces
 
-        final TriangleMesh theMesh = new TriangleMesh();
 
         // Booleans
         boolean drawFaces = tilingStyle.isShowFaces();
@@ -97,254 +149,208 @@ public class FundamentalDomain {
         final int orientation = (computeWindingNumber(fDomain.getVertex3D(0, 1), fDomain.getVertex3D(1, 1),
                 fDomain.getVertex3D(2, 1)) < 0 ? fDomain.getOrientation(1) : -fDomain.getOrientation(1));
 
-        for (int a = 1; a <= fDomain.size(); a++) {
-            final float[] points;
-            final Point3D[] points3d; // points that create the triangles
-            final Point3D[] linepoints3d;
-            final Point3D[] bandCapPoinst3D;
+        final BitSet flagAHasBand = new BitSet(fDomain.size());
+        final BitSet flagAHasBandCaps = new BitSet(fDomain.size());
 
+        for (int a = 1; a <= fDomain.size(); a++) {
+            final float[] trianglePointsCoordinates;
+            final Point3D[] trianglePoints3D; // points that create the triangles
+            final Point3D[] bandPoints3D;
+            final Point3D[] bandCapPoints3D;
             final int[] faces;
 
-            if (geom == Geometry.Spherical) { // Spherical
+            switch (geom) {
+                case Spherical: {
 
-                final int depth = tilingStyle.isSmoothEdges() ? 4 : 0; // 4^5 = 1024
+                    final int depth = tilingStyle.isSmoothEdges() ? 4 : 0; // 4^5 = 1024
 
-                faces = new int[(int) Math.pow(4, (depth + 1)) * 6];
-                points3d = new Point3D[depth == 0 ? 6 : 1026]; // 3, 6, 66, 258, 1026 // size of points array dependent on depth
+                    faces = new int[(int) Math.pow(4, (depth + 1)) * 6];
+                    trianglePoints3D = new Point3D[depth == 0 ? 6 : 1026]; // 3, 6, 66, 258, 1026 // size of points array dependent on depth
 
-                final WrapInt p = new WrapInt(0);
-                final WrapInt f = new WrapInt(0);
+                    final WrapInt p = new WrapInt(0);
+                    final WrapInt f = new WrapInt(0);
 
-                points3d[p.incrementInt()] = fDomain.getVertex3D(0, a);
-                points3d[p.incrementInt()] = fDomain.getVertex3D(1, a);
-                points3d[p.incrementInt()] = fDomain.getVertex3D(2, a);
-                points3d[p.incrementInt()] = fDomain.getEdgeCenter3D(0, a);
-                points3d[p.incrementInt()] = fDomain.getEdgeCenter3D(1, a);
-                points3d[p.incrementInt()] = fDomain.getEdgeCenter3D(2, a);
+                    trianglePoints3D[p.incrementInt()] = fDomain.getVertex3D(0, a);
+                    trianglePoints3D[p.incrementInt()] = fDomain.getVertex3D(1, a);
+                    trianglePoints3D[p.incrementInt()] = fDomain.getVertex3D(2, a);
+                    trianglePoints3D[p.incrementInt()] = fDomain.getEdgeCenter3D(0, a);
+                    trianglePoints3D[p.incrementInt()] = fDomain.getEdgeCenter3D(1, a);
+                    trianglePoints3D[p.incrementInt()] = fDomain.getEdgeCenter3D(2, a);
 
-                // Iterative Triangle mesh generator
-                class Triangle {
-                    private boolean orientationUp;
-                    private int pointA, pointB, pointC;
-                    private int depth;
-                    private Triangle tri1;
-                    private Triangle tri2;
-                    private Triangle tri3;
-                    private Triangle tri4;
+                    // Iterative Triangle mesh generator
+                    class Triangle {
+                        private boolean orientationUp;
+                        private int pointA, pointB, pointC;
+                        private int depth;
 
-                    private Triangle(boolean orientationUp, int pointA, int pointB, int pointC, int depth) {
-                        this.orientationUp = orientationUp;
-                        this.pointA = pointA;
-                        this.pointB = pointB;
-                        this.pointC = pointC;
-                        this.depth = depth;
+                        private Triangle(boolean orientationUp, int pointA, int pointB, int pointC, int depth) {
+                            this.orientationUp = orientationUp;
+                            this.pointA = pointA;
+                            this.pointB = pointB;
+                            this.pointC = pointC;
+                            this.depth = depth;
 
-                        if (this.depth > 0) {
-                            int midAB = p.incrementInt();
-                            points3d[midAB] = Tools.sphericalMidpoint(points3d[pointA], points3d[pointB]); // Tools.midpoint3D(geom,
-                            // points3d[pointA],
-                            // points3d[pointB]);
-                            int midAC = p.incrementInt();
-                            points3d[midAC] = Tools.sphericalMidpoint(points3d[pointA], points3d[pointC]); // Tools.midpoint3D(geom,
-                            // points3d[pointA],
-                            // points3d[pointC]);
-                            int midBC = p.incrementInt();
-                            points3d[midBC] = Tools.sphericalMidpoint(points3d[pointB], points3d[pointC]);// Tools.midpoint3D(geom,
-                            // points3d[pointB],
-                            // points3d[pointC]);
+                            if (this.depth > 0) {
+                                int midAB = p.incrementInt();
+                                trianglePoints3D[midAB] = Tools.sphericalMidpoint(trianglePoints3D[pointA], trianglePoints3D[pointB]); // Tools.midpoint3D(geom,
+                                int midAC = p.incrementInt();
+                                trianglePoints3D[midAC] = Tools.sphericalMidpoint(trianglePoints3D[pointA], trianglePoints3D[pointC]); // Tools.midpoint3D(geom,
+                                int midBC = p.incrementInt();
+                                trianglePoints3D[midBC] = Tools.sphericalMidpoint(trianglePoints3D[pointB], trianglePoints3D[pointC]);// Tools.midpoint3D(geom,
 
-                            this.tri1 = new Triangle(this.orientationUp, this.pointA, midAB, midAC, --this.depth);
-                            this.tri2 = new Triangle(this.orientationUp, midAB, this.pointB, midBC, this.depth);
-                            this.tri3 = new Triangle(this.orientationUp, midAC, midBC, this.pointC, this.depth);
+                                new Triangle(this.orientationUp, this.pointA, midAB, midAC, --this.depth);
+                                new Triangle(this.orientationUp, midAB, this.pointB, midBC, this.depth);
+                                new Triangle(this.orientationUp, midAC, midBC, this.pointC, this.depth);
 
-                            if (this.orientationUp) {
-                                this.tri4 = new Triangle(!this.orientationUp, midAB, midBC, midAC, this.depth);
+                                if (this.orientationUp) {
+                                    new Triangle(!this.orientationUp, midAB, midBC, midAC, this.depth);
+                                } else {
+                                    new Triangle(!this.orientationUp, midAC, midAB, midBC, this.depth);
+                                }
                             } else {
-                                this.tri4 = new Triangle(!this.orientationUp, midAC, midAB, midBC, this.depth);
+                                int facPos = 6 * f.incrementInt();
+                                faces[facPos] = pointA;
+                                faces[facPos + 1] = 0;
+                                faces[facPos + 2] = pointB;
+                                faces[facPos + 3] = 1;
+                                faces[facPos + 4] = pointC;
+                                faces[facPos + 5] = 2;
                             }
-                        } else {
-                            int facPos = 6 * f.incrementInt();
-                            faces[facPos] = pointA;
-                            faces[facPos + 1] = 0;
-                            faces[facPos + 2] = pointB;
-                            faces[facPos + 3] = 1;
-                            faces[facPos + 4] = pointC;
-                            faces[facPos + 5] = 2;
                         }
                     }
+
+                    // clockwise orientation
+                    new Triangle(true, 0, 4, 5, depth);
+                    new Triangle(true, 5, 3, 1, depth);
+                    new Triangle(true, 4, 2, 3, depth);
+                    new Triangle(false, 4, 3, 5, depth);
+
+                    if (tilingStyle.isSmoothEdges()) {
+                        int[] pointsOf2EdgeSorted = {0, 16, 13, 22, 10, 46, 43, 52, 7, 142, 139,
+                                148, 136, 172, 169, 178, 5,
+                                271, 268, 277, 265, 301, 298, 307, 262, 397, 394, 403, 391, 427, 424, 433, 1};
+
+                        bandPoints3D = new Point3D[pointsOf2EdgeSorted.length];
+
+                        for (int i = 0; i < pointsOf2EdgeSorted.length; i++) {
+                            bandPoints3D[i] = trianglePoints3D[pointsOf2EdgeSorted[i]];
+                        }
+                    } else {
+                        bandPoints3D = new Point3D[]{trianglePoints3D[0], trianglePoints3D[5], trianglePoints3D[5], trianglePoints3D[1]};
+                    }
+
+                    // sets points for band caps
+                    bandCapPoints3D = new Point3D[]{trianglePoints3D[0], trianglePoints3D[5], trianglePoints3D[1]};
+
+                    // scales the points on sphere to reduce rendering problems
+                    for (int i = 0; i < trianglePoints3D.length; i++) {
+                        trianglePoints3D[i] = trianglePoints3D[i].multiply(0.995);
+                    }
+                    break;
                 }
+                case Euclidean: {
+                    /// Original mesh structure
+                    trianglePoints3D = new Point3D[7];
+                    int p = 0;
+                    for (int i = 0; i <= 2; i++) {
+                        trianglePoints3D[p++] = fDomain.getVertex3D(i, a);
+                    }
+                    for (int i = 0; i <= 2; i++) {
+                        trianglePoints3D[p++] = fDomain.getEdgeCenter3D(i, a);
+                    }
+                    trianglePoints3D[p++] = fDomain.getChamberCenter3D(a);
+                    faces = new int[]{0, 0, 6, 1, 5, 2, // v0 cc e2
+                            1, 0, 5, 1, 6, 2, // v1 e2 cc
+                            1, 0, 6, 1, 3, 2, // v1 cc e0
+                            2, 0, 3, 0, 6, 2, // v2 e0 cc
+                            2, 0, 6, 1, 4, 2, // v2 cc e1
+                            0, 0, 4, 1, 6, 2 // v0 e1 cc
+                    };
 
-                // clockwise orientation
-                new Triangle(true, 0, 4, 5, depth);
-                new Triangle(true, 5, 3, 1, depth);
-                new Triangle(true, 4, 2, 3, depth);
-                new Triangle(false, 4, 3, 5, depth);
+                    // Reduced mesh structure: Mesh consists only of 2 triangles
+                    // points3d = new Point3D[4]; //4
+                    //
+                    // int p = 0;
+                    // for (int i = 0; i <= 2; i++) {
+                    // points3d[p++] = fDomain.getVertex3D(i,a);
+                    // }
+                    // points3d[p++] = fDomain.getEdgeCenter3D(2,a);
+                    //
+                    // int[] original = new int[]{
+                    // 0, 0, 2, 1, 3, 2, //v0 v2 e2
+                    // 2, 0, 1, 1, 3, 2, //v2 v1 e2
+                    // };
 
-                //// original structure to get points on 2-line
-                // int[] pointsOf2Edge = { 0, 1, 5, 7, 10, 13, 16, 22, 43, 46, 52, 136, 139,
-                // 142, 148, 169, 172, 178, 262,
-                // 265, 268, 271, 277, 298, 301, 307, 391, 394, 397, 403, 424, 427, 433 }; //
-                // getPositionArray(bolArray);
-                //
-                // int[] pointsOf2EdgeSorted = { 0, 16, 13, 22, 10, 46, 43, 52, 7, 142, 139,
-                // 148, 136, 172, 169, 178, 5,
-                // 271, 268, 277, 265, 301, 298, 307, 262, 397, 394, 403, 391, 427, 424, 433, 1
-                // };
-                //
-                // Point3D[] linepoints3d2 = new Point3D[pointsOf2EdgeSorted.length];
-                //
-                // for (int i = 0; i < pointsOf2EdgeSorted.length; i++) {
-                // linepoints3d2[i] = points3d[pointsOf2EdgeSorted[i]];
-                // }
-
-                ///// gets points on line with interpolation
-                // combines two arrays from 0 to 5 point and 5 to 1 point on 2-line
-
-                final int n = (int) Math.pow(2, depth + 1) / 2; // number of line elements for a line from 0 to 5 or 5 to 1
-                // point
-                final Point3D[] linepoints3d0to5 = new Point3D[n + 1];
-                final Point3D[] linepoints3d5to1 = new Point3D[n + 1];
-
-                // start and end points for the line
-                final Point3D start1 = points3d[0];
-                final Point3D end1 = points3d[5];
-                final Point3D start2 = points3d[5];
-                final Point3D end2 = points3d[1];
-
-                linepoints3d0to5[0] = start1;
-                linepoints3d0to5[n] = end1;
-                linepoints3d5to1[0] = start2;
-                linepoints3d5to1[n] = end2;
-
-                final double h = 1.0 / n; // length of one line segment in %
-
-                // finds interpolated points on line
-                for (int i = 1; i < n; i++) {
-                    double pos = h * i;
-                    linepoints3d0to5[i] = Tools.interpolateSpherePoints(start2, end2, pos);
-                    linepoints3d5to1[i] = Tools.interpolateSpherePoints(start1, end1, pos);
+                    // sets points for bands:
+                    bandPoints3D = new Point3D[3];
+                    bandPoints3D[0] = trianglePoints3D[0];
+                    bandPoints3D[1] = trianglePoints3D[5];
+                    bandPoints3D[2] = trianglePoints3D[1];
+                    bandCapPoints3D = bandPoints3D;
+                    break;
                 }
+                default:
+                case Hyperbolic: {
+                    trianglePoints3D = new Point3D[13];
 
-                // combines the two arrays because only one line is drawn for each domain
-                // element
-                final int size = linepoints3d0to5.length + linepoints3d5to1.length;
-                final Point3D[] array = new Point3D[size];
-                System.arraycopy(linepoints3d0to5, 0, array, 0, linepoints3d0to5.length);
-                System.arraycopy(linepoints3d5to1, 0, array, linepoints3d0to5.length, linepoints3d5to1.length);
+                    int p = 0;
 
-                linepoints3d = array;
+                    for (int i = 0; i <= 2; i++) {
+                        trianglePoints3D[p++] = fDomain.getVertex3D(i, a);
+                    }
+                    for (int i = 0; i <= 2; i++) {
+                        trianglePoints3D[p++] = fDomain.getEdgeCenter3D(i, a);
+                    }
+                    trianglePoints3D[p++] = fDomain.getChamberCenter3D(a);
 
-                // sets points for band caps
-                bandCapPoinst3D = new Point3D[3];
-                bandCapPoinst3D[0] = points3d[0];
-                bandCapPoinst3D[1] = points3d[5];
-                bandCapPoinst3D[2] = points3d[1];
+                    // hyper
+                    trianglePoints3D[p++] = Tools.midpoint3D(geom, trianglePoints3D[0], trianglePoints3D[5]);
+                    trianglePoints3D[p++] = Tools.midpoint3D(geom, trianglePoints3D[5], trianglePoints3D[1]);
+                    trianglePoints3D[p++] = Tools.midpoint3D(geom, trianglePoints3D[0], trianglePoints3D[7]);
+                    trianglePoints3D[p++] = Tools.midpoint3D(geom, trianglePoints3D[7], trianglePoints3D[5]);
+                    trianglePoints3D[p++] = Tools.midpoint3D(geom, trianglePoints3D[5], trianglePoints3D[8]);
+                    trianglePoints3D[p++] = Tools.midpoint3D(geom, trianglePoints3D[8], trianglePoints3D[1]);
 
-                // scales the points on sphere to reduce rendering problems
-                for (int i = 0; i < points3d.length; i++) {
-                    points3d[i] = points3d[i].multiply(0.995);
+                    faces = new int[]{0, 0, 6, 1, 9, 2, //
+                            9, 0, 6, 1, 7, 2, //
+                            7, 0, 6, 1, 10, 2, //
+                            10, 0, 6, 1, 5, 2, //
+                            5, 0, 6, 1, 11, 2, //
+                            11, 0, 6, 1, 8, 2, //
+                            8, 0, 6, 1, 12, 2, //
+                            12, 0, 6, 1, 1, 2, //
+                            0, 0, 4, 1, 6, 2, //
+                            4, 0, 2, 1, 6, 2, //
+                            2, 0, 3, 1, 6, 2, //
+                            6, 0, 3, 1, 1, 2 //
+                    };
+
+                    // sets points for bands:
+                    int[] pointsOf2EdgeSorted = {0, 9, 7, 10, 5, 11, 8, 12, 1};
+                    bandPoints3D = new Point3D[9];
+                    for (int i = 0; i < 9; i++) {
+                        bandPoints3D[i] = trianglePoints3D[pointsOf2EdgeSorted[i]];
+                    }
+
+                    // sets points for band caps
+                    bandCapPoints3D = new Point3D[3];
+                    bandCapPoints3D[0] = trianglePoints3D[0];
+                    bandCapPoints3D[1] = trianglePoints3D[5];
+                    bandCapPoints3D[2] = trianglePoints3D[1];
+
+                    // scales points to reduce rendering problems
+                    for (int i = 0; i < trianglePoints3D.length; i++) {
+                        trianglePoints3D[i] = trianglePoints3D[i].multiply(1.0125);
+                    }
                 }
-            } else if (geom == Geometry.Euclidean) { // Euclidean
-
-                /// Original mesh structure
-                points3d = new Point3D[7];
-                int p = 0;
-                for (int i = 0; i <= 2; i++) {
-                    points3d[p++] = fDomain.getVertex3D(i, a);
-                }
-                for (int i = 0; i <= 2; i++) {
-                    points3d[p++] = fDomain.getEdgeCenter3D(i, a);
-                }
-                points3d[p++] = fDomain.getChamberCenter3D(a);
-                faces = new int[]{0, 0, 6, 1, 5, 2, // v0 cc e2
-                        1, 0, 5, 1, 6, 2, // v1 e2 cc
-                        1, 0, 6, 1, 3, 2, // v1 cc e0
-                        2, 0, 3, 0, 6, 2, // v2 e0 cc
-                        2, 0, 6, 1, 4, 2, // v2 cc e1
-                        0, 0, 4, 1, 6, 2 // v0 e1 cc
-                };
-
-                // Reduced mesh structure: Mesh consists only of 2 triangles
-                // points3d = new Point3D[4]; //4
-                //
-                // int p = 0;
-                // for (int i = 0; i <= 2; i++) {
-                // points3d[p++] = fDomain.getVertex3D(i,a);
-                // }
-                // points3d[p++] = fDomain.getEdgeCenter3D(2,a);
-                //
-                // int[] original = new int[]{
-                // 0, 0, 2, 1, 3, 2, //v0 v2 e2
-                // 2, 0, 1, 1, 3, 2, //v2 v1 e2
-                // };
-
-                // sets points for line
-                linepoints3d = new Point3D[3];
-                linepoints3d[0] = points3d[0];
-                linepoints3d[1] = points3d[5];
-                linepoints3d[2] = points3d[1];
-                bandCapPoinst3D = linepoints3d;
-            } else { // hyperbolic
-                points3d = new Point3D[13];
-
-                int p = 0;
-
-                for (int i = 0; i <= 2; i++) {
-                    points3d[p++] = fDomain.getVertex3D(i, a);
-                }
-                for (int i = 0; i <= 2; i++) {
-                    points3d[p++] = fDomain.getEdgeCenter3D(i, a);
-                }
-                points3d[p++] = fDomain.getChamberCenter3D(a);
-
-                // hyper
-                points3d[p++] = Tools.midpoint3D(geom, points3d[0], points3d[5]);
-                points3d[p++] = Tools.midpoint3D(geom, points3d[5], points3d[1]);
-                points3d[p++] = Tools.midpoint3D(geom, points3d[0], points3d[7]);
-                points3d[p++] = Tools.midpoint3D(geom, points3d[7], points3d[5]);
-                points3d[p++] = Tools.midpoint3D(geom, points3d[5], points3d[8]);
-                points3d[p++] = Tools.midpoint3D(geom, points3d[8], points3d[1]);
-
-                faces = new int[]{0, 0, 6, 1, 9, 2, //
-                        9, 0, 6, 1, 7, 2, //
-                        7, 0, 6, 1, 10, 2, //
-                        10, 0, 6, 1, 5, 2, //
-                        5, 0, 6, 1, 11, 2, //
-                        11, 0, 6, 1, 8, 2, //
-                        8, 0, 6, 1, 12, 2, //
-                        12, 0, 6, 1, 1, 2, //
-                        0, 0, 4, 1, 6, 2, //
-                        4, 0, 2, 1, 6, 2, //
-                        2, 0, 3, 1, 6, 2, //
-                        6, 0, 3, 1, 1, 2 //
-                };
-
-                // sets points for line
-                int[] pointsOf2EdgeSorted = {0, 9, 7, 10, 5, 11, 8, 12, 1};
-                linepoints3d = new Point3D[9];
-                for (int i = 0; i < 9; i++) {
-                    linepoints3d[i] = points3d[pointsOf2EdgeSorted[i]];
-                }
-
-                // sets points for band caps
-                bandCapPoinst3D = new Point3D[3];
-                bandCapPoinst3D[0] = points3d[0];
-                bandCapPoinst3D[1] = points3d[5];
-                bandCapPoinst3D[2] = points3d[1];
-
-                // scales points to reduce rendering problems
-                for (int i = 0; i < points3d.length; i++) {
-                    points3d[i] = points3d[i].multiply(1.0125);
-                }
-
             } // end of geometric cases
 
-            points = new float[3 * points3d.length];
+            trianglePointsCoordinates = new float[3 * trianglePoints3D.length];
 
-            for (int i = 0; i < points3d.length; i++) {
-                points[3 * i] = (float) points3d[i].getX();
-                points[3 * i + 1] = (float) points3d[i].getY();
-                points[3 * i + 2] = (float) points3d[i].getZ();
+            for (int i = 0; i < trianglePoints3D.length; i++) {
+                trianglePointsCoordinates[3 * i] = (float) trianglePoints3D[i].getX();
+                trianglePointsCoordinates[3 * i + 1] = (float) trianglePoints3D[i].getY();
+                trianglePointsCoordinates[3 * i + 2] = (float) trianglePoints3D[i].getZ();
             }
 
             if (fDomain.getOrientation(a) != orientation)
@@ -359,13 +365,13 @@ public class FundamentalDomain {
             // Draw Faces
             if (drawFaces) {
                 TriangleMesh mesh = new TriangleMesh();
-                mesh.getPoints().addAll(points);
+                mesh.getPoints().addAll(trianglePointsCoordinates);
                 mesh.getTexCoords().addAll(texCoords);
                 mesh.getFaces().addAll(faces);
                 mesh.getFaceSmoothingGroups().addAll(smoothing);
                 MeshView meshView = new MeshView(mesh);
                 // meshView.setMesh(mesh);
-                PhongMaterial material = new PhongMaterial(colors[a]);
+                PhongMaterial material = new PhongMaterial(colors[a].deriveColor(1, 1, 1, 0.7));
                 // material.setSpecularColor(Color.YELLOW);
                 meshView.setMaterial(material);
                 tiles.getChildren().addAll(meshView);
@@ -380,237 +386,80 @@ public class FundamentalDomain {
                 linesAbove = 0.0;
             }
 
-            //// Draw Lines on 2-Line
-            final float[] texCoord = {0.5f, 0, 0, 0, 1, 1};
-            final PhongMaterial bandMaterial = new PhongMaterial(bandColor);
-            final PhongMaterial bandCapMaterial = bandMaterial;
+            if (drawBands && !flagAHasBand.get(a)) {
+                if (geom != Geometry.Euclidean)
+                    flagAHasBand.set(dsymbol.getS2(a));
 
-            TriangleMesh bandMesh = new TriangleMesh();
-            if (drawBands) {
-                if (!visitBands.get(a)) {
-                    visitBands.set(a);
-                    if (geom != Geometry.Euclidean)
-                        visitBands.set(dsymbol.getS2(a));
+                TriangleMesh bandMesh = null;
+                TriangleMesh backBandMesh = null;
 
-                    for (int i = 0; i < linepoints3d.length - 1; i++) {
-                        final TriangleMesh meshStorage = Band3D.connect(linepoints3d[i], linepoints3d[i + 1], geom, bandWidth, linesAbove, false);
-                        bandMesh = combineTriangleMesh(bandMesh, meshStorage); // adds mesh Storage to linemesh
-                        if (tilingStyle.isShowBackEdges()) {
-                            final TriangleMesh backSideMesh = Band3D.connect(linepoints3d[i], linepoints3d[i + 1], geom, bandWidth, linesAbove, true);
-                            bandMesh = combineTriangleMesh(bandMesh, backSideMesh); // adds back side Storage to linemesh
-                        }
+                for (int i = 0; i < bandPoints3D.length - 1; i++) {
+                    final TriangleMesh tmpMesh = Band3D.connect(bandPoints3D[i], bandPoints3D[i + 1], geom, bandWidth, linesAbove, false);
+                    if (bandMesh == null)
+                        bandMesh = tmpMesh;
+                    else
+                        bandMesh = combineTriangleMesh(bandMesh, tmpMesh);
+
+                    if (tilingStyle.isShowBackEdges()) {
+                        final TriangleMesh tmpMesh2 = Band3D.connect(bandPoints3D[i], bandPoints3D[i + 1], geom, bandWidth, linesAbove, true);
+                        if (backBandMesh == null)
+                            backBandMesh = tmpMesh2;
+                        else
+                            backBandMesh = combineTriangleMesh(backBandMesh, tmpMesh2); // adds back side Storage to linemesh
                     }
-
-                    // adds band mesh to group
-                    bandMesh.getTexCoords().addAll(texCoord);
-
-                    final MeshView bandMeshView = new MeshView(bandMesh);
-                    bandMeshView.setMaterial(bandMaterial);
-                    // group.getChildren().addAll(lineView); //adds linemesh seperately
-
-                }
-            }
-
-            TriangleMesh bandCapMesh = new TriangleMesh();
-            if (drawBandCaps) {
-                if (!visitBandCaps.get(a)) {
-                    visitBandCaps.set(a);
-
-                    for (int i = 0; i < bandCapPoinst3D.length; i++) {
-                        Point3D direction;
-                        Point3D center = bandCapPoinst3D[i];
-                        if (i == bandCapPoinst3D.length - 1) {
-                            direction = bandCapPoinst3D[i].subtract(bandCapPoinst3D[i - 1]);
-                        } else {
-                            direction = bandCapPoinst3D[i].subtract(bandCapPoinst3D[i + 1]);
-                        }
-
-                        // gets circle coordinates
-                        Point3D[] coordinates = BandCap3D.circle(center, direction, bandCapDiameter, bandCapFineness, geom);
-
-                        // creates Triangle Mesh for circle coordinates
-                        TriangleMesh meshStorage = BandCap3D.CircleMesh(center, coordinates, geom, linesAbove, false);
-                        bandCapMesh = combineTriangleMesh(bandCapMesh, meshStorage);
-                        if (tilingStyle.isShowBackEdges()) {
-                            final TriangleMesh backSideMesh = BandCap3D.CircleMesh(center, coordinates, geom, linesAbove, true);
-                            bandCapMesh = combineTriangleMesh(bandCapMesh, backSideMesh); // adds back side Storage to linemesh
-                        }
-                    }
-
-                    // adds bandCapMesh to group
-                    bandCapMesh.getTexCoords().addAll(texCoord);
-
-                    final MeshView bandCapMeshView = new MeshView(bandCapMesh);
-                    bandCapMeshView.setMaterial(bandCapMaterial);
-
-                    // group.getChildren().addAll(edgeView); //adds edgemesh seperately
-                }
-            }
-
-            // combines band mesh and band cap mesh
-            // only one mesh for both reduces computation and errors
-
-            final TriangleMesh combinedMesh1 = combineTriangleMesh(bandMesh, bandCapMesh);
-            final TriangleMesh combinedMesh2 = combineTriangleMesh(theMesh, combinedMesh1);
-            combinedMesh2.getTexCoords().addAll(texCoord);
-
-            final MeshView View = new MeshView(combinedMesh2);
-            View.setMaterial(bandCapMaterial);
-            bands.getChildren().addAll(View);
-        }
-
-        // Add lines
-        if (false) {
-            // Lines for barycentric subdivision of chambers:
-
-            // for (int a = 1; a <= fDomain.size(); a++) {
-            // group.getChildren().add(Lines.createConnection(fDomain.
-            // getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a),
-            // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-            // group.getChildren().add(Lines.createConnection(fDomain.
-            // getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a),
-            // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-            //
-            // group.getChildren().add(Lines.createConnection(fDomain.
-            // getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a),
-            // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-            // group.getChildren().add(Lines.createConnection(fDomain.
-            // getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a),
-            // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-            //
-            // group.getChildren().add(Lines.createConnection(fDomain.
-            // getVertex3D(0, a), fDomain.getChamberCenter3D(a),
-            // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-            // group.getChildren().add(Lines.createConnection(fDomain.
-            // getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a),
-            // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-            //
-            // group.getChildren().add(Lines.createConnection(fDomain.
-            // getVertex3D(1, a), fDomain.getChamberCenter3D(a),
-            // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-            // group.getChildren().add(Lines.createConnection(fDomain.
-            // getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a),
-            // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-            //
-            // group.getChildren().add(Lines.createConnection(fDomain.
-            // getVertex3D(2, a), fDomain.getChamberCenter3D(a),
-            // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f));
-            // group.getChildren().add(Lines.createConnection(fDomain.
-            // getChamberCenter3D(a), fDomain.getEdgeCenter3D(2, a),
-            // Color.WHITE.deriveColor(0, 1, 1, 0.4), 0.5f)); }
-
-            double width = 0;
-            if (fDomain.getGeometry() == Geometry.Hyperbolic) {
-                Point3D refPoint = fDomain.getChamberCenter3D(1).multiply(0.01);
-                Point3D origin = new Point3D(0, 0, 1);
-                double w = 0.01;
-                double h = (1 + w * w) / (1 - w * w);
-                // Length of translation
-                double t = Tools.distance(fDomain.getGeometry(), refPoint, origin);
-                // Affine translation:
-                Affine translateT = new Affine(Math.cosh(t), Math.sinh(t), 0, Math.sinh(t), Math.cosh(t), 0); // Translation
-                // along
-                // x-axis
-                Point2D x = translateT.transform(0, 1);
-                Point2D y = translateT.transform((1 + h) * w, h);
-
-                width = 100 * (y.getX() / (1 + y.getY()) - x.getX() / (1 + x.getY()));
-            } else if (fDomain.getGeometry() == Geometry.Euclidean) {
-                width = 1;
-            } else if (fDomain.getGeometry() == Geometry.Spherical) {
-                width = 0.5;
-            }
-
-            // Edges of Tiling:
-            Point3D v0, e2, v1;
-            int m = fDomain.size();
-            BitSet visited = new BitSet(m); //
-            // Fallunterscheidung needs some serious refactoring
-
-            if (geom == Geometry.Euclidean) {
-                int a = 1;
-                while (a <= m) {
-                    if (!visited.get(a)) {
-                        v0 = fDomain.getVertex3D(0, a);
-                        v1 = fDomain.getVertex3D(1, a);
-                        e2 = fDomain.getEdgeCenter3D(2, a);
-                        chambers.getChildren().add(Lines.createLine3D(v0, e2, Color.BLACK, width));
-                        chambers.getChildren().add(Lines.createLine3D(e2, v1, Color.BLACK, width));
-                        visited.set(a);
-                        visited.set(dsymbol.getS2(a));
-                    }
-                    a++;
-                }
-            } else if (geom == Geometry.Hyperbolic) {
-                int a = 1;
-                while (a <= m) {
-                    if (!visited.get(a)) {
-                        v0 = fDomain.getVertex3D(0, a);
-                        e2 = fDomain.getEdgeCenter3D(2, a);
-                        v1 = fDomain.getVertex3D(1, a);
-
-                        Point3D[] linePoints = new Point3D[9];
-                        linePoints[0] = v0;
-                        linePoints[4] = e2;
-                        linePoints[8] = v1;
-                        for (int i = 1; i < 4; i++) {
-                            linePoints[i] = Tools.interpolateHyperbolicPoints(v0, e2, i / 8d);
-                        }
-                        for (int i = 5; i < 8; i++) {
-                            linePoints[i] = Tools.interpolateHyperbolicPoints(e2, v1, i / 8d);
-                        }
-                        for (int i = 0; i < 8; i++) {
-                            chambers.getChildren().add(Lines.createLine3D(linePoints[i], linePoints[i + 1],
-                                    Color.BLACK, width));
-                        }
-                        visited.set(dsymbol.getS2(a));
-                    }
-                    a++;
                 }
 
-            } else {
-                int a = 1;
-                // performanceProbleme durch Adden, also Magic numbers
-                while (a <= m) {
-                    if (!visited.get(a)) {
-                        v0 = fDomain.getVertex3D(0, a);
-                        e2 = fDomain.getEdgeCenter3D(2, a);
-                        v1 = fDomain.getVertex3D(1, a);
+                if (drawBandCaps) {
+                    if (!flagAHasBandCaps.get(a)) {
+                        flagAHasBandCaps.set(a);
 
-                        Point3D[] linePoints = new Point3D[33];
-                        linePoints[0] = v0;
-                        linePoints[16] = e2;
-                        linePoints[32] = v1;
-                        for (int i = 1; i < 16; i++) {
-                            linePoints[i] = Tools.interpolateSpherePoints(v0, e2, i / 32.0);
+                        for (int i = 0; i < bandCapPoints3D.length; i++) {
+                            Point3D direction;
+                            Point3D center = bandCapPoints3D[i];
+                            if (i == bandCapPoints3D.length - 1) {
+                                direction = bandCapPoints3D[i].subtract(bandCapPoints3D[i - 1]);
+                            } else {
+                                direction = bandCapPoints3D[i].subtract(bandCapPoints3D[i + 1]);
+                            }
+
+                            // gets circle coordinates
+                            Point3D[] coordinates = BandCap3D.circle(center, direction, bandCapDiameter, bandCapFineness, geom);
+
+                            // creates Triangle Mesh for circle coordinates
+                            TriangleMesh tmpMesh = BandCap3D.CircleMesh(center, coordinates, geom, linesAbove, false);
+                            if (bandMesh == null)
+                                bandMesh = tmpMesh;
+                            else
+                                bandMesh = combineTriangleMesh(bandMesh, tmpMesh);
+
+                            if (tilingStyle.isShowBackEdges()) {
+                                final TriangleMesh tmpMesh2 = BandCap3D.CircleMesh(center, coordinates, geom, linesAbove, true);
+                                if (backBandMesh == null)
+                                    backBandMesh = tmpMesh2;
+                                else
+                                    backBandMesh = combineTriangleMesh(backBandMesh, tmpMesh2); // adds back side Storage to linemesh
+                            }
                         }
-                        for (int i = 17; i < 32; i++) {
-                            linePoints[i] = Tools.interpolateSpherePoints(e2, v1, i / 32.0);
-                        }
-                        for (int j = 0; j < 32; j++) {
-                            chambers.getChildren().add(Lines.createLine3D(linePoints[j], linePoints[j + 1], Color.BLACK, width));
-                        }
-                        visited.set(dsymbol.getS2(a));
                     }
-                    a++;
                 }
-            }
 
-        }
+                // combines band mesh and band cap mesh
+                // only one mesh for both reduces computation and errors
 
-        // add numbers:
-        if (false) {
-            for (int a = 1; a <= fDomain.size(); a++) {
-                final Point3D apt = fDomain.getChamberCenter3D(a);
-                Text label = new Text("" + a);
-                label.setFont(Font.font(8));
-                label.getTransforms().add(new Translate(apt.getX() - 4, apt.getY() + 4, apt.getZ()));
-
-                label.setFill(Color.BLACK.deriveColor(0, 1, 1, 0.4));
-                chambers.getChildren().add(label);
+                if (bandMesh != null) {
+                    bandMesh.getTexCoords().addAll(texCoords);
+                    final MeshView meshView = new MeshView(bandMesh);
+                    meshView.setMaterial(new PhongMaterial(bandColor));
+                    bands.getChildren().add(meshView);
+                }
+                if (backBandMesh != null) {
+                    backBandMesh.getTexCoords().addAll(texCoords);
+                    final MeshView meshView = new MeshView(backBandMesh);
+                    meshView.setMaterial(new PhongMaterial(bandColor));
+                    bands.getChildren().add(meshView);
+                }
             }
         }
-
 
         if (false) {
             DropShadow dropShadow = new DropShadow();
@@ -623,15 +472,15 @@ public class FundamentalDomain {
             text.setFont(Font.font(30));
             text.setFill(Color.GOLDENROD);
             text.setEffect(dropShadow);
-            otherStuff.getChildren().add(text);
+            decorations.getChildren().add(text);
         }
 
 
         if (false) { // to test what happens if we add other stuff into the group...
             Sphere sphere = new Sphere(10);
             sphere.setTranslateZ(100);
-            sphere.setMaterial(new PhongMaterial(Color.RED));
-            otherStuff.getChildren().add(sphere);
+            sphere.setMaterial(new PhongMaterial(Color.PURPLE));
+            decorations.getChildren().add(sphere);
             sphere.setOnMouseClicked((e) -> System.err.println("Clicked " + e));
             sphere.setOnMouseEntered((e) -> System.err.println("Entered " + e));
         }
@@ -707,6 +556,7 @@ public class FundamentalDomain {
 
     /**
      * computes the representation of chambers
+     *
      * @param fDomain
      */
     public Group computeChambers(FDomain fDomain) {
@@ -731,6 +581,10 @@ public class FundamentalDomain {
         return all;
     }
 
+    public Collection<Group> getAllRequested() {
+        return allRequested;
+    }
+
     public Group getTiles() {
         return tiles;
     }
@@ -747,11 +601,67 @@ public class FundamentalDomain {
         return handles;
     }
 
-    public Group getSymmetryIcons() {
-        return symmetryIcons;
+    public Group getDecorations() {
+        return decorations;
     }
 
-    public Group getOtherStuff() {
-        return otherStuff;
+    public boolean isIncludeTiles() {
+        return includeTiles.get();
+    }
+
+    public BooleanProperty includeTilesProperty() {
+        return includeTiles;
+    }
+
+    public void setIncludeTiles(boolean includeTiles) {
+        this.includeTiles.set(includeTiles);
+    }
+
+    public boolean isIncludeBands() {
+        return includeBands.get();
+    }
+
+    public BooleanProperty includeBandsProperty() {
+        return includeBands;
+    }
+
+    public void setIncludeBands(boolean includeBands) {
+        this.includeBands.set(includeBands);
+    }
+
+    public boolean isIncludeChambers() {
+        return includeChambers.get();
+    }
+
+    public BooleanProperty includeChambersProperty() {
+        return includeChambers;
+    }
+
+    public void setIncludeChambers(boolean includeChambers) {
+        this.includeChambers.set(includeChambers);
+    }
+
+    public boolean isIncludeDecorations() {
+        return includeDecorations.get();
+    }
+
+    public BooleanProperty includeDecorationsProperty() {
+        return includeDecorations;
+    }
+
+    public void setIncludeDecorations(boolean includeDecorations) {
+        this.includeDecorations.set(includeDecorations);
+    }
+
+    public boolean isIncludeHandles() {
+        return includeHandles.get();
+    }
+
+    public BooleanProperty includeHandlesProperty() {
+        return includeHandles;
+    }
+
+    public void setIncludeHandles(boolean includeHandles) {
+        this.includeHandles.set(includeHandles);
     }
 }

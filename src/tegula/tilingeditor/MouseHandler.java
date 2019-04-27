@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * MouseHandler.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -30,20 +30,30 @@ import javafx.geometry.Point3D;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
-import javafx.util.Duration;
+import javafx.scene.transform.Scale;
 import jloda.util.Basic;
 import tegula.core.dsymbols.Geometry;
+import tegula.single.TranslationAnimation;
+import tegula.tiling.EuclideanTiling;
+import tegula.tiling.HyperbolicTiling;
+import tegula.tiling.SphericalTiling;
 
 /**
  * set up user interaction
  * Daniel Huson, 4.2019
  */
 public class MouseHandler {
+    private double originalMouseDownX;
+    private double originalMouseDownY;
     private double mouseDownX;
     private double mouseDownY;
+    private long mouseDownTime;
+
+    private final TranslationAnimation animation;
 
     private final Sphere sphere = new Sphere(4, 4);
     private final RotateTransition rotateTransition = new RotateTransition();
+
 
     private long lastScroll = 0;
     private Thread thread = null;
@@ -57,6 +67,8 @@ public class MouseHandler {
     private MouseHandler(TilingEditorTab tilingEditorTab) {
         final ExtendedTilingPane tilingPane = tilingEditorTab.getTilingPane();
 
+        animation = new TranslationAnimation(tilingPane);
+
         sphere.rotateProperty().addListener((c, o, n) -> {
             final Rotate rotate = new Rotate(n.doubleValue() - o.doubleValue(), sphere.getRotationAxis());
             tilingPane.worldRotateProperty().setValue(rotate.createConcatenation(tilingPane.getWorldRotate()));
@@ -64,63 +76,98 @@ public class MouseHandler {
         rotateTransition.setNode(sphere);
         rotateTransition.setInterpolator(Interpolator.EASE_OUT);
 
-        tilingPane.setOnMousePressed((e) -> {
-            mouseDownX = e.getSceneX();
-            mouseDownY = e.getSceneY();
+        tilingPane.setOnMousePressed((me) -> {
+            originalMouseDownX = mouseDownX = me.getSceneX();
+            originalMouseDownY = mouseDownY = me.getSceneY();
+            mouseDownTime = System.currentTimeMillis();
         });
 
-        tilingPane.setOnMouseDragged((e) -> {
-            final Point2D delta = new Point2D(e.getSceneX() - mouseDownX, e.getSceneY() - mouseDownY);
-            if (delta.magnitude() > 0) {
-                switch (tilingPane.getExtendedTiling().getTilingMeshes().getGeometry()) {
+        tilingPane.setOnMouseDragged((me) -> {
+            double mouseDeltaX = me.getSceneX() - mouseDownX;
+            double mouseDeltaY = me.getSceneY() - mouseDownY;
 
-                    case Hyperbolic: // translate
-                    case Euclidean: // translate
-                    {
-                        double dx = delta.getX();
-                        double dy = delta.getY();
-                        if (dx != 0 || dy != 0) {
-                            tilingPane.getExtendedTiling().translateTiling(dx, dy);
-                        }
-                        break;
-                    }
-                    case Spherical: // rotate
-                    {
-                        //noinspection SuspiciousNameCombination
-                        final Point3D dragOrthogonalAxis = new Point3D(delta.getY(), -delta.getX(), 0);
-                        final double byAngle = 0.25 * delta.magnitude();
-                        final Rotate rotate = new Rotate(byAngle, dragOrthogonalAxis);
-                        tilingPane.worldRotateProperty().setValue(rotate.createConcatenation(tilingPane.getWorldRotate()));
+            if (me.isPrimaryButtonDown()) {
 
-                        if (e.isShiftDown()) {
-                            rotateTransition.stop();
-                            rotateTransition.setAxis(dragOrthogonalAxis);
-                            rotateTransition.setByAngle(1000 * byAngle);
-                            rotateTransition.setDuration(Duration.seconds(10));
-                            rotateTransition.play();
+                if (tilingPane.getTiling() instanceof SphericalTiling) {
+                    final Point2D delta = new Point2D(me.getSceneX() - mouseDownX, me.getSceneY() - mouseDownY);
+                    //noinspection SuspiciousNameCombination
+                    final Point3D dragOrthogonalAxis = new Point3D(delta.getY(), -delta.getX(), 0);
+                    final Rotate rotate = new Rotate(0.25 * delta.magnitude(), dragOrthogonalAxis);
+                    tilingPane.setWorldRotate(rotate.createConcatenation(tilingPane.getWorldRotate()));
+                    mouseDownX = me.getSceneX();
+                    mouseDownY = me.getSceneY();
+                } else if (tilingPane.getTiling() instanceof HyperbolicTiling) {
+                    final HyperbolicTiling tiling = (HyperbolicTiling) tilingPane.getTiling();
+
+                    double modifierFactor = 1;
+                    double dx = mouseDeltaX * modifierFactor;
+                    double dy = mouseDeltaY * modifierFactor;
+
+                    if (dx != 0 || dy != 0) {
+                        tilingPane.translateTiling(dx, dy);
+
+                        // Checks whether (dx,dy) has been modified.
+                        if (tiling.directionChanged()) {
+                            // Modify mouse position in hyperbolic case.
+                            mouseDownX = me.getSceneX() - tiling.getTransVector().getX();
+                            mouseDownY = me.getSceneY() - tiling.getTransVector().getY();
+                        } else {
+                            mouseDownX = me.getSceneX();
+                            mouseDownY = me.getSceneY();
                         }
                     }
-                    break;
+                } else if (tilingPane.getTiling() instanceof EuclideanTiling) {
+                    double modifierFactor = 1;
+                    double dx = mouseDeltaX * modifierFactor;
+                    double dy = mouseDeltaY * modifierFactor;
+
+                    if (dx != 0 || dy != 0) {
+                        tilingPane.translateTiling(dx, dy);
+
+                        mouseDownX = me.getSceneX();
+                        mouseDownY = me.getSceneY();
+                    }
                 }
             }
+        });
 
-            mouseDownX = e.getSceneX();
-            mouseDownY = e.getSceneY();
+        tilingPane.setOnMouseReleased((me) -> {
+            if (me.isShiftDown()) {
+                if (tilingPane.geometryProperty().getValue() != Geometry.Spherical) { // slide
+                    double mouseDeltaX = me.getSceneX() - originalMouseDownX;
+                    double mouseDeltaY = me.getSceneY() - originalMouseDownY;
+
+                    double modifierFactor = 1;
+                    double dx = mouseDeltaX * modifierFactor;
+                    double dy = mouseDeltaY * modifierFactor;
+
+                    animation.set(dx, dy, System.currentTimeMillis() - mouseDownTime);
+
+                    if (dx != 0 || dy != 0) {
+                        animation.play();
+                    } else
+                        animation.pause();
+                }
+            }
         });
 
         tilingPane.setOnMouseClicked((me) -> {
-            if (me.getClickCount() == 2)
+            if (me.getClickCount() == 2) {
                 rotateTransition.stop();
+                animation.pause();
+            }
         });
 
 
         tilingPane.setOnScroll((me) -> {
-                    if (me.getDeltaY() != 0) {
+            final Scale worldScale = tilingPane.getWorldScale();
+
+            if (me.getDeltaY() != 0) {
                         double factor = (me.getDeltaY() > 0 ? 1.1 : 0.9);
-                        tilingPane.getWorldScale().setX(factor * tilingPane.getWorldScale().getX());
-                        tilingPane.getWorldScale().setY(factor * tilingPane.getWorldScale().getY());
-                        tilingPane.getExtendedTiling().setWidth((tilingPane.getExtendedTiling().getWidth()) / factor);
-                        tilingPane.getExtendedTiling().setHeight((tilingPane.getExtendedTiling().getHeight()) / factor);
+                worldScale.setX(factor * worldScale.getX());
+                worldScale.setY(factor * worldScale.getY());
+                tilingPane.setEuclideanWidth((tilingPane.getEuclideanWidth()) / factor);
+                tilingPane.setEuclideanHeight((tilingPane.getEuclideanHeight()) / factor);
                     }
                     if (onScrollEnded.get() != null) {
                         lastScroll = System.currentTimeMillis();
@@ -148,8 +195,8 @@ public class MouseHandler {
         );
 
         onScrollEnded.set((me) -> {
-            if (tilingPane.getExtendedTiling().getGeometry() == Geometry.Euclidean)
-                tilingPane.getExtendedTiling().update();
+            if (tilingPane.getGeometry() == Geometry.Euclidean)
+                tilingPane.update();
         });
     }
 

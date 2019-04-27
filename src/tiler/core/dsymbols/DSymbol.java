@@ -1,3 +1,22 @@
+/*
+ * DSymbol.java Copyright (C) 2019. Daniel H. Huson
+ *
+ *  (Some files contain contributions from other authors, who are then mentioned separately.)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package tiler.core.dsymbols;
 
 import tiler.core.fundamental.utils.Wrap;
@@ -8,6 +27,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.BitSet;
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 /**
  * Delaney symbol
@@ -173,14 +193,14 @@ public class DSymbol {
      * @param i
      * @param j
      * @param a
-     * @param visitor
+     * @param visitor accept this before moving to next orbit
      */
-    public void visitOrbit(final int i, final int j, final int a, final OrbitVisitor visitor) {
+    public void visitOrbit(final int i, final int j, final int a, final Consumer<Integer> visitor) {
         int b = a;
         do {
-            visitor.visit(b);
+            visitor.accept(b);
             b = getSi(i, b);
-            visitor.visit(b);
+            visitor.accept(b);
             b = getSi(j, b);
         }
         while (b != a);
@@ -195,13 +215,13 @@ public class DSymbol {
      * @param visited
      * @param visitor
      */
-    public void visitOrbit(final int i, final int j, final int a, final BitSet visited, final OrbitVisitor visitor) {
+    public void visitOrbit(final int i, final int j, final int a, final BitSet visited, final Consumer<Integer> visitor) {
         int b = a;
         do {
-            visitor.visit(b);
+            visitor.accept(b);
             visited.set(b);
             b = getSi(i, b);
-            visitor.visit(b);
+            visitor.accept(b);
             visited.set(b);
             b = getSi(j, b);
         }
@@ -577,8 +597,11 @@ public class DSymbol {
         }
     }
 
+    public static int i(int k) {
+        return k == 0 ? 1 : 0;
+    }
 
-    public interface OrbitVisitor {
-        void visit(int a);
+    public static int j(int k) {
+        return k == 2 ? 1 : 2;
     }
 }

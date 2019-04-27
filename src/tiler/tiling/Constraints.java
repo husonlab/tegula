@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * Constraints.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -60,8 +60,12 @@ public class Constraints {
         }
     }
 
-    private final int[][][] constraints;
-    private final ArrayList<Pair<Point2D, Point2D>> lines;
+    private int[][][] constraints;
+    private ArrayList<Pair<Point2D, Point2D>> lines;
+
+    public Constraints() {
+        this(0);
+    }
 
     /**
      * constructor
@@ -69,6 +73,17 @@ public class Constraints {
      * @param size Delaney symbol size
      */
     public Constraints(int size) {
+        // setup the constraints map
+        constraints = new int[3][3][]; // indexing starts at 1
+        for (int i = 0; i <= 2; i++) {
+            for (int j = 0; j <= 2; j++) {
+                constraints[i][j] = new int[size + 1];
+            }
+        }
+        lines = new ArrayList<>();
+    }
+
+    public void setSize(int size) {
         // setup the constraints map
         constraints = new int[3][3][]; // indexing starts at 1
         for (int i = 0; i <= 2; i++) {

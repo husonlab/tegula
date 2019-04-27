@@ -1,24 +1,5 @@
 /*
- *  Copyright (C) 2018. Daniel H. Huson
- *
- *  (Some files contain contributions from other authors, who are then mentioned separately.)
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-/*
- *  Copyright (C) 2018. Daniel H. Huson
+ * TilingEditorTab.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -56,8 +37,9 @@ import tegula.core.dsymbols.DSymbolAlgorithms;
 import tegula.core.dsymbols.Geometry;
 import tegula.fdomaineditor.FDomainEditor;
 import tegula.main.TilingStyle;
+import tegula.tiling.TilingBase;
+import tegula.util.HasHyperbolicModel;
 import tegula.util.IFileBased;
-import tegula.util.IHasHyperbolicModel;
 
 import java.io.File;
 
@@ -73,7 +55,6 @@ public class TilingEditorTab extends Tab implements IFileBased {
 
     private final BooleanProperty dirty = new SimpleBooleanProperty(false);
     private final ExtendedTilingPane tilingPane;
-    private final ExtendedTiling extendedTiling;
     private final TilingStyle tilingStyle = new TilingStyle();
     private final FDomainEditor fDomainEditor;
 
@@ -93,15 +74,12 @@ public class TilingEditorTab extends Tab implements IFileBased {
 
         setContent(root);
 
-        tilingPane = new ExtendedTilingPane(dSymbol, tilingStyle, Color.TRANSPARENT);
-        extendedTiling = tilingPane.getExtendedTiling();
+        tilingPane = new ExtendedTilingPane(dSymbol, tilingStyle);
         tilingPane.prefWidthProperty().bind(controller.getMainPane().widthProperty());
 
         fDomainEditor = new FDomainEditor(this);
 
         tilingPane.prefHeightProperty().bind(controller.getMainPane().prefHeightProperty());
-
-        final TilingStyle tilingStyle = extendedTiling.getTilingStyle();
 
         controller.getMainPane().getChildren().add(tilingPane);
 
@@ -119,78 +97,78 @@ public class TilingEditorTab extends Tab implements IFileBased {
             switch (n.intValue()) {
                 default:
                 case 0: // Poincare
-                    extendedTiling.setHyperbolicModel(IHasHyperbolicModel.HyperbolicModel.Poincare);
+                    tilingPane.setHyperbolicModel(HasHyperbolicModel.HyperbolicModel.Poincare);
                     break;
                 case 1: // Klein
-                    extendedTiling.setHyperbolicModel(IHasHyperbolicModel.HyperbolicModel.Klein);
+                    tilingPane.setHyperbolicModel(HasHyperbolicModel.HyperbolicModel.Klein);
                     break;
                 case 2: // Hyperboloid
-                    extendedTiling.setHyperbolicModel(IHasHyperbolicModel.HyperbolicModel.Hyperboloid);
+                    tilingPane.setHyperbolicModel(HasHyperbolicModel.HyperbolicModel.Hyperboloid);
                     break;
             }
         });
-        controller.getModelChoiceBox().disableProperty().bind(extendedTiling.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
+        controller.getModelChoiceBox().disableProperty().bind(getTilingPane().geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
 
         controller.getShowMoreTilesButton().setOnAction((e) -> {
-            extendedTiling.increaseTiling();
+            tilingPane.increaseTiling();
         });
 
-        controller.getShowMoreTilesButton().disableProperty().bind(extendedTiling.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
+        controller.getShowMoreTilesButton().disableProperty().bind(tilingPane.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
 
-        controller.getShowLessTilesButton().setOnAction((e) -> extendedTiling.decreaseTiling());
+        controller.getShowLessTilesButton().setOnAction((e) -> tilingPane.decreaseTiling());
 
-        controller.getShowLessTilesButton().disableProperty().bind(extendedTiling.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
+        controller.getShowLessTilesButton().disableProperty().bind(tilingPane.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
 
-        controller.getGroupTextField().textProperty().bind(getTilingPane().getExtendedTiling().groupProperty());
+        controller.getGroupTextField().textProperty().bind(tilingPane.groupNameProperty());
 
         controller.getStraightenEdgesButton().setOnAction((e) -> {
-            StraightenEdges.straightenAllEdges(extendedTiling.getTilingMeshes().getfDomain());
-            extendedTiling.update();
+            StraightenEdges.straightenAllEdges(getTiling().getfDomain());
+            tilingPane.update();
         });
 
         controller.getDualizeButton().setOnAction((e) -> {
-            final DSymbol ds = DSymbolAlgorithms.dualize(getTilingPane().getExtendedTiling().getTilingMeshes().getDSymbol());
+            final DSymbol ds = DSymbolAlgorithms.dualize(getTiling().getDSymbol());
             getTilingPane().replaceTiling(ds);
         });
 
         controller.getMaximizeButton().setOnAction((e) -> {
-            final DSymbol ds = DSymbolAlgorithms.maxSymmetry(getTilingPane().getExtendedTiling().getTilingMeshes().getDSymbol());
+            final DSymbol ds = DSymbolAlgorithms.maxSymmetry(getTiling().getDSymbol());
             getTilingPane().replaceTiling(ds);
         });
-        controller.getMaximizeButton().disableProperty().bind(extendedTiling.maximalTilingProperty());
+        controller.getMaximizeButton().disableProperty().bind(tilingPane.maximalTilingProperty());
 
         controller.getOrientateButton().setOnAction((e) -> {
-            final DSymbol ds = DSymbolAlgorithms.orientate(getTilingPane().getExtendedTiling().getTilingMeshes().getDSymbol());
+            final DSymbol ds = DSymbolAlgorithms.orientate(getTiling().getDSymbol());
             getTilingPane().replaceTiling(ds);
         });
-        controller.getOrientateButton().disableProperty().bind(extendedTiling.orientableTilingProperty());
+        controller.getOrientateButton().disableProperty().bind(tilingPane.orientableTilingProperty());
 
         controller.getBandWidthSpinner().setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, tilingStyle.getBandWidth()));
 
         controller.getBandWidthSpinner().valueProperty().addListener((c, o, n) -> {
             tilingStyle.setBandWidth((Integer) n);
-            extendedTiling.update();
+            tilingPane.update();
         });
 
         controller.getShowFacesCheckBox().setOnAction((e) -> {
             tilingStyle.setShowFaces(controller.getShowFacesCheckBox().isSelected());
-            extendedTiling.update();
+            tilingPane.update();
         });
 
         controller.getShowBandsCheckBox().setOnAction((e) -> {
             tilingStyle.setShowBands(controller.getShowBandsCheckBox().isSelected());
-            extendedTiling.update();
+            tilingPane.update();
         });
 
         controller.getSmoothEdgesCheckBox().setOnAction((e) -> {
             tilingStyle.setSmoothEdges(controller.getSmoothEdgesCheckBox().isSelected());
-            extendedTiling.update();
+            tilingPane.update();
         });
-        controller.getSmoothEdgesCheckBox().disableProperty().bind(extendedTiling.geometryProperty().isNotEqualTo(Geometry.Spherical));
+        controller.getSmoothEdgesCheckBox().disableProperty().bind(tilingPane.geometryProperty().isNotEqualTo(Geometry.Spherical));
 
         controller.getBandsColorPicker().setOnAction((e) -> {
             tilingStyle.setBandColor(controller.getBandsColorPicker().getValue());
-            extendedTiling.update();
+            tilingPane.update();
         });
         controller.getBandsColorPicker().setOnShowing((e) -> {
             controller.getBandsColorPicker().getCustomColors().setAll(ColorSchemeManager.getInstance().getColorScheme(tilingStyle.getTileColorsScheme()));
@@ -200,14 +178,8 @@ public class TilingEditorTab extends Tab implements IFileBased {
         controller.getBandsOpacitySlider().valueProperty().addListener((c, o, n) -> {
             final Color color = tilingStyle.getBandColor();
             tilingStyle.setBandColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), n.doubleValue()));
+            tilingPane.update();
         });
-        controller.getBandsOpacitySlider().valueChangingProperty().addListener((c, o, n) -> {
-            if (!n)
-                extendedTiling.update();
-        });
-        controller.getBandsOpacitySlider().setValue(tilingStyle.getBandColor().getOpacity());
-        // todo: recolor without updating
-
 
         controller.getBackgroundColorPicker().setOnAction((e) -> {
             controller.getMainPane().setBackground(new Background(new BackgroundFill(controller.getBackgroundColorPicker().getValue(), null, null)));
@@ -220,31 +192,44 @@ public class TilingEditorTab extends Tab implements IFileBased {
         controller.getBackEdgesCheckBox().setSelected(tilingStyle.isShowBackEdges());
         controller.getBackEdgesCheckBox().setOnAction((e) -> {
             tilingStyle.setShowBackEdges(controller.getBackEdgesCheckBox().isSelected());
-            extendedTiling.update();
+            tilingPane.update();
         });
-        controller.getBackEdgesCheckBox().disableProperty().bind(extendedTiling.geometryProperty().isEqualTo(Geometry.Euclidean));
+        controller.getBackEdgesCheckBox().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));
 
-        controller.getInfoTextField().textProperty().bind(extendedTiling.infoLineProperty());
+        controller.getInfoTextField().textProperty().bind(tilingPane.infoLineProperty());
 
         for (String colorSchemeName : ColorSchemeManager.getInstance().getNames()) {
             controller.getColorSchemeChoiceBox().getItems().add(colorSchemeName);
         }
         controller.getColorSchemeChoiceBox().getSelectionModel().selectedItemProperty().addListener((c, o, n) -> {
             tilingStyle.setTileColorsScheme(n);
-            extendedTiling.update();
+            tilingPane.update();
         });
         controller.getColorSchemeChoiceBox().getSelectionModel().select(tilingStyle.getTileColorsScheme());
+
+
+        controller.getTilesOpacitySlider().valueProperty().addListener((c, o, n) -> {
+            System.err.println("Setting tile opacity to: " + n);
+            final int numTiles = dSymbol.countOrbits(0, 1);
+            for (int t = 0; t < numTiles; t++) {
+                final Color color = tilingStyle.getTileColor(t);
+                tilingStyle.setTileColor(t, new Color(color.getRed(), color.getGreen(), color.getBlue(), n.doubleValue()));
+            }
+            // todo: recolor without updating
+            tilingPane.update();
+        });
+
 
         // reset the top node so it is drawn on top of the tiling:
 
         controller.getBorderPane().setTop(controller.getBorderPane().getTop());
         controller.getBorderPane().setBottom(controller.getBorderPane().getBottom());
 
-        MouseHandler.setup(this);
+        //MouseHandler.setup(this);
         GroupEditingControls.setup(this);
         TileColorControls.setup(this);
 
-        extendedTiling.lastUpdateProperty().addListener((c, o, n) -> {
+        tilingPane.lastUpdateProperty().addListener((c, o, n) -> {
                     TileColorControls.setup(this);
                     GroupEditingControls.setup(this);
                     controller.getBorderPane().setTop(controller.getBorderPane().getTop());
@@ -261,7 +246,6 @@ public class TilingEditorTab extends Tab implements IFileBased {
     public TilingEditorTab(File file) {
         this(null, file.getPath());
     }
-
 
     public boolean isDirty() {
         return dirty.get();
@@ -298,6 +282,10 @@ public class TilingEditorTab extends Tab implements IFileBased {
 
     public ExtendedTilingPane getTilingPane() {
         return tilingPane;
+    }
+
+    public TilingBase getTiling() {
+        return getTilingPane().getTiling();
     }
 
     public TilingEditorTabController getController() {

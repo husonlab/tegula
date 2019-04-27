@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019 University of Tuebingen
+ * TileColorControls.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -16,12 +16,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package tegula.tilingeditor;
 
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ColorPicker;
-import javafx.scene.paint.Color;
 import tegula.color.ColorSchemeManager;
 import tegula.main.TilingStyle;
 
@@ -37,11 +37,11 @@ public class TileColorControls {
      */
     public static void setup(TilingEditorTab tilingEditorTab) {
         final TilingEditorTabController controller = tilingEditorTab.getController();
-        final ExtendedTiling extendedTiling = tilingEditorTab.getTilingPane().getExtendedTiling();
-        final TilingStyle tilingStyle = extendedTiling.getTilingStyle();
+        final ExtendedTilingPane extendedTilingPane = tilingEditorTab.getTilingPane();
+        final TilingStyle tilingStyle = extendedTilingPane.getTilingStyle();
 
 
-        final int numberOfTiles = extendedTiling.getTilingMeshes().getDSymbol().countOrbits(0, 1);
+        final int numberOfTiles = extendedTilingPane.getTiling().getDSymbol().countOrbits(0, 1);
 
         final ObservableList<Node> list = controller.getAppearanceVBox().getChildren();
 
@@ -63,7 +63,7 @@ public class TileColorControls {
             final ColorPicker colorPicker = (ColorPicker) list.get(pos + t);
             colorPicker.setOnAction((e) -> {
                 tilingStyle.setTileColor(tileNumber, colorPicker.getValue());
-                extendedTiling.update();
+                extendedTilingPane.update();
             });
             colorPicker.setOnShowing((e) -> {
                 colorPicker.getCustomColors().setAll(ColorSchemeManager.getInstance().getColorScheme(tilingStyle.getTileColorsScheme()));
@@ -71,21 +71,5 @@ public class TileColorControls {
             });
             colorPicker.setValue(tilingStyle.getTileColor(tileNumber));
         }
-
-        // todo: recolor without updating
-
-        controller.getTilesOpacitySlider().valueProperty().addListener((c, o, n) -> {
-            for (int t = 0; t < numberOfTiles; t++) {
-                final Color color = tilingStyle.getTileColor(t);
-                tilingStyle.setTileColor(t, new Color(color.getRed(), color.getGreen(), color.getBlue(), n.doubleValue()));
-            }
-        });
-
-        controller.getTilesOpacitySlider().valueChangingProperty().addListener((c, o, n) -> {
-            if (!n)
-                extendedTiling.update();
-        });
-        controller.getTilesOpacitySlider().setValue(tilingStyle.getTileColor(0).getOpacity());
-
     }
 }

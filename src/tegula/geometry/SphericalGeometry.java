@@ -1,3 +1,22 @@
+/*
+ * SphericalGeometry.java Copyright (C) 2019. Daniel H. Huson
+ *
+ *  (Some files contain contributions from other authors, who are then mentioned separately.)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package tegula.geometry;
 
 import javafx.geometry.Point3D;
@@ -26,11 +45,6 @@ public class SphericalGeometry {
      * @return transformation
      */
     public static Transform createTransform(Point3D a1, Point3D b1, Point3D a2, Point3D b2, boolean keepOrientation) {
-        a1 = a1.normalize();
-        b1 = b1.normalize();
-        a2 = a2.normalize();
-        b2 = b2.normalize();
-
         final Point3D n1 = a1.crossProduct(b1);  // Normal Vector of plane spanned by a1 and b1
         final Point3D n2 = a2.crossProduct(b2);  // Normal Vector of plane spanned by a2 and b2
         final Transform rotate;

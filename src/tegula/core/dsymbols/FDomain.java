@@ -1,5 +1,26 @@
+/*
+ * FDomain.java Copyright (C) 2019. Daniel H. Huson
+ *
+ *  (Some files contain contributions from other authors, who are then mentioned separately.)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package tegula.core.dsymbols;
 
+import javafx.geometry.BoundingBox;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.transform.Rotate;
@@ -8,13 +29,14 @@ import tegula.core.fundamental.Approximate;
 import tegula.core.fundamental.Glue;
 import tegula.core.fundamental.data.*;
 import tegula.geometry.Tools;
-import tegula.tiling.ComputeGeneratorsAndConstraints;
+import tegula.single.ComputeGeneratorsAndConstraints;
 import tegula.tiling.Constraints;
 import tegula.tiling.Generators;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.LinkedList;
 
 /**
  * Compute a fundamental domain for a given Delaney-symbol
@@ -27,11 +49,10 @@ public class FDomain {
     private final DSymbol dSymbol;
     private final DELANEY d;
 
-
     private final Generators generators = new Generators();
     private final Constraints constraints = new Constraints();
 
-    private final FDomainBoundingBox boundingBox;
+    private final Bounds boundingBox;
 
     /**
      * constructor
@@ -55,9 +76,6 @@ public class FDomain {
         }
         while (changed);
 
-        // scale to size 100. Don't try other values, as this will break other parts of the code
-        d.scale(100);
-
         if (d.getCrv() < 0)
             geometry = Geometry.Hyperbolic;
         else if (d.getCrv() > 0)
@@ -66,9 +84,9 @@ public class FDomain {
             geometry = Geometry.Euclidean;
 
         updateGeneratorsAndContraints();
-        boundingBox = new FDomainBoundingBox(this);
+        boundingBox = computeBoundingBox();
 
-        groupName = OrbifoldGroupName.getGroupName(dSymbol);
+        System.err.println("bbox: " + boundingBox);
     }
 
     /**
@@ -100,6 +118,18 @@ public class FDomain {
             for (int j = i + 1; j <= 2; j++)
                 for (int a = 1; a <= ds.size(); a++)
                     Util.define_m(d, a - 1, i, j, ds.getMij(i, j, a));
+
+        /*
+        for(int i= 0;i<=1;i++) {
+            for (int j = i + 1; j <= 2; j++) {
+                for (int a = 0; a < ds.size(); a++) {
+                    System.err.println(String.format("%d -> %d",a,d.getNod(a).getOp(3-i-j)));
+                    int	op = d.getNod(a).getOp(3-i-j);
+                    System.err.println(String.format("m%d%d(%d)=%d", i, j, a, d.getOrb(op).getM()));
+                }
+            }
+        }
+        */
     }
 
     public Point2D getVertex(int i, int a) {
@@ -125,7 +155,6 @@ public class FDomain {
     public Point3D getEdgeCenter3D(int i, int a) {
         return Tools.map2Dto3D(geometry, getEdgeCenter(i, a));
     }
-
 
     public void setEdgeCenter(Point2D apt, int i, int a) {
         int edge = d.getNcr(a - 1).getEc()[i];
@@ -155,25 +184,30 @@ public class FDomain {
         if (geometry == Geometry.Euclidean) {
             for (int z = 0; z < d.getNcrs(); z++) {
                 final NCR ncr = d.getNcr(z);
-                Point3D position = new Point3D(ncr.getPosx(), ncr.getPosy(), 0);
+                Point3D position = new Point3D(100 * ncr.getPosx(), 100 * ncr.getPosy(), 0);
                 position = t.transform(position);
                 position = new Point3D(position.getX(), position.getY(), 0);
+                position = position.multiply(0.01);
                 ncr.setPosx(position.getX());
                 ncr.setPosy(position.getY());
             }
+
             for (int z = 0; z < d.getEcrs(); z++) {
                 final ECR ecr = d.getEcr(z);
-                Point3D position = new Point3D(ecr.getPosx(), ecr.getPosy(), 0);
+                Point3D position = new Point3D(100 * ecr.getPosx(), 100 * ecr.getPosy(), 0);
                 position = t.transform(position);
                 position = new Point3D(position.getX(), position.getY(), 0);
+                position = position.multiply(0.01);
                 ecr.setPosx(position.getX());
                 ecr.setPosy(position.getY());
             }
+
             for (int z = 0; z < d.getOcrs(); z++) {
                 final OCR ocr = d.getOcr(z);
-                Point3D position = new Point3D(ocr.getPosx(), ocr.getPosy(), 0);
+                Point3D position = new Point3D(100 * ocr.getPosx(), 100 * ocr.getPosy(), 0);
                 position = t.transform(position);
                 position = new Point3D(position.getX(), position.getY(), 0);
+                position = position.multiply(0.01);
                 ocr.setPosx(position.getX());
                 ocr.setPosy(position.getY());
             }
@@ -212,6 +246,9 @@ public class FDomain {
      */
     public void translate(double dx, double dy) {
         if (geometry == Geometry.Euclidean) {
+            dx /= 100;
+            dy /= 100;
+
             for (int z = 0; z < d.getNcrs(); z++) {
                 final NCR ncr = d.getNcr(z);
                 ncr.setPosx(ncr.getPosx() + dx);
@@ -228,6 +265,8 @@ public class FDomain {
                 ocr.setPosy(ocr.getPosy() + dy);
             }
         } else if (geometry == Geometry.Hyperbolic) {
+            //dx /= 300;
+            //dy /= 300;
             for (int z = 0; z < d.getNcrs(); z++) {
                 final NCR ncr = d.getNcr(z);
                 Point2D translated = HyperbolicTranslation(dx, dy, ncr.getPosx(), ncr.getPosy());
@@ -316,17 +355,15 @@ public class FDomain {
     }
 
     /**
-     * Hyperbolic translation of fundamental domain in Poincare model.
+     * Hyperbolic translation of fundamental domain in Poincare model
      *
      * @param dx
      * @param dy
-     * @param posXPercent
-     * @param posYPercent
-     * @return Point2D in percent
+     * @param posX
+     * @param posY
+     * @return Point2D
      */
-    private Point2D HyperbolicTranslation(double dx, double dy, double posXPercent, double posYPercent) {
-        posXPercent /= 100;
-        posYPercent /= 100;
+    private Point2D HyperbolicTranslation(double dx, double dy, double posX, double posY) {
         final double distance = Math.sqrt(dx * dx + dy * dy); //Distance for translation along vector (dx,dy)
         final Point2D Y_AXIS = new Point2D(0, 1);  // For definition of hyperbolic translation along y-axis
         final double angle = Y_AXIS.angle(dx, dy); // Rotation angle
@@ -340,14 +377,35 @@ public class FDomain {
         final Rotate rotateForward = new Rotate(angle, rotAxis); // Rotates fundamental domain forward to perform translation along y-axis
         final Rotate rotateBack = new Rotate(-angle, rotAxis); // Rotates backward to original position
 
-        final Point2D posRotated = rotateBack.transform(posXPercent, posYPercent); // Rotates a given point of fundamental domain forward
+        final Point2D posRotated = rotateBack.transform(posX, posY); // Rotates a given point of fundamental domain forward
 
         // Translation of rotated point "posRotated" along y-Axis (calculated from concatenation of translations on hyperboloid and mapping from Poincare to hyperboloid model):
         final double d = posRotated.getX() * posRotated.getX() + posRotated.getY() * posRotated.getY();
-        double newPosX = 2 * posRotated.getX() / (1 - d + Math.sinh(distance) * 2 * posRotated.getY() + Math.cosh(distance) * (1 + d));
-        double newPosY = (Math.cosh(distance) * 2 * posRotated.getY() + Math.sinh(distance) * (1 + d)) / (1 - d + Math.sinh(distance) * 2 * posRotated.getY() + Math.cosh(distance) * (1 + d));
+        final double newPosX = 2 * posRotated.getX() / (1 - d + Math.sinh(distance) * 2 * posRotated.getY() + Math.cosh(distance) * (1 + d));
+        final double newPosY = (Math.cosh(distance) * 2 * posRotated.getY() + Math.sinh(distance) * (1 + d)) / (1 - d + Math.sinh(distance) * 2 * posRotated.getY() + Math.cosh(distance) * (1 + d));
 
-        return rotateForward.transform(newPosX, newPosY).multiply(100); //Returns the result of the transform by rotating backward.
+        return rotateForward.transform(newPosX, newPosY); //Returns the result of the transform by rotating backward.
+    }
+
+    private Bounds computeBoundingBox() {
+        double minX = Double.MAX_VALUE;
+        double maxX = Double.MIN_VALUE;
+        double minY = Double.MAX_VALUE;
+        double maxY = Double.MIN_VALUE;
+
+        for (Point2D[] array : getCoordinates()) {
+            if (array != null) {
+                for (Point2D apt : array) {
+                    if (apt != null) {
+                        minX = Math.min(minX, apt.getX());
+                        maxX = Math.max(maxX, apt.getX());
+                        minY = Math.min(minY, apt.getY());
+                        maxY = Math.max(maxY, apt.getY());
+                    }
+                }
+            }
+        }
+        return new BoundingBox(minX, minY, maxX - minX, maxY - minY);
     }
 
     /**
@@ -367,27 +425,6 @@ public class FDomain {
                 array[a][i + 3] = getEdgeCenter(i, a);
             }
             array[a][6] = getChamberCenter(a);
-        }
-        return array;
-    }
-
-    /**
-     * get all coordinates
-     *
-     * @return coordinates
-     */
-    public Point3D[][] getCoordinates3D() {
-        final Point3D[][] array = new Point3D[dSymbol.size() + 1][7];
-        // 0-vertex, 1-vertex, 2-vertex, 0-edge-center, 1-edge-center, 2-edge-center, chamber center
-
-        for (int a = 1; a <= dSymbol.size(); a++) {
-            for (int i = 0; i <= 2; i++) {
-                array[a][i] = getVertex3D(i, a);
-            }
-            for (int i = 0; i <= 2; i++) {
-                array[a][i + 3] = getEdgeCenter3D(i, a);
-            }
-            array[a][6] = getChamberCenter3D(a);
         }
         return array;
     }
@@ -442,22 +479,34 @@ public class FDomain {
         }
     }
 
+    /**
+     * get the computed generators
+     *
+     * @return generators
+     */
     public Generators getGenerators() {
         return generators;
     }
 
+    /**
+     * get the compute constraints
+     *
+     * @return
+     */
     public Constraints getConstraints() {
         return constraints;
     }
 
-
+    /**
+     * compute and/or update the generators and constraints
+     */
     public void updateGeneratorsAndContraints() {
         generators.setSize(0);
         constraints.setSize(0);
         ComputeGeneratorsAndConstraints.apply(this, generators, constraints);
     }
 
-    public FDomainBoundingBox getBoundingBox() {
+    public Bounds getBoundingBox() {
         return boundingBox;
     }
 
@@ -481,5 +530,34 @@ public class FDomain {
             dMax = 0;
         }
         return index;
+    }
+
+    /**
+     * calculate the diameter
+     *
+     * @return diameter
+     */
+    public double calculateDiameter() {
+        // Save vertices of fundamental domain in list:
+        LinkedList<Point3D> vertices = new LinkedList<>();
+        for (int k = 1; k <= size(); k++) {
+            vertices.add(getVertex3D(0, k));
+            vertices.add(getVertex3D(1, k));
+            vertices.add(getVertex3D(2, k));
+        }
+        double d = 0;
+
+        for (int i = 0; i <= vertices.size() - 1; i++) {
+            for (int j = i + 1; j <= vertices.size() - 1; j++) {
+                Point3D a = vertices.get(i), b = vertices.get(j);
+                // Calculate hyperbolic distance between a and b:
+                double scalar = (a.getZ() * b.getZ() - a.getX() * b.getX() - a.getY() * b.getY()) / 10000;
+                double dist = Math.log(Math.abs(scalar + Math.sqrt(Math.abs(scalar * scalar - 1)))); // Inverse function of cosh
+                if (dist > d) { // Find maximal distance
+                    d = dist;
+                }
+            }
+        }
+        return d;
     }
 }

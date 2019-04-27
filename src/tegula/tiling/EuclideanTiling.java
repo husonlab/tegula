@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * EuclideanTiling.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -19,137 +19,130 @@
 
 package tegula.tiling;
 
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import tegula.core.dsymbols.DSymbol;
+import tegula.core.reshape.ReshapeManager;
 import tegula.main.TilingStyle;
-import tegula.tiling.util.QuadTree;
+import tegula.tiling.parts.QuadTree;
 import tegula.util.JavaFXUtils;
+import tegula.util.Updateable;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
-
-import static tegula.Options.showReferencePoints;
-import static tegula.Options.useNewEuclideanCode;
+import java.util.Stack;
 
 /**
- * computes a tiling represented by meshes from a fundamental domain represented by meshes
- * <p>
+ * a euclidean tiling
  * Daniel Huson and Ruediger Zeller, 2016
  */
-public class EuclideanTiling extends TilingBase {
-    final private QuadTree keptEuclideanCopy = new QuadTree();
+public class EuclideanTiling extends TilingBase implements TilingCreator {
+    public static final Group FAILED = new Group();
 
-    private Point3D refPointEuclidean = new Point3D(1, 1, 0);
+    private final QuadTree coveredPoints = new QuadTree();
 
-    private final Group recycler = new Group();
+    private Point3D referencePoint = new Point3D(1, 1, 0);
+
+    private final Stack<Group> recycler = new Stack<>();
     private Transform transformRecycled = new Translate();
-    private Group euclideanFund = new Group();
 
-    private int numberOfCopies;
+    private final Group fundPrototype = new Group();
 
-    private final BooleanProperty inTranslateOrIncreaseTiling = new SimpleBooleanProperty(false);
-    private final DoubleProperty width = new SimpleDoubleProperty(600);
-    private final DoubleProperty height = new SimpleDoubleProperty(600);
+    private final Updateable doc;
+
+    private final Point3D windowCorner = new Point3D(0, 0, 0); // Upper left corner of window in Euclidean case
+
+    private final DoubleProperty width = new SimpleDoubleProperty(800);
+    private final DoubleProperty height = new SimpleDoubleProperty(800);
 
     /**
      * constructor
      *
-     * @param tilingStyle
      * @param ds
      */
-    public EuclideanTiling(TilingStyle tilingStyle, DSymbol ds) {
-        super(tilingStyle, ds);
+    public EuclideanTiling(DSymbol ds, TilingStyle tilingStyle, Updateable doc) {
+        super(ds, tilingStyle);
+        this.doc = doc;
     }
 
+    /**
+     * update the tiling
+     */
+    public Group update() {
+        recycler.clear();
+        transformRecycled = new Translate();
+
+        fundPrototype.getChildren().clear();
+        coveredPoints.clear();
+
+        fDomain.updateGeneratorsAndContraints();
+        generators = fDomain.getGenerators();
+
+        referenceChamberIndex = fDomain.computeOptimalChamberIndex();
+        tolerance = computeTolerance(fDomain, generators, referenceChamberIndex);
+        fundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
+
+        if (!isInWindowEuclidean(referencePoint, windowCorner, width.get(), height.get())) { // Fund. domain is not in visible window
+            fDomain.recenterFDomain(calculateBackShiftEuclidean(windowCorner, width.get(), height.get())); // Shifts back fDomain into valid range for fund. domain
+        }
+        final Group tiles = produceTiles(true);
+        setNumberOfCopies(tiles.getChildren().size());
+        return tiles;
+    }
 
     /**
-     * create tiling
+     * produces tiles
+     *
+     * @return group
      */
-    public ArrayList<Node> createTiling() {
-        final ArrayList<Node> all = new ArrayList<>();
+    private Group produceTiles(boolean reset) {
+        fDomain.updateGeneratorsAndContraints();
+        generators = fDomain.getGenerators();
 
         //Add handles
-        //handles.getChildren().setAll(((new ReshapeManager(doc).createHandles())));
-
-        if (useNewEuclideanCode) {
-            if (!isInWindowEuclidean(getRefPointEuclidean(), getWidth(), getHeight())) { // Fund. domain is not in visible window
-                System.err.println("Recenter");
-            }
-        }
+        handles.getChildren().setAll(((new ReshapeManager(this, doc).createHandles())));
 
         //Calculation of point of reference:
-        if (!useNewEuclideanCode) {
-            refPointEuclidean = fDomain.getChamberCenter3D(referenceChamberIndex); // Reference point of actual fundamental domain
-            //System.err.println("RefPoint: " + refPointEuclidean);
+        referencePoint = fDomain.getChamberCenter3D(referenceChamberIndex); // Reference point of actual fundamental domain
+
+        final Group all = new Group();
+
+        if (reset) { // need to recompute fundamental domain
+            recycler.clear();
+            coveredPoints.clear();
+            fundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
+            fundPrototype.getChildren().setAll(fundamentalDomain.getAllRequested());
+            fundPrototype.getTransforms().setAll(new Translate()); // Add transform (= identity)
+            fundPrototype.setRotationAxis(referencePoint); // Reference point of fundamental domain
+
+            all.getChildren().add(provideCopy(new Translate(), referencePoint, fundPrototype));
         }
-
-        final Group fund = fundamentalDomainMeshes.getAll();
-
-        if (!isInTranslateOrIncreaseTiling()) { // need to recompute fundamental domain
-            setNumberOfCopies(0);
-            fundamentalDomainMeshes.update(ds, fDomain, tilingStyle);
-
-            if (useNewEuclideanCode) {
-                refPointEuclidean = new Point3D(fundamentalDomainMeshes.getReference().getTranslateX(), fundamentalDomainMeshes.getReference().getTranslateY(), fundamentalDomainMeshes.getReference().getTranslateZ());
-
-                System.err.println("RefPoint: " + refPointEuclidean);
-
-                tolerance = computeTolerance(fDomain.getGeometry(), refPointEuclidean, generators);
-                System.err.println("tolerance: " + tolerance);
-            }
-
-            if (showReferencePoints)
-                fund.getChildren().addAll(fundamentalDomainMeshes.getReferences().getChildren());
-
-            all.add(fund);
-            fund.getTransforms().add(new Translate()); // Add transform (= identity)
-            fund.setRotationAxis(refPointEuclidean); // Reference point of fundamental domain
-
-            fund.setUserData("fund");
-            setEuclideanFund(fund); // Saves the original fundamental domain
-        }
-
 
         if (!isDrawFundamentalDomainOnly()) {
-            final QuadTree allReferencePoints = new QuadTree(); // Saves reference points of tiles
+            final QuadTree seen = new QuadTree(); // Saves reference points of tiles
 
-            allReferencePoints.insert(refPointEuclidean.getX(), refPointEuclidean.getY(), tolerance); // Insert reference point of fDomain
+            seen.insert(referencePoint.getX(), referencePoint.getY(), tolerance); // Insert reference point of fDomain
 
             // Saves transforms for copies
             final Queue<Transform> queue = new LinkedList<>(generators.getTransforms()); // Add generators
 
             for (Transform generator : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
-                final Point3D genRef = generator.transform(refPointEuclidean); // Reference point for new copy
-                if (isInRangeEuclidean(genRef, getWidth(), getHeight()) && allReferencePoints.insert(genRef.getX(), genRef.getY(), tolerance)) { // Checks whether reference point is in valid range and if it is in QuadTree "seen". Adds it if not.
-                    if (makeCopyEuclidean(genRef)) { // Checks whether copy fills empty space after translation of tiles
-                        if (isInTranslateOrIncreaseTiling()) { // Translate mode of tiling
-                            all.add(useRecycler(generator, genRef, getEuclideanFund()));
-                        } else {
-                            all.add(createCopy(generator, genRef, fund));
-
-                        }
+                Point3D ref = generator.transform(referencePoint); // Reference point for new copy
+                if (isInRangeEuclidean(ref, windowCorner, getWidth(), getHeight()) && seen.insert(ref.getX(), ref.getY(), tolerance)) { // Checks whether reference point is in valid range and if it is in QuadTree "seen". Adds it if not.
+                    if (insertCoveredPoint(ref)) { // Checks whether copy fills empty space after translation of tiles
+                        all.getChildren().add(provideCopy(generator, ref, fundPrototype));
                     }
                 }
             }
 
             while (queue.size() > 0) {
                 // Breaks while loop if too many copies (rounding errors)
-                if (isInTranslateOrIncreaseTiling() && queue.size() >= 1.5 * getNumberOfCopies()) {
-                    return FAILED; // too many rounding errors
+                if (!reset && queue.size() >= 1.5 * getNumberOfCopies()) {
+                    return FAILED;
                 }
 
                 final Transform t = queue.poll(); // remove t from queue
@@ -157,71 +150,99 @@ public class EuclideanTiling extends TilingBase {
                 for (Transform g : generators.getTransforms()) { // Creates new transforms for copies
                     {
                         final Transform tg = t.createConcatenation(g);
-                        final Point3D bpt = tg.transform(getRefPointEuclidean()); // Reference point corresponding to transform tg
+                        final Point3D ref = tg.transform(referencePoint); // Reference point corresponding to transform tg
 
-                        if (isInRangeEuclidean(bpt, getWidth(), getHeight()) && allReferencePoints.insert(bpt.getX(), bpt.getY(), tolerance)) {
+                        if (isInRangeEuclidean(ref, windowCorner, getWidth(), getHeight()) && seen.insert(ref.getX(), ref.getY(), tolerance)) {
                             queue.add(tg);
-                            if (makeCopyEuclidean(bpt)) {
-                                if (isInTranslateOrIncreaseTiling()) {
-                                    all.add(useRecycler(tg, bpt, getEuclideanFund()));
-                                } else {
-                                    all.add(createCopy(tg, bpt, fund));
-                                }
+                            if (insertCoveredPoint(ref)) {
+                                all.getChildren().add(provideCopy(tg, ref, fundPrototype));
                             }
                         }
                     }
 
                     {
                         final Transform gt = g.createConcatenation(t);
-                        final Point3D bpt = gt.transform(getRefPointEuclidean());
+                        final Point3D ref = gt.transform(referencePoint);
 
-                        if (isInRangeEuclidean(bpt, getWidth(), getHeight()) && allReferencePoints.insert(bpt.getX(), bpt.getY(), tolerance)) {
+                        if (isInRangeEuclidean(ref, windowCorner, getWidth(), getHeight()) && seen.insert(ref.getX(), ref.getY(), tolerance)) {
                             queue.add(gt);
-                            if (makeCopyEuclidean(bpt)) {
-                                if (isInTranslateOrIncreaseTiling()) {
-                                    all.add(useRecycler(gt, bpt, getEuclideanFund()));
-                                } else {
-                                    all.add(createCopy(gt, bpt, fund));
-                                }
+                            if (insertCoveredPoint(ref)) {
+                                all.getChildren().add(provideCopy(gt, ref, fundPrototype));
                             }
                         }
-                    }
-                    if (all.size() > 100000) {
-                        System.err.println("Too many copies: " + all.size());
-                        break;
                     }
                 }
             }
         }
 
-        // only want one copy of these things:
+        // only what one copy of these things:
         if (tilingStyle.isShowFundamentalChambers() && !tilingStyle.isShowAllChambers())
-            all.add(fundamentalDomainMeshes.getChambers());
+            all.getChildren().add(fundamentalDomain.getChambers());
 
         if (tilingStyle.isShowHandles())
-            all.add(getHandles());
-
-        if (true) {
-            final Point2D windowCorner = new Point2D(-0.5 * getWidth() - 10, -0.5 * getHeight() - 10);
-            Rectangle rectangle = new Rectangle(windowCorner.getX(), windowCorner.getY(), getWidth(), getHeight());
-            rectangle.setFill(Color.TRANSPARENT);
-            rectangle.setStroke(Color.DARKRED);
-            all.add(rectangle);
-        }
-
-        if (showReferencePoints) {
-            Sphere sphere = new Sphere(5);
-            sphere.setMaterial(new PhongMaterial(Color.BLUE.deriveColor(1, 1, 1, 0.5)));
-            sphere.setTranslateX(refPointEuclidean.getX());
-            sphere.setTranslateY(refPointEuclidean.getY());
-            sphere.setTranslateZ(refPointEuclidean.getZ());
-            all.add(sphere);
-        }
-
-        if (!isInTranslateOrIncreaseTiling())
-            setNumberOfCopies(all.size());
+            all.getChildren().add(fundamentalDomain.getHandles());
 
         return all;
+    }
+
+    /**
+     * translate the tiling
+     *
+     * @param dx
+     * @param dy
+     * @param tiles
+     */
+    public void translateTiling(double dx, double dy, Group tiles) {
+
+        coveredPoints.clear();
+
+        Translate translate = new Translate(dx, dy, 0); // Mouse translation (MouseHandler)
+
+        fDomain.translate(dx, dy); // Translates fDomain by vector (dx,dy).
+        transformRecycled = translate.createConcatenation(transformRecycled); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
+
+        final Point3D refPoint = getfDomain().getChamberCenter3D(getReferenceChamberIndex()); // Point of reference in Euclidean fundamental domain
+
+        if (!isInWindowEuclidean(refPoint, windowCorner, width.get(), height.get())) { // If fundamental domain is out of visible window
+            Transform t = calculateBackShiftEuclidean(windowCorner, width.get(), height.get());
+            transformRecycled = t.createConcatenation(transformRecycled); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
+            fDomain.recenterFDomain(t); // Shifts back fDomain into visible window
+        }
+
+        //First step: Translate tiles by vector (dx,dy) ------------------------------------------------------------
+        int i = 0;
+        while (i < tiles.getChildren().size()) {
+            Group group = (Group) tiles.getChildren().get(i); // Copy with index i in tile. Each copy is a node of the group "tile".
+            if (group.getTransforms().size() > 0) {
+                Transform nodeTransform = group.getTransforms().get(0); // get transform of node
+                Point3D point = group.getRotationAxis().add(dx, dy, 0); // point = reference point of node (saved as rotation axis) + mouse translation
+
+                if (isInRangeEuclidean(point, windowCorner, width.get(), height.get())) {  // keep copy if point still is in valid range
+                    group.getTransforms().setAll(translate.createConcatenation(nodeTransform)); // new transform = (translate)*(old transform)
+                    group.setRotationAxis(point); // "point" serves as new reference of copy
+                    if (!insertCoveredPoint(point)) // Save copy as a kept one
+                        System.err.println("Already present");
+                    i++;
+                } else { // when point is out of valid range
+                    tiles.getChildren().remove(i);
+                    recycler.push(group); // Remove node and add to recycler
+                }
+            } else
+                i++;
+        }
+
+        //Second step: Create new tiles ----------------------------------------------------------------------------
+        // Create new tiles to fill empty space of valid range. Add new tiles to the group "tiles"
+        Group newTiles = produceTiles(false);
+
+        if (newTiles == FAILED) { // Generates new tiling if too many rounding errors
+            reset(); // Reset fundamental domain
+            tiles.getChildren().setAll(produceTiles(true));
+        } else { // No rounding errors: add new tiles
+            tiles.getChildren().addAll(newTiles.getChildren());
+            setNumberOfCopies(tiles.getChildren().size());
+            System.err.println("Number of copies: " + getNumberOfCopies());
+        }
     }
 
     /**
@@ -229,16 +250,21 @@ public class EuclideanTiling extends TilingBase {
      *
      * @param height
      * @param width
+     * @param windowCorner
      * @return transform
      */
-    public Transform calculateBackShiftEuclidean(double width, double height) {
+    public Transform calculateBackShiftEuclidean(Point3D windowCorner, double width, double height) {
+
         if (width < 450) {
             width = 450;
         }
         if (height < 450) {
             height = 450;
         }
-        final Point2D windowCorner = new Point2D(-0.5 * width, -0.5 * height);
+
+        //Add all generators
+        fDomain.updateGeneratorsAndContraints();
+        generators = fDomain.getGenerators();
 
         final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
 
@@ -246,7 +272,7 @@ public class EuclideanTiling extends TilingBase {
         final QuadTree seen = new QuadTree();
         seen.insert(refPoint.getX(), refPoint.getY(), tolerance);
 
-        Transform backShift = new Translate();
+        Transform backShift = new Translate(), t;
         Point3D point = refPoint, apt = refPoint;
         Point3D midpoint = new Point3D(windowCorner.getX() + width / 2, windowCorner.getY() + height / 2, 0);
         double d = point.distance(midpoint);
@@ -262,52 +288,49 @@ public class EuclideanTiling extends TilingBase {
             }
         }
 
-        while (!isInRangeForFDomainEuclidean(apt, width, height)) { // The loop works as long as the copy of fDomain lies outside the valid range for FDomain
-            final Transform t = queue.poll(); // remove t from queue
-            if (t != null) {
-                for (Transform g : generators.getTransforms()) {
+        while (!isInRangeForFDomainEuclidean(apt, windowCorner, width, height)) { // The loop works as long as the copy of fDomain lies outside the valid range for FDomain
+            t = queue.poll(); // remove t from queue
 
-                    Transform tg = t.createConcatenation(g);
-                    point = tg.transform(refPoint);
+            for (Transform g : generators.getTransforms()) {
 
-                    if (seen.insert(point.getX(), point.getY(), tolerance)) { // Creates a tree of points lying in the copies of fDomain
-                        if (point.distance(midpoint) < d) { // Optimizes the choice of the transformation copying fDomain back to the valid range
-                            d = point.distance(midpoint);
-                            backShift = tg;
-                            apt = point;
-                        }
-                        queue.add(tg);
+                Transform tg = t.createConcatenation(g);
+                point = tg.transform(refPoint);
+
+                if (seen.insert(point.getX(), point.getY(), tolerance)) { // Creates a tree of points lying in the copies of fDomain
+                    if (point.distance(midpoint) < d) { // Optimizes the choice of the transformation copying fDomain back to the valid range
+                        d = point.distance(midpoint);
+                        backShift = tg;
+                        apt = point;
                     }
+                    queue.add(tg);
+                }
 
-                    Transform gt = g.createConcatenation(t);
-                    point = gt.transform(refPoint);
+                Transform gt = g.createConcatenation(t);
+                point = gt.transform(refPoint);
 
-                    if (seen.insert(point.getX(), point.getY(), tolerance)) {
-                        if (point.distance(midpoint) < d) {
-                            d = point.distance(midpoint);
-                            backShift = gt;
-                            apt = point;
-                        }
-                        queue.add(gt);
+                if (seen.insert(point.getX(), point.getY(), tolerance)) {
+                    if (point.distance(midpoint) < d) {
+                        d = point.distance(midpoint);
+                        backShift = gt;
+                        apt = point;
                     }
+                    queue.add(gt);
                 }
             }
         }
         return backShift;
     }
 
-
     /**
      * Euclidean case: Checks whether "point" is in valid range
      *
      * @param point
+     * @param windowCorner
      * @param width
      * @param height
      * @return
      */
-    public boolean isInRangeEuclidean(Point3D point, double width, double height) {
-        final Point2D windowCorner = new Point2D(-0.5 * width, -0.5 * height);
-
+    public boolean isInRangeEuclidean(Point3D point, Point3D windowCorner, double width, double height) {
         // Adjust width and height for a range around visible window. Range around window has at least dimensions 600 times 600
         if (width >= 350) {
             width += 250;
@@ -321,20 +344,22 @@ public class EuclideanTiling extends TilingBase {
             height = 600;
         }
 
-        return windowCorner.getX() - 250 <= point.getX() && point.getX() <= windowCorner.getX() + width && windowCorner.getY() - 250 <= point.getY() && point.getY() <= windowCorner.getY() + height;
+        double eps = 0;
+
+        return windowCorner.getX() - 250 - eps <= point.getX() && point.getX() <= windowCorner.getX() + width + eps &&
+                windowCorner.getY() - 250 - eps <= point.getY() && point.getY() <= windowCorner.getY() + height + eps;
     }
 
     /**
      * Euclidean case: Checks whether "point" is in visible window
      *
      * @param point
+     * @param windowCorner
      * @param width
      * @param height
      * @return
      */
-    public boolean isInWindowEuclidean(Point3D point, double width, double height) {
-
-        //Checks whether point is in visible window
+    public boolean isInWindowEuclidean(Point3D point, Point3D windowCorner, double width, double height) { //Checks whether point is in visible window
         if (width < 450) {
             width = 450;
         }
@@ -342,18 +367,20 @@ public class EuclideanTiling extends TilingBase {
             height = 450;
         }
 
-        return Math.abs(point.getX()) <= 0.5 * width && Math.abs(point.getY()) <= 0.5 * height;
+        return windowCorner.getX() <= point.getX() && point.getX() <= windowCorner.getX() + width &&
+                windowCorner.getY() <= point.getY() && point.getY() <= windowCorner.getY() + height;
     }
 
     /**
      * Euclidean case: checks whether fundamental domain lies in its valid range which is inside visible window.
      *
      * @param point
+     * @param windowCorner
      * @param width
      * @param height
      * @return
      */
-    public boolean isInRangeForFDomainEuclidean(Point3D point, double width, double height) {
+    public boolean isInRangeForFDomainEuclidean(Point3D point, Point3D windowCorner, double width, double height) {
         if (width < 450) {
             width = 450;
         }
@@ -361,111 +388,47 @@ public class EuclideanTiling extends TilingBase {
             height = 450;
         }
 
-        return Math.abs(point.getX()) <= 0.5 * width - 50 && Math.abs(point.getY()) <= 0.5 * height - 50;
+        double left = windowCorner.getX() + 50, right = windowCorner.getX() + width - 50;
+        double up = windowCorner.getY() + 50, down = windowCorner.getY() + height - 50;
+
+        return left <= point.getX() && point.getX() <= right && up <= point.getY() && point.getY() <= down;
     }
 
     /**
-     * attempt a recycle a copy of the fundamental domain
+     * provides a copy of the fundamental domain, using the recycler, if possible
      *
      * @param transform
      * @param refPoint
-     * @param fundamentalDomain
+     * @param fund
      * @return copy
      */
-    private Node useRecycler(Transform transform, Point3D refPoint, Group fundamentalDomain) {
-        if (recycler.getChildren().size() == 1) { // Refills recycler if almost empty
-            final Group fund = JavaFXUtils.copyGroup(fundamentalDomain); // Copies original fundamental domain used to build up "tiles"
-            recycler.getChildren().add(fund);
-            if (fund instanceof Group) {
-                if (fund.getChildren().size() == 0)
-                    throw new RuntimeException("Fund copy empty");
-            }
-        }
-        final Node node = recycler.getChildren().get(0);
-
-        // Reuses a copy of recycler
-        node.getTransforms().clear(); // Clear all transforms
-        node.getTransforms().add(transform.createConcatenation(transformRecycled)); // Add transform (maps original fundamental domain to actual fundamental domain)
-        node.setRotationAxis(refPoint); // Set new point of reference
-        return node;
-    }
-
-    private Group createCopy(Transform transform, Point3D refPoint, Group fundamentalDomain) {
-        final Group copy = JavaFXUtils.copyGroup(fundamentalDomain);
-        copy.getTransforms().clear();
+    private Group provideCopy(Transform transform, Point3D refPoint, Group fund) {
+        final Group copy = (recycler.size() > 0 ? recycler.pop() : JavaFXUtils.copyGroup(fund));
         copy.setRotationAxis(refPoint);
-        copy.getTransforms().add(transform);
-        copy.setUserData("copy");
+        copy.getTransforms().setAll(transform.createConcatenation(transformRecycled));
         return copy;
     }
 
 
-    private boolean makeCopyEuclidean(Point3D p) {
-        return keptEuclideanCopy.insert(p.getX(), p.getY(), tolerance);
+    @Override
+    public void reset() {
+        super.reset();
+        fundPrototype.getChildren().clear();
+        coveredPoints.clear();
+        referencePoint = null;
+        recycler.clear();
     }
 
-
-    public void setEuclideanFund(Group g) {
-        euclideanFund = g;
+    /**
+     * attempt to insert point to quad tree of covered points
+     *
+     * @param p
+     * @return false, if point is already covered
+     */
+    private boolean insertCoveredPoint(Point3D p) {
+        return coveredPoints.insert(p.getX(), p.getY(), tolerance);
     }
 
-    public Group getEuclideanFund() {
-        return euclideanFund;
-    }
-
-
-    public void clearKeptEuclideanCopy() {
-        keptEuclideanCopy.clear();
-    }
-
-
-    public Point3D getRefPointEuclidean() {
-        return refPointEuclidean;
-    }
-
-    public void setRefPointEuclidean(Point3D refPointEuclidean) {
-        this.refPointEuclidean = refPointEuclidean;
-    }
-
-    public Group getRecycler() {
-        return recycler;
-    }
-
-    public Transform getTransformRecycled() {
-        return transformRecycled;
-    }
-
-    public void setTransformRecycled(Transform transformRecycled) {
-        this.transformRecycled = transformRecycled;
-    }
-
-    public void insertKeptEuclideanCopy(Point3D point) {
-        keptEuclideanCopy.insert(point.getX(), point.getY(), tolerance);
-    }
-
-    public int getReferenceChamberIndex() {
-        return referenceChamberIndex;
-    }
-
-    public void setNumberOfCopies(int numberOfCopies) {
-        this.numberOfCopies = numberOfCopies;
-    }
-
-    public int getNumberOfCopies() {
-        return numberOfCopies;
-    }
-
-    public boolean isInTranslateOrIncreaseTiling() {
-        return inTranslateOrIncreaseTiling.get();
-    }
-
-    public BooleanProperty inTranslateOrIncreaseTilingProperty() {
-        return inTranslateOrIncreaseTiling;
-    }
-
-    public void setInTranslateOrIncreaseTiling(boolean inTranslateOrIncreaseTiling) {
-        this.inTranslateOrIncreaseTiling.set(inTranslateOrIncreaseTiling);
-    }
 
     public double getWidth() {
         return width.get();
@@ -491,5 +454,3 @@ public class EuclideanTiling extends TilingBase {
         this.height.set(height);
     }
 }
-
-

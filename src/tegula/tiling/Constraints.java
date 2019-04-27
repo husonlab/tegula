@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * Constraints.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -25,7 +25,7 @@ import javafx.util.Pair;
 import java.util.ArrayList;
 
 /**
- * represents constraints on positions of nodes in fundamental domain
+ * represents contraints on positions of nodes in fundamental domain
  * Created by huson on 4/21/16.
  */
 public class Constraints {
@@ -63,11 +63,8 @@ public class Constraints {
     private int[][][] constraints;
     private ArrayList<Pair<Point2D, Point2D>> lines;
 
-    /**
-     * constructor
-     */
     public Constraints() {
-        setSize(0);
+        this(0);
     }
 
     /**
@@ -76,7 +73,14 @@ public class Constraints {
      * @param size Delaney symbol size
      */
     public Constraints(int size) {
-        setSize(size);
+        // setup the constraints map
+        constraints = new int[3][3][]; // indexing starts at 1
+        for (int i = 0; i <= 2; i++) {
+            for (int j = 0; j <= 2; j++) {
+                constraints[i][j] = new int[size + 1];
+            }
+        }
+        lines = new ArrayList<>();
     }
 
     public void setSize(int size) {

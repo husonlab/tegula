@@ -1,7 +1,25 @@
+/*
+ * FundamentalDomain.java Copyright (C) 2019. Daniel H. Huson
+ *
+ *  (Some files contain contributions from other authors, who are then mentioned separately.)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package tegula.tiling;
 
 import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point3D;
@@ -10,7 +28,6 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
-import javafx.scene.shape.Shape3D;
 import javafx.scene.shape.Sphere;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.text.Font;
@@ -22,25 +39,27 @@ import tegula.core.dsymbols.Geometry;
 import tegula.core.fundamental.utils.WrapInt;
 import tegula.geometry.Tools;
 import tegula.main.TilingStyle;
-import tegula.tiling.util.Band3D;
-import tegula.tiling.util.BandCap3D;
-import tegula.tiling.util.Lines;
+import tegula.tiling.parts.Band3D;
+import tegula.tiling.parts.BandCap3D;
+import tegula.tiling.parts.Lines;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collection;
 
 /**
- * Fundamental domain for tiling represented by meshes
+ * Fundamental domain for tiling
  * Daniel Huson and Ruediger Zeller, 2016
  */
 public class FundamentalDomain {
-    private final Group all = new Group();
+    private final ArrayList<Group> allRequested = new ArrayList<>();
 
     private final Group tiles = new Group();
     private final Group bands = new Group();
-    private final Group chambers = new Group();
+    private final Group chambers = new Group(); // not implemented yet
     private final Group decorations = new Group();
-    private final Group handles = new Group();
+    private final Group handles = new Group(); // not implemented here yet
 
     private final BooleanProperty includeTiles = new SimpleBooleanProperty(true);
     private final BooleanProperty includeBands = new SimpleBooleanProperty(true);
@@ -48,28 +67,22 @@ public class FundamentalDomain {
     private final BooleanProperty includeDecorations = new SimpleBooleanProperty(false);
     private final BooleanProperty includeHandles = new SimpleBooleanProperty(false);
 
-    private final Shape3D reference = new Sphere(5);
-    private final Group references = new Group();
-
     /**
      * constructor
      */
     public FundamentalDomain() {
-        InvalidationListener listener = new InvalidationListener() {
-            @Override
-            public void invalidated(Observable observable) {
-                all.getChildren().clear();
-                if (isIncludeTiles())
-                    all.getChildren().add(tiles);
-                if (isIncludeBands())
-                    all.getChildren().add(bands);
-                if (isIncludeChambers())
-                    all.getChildren().add(chambers);
-                if (isIncludeDecorations())
-                    all.getChildren().add(decorations);
-                if (isIncludeHandles())
-                    all.getChildren().add(handles);
-            }
+        InvalidationListener listener = observable -> {
+            allRequested.clear();
+            if (isIncludeTiles())
+                allRequested.add(tiles);
+            if (isIncludeBands())
+                allRequested.add(bands);
+            if (isIncludeChambers())
+                allRequested.add(chambers);
+            if (isIncludeDecorations())
+                allRequested.add(decorations);
+            if (isIncludeHandles())
+                allRequested.add(handles);
         };
         includeTilesProperty().addListener(listener);
         includeBandsProperty().addListener(listener);
@@ -85,50 +98,22 @@ public class FundamentalDomain {
         tiles.getChildren().clear();
         bands.getChildren().clear();
         chambers.getChildren().clear();
-        decorations.getChildren().clear();
         handles.getChildren().clear();
+        decorations.getChildren().clear();
     }
 
     /**
-     * construct a fundamental domain as meshes
+     * construct a fundamental domain
      *
      * @param dsymbol Delaney symbol from old DH code
      * @param fDomain domain computed by KW
      * @return fundamental domain
      */
-    public void update(final DSymbol dsymbol, final FDomain fDomain, TilingStyle tilingStyle) {
+    public void buildFundamentalDomain(final DSymbol dsymbol, final FDomain fDomain, TilingStyle tilingStyle) {
         clear();
 
         chambers.getChildren().addAll(computeChambers(fDomain));
         chambers.getTransforms().setAll(new Translate());
-
-        // set reference sphere:
-        {
-            final int referenceChamberIndex = fDomain.computeOptimalChamberIndex();
-            final Point3D point = fDomain.getChamberCenter3D(referenceChamberIndex);
-            reference.setTranslateX(point.getX());
-            reference.setTranslateY(point.getY());
-            reference.setTranslateZ(point.getZ());
-            reference.setMaterial(new PhongMaterial(Color.RED.deriveColor(1, 1, 1, 0.5)));
-            reference.setUserData("ref0");
-
-            final Sphere reference1 = new Sphere(5);
-            reference1.setTranslateX(point.getX() + 10);
-            reference1.setTranslateY(point.getY());
-            reference1.setTranslateZ(point.getZ());
-            reference1.setUserData("ref1");
-            reference1.setMaterial(new PhongMaterial(Color.LIGHTSEAGREEN));
-
-            final Sphere reference2 = new Sphere(5);
-            reference2.setTranslateX(point.getX());
-            reference2.setTranslateY(point.getY() + 10);
-            reference2.setTranslateZ(point.getZ());
-            reference2.setUserData("ref2");
-            reference2.setMaterial(new PhongMaterial(Color.GREENYELLOW));
-
-            references.getChildren().setAll(reference, reference1, reference2);
-
-        }
 
         // set colors
         final Color[] colors = new Color[fDomain.size() + 1];
@@ -144,7 +129,7 @@ public class FundamentalDomain {
         final Geometry geom = fDomain.getGeometry();
 
         // For bands and the band caps (i.e. circles at the ends of bands)
-        final double bandWidth = (fDomain.getGeometry() == Geometry.Hyperbolic ? 0.01 : 1) * tilingStyle.getBandWidth(); // size of edges
+        final double bandWidth = (fDomain.getGeometry() == Geometry.Euclidean ? 0.1 : 0.1) * tilingStyle.getBandWidth(); // size of edges
         final Color bandColor = tilingStyle.getBandColor();
 
         final double bandCapDiameter = bandWidth;
@@ -172,7 +157,6 @@ public class FundamentalDomain {
             final Point3D[] trianglePoints3D; // points that create the triangles
             final Point3D[] bandPoints3D;
             final Point3D[] bandCapPoints3D;
-
             final int[] faces;
 
             switch (geom) {
@@ -387,7 +371,7 @@ public class FundamentalDomain {
                 mesh.getFaceSmoothingGroups().addAll(smoothing);
                 MeshView meshView = new MeshView(mesh);
                 // meshView.setMesh(mesh);
-                PhongMaterial material = new PhongMaterial(colors[a]);
+                PhongMaterial material = new PhongMaterial(colors[a].deriveColor(1, 1, 1, 0.7));
                 // material.setSpecularColor(Color.YELLOW);
                 meshView.setMaterial(material);
                 tiles.getChildren().addAll(meshView);
@@ -550,6 +534,7 @@ public class FundamentalDomain {
         newMesh.getFaces().addAll(faces);
 
         return newMesh;
+
     }
 
     /**
@@ -595,8 +580,8 @@ public class FundamentalDomain {
         return all;
     }
 
-    public Group getAll() {
-        return all;
+    public Collection<Group> getAllRequested() {
+        return allRequested;
     }
 
     public Group getTiles() {
@@ -611,11 +596,11 @@ public class FundamentalDomain {
         return chambers;
     }
 
-    public Group getDecorations() {
-        return decorations;
+    public Group getHandles() {
+        return handles;
     }
 
-    public Group getHandles() {
+    public Group getDecorations() {
         return decorations;
     }
 
@@ -677,13 +662,5 @@ public class FundamentalDomain {
 
     public void setIncludeHandles(boolean includeHandles) {
         this.includeHandles.set(includeHandles);
-    }
-
-    public Shape3D getReference() {
-        return reference;
-    }
-
-    public Group getReferences() {
-        return references;
     }
 }

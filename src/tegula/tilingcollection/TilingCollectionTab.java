@@ -1,24 +1,5 @@
 /*
- *  Copyright (C) 2018. Daniel H. Huson
- *
- *  (Some files contain contributions from other authors, who are then mentioned separately.)
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-/*
- *  Copyright (C) 2019. Daniel H. Huson
+ * TilingCollectionTab.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -67,6 +48,7 @@ import jloda.fx.util.ProgramExecutorService;
 import jloda.fx.util.SelectionEffect;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.OrbifoldGroupName;
+import tegula.main.TilingStyle;
 import tegula.main.Window;
 
 import java.io.Closeable;
@@ -86,6 +68,8 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable {
     private final ObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(Color.WHITE);
 
     private final TilingCollection tilingCollection;
+
+    private final TilingStyle tilingStyle;
 
     private int countSpawned = 0; // how many tilings have been opened from this collection
 
@@ -125,6 +109,13 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable {
         flowView.setVgap(20);
         flowView.setSelectionModel(tilingCollection.getSelectionModel());
         flowView.setScrollToSelection(true);
+
+        this.tilingStyle = new TilingStyle();
+        tilingStyle.setShowBackEdges(false);
+        tilingStyle.setShowBands(true);
+        tilingStyle.setBandWidth(1);
+        tilingStyle.setShowFaces(false);
+        tilingStyle.setBandColor(Color.BLACK);
 
         final InvalidationListener listener = observable -> {
             // todo: need to do a better job of computing the new block size
@@ -234,7 +225,7 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable {
             final VBox vBox = new VBox(rectangle, label);
 
             ProgramExecutorService.getInstance().submit(() -> {
-                final SimpleTilingPane simpleTilingPane = new SimpleTilingPane(dSymbol, null);
+                final SimpleTilingPane simpleTilingPane = new SimpleTilingPane(dSymbol, tilingStyle);
                 simpleTilingPane.setPrefWidth(0.5 * controller.getSizeSlider().getMax());
                 simpleTilingPane.setPrefHeight(0.5 * controller.getSizeSlider().getMax());
                 new Scene(simpleTilingPane);

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * JavaFXUtils.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -36,6 +36,7 @@ import java.util.Set;
  */
 public class JavaFXUtils {
     private final static Set<Class> warned = new HashSet<>();
+
     /**
      * copy a group of meshes, shapes and texts
      *

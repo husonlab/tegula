@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * StraightenEdges.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -24,6 +24,7 @@ import javafx.geometry.Point3D;
 import javafx.scene.transform.Transform;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
+import tiler.geometry.Tools;
 
 import java.util.BitSet;
 
@@ -52,7 +53,7 @@ public class StraightenEdges {
     public static void straightenEdge(Tiling tiling, int edgeFlag) {
         final DSymbol ds = tiling.getDSymbol();
         final FDomain fDomain = tiling.getfDomain();
-        final Transforms generators = tiling.getGenerators();
+        final Generators generators = tiling.getGenerators();
 
         int i;
         int[] a = new int[5];

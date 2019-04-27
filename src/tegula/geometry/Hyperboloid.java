@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * Hyperboloid.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -21,6 +21,10 @@ package tegula.geometry;
 
 import javafx.scene.shape.TriangleMesh;
 
+/**
+ * sets up a hyberboloid in Z direction
+ * Created by huson on 4/25/16.
+ */
 /**
  * sets up a hyberboloid in Z direction
  * Created by huson on 4/25/16.

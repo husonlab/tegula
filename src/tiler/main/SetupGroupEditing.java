@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * SetupGroupEditing.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -16,6 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package tiler.main;
 
 import javafx.beans.property.BooleanProperty;
@@ -23,8 +24,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.control.Spinner;
 import tiler.core.dsymbols.DSymbol;
-import tiler.core.reshape.ReshapeEdit;
-import tiler.core.reshape.ReshapeManager;
 import tiler.tiling.Tiling;
 
 import java.util.ArrayList;
@@ -69,26 +68,15 @@ public class SetupGroupEditing {
                             if (n < o && isOkDecreaseVij(ds, fa, fi, fi + 1, ds.getVij(fi, fi + 1, fa))) {
                                 ds.setVij(fi, fi + 1, fa, n);
                                 ensureNNForSpherical(ds, n);
-                                final Tiling newTiling = new Tiling(ds);
-                                final ArrayList<ReshapeEdit> reshapeEdits = new ArrayList<>(document.getCurrentTiling().getListOfEdits());
+                                final Tiling newTiling = new Tiling(ds, document.getTilingStyle());
                                 document.changeCurrentTiling(newTiling);
-                                if (reshapeEdits.size() > 0) {
-                                    newTiling.getListOfEdits().setAll(reshapeEdits);
-                                    ReshapeManager.replay(document);
-                                } else
-                                    document.update();
+                                document.update();
                             } else if (n > o) {
                                 ds.setVij(fi, fi + 1, fa, n);
                                 ensureNNForSpherical(ds, n);
-                                final Tiling newTiling = new Tiling(ds);
-                                final ArrayList<ReshapeEdit> reshapeEdits = new ArrayList<>(document.getCurrentTiling().getListOfEdits());
+                                final Tiling newTiling = new Tiling(ds, document.getTilingStyle());
                                 document.changeCurrentTiling(newTiling);
-                                document.changeCurrentTiling(newTiling);
-                                if (reshapeEdits.size() > 0) {
-                                    newTiling.getListOfEdits().setAll(reshapeEdits);
-                                    ReshapeManager.replay(document);
-                                } else
-                                    document.update();
+                                document.update();
                             }
                         }
                     });

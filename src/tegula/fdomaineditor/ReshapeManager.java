@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * ReshapeManager.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -16,6 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package tegula.fdomaineditor;
 
 import javafx.beans.property.ObjectProperty;
@@ -33,8 +34,8 @@ import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
 import tegula.geometry.Tools;
 import tegula.tiling.Generators;
-import tegula.tiling.StraightenEdges;
-import tegula.tilingeditor.ExtendedTiling;
+import tegula.tilingeditor.ExtendedTilingPane;
+import tegula.tilingeditor.StraightenEdges;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +47,7 @@ import java.util.Collection;
  * Daniel HUson and Ruediger Zeller, 2016
  */
 public class ReshapeManager {
-    private final ExtendedTiling extendedTiling;
+    private final ExtendedTilingPane extendedTiling;
     private final FDomain fDomain;
     private final DSymbol ds;
     private final Generators generators;
@@ -56,10 +57,10 @@ public class ReshapeManager {
      *
      * @param extendedTiling
      */
-    public ReshapeManager(ExtendedTiling extendedTiling) {
+    public ReshapeManager(ExtendedTilingPane extendedTiling) {
         this.extendedTiling = extendedTiling;
-        fDomain = extendedTiling.getTilingMeshes().getfDomain();
-        ds = extendedTiling.getTilingMeshes().getfDomain().getDSymbol();
+        fDomain = extendedTiling.getTiling().getfDomain();
+        ds = extendedTiling.getTiling().getfDomain().getDSymbol();
         generators = fDomain.getGenerators();
     }
 

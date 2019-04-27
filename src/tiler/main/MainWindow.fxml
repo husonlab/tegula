@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~  Copyright (C) 2018 University of Tuebingen
+  ~ MainWindow.fxml Copyright (C) 2019. Daniel H. Huson
   ~
   ~  (Some files contain contributions from other authors, who are then mentioned separately.)
   ~
@@ -26,9 +26,9 @@
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
 <?import java.lang.String?>
-<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.111"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="tiler.main.MainWindowController">
+<BorderPane fx:id="borderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="800.0"
+            prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tiler.main.MainWindowController">
     <top>
         <VBox prefHeight="40.0" prefWidth="600.0" BorderPane.alignment="CENTER">
             <children>
@@ -307,6 +307,7 @@
                         <ToggleButton fx:id="toolsToggleButton" layoutX="529.0" layoutY="11.0" mnemonicParsing="false"
                                       text="Tools"/>
                         <Button fx:id="testButton" mnemonicParsing="false" text="Test"/>
+                        <Button fx:id="testButton2" mnemonicParsing="false" text="Test2"/>
                     </items>
                 </ToolBar>
             </children>
@@ -324,9 +325,8 @@
         <AnchorPane BorderPane.alignment="CENTER">
             <children>
                 <Pane fx:id="mainPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-                      pickOnBounds="false" prefHeight="20.0" prefWidth="200.0" style="-fx-background-color: WHITE;"
-                      AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                      AnchorPane.topAnchor="0.0"/>
+                      pickOnBounds="false" style="-fx-background-color: WHITE;" AnchorPane.bottomAnchor="0.0"
+                      AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
                 <ToolBar fx:id="rotationsToolBar" maxWidth="-Infinity" minWidth="-Infinity" orientation="VERTICAL"
                          AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <items>

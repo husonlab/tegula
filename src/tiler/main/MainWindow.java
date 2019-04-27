@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * MainWindow.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -21,10 +21,8 @@ package tiler.main;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
@@ -53,7 +51,6 @@ public class MainWindow implements IMainWindow {
 
     /**
      * create a new main view
-     *
      */
     public MainWindow() {
         // todo: need to init. document here
@@ -98,9 +95,6 @@ public class MainWindow implements IMainWindow {
         final Pane mainPane = controller.getMainPane();
         mainPane.getChildren().add(0, subScene);
 
-        //StackPane.setAlignment(topPane, Pos.CENTER);
-        StackPane.setAlignment(subScene, Pos.CENTER);
-
         subScene.heightProperty().bind(mainPane.heightProperty());
         subScene.widthProperty().bind(mainPane.widthProperty());
 
@@ -113,6 +107,7 @@ public class MainWindow implements IMainWindow {
         stage.show();
 
         document = new Document(universe, world, camera);
+        document.setUseDepthBuffer(mainPane, true); // withput this, euclidean dimensions not correct
 
         SetupController.setup(controller, document, stage);
 
@@ -125,7 +120,7 @@ public class MainWindow implements IMainWindow {
 
         // read in a symbol for debugging:
         try {
-            document.read(new StringReader("<23.1:20:2 4 6 8 10 12 14 16 18 20,2 10 5 9 8 20 13 15 17 19,11 12 13 14 15 16 17 18 19 20:3 3 5 5,4 4 4>"));
+            document.read(new StringReader("<23.1:20:2 4 6 8 10 12 14 16 18 20,2 10 5 9 8 20 13 15 17 19,11 12 13 14 15 16 17 18 19 20:3 3 6 5,4 4 4>"));
         } catch (IOException e) {
             e.printStackTrace();
         }

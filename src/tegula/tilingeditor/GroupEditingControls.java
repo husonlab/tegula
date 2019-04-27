@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * GroupEditingControls.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -16,6 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package tegula.tilingeditor;
 
 import javafx.application.Platform;
@@ -38,7 +39,7 @@ public class GroupEditingControls {
      * @param tilingEditorTab
      */
     public static void setup(TilingEditorTab tilingEditorTab) {
-        final TilingBase tiling = tilingEditorTab.getTilingPane().getExtendedTiling().getTilingMeshes();
+        final TilingBase tiling = tilingEditorTab.getTilingPane().getTiling();
         final DSymbol ds = tiling.getDSymbol();
 
         final VBox vbox = tilingEditorTab.getController().getSymmetiesVBox();

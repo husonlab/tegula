@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * MouseHandler.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -16,16 +16,22 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package tiler.main;
 
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Scene;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
+import jloda.util.Basic;
 import tiler.core.dsymbols.Geometry;
 
 /**
@@ -42,9 +48,15 @@ public class MouseHandler {
 
     private final TranslationAnimation animation;
 
+    private long lastScroll = 0;
+    private Thread thread = null;
+    private final ObjectProperty<EventHandler<? super ScrollEvent>> onScrollEnded = new SimpleObjectProperty<>();
+
+
     /**
      * add a mouse handler to the scene
-     *  @param scene
+     *
+     * @param scene
      * @param worldTranslate
      * @param worldRotateProperty
      */
@@ -54,7 +66,8 @@ public class MouseHandler {
 
     /**
      * constructor
-     *  @param worldTranslate
+     *
+     * @param worldTranslate
      * @param worldRotateProperty
      */
     private MouseHandler(final Scene scene, final Translate worldTranslate, final Scale worldScale, final ObjectProperty<Transform> worldRotateProperty, final Document document) {
@@ -135,10 +148,32 @@ public class MouseHandler {
                         document.setWidth((document.getWidth()) / factor);
                         document.setHeight((document.getHeight()) / factor);
                     }
+            if (onScrollEnded.get() != null) {
+                lastScroll = System.currentTimeMillis();
+                if (thread == null) {
+                    thread = new Thread(() -> {
+                        while (System.currentTimeMillis() - lastScroll < 100) {
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException e) {
+                                Basic.caught(e);
+                            }
+                        }
+                        Platform.runLater(() ->
+                        {
+                            if (onScrollEnded.get() != null)
+                                onScrollEnded.get().handle(me);
+                            thread = null;
+                        });
+                    });
+                    thread.setDaemon(true);
+                    thread.start();
+                }
+            }
                 }
         );
 
-        scene.setOnScrollFinished(me -> {
+        onScrollEnded.set(me -> {
             if (document.getGeometry() == Geometry.Euclidean)
                 document.update();
         });

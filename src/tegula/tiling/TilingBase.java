@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * TilingBase.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -23,72 +23,111 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.transform.Transform;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
 import tegula.core.dsymbols.Geometry;
+import tegula.core.dsymbols.OrbifoldGroupName;
 import tegula.geometry.Tools;
 import tegula.main.TilingStyle;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 /**
- * tiling meshes base class
- * Daniel Huson, 4.2019
+ * tiling base class
+ * Daniel Huson and Ruediger Zeller, 2016
  */
-abstract public class TilingBase {
-    public final static ArrayList<Node> FAILED = new ArrayList<>(); // returned by createTiling when too many rounding errors occur, indicating a recompute
-    final TilingStyle tilingStyle;
+public class TilingBase {
+    public static final Group FAILED = new Group();
     final DSymbol ds;
-    final FDomain fDomain;
-    final FundamentalDomain fundamentalDomainMeshes;
-    final Generators generators;
-    double tolerance = 0.0;
-    int referenceChamberIndex = 1;
+    String groupName;
+    FDomain fDomain;
 
-    private BooleanProperty drawFundamentalDomainOnly = new SimpleBooleanProperty(false);
+    final TilingStyle tilingStyle;
+
+    final FundamentalDomain fundamentalDomain = new FundamentalDomain();
+
+    Generators generators;
+    Constraints constraints;
+
+    Group handles = new Group();
+
+    double tolerance = 0.0;
+    int referenceChamberIndex = 0;
+
+    private final BooleanProperty drawFundamentalDomainOnly = new SimpleBooleanProperty(false);
+    private int numberOfCopies = 0;
 
     /**
      * constructor
      *
-     * @param tilingStyle
-     * @param ds
      * @param ds
      */
-    public TilingBase(TilingStyle tilingStyle, DSymbol ds) {
-        this.tilingStyle = tilingStyle;
+    public TilingBase(DSymbol ds, TilingStyle tilingStyle) {
         this.ds = ds;
-        fDomain = new FDomain(ds);
-        fundamentalDomainMeshes = new FundamentalDomain();
-        generators = fDomain.getGenerators();
+        this.groupName = OrbifoldGroupName.getGroupName(ds);
+        this.fDomain = new FDomain(ds);
+        this.constraints = fDomain.getConstraints();
+        this.generators = fDomain.getGenerators();
 
-        fundamentalDomainMeshes.includeTilesProperty().bind(tilingStyle.showFacesProperty());
-        fundamentalDomainMeshes.includeBandsProperty().bind(tilingStyle.showBandsProperty());
-        fundamentalDomainMeshes.includeDecorationsProperty().bind(tilingStyle.showOtherStuffProperty());
-        fundamentalDomainMeshes.includeChambersProperty().bind(tilingStyle.showAllChambersProperty());
-        // do NOT bind handles property
+        this.tilingStyle = tilingStyle;
+
+        fundamentalDomain.includeTilesProperty().bind(tilingStyle.showFacesProperty());
+        fundamentalDomain.includeBandsProperty().bind(tilingStyle.showBandsProperty());
+        fundamentalDomain.includeDecorationsProperty().bind(tilingStyle.showOtherStuffProperty());
+        fundamentalDomain.includeChambersProperty().bind(tilingStyle.showAllChambersProperty());
+    }
+
+
+    public Group update() {
+        return new Group();
     }
 
     /**
-     * create the tiling as a group of meshes
-     *
-     * @return meshes
+     * reset everything
      */
-    abstract public Collection<Node> createTiling();
+    public void reset() {
+        this.groupName = OrbifoldGroupName.getGroupName(ds);
+        this.fDomain = new FDomain(ds);
+        this.constraints = fDomain.getConstraints();
+        this.generators = fDomain.getGenerators();
+    }
+
+    /**
+     * set the reference chamber index and the corresponding tolerance
+     *
+     * @param referenceChamberIndex
+     */
+    public void setReferenceChamberIndex(int referenceChamberIndex) {
+        this.referenceChamberIndex = referenceChamberIndex;
+        tolerance = computeTolerance(fDomain, generators, referenceChamberIndex);
+    }
+
+    public double getTolerance() {
+        return tolerance;
+    }
+
+    public int getReferenceChamberIndex() {
+        return referenceChamberIndex;
+    }
+
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+
+//----------------------------------------------------------------------------------------------------------------------
 
     /**
      * Computes tolerance for rounding errors. Tolerance depends on shape of fundamental domain.
      *
      * @return tolerance
      */
-    public double computeTolerance(int referenceChamberIndex) {
+    public static double computeTolerance(FDomain fDomain, Generators generators, int referenceChamberIndex) {
         final Point3D refPoint;
         if (fDomain.getGeometry() == Geometry.Euclidean) {
             refPoint = fDomain.getChamberCenter3D(referenceChamberIndex);
         } else {
-            refPoint = fDomain.getChamberCenter3D(referenceChamberIndex);
+            refPoint = fDomain.getChamberCenter3D(referenceChamberIndex).multiply(0.01);
         }
         double tolerance = 100;
         for (Transform g : generators.getTransforms()) {
@@ -100,58 +139,25 @@ abstract public class TilingBase {
         return 0.8 * tolerance;
     }
 
-    /**
-     * compute the tolerance
-     *
-     * @param geometry
-     * @param refPoint
-     * @param generators
-     * @return tolerance
-     */
-    public double computeTolerance(final Geometry geometry, Point3D refPoint, Generators generators) {
-        double tolerance = 100;
-        for (Transform g : generators.getTransforms()) {
-            double dist = Tools.distance(geometry, g.transform(refPoint), refPoint);
-            if (dist < tolerance) {
-                tolerance = dist;
-            }
-        }
-        return 0.8 * tolerance;
-    }
-
     public DSymbol getDSymbol() {
         return ds;
-    }
-
-    public Geometry getGeometry() {
-        return fDomain.getGeometry();
     }
 
     public FDomain getfDomain() {
         return fDomain;
     }
 
-    public void updateReferenceChamberIndex() {
-        referenceChamberIndex = fDomain.computeOptimalChamberIndex();
-        tolerance = computeTolerance(fDomain.getGeometry(), fDomain.getChamberCenter3D(referenceChamberIndex), generators);
-    }
-
-    public String getGroupName() {
-        return fDomain.getGroupName();
-    }
-
-    /**
-     * gets the status line
-     *
-     * @return status line
-     */
-    public String getStatusLine() {
-        return String.format("Tiling: %d.%d  Vertices: %d  Edges: %d  Tiles: %d  Symmetry group: %s",
-                ds.getNr1(), ds.getNr2(), ds.countOrbits(1, 2), ds.countOrbits(0, 2), ds.countOrbits(0, 1), getGroupName());
-    }
-
     public Group getHandles() {
-        return fundamentalDomainMeshes.getHandles();
+        return handles;
+    }
+
+
+    public Generators getGenerators() {
+        return generators;
+    }
+
+    public TilingStyle getTilingStyle() {
+        return tilingStyle;
     }
 
     public boolean isDrawFundamentalDomainOnly() {
@@ -166,26 +172,15 @@ abstract public class TilingBase {
         this.drawFundamentalDomainOnly.set(drawFundamentalDomainOnly);
     }
 
-    public int getReferenceChamberIndex() {
-        return referenceChamberIndex;
+    public void setNumberOfCopies(int numberOfCopies) {
+        this.numberOfCopies = numberOfCopies;
     }
 
-    /**
-     * create a tiling
-     *
-     * @param tilingStyle
-     * @param ds
-     * @return tiling
-     */
-    public static TilingBase createTiling(TilingStyle tilingStyle, DSymbol ds) {
-        switch (ds.computeGeometry()) {
-            case Hyperbolic:
-                return new HyperbolicTiling(tilingStyle, ds);
-            case Spherical:
-                return new SphericalTiling(tilingStyle, ds);
-            default:
-            case Euclidean:
-                return new EuclideanTiling(tilingStyle, ds);
-        }
+    public int getNumberOfCopies() {
+        return numberOfCopies;
+    }
+
+    public Geometry getGeometry() {
+        return fDomain.getGeometry();
     }
 }

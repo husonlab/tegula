@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * Tiling.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -16,27 +16,25 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package tiler.tiling;
 
-import javafx.beans.InvalidationListener;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
-import javafx.util.Pair;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
 import tiler.core.dsymbols.Geometry;
-import tiler.core.dsymbols.OrbifoldGroupName;
-import tiler.core.reshape.ReshapeEdit;
 import tiler.core.reshape.ReshapeManager;
+import tiler.geometry.Tools;
 import tiler.main.Document;
 import tiler.main.TilingStyle;
+import tiler.tiling.parts.OctTree;
+import tiler.tiling.parts.QuadTree;
 import tiler.util.JavaFXUtils;
+import tiler.util.Updateable;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -45,17 +43,7 @@ import java.util.Queue;
  * a tiling
  * Daniel Huson and Ruediger Zeller, 2016
  */
-public class Tiling {
-    boolean verbose = false;
-
-    private final DSymbol ds;
-    private final String groupName;
-    private final FDomain fDomain;
-
-    private final FundamentalDomain fundamentalDomain = new FundamentalDomain();
-
-    private final Transforms generators;
-    private final Constraints constraints;
+public class Tiling extends TilingBase {
 
     private OctTree keptHyperbolicCopy;
     private QuadTree keptEuclideanCopy = new QuadTree();
@@ -70,63 +58,18 @@ public class Tiling {
 
     private Group handles = new Group();
 
-    private final int[] flag2vert;
-    private final int[] flag2edge;
-    private final int[] flag2tile;
-
-    private final int[] vert2flag;
-    private final int[] edge2flag;
-    private final int[] tile2flag;
-
-    private final int numbVert;
-    private final int numbEdge;
-    private final int numbTile;
-
-    private boolean isBreak = false;
     private int numberOfCopies = 0;
 
     private double tolerance = 0.0;
     private int referenceChamberIndex = 0;
-
-    private final ObservableList<ReshapeEdit> listOfEdits = FXCollections.observableArrayList();
 
     /**
      * constructor
      *
      * @param ds
      */
-    public Tiling(DSymbol ds) {
-        this.ds = ds;
-        this.groupName = OrbifoldGroupName.getGroupName(ds);
-        this.fDomain = new FDomain(ds);
-        this.constraints = new Constraints(ds.size());
-        this.generators = new Transforms(ds.size());
-
-        flag2vert = new int[ds.size() + 1];
-        numbVert = ds.countOrbits(1, 2);
-        vert2flag = new int[numbVert + 1];
-
-        for (int a = 1, count = 1; a <= ds.size(); a = ds.nextOrbit(1, 2, a, flag2vert, count++)) // this also sets flag2vert
-            vert2flag[count] = a;
-        flag2edge = new int[ds.size() + 1];
-        numbEdge = ds.countOrbits(0, 2);
-        edge2flag = new int[numbEdge + 1];
-
-        for (int a = 1, count = 1; a <= ds.size(); a = ds.nextOrbit(0, 2, a, flag2edge, count++)) // this also sets flag2vert
-            edge2flag[count] = a;
-        flag2tile = new int[ds.size() + 1];
-        numbTile = ds.countOrbits(0, 1);
-        tile2flag = new int[numbTile + 1];
-
-        for (int a = 1, count = 1; a <= ds.size(); a = ds.nextOrbit(0, 1, a, flag2tile, count++)) // this also sets flag2vert
-            tile2flag[count] = a;
-
-        getListOfEdits().addListener((InvalidationListener) (c) -> {
-            System.err.println("Edits: ");
-            for (ReshapeEdit edit : getListOfEdits()) {
-                System.err.println(edit);
-            }
-        });
+    public Tiling(DSymbol ds, TilingStyle tilingStyle) {
+        super(ds, tilingStyle);
     }
 
     /**
@@ -147,271 +90,6 @@ public class Tiling {
         return referenceChamberIndex;
     }
 
-    /**
-     * set up the constraints and symmetry group generators
-     */
-    public void computeConstraintsAndGenerators() {
-        generators.getTransforms().clear();
-
-        boolean found = false;
-        int a0;
-        int i0 = 0;
-        for (a0 = 1; a0 <= ds.size(); a0++) {
-            for (i0 = 0; i0 <= 2; i0++) {
-                if (fDomain.isBoundaryEdge(i0, a0)) {
-                    found = true;
-                    break;
-                }
-            }
-            if (found)
-                break;
-        }
-        if (!found)
-            throw new RuntimeException("computeConstraintsAndMore(): Can't find boundary edge");
-
-        if (verbose)
-            System.err.println(String.format("Init. boundary edge: a0 %d i0 %d\n", a0, i0));
-
-        int aa = a0;
-        int ii = i0;
-
-        int j0 = computeLowIndex(i0);
-        int k0 = computeHighIndex(i0);
-        int i = i0;
-        int j = k0;
-        int k = j0;
-        int a = a0;
-
-        found = false;
-        int count = 0;
-
-        do {
-            a0 = a;
-            i0 = i;
-            j0 = k;
-            k0 = j;
-            int[] array = nextBoundaryEdge(i0, j0, k0, a0);
-            i = array[0];
-            j = array[1];
-            k = array[2];
-            a = array[3];
-
-            if (ds.getVij(i0, j0, a0) > 1 || isSplitOrbit(i0, j0, a0))
-                found = true;
-            if (++count > 1000)
-                break;
-        }
-        while (!found);
-
-        if (!found && verbose)
-            System.err.println("Can't find boundary corner");
-
-        boolean circle_boundary = false;
-        if (!found) {
-            a0 = aa;
-            i0 = ii;
-
-            j0 = computeLowIndex(i0);
-            k0 = computeHighIndex(i0);
-            circle_boundary = true;
-        }
-
-        if (verbose)
-            System.err.println(String.format("Boundary edge before corner: a0 %d i0 %d j0 %d k0 %d\n", a0, i0, j0, k0));
-
-        int a00 = a0;
-        int i00 = i0;
-        int j00 = j0;
-
-        count = 0;
-        do {
-            int[] array = nextBoundaryEdge(i0, j0, k0, a0);
-            i = array[0];
-            j = array[1];
-            k = array[2];
-            a = array[3];
-
-            int b = ds.getSi(i, a);
-            if (circle_boundary || (ds.getVij(i, j, a) > 1) || isSplitOrbit(i, j, a)) {
-                if (verbose)
-                    System.err.println(String.format("Starting new section: vij: %d split_orbit: %d\n",
-                            ds.getVij(i, j, a), isSplitOrbit(i, j, a) ? 1 : 0));
-                count++;
-                setConstraint(0, k, a, constraints, Constraints.ConstraintType.FIXED);
-                {
-                    Point3D pt0 = fDomain.getVertex3D(k, a);
-                    Point3D pt1 = fDomain.getVertex3D(j, a);
-                    Point3D pt2 = fDomain.getVertex3D(k, b);
-                    Point3D pt3 = fDomain.getVertex3D(j, b);
-
-                    boolean keepOrientation = (fDomain.getOrientation(a) != fDomain.getOrientation(b));
-
-                    Transform transform = getTransform(fDomain.getGeometry(), pt0, pt1, pt2, pt3, keepOrientation);
-                    generators.set(i, a, transform);
-                }
-
-                if (a == b) {
-                    Point2D aPt = fDomain.getVertex(k, a);
-                    Point2D bPt = fDomain.getVertex(j, a);
-                    constraints.setLineConstraint(1, i, a, new Pair<>(aPt, bPt));
-                } else
-                    constraints.setConstraint(1, i, a, Constraints.ConstraintType.SYMMETRIC_BOUNDARY);
-
-                if (verbose)
-                    System.err.println(String.format("New section: a %d i %d\n", a, i));
-
-            } else {
-                generators.setAgain(i, a); // same transform as previously set
-                if (a == b) {
-                    setConstraint(0, k, a, constraints, Constraints.ConstraintType.LINE); // this will use previously set line
-                    constraints.setConstraint(1, i, a, Constraints.ConstraintType.LINE);
-                } else {
-                    setConstraint(0, k, a, constraints, Constraints.ConstraintType.SYMMETRIC_BOUNDARY);
-                    constraints.setConstraint(1, i, a, Constraints.ConstraintType.SYMMETRIC_BOUNDARY);
-                }
-            }
-            a0 = a;
-            i0 = i;
-            j0 = k;
-            k0 = j;
-            if (circle_boundary)
-                break;
-        }
-        while (!(a0 == a00 && i0 == i00 && j0 == j00));
-
-        if (count == 0)
-            throw new RuntimeException("constraints_and_more(): Can't find boundary section");
-
-        if (verbose)
-            System.err.println(String.format("Found %d boundary sections\n", count));
-    }
-
-    /**
-     * set a constraint on all vertices in the appropriate i,j-orbit
-     *
-     * @param kind
-     * @param k
-     * @param a
-     * @param constraints
-     * @param type
-     */
-    private void setConstraint(int kind, int k, int a, Constraints constraints, Constraints.ConstraintType type) {
-        final int i = computeLowIndex(k);
-        final int j = computeHighIndex(k);
-
-        int b = a;
-
-        do {
-            constraints.setConstraint(kind, k, b, type);
-            b = ds.getSi(i, b);
-            constraints.setConstraint(kind, k, b, type);
-            b = ds.getSi(j, b);
-        }
-        while (b != a);
-    }
-
-    /**
-     * is this orbit split into multiple pieces?
-     *
-     * @param i
-     * @param j
-     * @param a
-     * @return true, if split
-     */
-    private boolean isSplitOrbit(int i, int j, int a) {
-        int b = a;
-        int count = 0;
-
-        do {
-            if (fDomain.isBoundaryEdge(i, b))
-                count++;
-            b = ds.getSi(i, b);
-            if (fDomain.isBoundaryEdge(j, b))
-                count++;
-            b = ds.getSi(j, b);
-        }
-        while (b != a);
-        return count > 2;
-    }
-
-    /**
-     * computes the smallest integer between 0 and 2 that does not equal i
-     *
-     * @param i
-     * @return smallest index
-     */
-    public static int computeLowIndex(final int i) {
-        return i > 0 ? 0 : 1;
-    }
-
-    /**
-     * computes the largest integer between 0 and 2 that does not equal i
-     *
-     * @param i
-     * @return smallest index
-     */
-    public static int computeHighIndex(final int i) {
-        return i < 2 ? 2 : 1;
-    }
-
-    /**
-     * finds the next boundary edge
-     *
-     * @param i0
-     * @param j0
-     * @param k0
-     * @param a0
-     * @return i, j, k and a for next boundary edge
-     */
-    private int[] nextBoundaryEdge(final int i0, final int j0, final int k0, final int a0) {
-        int a00 = a0;
-
-        if (!fDomain.isBoundaryEdge(i0, a00))
-            throw new RuntimeException(String.format("nextBoundaryEdge(i0=%d,j0=%d,k0=%d,a0=%d): (a0=%d,i0=%d) not on boundary",
-                    i0, j0, k0, a00, a00, i0));
-
-        if (fDomain.isBoundaryEdge(j0, a00)) {
-            return new int[]{j0, i0, k0, a00};
-        }
-
-        do {
-            a00 = ds.getSi(j0, a00);
-            if (fDomain.isBoundaryEdge(i0, a00)) {
-                return new int[]{i0, j0, k0, a00};
-            }
-            a00 = ds.getSi(i0, a00);
-            if (fDomain.isBoundaryEdge(j0, a00)) {
-                return new int[]{j0, i0, k0, a00};
-            }
-        }
-        while (a00 != a0);
-
-        throw new RuntimeException(String.format("nextBoundaryEdge(i0=%d,j0=%d,k0=%d,a0=%d): %s",
-                i0, j0, k0, a00, "Can't find other end of boundary orbit"));
-    }
-
-    /**
-     * get the transform that maps a1-b1 to a2-b2, keeping orientation, if desired
-     *
-     * @param geom
-     * @param a1
-     * @param b1
-     * @param a2
-     * @param b2
-     * @param keepOrientation
-     * @return transform
-     */
-    public static Transform getTransform(Geometry geom, Point3D a1, Point3D b1, Point3D a2, Point3D b2, boolean keepOrientation) {
-        switch (geom) {
-            default:
-            case Euclidean:
-                return EuclideanGeometry.createTransform(a1, b1, a2, b2, keepOrientation);
-            case Spherical:
-                return SphericalGeometry.createTransform(a1, b1, a2, b2, keepOrientation);
-            case Hyperbolic:
-                return HyperbolicGeometry.createTransform(a1, b1, a2, b2, keepOrientation);
-        }
-    }
 
     public String getGroupName() {
         return groupName;
@@ -423,8 +101,8 @@ public class Tiling {
      * @return status line
      */
     public String getStatusLine() {
-        return String.format("Tiling: %d.%d  Vertices: %d  Edges: %d  Tiles: %d  Symmetry group: %s",
-                ds.getNr1(), ds.getNr2(), numbVert, numbEdge, numbTile, getGroupName());
+        return String.format("Tiling: %d.%d  Tiles: %d  Edges: %d  Vertices: %d  Symmetry group: %s",
+                ds.getNr1(), ds.getNr2(), ds.countOrbits(0, 1), ds.countOrbits(0, 2), ds.countOrbits(1, 2), getGroupName());
     }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -436,14 +114,14 @@ public class Tiling {
      */
     public double computeTolerance(int referenceChamberIndex) {
         final Point3D refPoint;
-        if (fDomain.getGeometry() == Geometry.Euclidean) {
+        if (super.getGeometry() == Geometry.Euclidean) {
             refPoint = fDomain.getChamberCenter3D(referenceChamberIndex);
         } else {
             refPoint = fDomain.getChamberCenter3D(referenceChamberIndex).multiply(0.01);
         }
         double tolerance = 100;
         for (Transform g : generators.getTransforms()) {
-            double dist = Tools.distance(fDomain.getGeometry(), g.transform(refPoint), refPoint);
+            double dist = Tools.distance(super.getGeometry(), g.transform(refPoint), refPoint);
             if (dist < tolerance) {
                 tolerance = dist;
             }
@@ -458,7 +136,7 @@ public class Tiling {
      *
      * @return tiles
      */
-    public Group createTilingSpherical(TilingStyle tilingStyle) {
+    public Group createTilingSpherical() {
         handles.getChildren().clear();
 
         fundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
@@ -473,22 +151,20 @@ public class Tiling {
             fund.getChildren().add(fundamentalDomain.getBands());
 
         if (tilingStyle.isShowOtherStuff())
-            fund.getChildren().add(fundamentalDomain.getOtherStuff());
+            fund.getChildren().add(fundamentalDomain.getDecorations());
 
-        if (tilingStyle.isShowSymmetryIcons())
-            fund.getChildren().add(fundamentalDomain.getSymmetryIcons());
 
         all.getChildren().add(fund);
 
         // Make copies of fundamental domain.
         final OctTree seen = new OctTree();
         final Point3D refPoint = fDomain.getChamberCenter3D(referenceChamberIndex).multiply(0.01); // refPoint lies on unit sphere
-        seen.insert(fDomain.getGeometry(), refPoint, tolerance); //root node of OctTree is point of reference.
+        seen.insert(super.getGeometry(), refPoint, tolerance); //root node of OctTree is point of reference.
 
         final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
         for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
             Point3D genRef = g.transform(refPoint);
-            if (seen.insert(fDomain.getGeometry(), genRef, tolerance)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
+            if (seen.insert(super.getGeometry(), genRef, tolerance)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
                 final Group group2 = JavaFXUtils.copyGroup(fund);
                 group2.getTransforms().add(g);
                 all.getChildren().add(group2);
@@ -501,7 +177,7 @@ public class Tiling {
             for (Transform g : generators.getTransforms()) {
                 Transform tg = t.createConcatenation(g);
                 Point3D bpt = tg.transform(refPoint);
-                if (seen.insert(fDomain.getGeometry(), bpt, tolerance)) {
+                if (seen.insert(super.getGeometry(), bpt, tolerance)) {
                     final Group group2 = JavaFXUtils.copyGroup(fund);
                     group2.getTransforms().add(tg);
                     all.getChildren().add(group2);
@@ -510,7 +186,7 @@ public class Tiling {
 
                 Transform gt = g.createConcatenation(t);
                 bpt = gt.transform(refPoint);
-                if (seen.insert(fDomain.getGeometry(), bpt, tolerance)) {
+                if (seen.insert(super.getGeometry(), bpt, tolerance)) {
                     Group group2 = JavaFXUtils.copyGroup(fund);
                     group2.getTransforms().add(gt);
                     all.getChildren().add(group2);
@@ -537,13 +213,13 @@ public class Tiling {
      * @param maxDist
      * @return group
      */
-    public Group createTilingHyperbolic(boolean drawFundamentalDomainOnly, double maxDist, TilingStyle tilingStyle) {
+    public Group createTilingHyperbolic(boolean drawFundamentalDomainOnly, double maxDist) {
         //System.err.println("Create Hyperbolic Tiling");
 
         handles.getChildren().clear();
 
         //Add all generators
-        computeConstraintsAndGenerators();
+        fDomain.updateGeneratorsAndContraints();
 
         //System.out.println(refPointHyperbolic);
 
@@ -561,10 +237,7 @@ public class Tiling {
             if (tilingStyle.isShowBands())
                 fund.getChildren().add(fundamentalDomain.getBands());
             if (tilingStyle.isShowOtherStuff())
-                fund.getChildren().add(fundamentalDomain.getOtherStuff());
-
-            if (tilingStyle.isShowSymmetryIcons())
-                fund.getChildren().add(fundamentalDomain.getSymmetryIcons());
+                fund.getChildren().add(fundamentalDomain.getDecorations());
 
             fund.setRotationAxis(refPointHyperbolic);
             fund.getTransforms().add(new Translate());
@@ -577,10 +250,11 @@ public class Tiling {
             final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
 
             final OctTree seen = new OctTree();
+            seen.insert(getGeometry(), refPointHyperbolic, tolerance);
 
             for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
                 Point3D genRef = g.transform(refPointHyperbolic);
-                if (seen.insert(fDomain.getGeometry(), genRef, tolerance)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
+                if (seen.insert(getGeometry(), genRef, tolerance)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
                     if (makeCopyHyperbolic(genRef)) {
                         if (translateOrIncreaseTiling()) {
                             useRecycler(all, g, genRef, getHyperbolicFund());
@@ -595,9 +269,8 @@ public class Tiling {
             while (queue.size() > 0) {
                 // Breaks while loop if too many copies (rounding errors)
                 if (translateOrIncreaseTiling() && getNumberOfCopies() > 0 && countChildren >= 1.5 * getNumberOfCopies()) {
-                    setBreak(true);
                     System.out.println(countChildren + " children and " + getNumberOfCopies() + " copies");
-                    break;
+                    return FAILED;
                 }
 
                 final Transform t = queue.poll(); // remove t from queue
@@ -605,7 +278,7 @@ public class Tiling {
                 for (Transform g : generators.getTransforms()) {
                     Transform tg = t.createConcatenation(g);
                     Point3D bpt = tg.transform(refPointHyperbolic);
-                    if (seen.insert(fDomain.getGeometry(), bpt, tolerance) && bpt.getZ() < maxDist) {
+                    if (seen.insert(super.getGeometry(), bpt, tolerance) && bpt.getZ() < maxDist) {
                         countChildren++;
                         queue.add(tg);
                         if (makeCopyHyperbolic(bpt)) {
@@ -619,7 +292,7 @@ public class Tiling {
 
                     Transform gt = g.createConcatenation(t);
                     bpt = gt.transform(refPointHyperbolic);
-                    if (seen.insert(fDomain.getGeometry(), bpt, tolerance) && bpt.getZ() < maxDist) {
+                    if (seen.insert(super.getGeometry(), bpt, tolerance) && bpt.getZ() < maxDist) {
                         countChildren++;
                         queue.add(gt);
                         if (makeCopyHyperbolic(bpt)) {
@@ -653,13 +326,14 @@ public class Tiling {
      * @param height
      * @return group
      */
-    public Group createTilingEuclidean(Document doc, boolean drawFundamentalDomainOnly, Point3D windowCorner, double width, double height, TilingStyle tilingStyle) {
+    public Group createTilingEuclidean(Updateable doc, boolean drawFundamentalDomainOnly, Point3D windowCorner, double width, double height) {
 
         //Add all generators
-        computeConstraintsAndGenerators();
+        fDomain.updateGeneratorsAndContraints();
+        generators = fDomain.getGenerators();
 
         //Add handles
-        handles.getChildren().setAll(((new ReshapeManager(doc).createHandles())));
+        handles.getChildren().setAll(((new ReshapeManager(this, doc).createHandles())));
 
         //Calculation of point of reference:
         refPointEuclidean = fDomain.getChamberCenter3D(referenceChamberIndex); // Reference point of actual fundamental domain
@@ -677,10 +351,7 @@ public class Tiling {
             if (tilingStyle.isShowBands())
                 fund.getChildren().add(fundamentalDomain.getBands());
             if (tilingStyle.isShowOtherStuff())
-                fund.getChildren().add(fundamentalDomain.getOtherStuff());
-
-            if (tilingStyle.isShowSymmetryIcons())
-                fund.getChildren().add(fundamentalDomain.getSymmetryIcons());
+                fund.getChildren().add(fundamentalDomain.getDecorations());
 
             all.getChildren().add(fund);
             fund.getTransforms().add(new Translate()); // Add transform (= identity)
@@ -712,8 +383,7 @@ public class Tiling {
             while (queue.size() > 0) {
                 // Breaks while loop if too many copies (rounding errors)
                 if (translateOrIncreaseTiling() && queue.size() >= 1.5 * getNumberOfCopies()) {
-                    setBreak(true);
-                    break;
+                    return FAILED;
                 }
 
                 final Transform t = queue.poll(); // remove t from queue
@@ -781,7 +451,7 @@ public class Tiling {
         }
 
         //Add all generators
-        computeConstraintsAndGenerators();
+        fDomain.updateGeneratorsAndContraints();
 
         final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
 
@@ -848,13 +518,13 @@ public class Tiling {
     public Transform calculateBackShiftHyperbolic() {
 
         //Add all generators
-        computeConstraintsAndGenerators();
+        fDomain.updateGeneratorsAndContraints();
 
         final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
 
         Point3D refPoint = fDomain.getChamberCenter3D(referenceChamberIndex);
         final OctTree seen = new OctTree();
-        seen.insert(fDomain.getGeometry(), refPoint, tolerance);
+        seen.insert(super.getGeometry(), refPoint, tolerance);
 
         Transform backShift = new Translate(), t;
         Point3D apt = refPoint, point = refPoint;
@@ -874,7 +544,7 @@ public class Tiling {
                 Transform tg = t.createConcatenation(g);
                 point = tg.transform(refPoint);
 
-                if (seen.insert(fDomain.getGeometry(), point, tolerance)) { // Creates a tree of points lying in the copies of fDomain
+                if (seen.insert(super.getGeometry(), point, tolerance)) { // Creates a tree of points lying in the copies of fDomain
                     if (point.getZ() < d) { // Optimizes the choice of the transformation copying fDomain back to the valid range
                         d = point.getZ();
                         backShift = tg;
@@ -886,7 +556,7 @@ public class Tiling {
                 Transform gt = g.createConcatenation(t);
                 point = gt.transform(refPoint);
 
-                if (seen.insert(fDomain.getGeometry(), point, tolerance)) {
+                if (seen.insert(super.getGeometry(), point, tolerance)) {
                     if (point.getZ() < d) {
                         d = point.getZ();
                         backShift = gt;
@@ -976,7 +646,7 @@ public class Tiling {
         if (recycler.getChildren().size() == 1) { // Refills recycler if almost empty
             final Group fund = JavaFXUtils.copyGroup(domain); // Copies original fundamental domain used to build up "tiles"
             recycler.getChildren().add(fund);
-            if (fund instanceof Group) {
+            if (fund != null) {
                 if (fund.getChildren().size() == 0)
                     throw new RuntimeException("Fund copy empty");
             }
@@ -990,15 +660,15 @@ public class Tiling {
         g.getChildren().add(node);
     }
 
-    private void generateNewCopy(Group g, Transform t, Point3D p, Group f) {
-        Group group2 = JavaFXUtils.copyGroup(f);
-        group2.setRotationAxis(p);
-        group2.getTransforms().add(t);
-        g.getChildren().add(group2);
+    private void generateNewCopy(Group targetGroup, Transform transform, Point3D refPoint, Group fund) {
+        Group group2 = JavaFXUtils.copyGroup(fund);
+        group2.setRotationAxis(refPoint);
+        group2.getTransforms().setAll(transform);
+        targetGroup.getChildren().add(group2);
     }
 
     private boolean makeCopyHyperbolic(Point3D p) {
-        return keptHyperbolicCopy.insert(fDomain.getGeometry(), p, tolerance);
+        return keptHyperbolicCopy.insert(super.getGeometry(), p, tolerance);
     }
 
     private boolean makeCopyEuclidean(Point3D p) {
@@ -1006,51 +676,15 @@ public class Tiling {
     }
 
     private boolean translateOrIncreaseTiling() {
-        if (recycler.getChildren().size() > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return recycler.getChildren().size() > 0;
     }
 
-//----------------------------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------------------------
-
-    /**
-     * compute middle point
-     *
-     * @param
-     * @param
-     * @return middle
-     */
-    /*
-    public static Point2D middle(Geometry geometry, Point2D p, Point2D q) {
-        double d;
-
-        int sign = -1; // hyperbolic
-
-        switch (geometry) {
-            default:
-            case Euclidean:
-                d = 0.5;
-                break;
-            case Spherical:
-                sign = 1; // spherical
-            case Hyperbolic:
-                d = 2 * (1 + sign * p.dotProduct(q));
-                if (d <= 0) d = 0;
-                else d = 1 / Math.sqrt(d);
-                break;
-        }
-        return new Point2D(d * (p.getX() + q.getX()), d * (p.getY() + q.getY()));
-    }
-    */
     public DSymbol getDSymbol() {
         return ds;
     }
 
     public Geometry getGeometry() {
-        return fDomain.getGeometry();
+        return super.getGeometry();
     }
 
     public FDomain getfDomain() {
@@ -1062,14 +696,6 @@ public class Tiling {
     }
     //public Transforms getGenerators(){return generators;}
 
-
-    public boolean isBreak() {
-        return isBreak;
-    }
-
-    public void setBreak(boolean isBreak) {
-        this.isBreak = isBreak;
-    }
 
     public void setNumberOfCopies(int numberOfCopies) {
         this.numberOfCopies = numberOfCopies;
@@ -1125,18 +751,14 @@ public class Tiling {
     }
 
     public void insertKeptHyperbolicCopy(Point3D point) {
-        keptHyperbolicCopy.insert(fDomain.getGeometry(), point, getTolerance());
+        keptHyperbolicCopy.insert(super.getGeometry(), point, getTolerance());
     }
 
     public void insertKeptEuclideanCopy(Point3D point) {
         keptEuclideanCopy.insert(point.getX(), point.getY(), getTolerance());
     }
 
-    public Transforms getGenerators() {
+    public Generators getGenerators() {
         return generators;
-    }
-
-    public ObservableList<ReshapeEdit> getListOfEdits() {
-        return listOfEdits;
     }
 }

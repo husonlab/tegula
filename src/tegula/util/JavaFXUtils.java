@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * JavaFXUtils.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -21,17 +21,12 @@ package tegula.util;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Sphere;
 import javafx.scene.text.Text;
-import javafx.scene.transform.Transform;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,61 +48,31 @@ public class JavaFXUtils {
 
         for (Node node : group.getChildren()) {
             if (node instanceof MeshView) {
-                final MeshView src = (MeshView) node;
-                final MeshView target = new MeshView(((MeshView) node).getMesh());
+                MeshView src = (MeshView) node;
+                MeshView target = new MeshView(((MeshView) node).getMesh());
                 target.setMaterial(src.getMaterial());
-                target.setUserData(src.getUserData());
-                target.getTransforms().addAll(copy(src.getTransforms()));
-                target.setTranslateX(src.getTranslateX());
-                target.setTranslateY(src.getTranslateY());
-                target.setTranslateZ(src.getTranslateZ());
-
                 result.getChildren().add(target);
             } else if (node instanceof Polyline) {
-                final Polyline src = (Polyline) node;
-                final Polyline target = new Polyline();
+                Polyline src = (Polyline) node;
+                Polyline target = new Polyline();
                 target.getPoints().addAll(src.getPoints());
                 target.setFill(src.getFill());
                 target.setStroke(src.getStroke());
                 target.setStrokeLineCap(src.getStrokeLineCap());
-                target.setUserData(src.getUserData());
-                target.getTransforms().addAll(copy(src.getTransforms()));
-                target.setTranslateX(src.getTranslateX());
-                target.setTranslateY(src.getTranslateY());
-                target.setTranslateZ(src.getTranslateZ());
-
                 result.getChildren().add(target);
             } else if (node instanceof Sphere) {
                 Sphere src = (Sphere) node;
                 Sphere target = new Sphere(src.getRadius());
                 target.setMaterial(src.getMaterial());
                 target.getTransforms().addAll(src.getTransforms());
-                target.setUserData(src.getUserData());
-                target.getTransforms().addAll(copy(src.getTransforms()));
-                target.setTranslateX(src.getTranslateX());
-                target.setTranslateY(src.getTranslateY());
-                target.setTranslateZ(src.getTranslateZ());
-
                 result.getChildren().add(target);
-
-
-                target.setRotationAxis(src.getRotationAxis());
-
-                if (src.getUserData() instanceof String && ((src.getUserData()).equals("ref0")))
-                    target.setMaterial(new PhongMaterial(Color.ORANGE));
-
             } else if (node instanceof Cylinder) {
-                final Cylinder src = (Cylinder) node;
-                final Cylinder target = new Cylinder(src.getRadius(), src.getHeight(), src.getDivisions());
+                Cylinder src = (Cylinder) node;
+                Cylinder target = new Cylinder(src.getRadius(), src.getHeight(), src.getDivisions());
                 target.setCullFace(src.getCullFace());
                 target.setDrawMode(src.getDrawMode());
                 target.setMaterial(src.getMaterial());
-                target.setUserData(src.getUserData());
-                target.getTransforms().addAll(copy(src.getTransforms()));
-                target.setTranslateX(src.getTranslateX());
-                target.setTranslateY(src.getTranslateY());
-                target.setTranslateZ(src.getTranslateZ());
-
+                target.getTransforms().addAll(src.getTransforms());
                 result.getChildren().add(target);
             } else if (node instanceof Text) {
                 Text src = (Text) node;
@@ -115,19 +80,11 @@ public class JavaFXUtils {
                 target.setFont(src.getFont());
                 target.setFill(src.getFill());
                 target.getTransforms().addAll(src.getTransforms());
-                target.setUserData(src.getUserData());
-                target.getTransforms().addAll(copy(src.getTransforms()));
                 result.getChildren().add(target);
             } else if (node instanceof Group) {
                 Group src = (Group) node;
                 Group target = copyGroup(src);
                 target.getTransforms().addAll(src.getTransforms());
-                target.setUserData(src.getUserData());
-                target.getTransforms().addAll(copy(src.getTransforms()));
-                target.setTranslateX(src.getTranslateX());
-                target.setTranslateY(src.getTranslateY());
-                target.setTranslateZ(src.getTranslateZ());
-
                 result.getChildren().add(target);
             } else if (!warned.contains(node.getClass())) {
                 System.err.println("Warning: copyGroup(): not implemented for class: " + node.getClass());
@@ -136,27 +93,10 @@ public class JavaFXUtils {
         }
         result.setRotationAxis(group.getRotationAxis());
         result.setRotate(group.getRotate());
-
-        // enabling these breaks translation in Euclidean case:\
         result.setTranslateX(group.getTranslateX());
         result.setTranslateY(group.getTranslateY());
         result.setTranslateZ(group.getTranslateZ());
-        result.getTransforms().setAll(copy(group.getTransforms()));
 
-        return result;
-    }
-
-    /**
-     * copy a list of transforms
-     *
-     * @param transforms
-     * @return copies
-     */
-    private static Collection<Transform> copy(Collection<Transform> transforms) {
-        Collection<Transform> result = new ArrayList<>(transforms.size());
-        for (Transform transform : transforms) {
-            result.add(transform.clone());
-        }
         return result;
     }
 

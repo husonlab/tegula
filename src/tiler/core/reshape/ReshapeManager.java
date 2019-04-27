@@ -1,24 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
- *
- *  (Some files contain contributions from other authors, who are then mentioned separately.)
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-/*
- *  Copyright (C) 2018 University of Tuebingen
+ * ReshapeManager.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -51,12 +32,11 @@ import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.FDomain;
-import tiler.core.dsymbols.Geometry;
-import tiler.main.Document;
+import tiler.geometry.Tools;
+import tiler.tiling.Generators;
 import tiler.tiling.StraightenEdges;
-import tiler.tiling.Tiling;
-import tiler.tiling.Tools;
-import tiler.tiling.Transforms;
+import tiler.tiling.TilingBase;
+import tiler.util.Updateable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,19 +48,18 @@ import java.util.Collection;
  * Daniel HUson and Ruediger Zeller, 2016
  */
 public class ReshapeManager {
-    private final Document document;
+    private final Updateable updateable;
     private final FDomain fDomain;
     private final DSymbol ds;
-    private final Transforms generators;
+    private final Generators generators;
 
     /**
      * constructor
      *
-     * @param document
+     * @param updateable
      */
-    public ReshapeManager(Document document) {
-        this.document = document;
-        final Tiling tiling = document.getCurrentTiling();
+    public ReshapeManager(TilingBase tiling, Updateable updateable) {
+        this.updateable = updateable;
         fDomain = tiling.getfDomain();
         ds = tiling.getDSymbol();
         generators = tiling.getGenerators();
@@ -291,7 +270,7 @@ public class ReshapeManager {
      * @param flag
      * @return new direction
      */
-    private Point2D add2Restriction(Transforms generators, double deltaX, double deltaY, int flag) {
+    private Point2D add2Restriction(Generators generators, double deltaX, double deltaY, int flag) {
         // Restrict movement for 2-edge-handles
         Point2D transVec = new Point2D(deltaX, deltaY);
         Transform invGen = new Translate();
@@ -493,7 +472,6 @@ public class ReshapeManager {
 
     /**
      * set the mouse handler
-     *
      */
     private void setMouseHandler(Shape shape, int m, int a) {
         final ObjectProperty<Point2D> start = new SimpleObjectProperty<>(null);
@@ -524,35 +502,7 @@ public class ReshapeManager {
         shape.setOnMouseReleased((e) -> {
             final ReshapeEdit edit = new ReshapeEdit(m, a, location.get().subtract(start.get()));
 
-            document.getCurrentTiling().getListOfEdits().add(edit);
-
-            document.update();
+            updateable.update();
         });
-    }
-
-    /**
-     * this is supposed to transfer all edge shape edits from one symmetry group to the next
-     *
-     * @param document
-     */
-    public static void replay(Document document) {
-        if (document.getCurrentTiling().getListOfEdits().size() > 0) {
-            final ArrayList<ReshapeEdit> edits = new ArrayList<>(document.getCurrentTiling().getListOfEdits());
-            document.moveTo(Document.RELOAD);
-            document.update();
-
-            ReshapeManager reshapeManager = new ReshapeManager(document);
-            for (ReshapeEdit edit : edits) {
-                System.err.println("applying edit: " + edit);
-                double factor;
-                if (document.getCurrentTiling().getGeometry() == Geometry.Spherical)
-                    factor = 1;
-                else
-                    factor = 1;
-                reshapeManager.resetShape(factor * edit.getOffset().getX(), factor * edit.getOffset().getY(), edit.getM(), edit.getA());
-                document.update();
-            }
-            document.getCurrentTiling().getListOfEdits().setAll(edits);
-        }
     }
 }

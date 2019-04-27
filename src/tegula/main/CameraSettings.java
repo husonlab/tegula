@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * CameraSettings.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -25,7 +25,7 @@ import javafx.animation.TranslateTransition;
 import javafx.geometry.Point3D;
 import javafx.scene.PerspectiveCamera;
 import javafx.util.Duration;
-import tegula.util.IHasHyperbolicModel;
+import tegula.util.HasHyperbolicModel;
 
 /**
  * set the camera based on geometry and model
@@ -56,7 +56,7 @@ public class CameraSettings {
      * @param model
      * @param animate if true, animate transition to model
      */
-    public static IHasHyperbolicModel.HyperbolicModel setupHyperbolicCamera(PerspectiveCamera camera, IHasHyperbolicModel.HyperbolicModel model, boolean animate) {
+    public static HasHyperbolicModel.HyperbolicModel setupHyperbolicCamera(PerspectiveCamera camera, HasHyperbolicModel.HyperbolicModel model, boolean animate) {
 
         camera.setFieldOfView(90);
 

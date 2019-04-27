@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * SetupController.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -31,6 +31,7 @@ import javafx.stage.Stage;
 import jloda.fx.control.CopyableLabel;
 import jloda.fx.util.Print;
 import jloda.swing.util.ProgramProperties;
+import tegula.single.SingleTilingWindow;
 import tiler.color.ColorSchemeDialog;
 import tiler.color.ColorSchemeManager;
 import tiler.core.dsymbols.DSymbol;
@@ -38,10 +39,9 @@ import tiler.core.dsymbols.DSymbolAlgorithms;
 import tiler.core.dsymbols.Geometry;
 import tiler.tiling.StraightenEdges;
 import tiler.tiling.Tiling;
+import tiler.util.HasHyperbolicModel;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Optional;
 
 /**
@@ -49,7 +49,6 @@ import java.util.Optional;
  * Daniel Huson, 11.2018
  */
 public class SetupController {
-
     /**
      * setup the menu items
      *
@@ -78,7 +77,7 @@ public class SetupController {
             }
                 }
         );
-        
+
         //document.showLinesProperty().bind(mainViewController.getCbShowLines().selectedProperty());
 
         final CopyableLabel statusLabel = new CopyableLabel();
@@ -179,17 +178,39 @@ public class SetupController {
             }
         });
 
+        controller.getTestButton().setOnAction((e) -> {
+            final DSymbol dSymbol = document.getCurrentTiling().getfDomain().getDSymbol();
+            if (dSymbol != null) {
+                new tiler.single.SingleTilingWindow(dSymbol);
+            }
+        });
+
+        controller.getTest2Button().setOnAction((e) -> {
+            final DSymbol dSymbol = document.getCurrentTiling().getfDomain().getDSymbol();
+            if (dSymbol != null) {
+                tegula.core.dsymbols.DSymbol tegulaDSymbol = new tegula.core.dsymbols.DSymbol();
+                try {
+                    final StringWriter w = new StringWriter();
+                    dSymbol.write(w);
+                    tegulaDSymbol.read(new StringReader(w.toString()));
+                    new SingleTilingWindow(tegulaDSymbol);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
         controller.getModelChoiceBox().getSelectionModel().selectedIndexProperty().addListener((c, o, n) -> {
             switch (n.intValue()) {
                 default:
                 case 0: // Poincare
-                    HyperbolicModelCameraSettings.setModel(document, Document.HyperbolicModel.Poincare, true);
+                    HyperbolicModelCameraSettings.setModel(document, HasHyperbolicModel.HyperbolicModel.Poincare, true);
                     break;
                 case 1: // Klein
-                    HyperbolicModelCameraSettings.setModel(document, Document.HyperbolicModel.Klein, true);
+                    HyperbolicModelCameraSettings.setModel(document, HasHyperbolicModel.HyperbolicModel.Klein, true);
                     break;
                 case 2: // Hyperboloid
-                    HyperbolicModelCameraSettings.setModel(document, Document.HyperbolicModel.Hyperboloid, true);
+                    HyperbolicModelCameraSettings.setModel(document, HasHyperbolicModel.HyperbolicModel.Hyperboloid, true);
                     break;
             }
         });
@@ -222,14 +243,14 @@ public class SetupController {
 
         controller.getDualizeMenuItem().setOnAction((e) -> {
             final DSymbol ds = DSymbolAlgorithms.dualize(document.getCurrentTiling().getDSymbol());
-            document.changeCurrentTiling(new Tiling(ds));
+            document.changeCurrentTiling(new Tiling(ds, document.getTilingStyle()));
             document.update();
         });
         controller.getDualizeButton().setOnAction((e) -> controller.getDualizeMenuItem().fire());
 
         controller.getMaxSymmetryMenuItem().setOnAction((e) -> {
             final DSymbol ds = DSymbolAlgorithms.maxSymmetry(document.getCurrentTiling().getDSymbol());
-            document.changeCurrentTiling(new Tiling(ds));
+            document.changeCurrentTiling(new Tiling(ds, document.getTilingStyle()));
             document.update();
         });
         controller.getMaximizeButton().setOnAction((e) -> controller.getMaxSymmetryMenuItem().fire());
@@ -237,7 +258,7 @@ public class SetupController {
 
         controller.getOrientateMenuItem().setOnAction((e) -> {
             final DSymbol ds = DSymbolAlgorithms.orientate(document.getCurrentTiling().getDSymbol());
-            final Tiling tiling = new Tiling(ds);
+            final Tiling tiling = new Tiling(ds, document.getTilingStyle());
             document.changeCurrentTiling(tiling);
             document.update();
         });
@@ -323,10 +344,6 @@ public class SetupController {
         controller.getShowChambersMenuItem().setOnAction((e) -> {
             document.getTilingStyle().setShowAllChambers(controller.getShowChambersMenuItem().isSelected());
             document.update();
-        });
-
-        controller.getTestButton().setOnAction((e) -> {
-            System.err.println("Not implemented");
         });
     }
 

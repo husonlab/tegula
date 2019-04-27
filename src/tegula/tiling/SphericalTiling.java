@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * SphericalTiling.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -16,104 +16,125 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package tegula.tiling;
 
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.transform.Transform;
 import tegula.core.dsymbols.DSymbol;
+import tegula.core.dsymbols.FDomain;
 import tegula.main.TilingStyle;
-import tegula.tiling.util.OctTree;
+import tegula.tiling.parts.OctTree;
 import tegula.util.JavaFXUtils;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
 /**
- * computes a spherical tiling
- * <p>
+ * a spherical tiling
  * Daniel Huson and Ruediger Zeller, 2016
  */
-public class SphericalTiling extends TilingBase {
+public class SphericalTiling extends TilingBase implements TilingCreator {
+
     /**
      * constructor
      *
-     * @param tilingStyle
      * @param ds
      */
-    public SphericalTiling(TilingStyle tilingStyle, DSymbol ds) {
-        super(tilingStyle, ds);
+    public SphericalTiling(DSymbol ds, TilingStyle tilingStyle) {
+        super(ds, tilingStyle);
     }
 
+    /**
+     * update the tiling
+     */
+    public Group update() {
+        fDomain.updateGeneratorsAndContraints();
+        generators = fDomain.getGenerators();
+        referenceChamberIndex = fDomain.computeOptimalChamberIndex();
+        tolerance = computeTolerance(fDomain, generators, referenceChamberIndex);
+        fundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
 
-//----------------------------------------------------------------------------------------------------------------------
+        final Group tiles = produceTiles();
+        setNumberOfCopies(tiles.getChildren().size());
+        return tiles;
+    }
 
     /**
-     * create the set of tiles to be shown in spherical case
+     * produces the tiles
      *
      * @return tiles
      */
-    public ArrayList<Node> createTiling() {
-        final ArrayList<Node> all = new ArrayList<>();
+    private Group produceTiles() {
+        handles.getChildren().clear();
 
-        updateReferenceChamberIndex();
+        final Group all = new Group();
+        final Group fundPrototype = new Group();
+        fundPrototype.getChildren().setAll(fundamentalDomain.getAllRequested());
 
-        fundamentalDomainMeshes.update(getDSymbol(), fDomain, tilingStyle);
-        final Group fund = fundamentalDomainMeshes.getAll();
+        all.getChildren().add(fundPrototype);
 
-        all.add(fund);
+        if (!isDrawFundamentalDomainOnly()) {
+            // Make copies of fundamental domain.
+            final OctTree seen = new OctTree();
+            final Point3D refPoint = fDomain.getChamberCenter3D(referenceChamberIndex).multiply(0.01); // refPoint lies on unit sphere
+            seen.insert(getGeometry(), refPoint, tolerance); //root node of OctTree is point of reference.
 
-        // Make copies of fundamental domain.
-        final OctTree seen = new OctTree();
-        final Point3D refPoint = fDomain.getChamberCenter3D(referenceChamberIndex); // refPoint lies on unit sphere
-        seen.insert(getGeometry(), refPoint, tolerance); //root node of OctTree is point of reference.
-
-        final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
-        for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
-            Point3D genRef = g.transform(refPoint);
-
-            if (seen.insert(getGeometry(), genRef, tolerance)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
-                final Group group2 = JavaFXUtils.copyGroup(fund);
-                group2.getTransforms().add(g);
-                all.add(group2);
-            }
-        }
-
-        while (queue.size() > 0) {
-            final Transform t = queue.poll(); // remove t from queue
-            for (Transform g : generators.getTransforms()) {
-                Transform tg = t.createConcatenation(g);
-                Point3D bpt = tg.transform(refPoint);
-                if (seen.insert(getGeometry(), bpt, tolerance)) {
-                    final Group group2 = JavaFXUtils.copyGroup(fund);
-                    group2.getTransforms().add(tg);
-                    all.add(group2);
-                    queue.add(tg);
+            final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
+            for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
+                Point3D genRef = g.transform(refPoint);
+                if (seen.insert(getGeometry(), genRef, tolerance)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
+                    final Group group2 = JavaFXUtils.copyGroup(fundPrototype);
+                    group2.getTransforms().add(g);
+                    all.getChildren().add(group2);
                 }
+            }
 
-                Transform gt = g.createConcatenation(t);
-                bpt = gt.transform(refPoint);
-                if (seen.insert(getGeometry(), bpt, tolerance)) {
-                    Group group2 = JavaFXUtils.copyGroup(fund);
-                    group2.getTransforms().add(gt);
-                    all.add(group2);
-                    queue.add(gt);
+            while (queue.size() > 0) {
+                final Transform t = queue.poll(); // remove t from queue
+
+                for (Transform g : generators.getTransforms()) {
+                    Transform tg = t.createConcatenation(g);
+                    Point3D bpt = tg.transform(refPoint);
+                    if (seen.insert(getGeometry(), bpt, tolerance)) {
+                        final Group group2 = JavaFXUtils.copyGroup(fundPrototype);
+                        group2.getTransforms().add(tg);
+                        all.getChildren().add(group2);
+                        queue.add(tg);
+                    }
+
+                    Transform gt = g.createConcatenation(t);
+                    bpt = gt.transform(refPoint);
+                    if (seen.insert(getGeometry(), bpt, tolerance)) {
+                        Group group2 = JavaFXUtils.copyGroup(fundPrototype);
+                        group2.getTransforms().add(gt);
+                        all.getChildren().add(group2);
+                        queue.add(gt);
+                    }
                 }
             }
         }
 
         // only want one copy of these things:
         if (tilingStyle.isShowFundamentalChambers() && !tilingStyle.isShowAllChambers())
-            all.add(getHandles());
+            all.getChildren().add(fundamentalDomain.getHandles());
 
         if (tilingStyle.isShowHandles())
-            all.add(getHandles());
+            all.getChildren().add(fundamentalDomain.getHandles());
 
         return all;
     }
 
+    public DSymbol getDSymbol() {
+        return ds;
+    }
+
+    public FDomain getfDomain() {
+        return fDomain;
+    }
+
+    public Group getHandles() {
+        return handles;
+    }
 }
-
-

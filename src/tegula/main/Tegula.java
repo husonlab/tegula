@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019. Daniel H. Huson
+ * Tegula.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -29,7 +29,6 @@ import jloda.fx.window.WindowGeometry;
 import jloda.util.Basic;
 import jloda.util.CanceledException;
 import jloda.util.UsageException;
-import tegula.actions.OpenFileAction;
 
 import java.io.File;
 import java.time.Duration;
@@ -113,7 +112,7 @@ public class Tegula extends Application {
 
         mainWindow.show(primaryStage, windowGeometry.getX(), windowGeometry.getY(), windowGeometry.getWidth(), windowGeometry.getHeight());
         for (String fileName : inputFilesAtStartup) {
-            OpenFileAction.fileOpener().accept(fileName);
+            //OpenFileAction.fileOpener().accept(fileName);
         }
 
         // setup about and preferences menu for apple:

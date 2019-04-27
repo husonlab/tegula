@@ -1,3 +1,22 @@
+/*
+ * HyperbolicGeometry.java Copyright (C) 2019. Daniel H. Huson
+ *
+ *  (Some files contain contributions from other authors, who are then mentioned separately.)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package tegula.geometry;
 
 import javafx.geometry.Point2D;
@@ -84,14 +103,11 @@ public class HyperbolicGeometry {
 
     public static Affine matchZero(Point3D a, boolean Inv) {     // Maps a given point "a" which is in the intersection of y-z-plane and hyperboloid to the minimum of the hyperboloid
         double aRot1Y = Math.sqrt(a.getX() * a.getX() + a.getY() * a.getY());   // distance of "a" from z-axis
-
-
-        final double factor = 100;
         final Affine trans;
         if (Inv) {   // Calculates inverse if Inv = true
-            trans = new Affine(1, 0, 0, 0, 0, a.getZ() / factor, aRot1Y / factor, 0, 0, aRot1Y / factor, a.getZ() / factor, 0);     // Inverse of isometry described below
+            trans = new Affine(1, 0, 0, 0, 0, a.getZ() / 100, aRot1Y / 100, 0, 0, aRot1Y / 100, a.getZ() / 100, 0);     // Inverse of isometry described below
         } else {
-            trans = new Affine(1, 0, 0, 0, 0, a.getZ() / factor, -aRot1Y / factor, 0, 0, -aRot1Y / factor, a.getZ() / factor, 0);   // Isometry leaving y-z-plane and hyperboloid invariant. Maps a point on geodesic in y-z-plane to minimum of hyperboloid
+            trans = new Affine(1, 0, 0, 0, 0, a.getZ() / 100, -aRot1Y / 100, 0, 0, -aRot1Y / 100, a.getZ() / 100, 0);   // Isometry leaving y-z-plane and hyperboloid invariant. Maps a point on geodesic in y-z-plane to minimum of hyperboloid
         }
         return trans;
     }

@@ -1,24 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
- *
- *  (Some files contain contributions from other authors, who are then mentioned separately.)
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-/*
- *  Copyright (C) 2018 Daniel H. Huson
+ * HyperbolicModelCameraSettings.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -42,7 +23,9 @@ import javafx.animation.ParallelTransition;
 import javafx.animation.RotateTransition;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Point3D;
+import javafx.scene.PerspectiveCamera;
 import javafx.util.Duration;
+import tiler.util.HasHyperbolicModel;
 
 /**
  * sets up the camera for hyperbolic viewing
@@ -54,9 +37,19 @@ public class HyperbolicModelCameraSettings {
      * @param document
      * @param model
      */
-    public static void setModel(Document document, Document.HyperbolicModel model, boolean animate) {
+    public static void setModel(Document document, HasHyperbolicModel.HyperbolicModel model, boolean animate) {
+        document.setHyperbolicModel(setModel(document.getPerspectiveCamera(), model, animate));
+    }
 
-        document.getPerspectiveCamera().setFieldOfView(90);
+    /**
+     * set the camera based on the model
+     *
+     * @param camera
+     * @param model
+     */
+    public static HasHyperbolicModel.HyperbolicModel setModel(PerspectiveCamera camera, HasHyperbolicModel.HyperbolicModel model, boolean animate) {
+
+        camera.setFieldOfView(90);
 
         final double cameraAngle;
         final double cameraTranslateX;
@@ -89,23 +82,23 @@ public class HyperbolicModelCameraSettings {
             duration = Duration.ONE;
 
         final RotateTransition rotateTransition = new RotateTransition();
-        rotateTransition.setNode(document.getPerspectiveCamera());
+        rotateTransition.setNode(camera);
         rotateTransition.setAxis(new Point3D(0, 1, 0));
         rotateTransition.setToAngle(cameraAngle);
         rotateTransition.setDuration(duration);
 
         final TranslateTransition translateTransition = new TranslateTransition();
-        translateTransition.setNode(document.getPerspectiveCamera());
+        translateTransition.setNode(camera);
         translateTransition.setToX(cameraTranslateX);
         translateTransition.setToZ(cameraTranslateZ);
         translateTransition.setDuration(duration);
 
         final ParallelTransition parallelTransition = new ParallelTransition(rotateTransition, translateTransition);
         parallelTransition.setOnFinished((e) -> {
-            document.getPerspectiveCamera().setFarClip(10000);
+            camera.setFarClip(10000);
         });
         parallelTransition.play();
 
-        document.setHyperbolicModel(model);
+        return model;
     }
 }

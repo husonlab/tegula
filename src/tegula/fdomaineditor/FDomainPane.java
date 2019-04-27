@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 University of Tuebingen
+ * FDomainPane.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -40,7 +40,7 @@ import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
 import tegula.geometry.Tools;
 import tegula.main.TilingStyle;
-import tegula.tilingeditor.ExtendedTiling;
+import tegula.tilingeditor.ExtendedTilingPane;
 
 import java.util.Arrays;
 import java.util.BitSet;
@@ -53,7 +53,7 @@ public class FDomainPane extends StackPane {
     private final ObjectProperty<DSymbol> dSymbol = new SimpleObjectProperty<>();
     private final TilingStyle tilingStyle;
 
-    private final ExtendedTiling extendedTiling;
+    private final ExtendedTilingPane extendedTilingPane;
 
     private NGonShape[][] vertexHandles;
     private NGonShape[][] edgeHandles;
@@ -63,18 +63,18 @@ public class FDomainPane extends StackPane {
     /**
      * constructor
      *
-     * @param extendedTiling
+     * @param extendedTilingPane
      */
-    public FDomainPane(ExtendedTiling extendedTiling) {
-        this.extendedTiling = extendedTiling;
-        tilingStyle = extendedTiling.getTilingStyle();
+    public FDomainPane(ExtendedTilingPane extendedTilingPane) {
+        this.extendedTilingPane = extendedTilingPane;
+        tilingStyle = extendedTilingPane.getTilingStyle();
 
-        setFDomain(extendedTiling.getTilingMeshes().getfDomain());
-        setDSymbol(extendedTiling.getTilingMeshes().getDSymbol());
+        setFDomain(extendedTilingPane.getTiling().getfDomain());
+        setDSymbol(extendedTilingPane.getTiling().getDSymbol());
 
-        extendedTiling.lastUpdateProperty().addListener((e) -> {
-            setFDomain(extendedTiling.getTilingMeshes().getfDomain());
-            setDSymbol(extendedTiling.getTilingMeshes().getDSymbol());
+        extendedTilingPane.lastUpdateProperty().addListener((e) -> {
+            setFDomain(extendedTilingPane.getTiling().getfDomain());
+            setDSymbol(extendedTilingPane.getTiling().getDSymbol());
         });
 
         widthProperty().addListener((c) -> update());
@@ -284,7 +284,7 @@ public class FDomainPane extends StackPane {
         }
 
         if (false) { // active old reshaping code
-            ReshapeManager reshapeManager = new ReshapeManager(extendedTiling);
+            ReshapeManager reshapeManager = new ReshapeManager(extendedTilingPane);
             final Group group = new Group(reshapeManager.createHandles(factor));
             getChildren().addAll(group);
         }
@@ -362,7 +362,7 @@ public class FDomainPane extends StackPane {
         });
 
         shape.setOnMouseReleased((e) -> {
-            extendedTiling.update();
+            extendedTilingPane.update();
         });
     }
 }

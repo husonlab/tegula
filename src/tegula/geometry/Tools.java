@@ -1,3 +1,22 @@
+/*
+ * Tools.java Copyright (C) 2019. Daniel H. Huson
+ *
+ *  (Some files contain contributions from other authors, who are then mentioned separately.)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package tegula.geometry;
 
 import javafx.geometry.Point2D;
@@ -24,8 +43,6 @@ public class Tools {
      */
     public static double distance(Geometry geom, Point3D a, Point3D b) {
         if (geom == Geometry.Hyperbolic) {
-            a = a.multiply(0.01);
-            b = b.multiply(0.01);
             double scalar = a.getZ() * b.getZ() - a.getX() * b.getX() - a.getY() * b.getY();
             return Math.log(Math.abs(scalar + Math.sqrt(Math.abs(scalar * scalar - 1))));
         } else {
@@ -53,12 +70,12 @@ public class Tools {
     }
 
     public static double sphericalDistance(Point3D a, Point3D b) {
-        return Math.acos(a.normalize().dotProduct(b.normalize()));
+        return 100 * Math.acos(a.normalize().dotProduct(b.normalize()));
     }
 
     public static double hyperbolicDistance(Point3D a, Point3D b) {
-        double value = Math.abs(minkowskiScalar(a, b));
-        return arccosh(value);
+        double value = Math.abs(minkowskiScalar(a.multiply(0.01), b.multiply(0.01)));
+        return 100 * arccosh(value);
     }
 
     /**
@@ -73,7 +90,7 @@ public class Tools {
         if (geometry == Geometry.Euclidean) {
             return a.midpoint(b);
         } else if (geometry == Geometry.Spherical) {
-            // return (a.midpoint(b)).normalize().multiply(factor);
+            // return (a.midpoint(b)).normalize().multiply(100);
             return interpolateSpherePoints(a, b, 0.5);
         } else {
             return interpolateHyperbolicPoints(a, b, 0.5);
@@ -90,16 +107,16 @@ public class Tools {
      * @return midpoint between a and b
      */
     public static Point3D interpolateHyperbolicPoints(Point3D a, Point3D b, double pos) {
-        a = a.multiply(0.01);
-        b = b.multiply(0.01);
 
+        Point3D point1 = a.multiply(0.01);
+        Point3D point2 = b.multiply(0.01);
         Point3D xAxis = new Point3D(1, 0, 0);
-        Point3D origin = new Point3D(0, 0, 1);
+        Point3D ursprung = new Point3D(0, 0, 1);
 
-        double rotAngle = xAxis.angle(a.getX(), a.getY(), 0);
+        double rotAngle = xAxis.angle(point1.getX(), point1.getY(), 0);
 
         Point3D rotAxis = null;
-        if (a.getY() >= 0)
+        if (point1.getY() >= 0)
             rotAxis = new Point3D(0, 0, -1);
         else
             rotAxis = new Point3D(0, 0, 1);
@@ -109,7 +126,7 @@ public class Tools {
 
         ///////
 
-        double dist = Math.log(Math.abs(a.getZ() + Math.sqrt(Math.abs(a.getZ() * a.getZ() - 1))));
+        double dist = Math.log(Math.abs(point1.getZ() + Math.sqrt(Math.abs(point1.getZ() * point1.getZ() - 1))));
 
         Affine translate1 = new Affine(Math.cosh(-dist), 0, Math.sinh(-dist), 0, 0, 1, 0, 0, Math.sinh(-dist), 0,
                 Math.cosh(-dist), 0);
@@ -118,7 +135,7 @@ public class Tools {
 
         ///////
 
-        Point3D p2moved = translate1.transform(rotateToX.transform(b));
+        Point3D p2moved = translate1.transform(rotateToX.transform(point2));
 
         rotAngle = xAxis.angle(p2moved.getX(), p2moved.getY(), 0);
         if (p2moved.getY() >= 0)
@@ -135,7 +152,8 @@ public class Tools {
         Affine translate2 = new Affine(Math.cosh(dist), 0, Math.sinh(dist), 0, 0, 1, 0, 0, Math.sinh(dist), 0,
                 Math.cosh(dist), 0);
 
-        return rotateToXInv.transform(translate1Inv.transform(rotat2.transform(translate2.transform(origin)))).multiply(100);
+        return rotateToXInv.transform(translate1Inv.transform(rotat2.transform(translate2.transform(ursprung))))
+                .multiply(100);
     }
 
     /**
@@ -148,17 +166,17 @@ public class Tools {
      * second point
      */
     public static Point3D[] equidistantHyperbolicPoints(Point3D point, Point3D point2, double distance) {
-        point = point.multiply(0.01);
-        point2 = point2.multiply(0.01);
-
-        final Point3D[] result = new Point3D[2];
+        Point3D[] returnpoints = new Point3D[2];
+        Point3D start = point.multiply(0.01);
+        Point3D end = point2.multiply(0.01);
         Point3D xAxis = new Point3D(1, 0, 0);
+        Point3D ursprung = new Point3D(0, 0, 1);
 
         // rotates start point on to the x-Axis
-        double rotAngle = xAxis.angle(point.getX(), point.getY(), 0);
+        double rotAngle = xAxis.angle(start.getX(), start.getY(), 0);
 
         Point3D rotAxis = null;
-        if (point.getY() >= 0)
+        if (start.getY() >= 0)
             rotAxis = new Point3D(0, 0, -1);
         else
             rotAxis = new Point3D(0, 0, 1);
@@ -167,7 +185,7 @@ public class Tools {
         Rotate rotateToXInv = new Rotate(-rotAngle, rotAxis);
 
         // translates start point to ursprung
-        double dist = Math.log(Math.abs(point.getZ() + Math.sqrt(Math.abs(point.getZ() * point.getZ() - 1))));
+        double dist = Math.log(Math.abs(start.getZ() + Math.sqrt(Math.abs(start.getZ() * start.getZ() - 1))));
 
         Affine translate1 = new Affine(Math.cosh(-dist), 0, Math.sinh(-dist), 0, 0, 1, 0, 0, Math.sinh(-dist), 0,
                 Math.cosh(-dist), 0);
@@ -175,7 +193,7 @@ public class Tools {
                 Math.cosh(dist), 0);
 
         // uses same rotation and translation on end point
-        Point3D endmoved = translate1.transform(rotateToX.transform(point2));
+        Point3D endmoved = translate1.transform(rotateToX.transform(end));
 
         // rotate moved end point to x axis
         Point3D rotAxis2 = null;
@@ -191,16 +209,18 @@ public class Tools {
 
         // creates points on of equal distance to urpsrung that are perpendicular to the
         // moved end point
-        Point3D returnpoint1 = new Point3D(0, arcsinh(-distance),
-                Math.sqrt(Math.pow(Math.sinh(distance), 2) + 1));
-        Point3D returnpoint2 = new Point3D(0, arcsinh(distance),
-                Math.sqrt(Math.pow(Math.sinh(distance), 2) + 1));
+        Point3D returnpoint1 = new Point3D(0, arcsinh(-distance * 0.01),
+                Math.sqrt(Math.pow(Math.sinh(distance) * 0.01, 2) + 1));
+        Point3D returnpoint2 = new Point3D(0, arcsinh(distance * 0.01),
+                Math.sqrt(Math.pow(Math.sinh(distance) * 0.01, 2) + 1));
 
         // uses same rotations and translations that were used on end point
-        result[0] = rotateToXInv.transform(translate1Inv.transform(rotat2Inv.transform(returnpoint1))).multiply(100);
-        result[1] = rotateToXInv.transform(translate1Inv.transform(rotat2Inv.transform(returnpoint2))).multiply(100);
+        returnpoints[0] = rotateToXInv.transform(translate1Inv.transform(rotat2Inv.transform(returnpoint1)))
+                .multiply(100);
+        returnpoints[1] = rotateToXInv.transform(translate1Inv.transform(rotat2Inv.transform(returnpoint2)))
+                .multiply(100);
 
-        return result;
+        return returnpoints;
 
     }
 
@@ -208,17 +228,18 @@ public class Tools {
      * * by Cornelius calculates circle coordinates as an n sided polygon to a given
      * center point on hyperboloid with a given orientation
      *
-     * @param center
+     * @param point0
      * @param orientation
      * @param radius
      * @param fine
      * @return circle coordinates
      */
-    public static Point3D[] hyperbolicCircleCoordinates(Point3D center, Point3D orientation, double radius, int fine) {
-        center = center.multiply(0.01);
+    public static Point3D[] hyperbolicCircleCoordinates(Point3D point0, Point3D orientation, double radius, int fine) {
 
+        Point3D center = point0.multiply(0.01);
         Point3D end = center.add(orientation.normalize());
         Point3D xAxis = new Point3D(1, 0, 0);
+        Point3D ursprung = new Point3D(0, 0, 1);
 
         // rotates center point to x axis
         double rotAngle = xAxis.angle(center.getX(), center.getY(), 0);
@@ -255,19 +276,20 @@ public class Tools {
 
         // creates circle points around (0,0,1);
         Point3D[] coordinates = new Point3D[fine];
-        Point3D[] result = new Point3D[fine];
-        double zvalue = Math.sqrt(Math.pow(radius, 2) + 1);
+        Point3D[] returncoordinates = new Point3D[fine];
+        double zvalue = Math.sqrt(Math.pow(radius * 0.01, 2) + 1);
         for (int n = 0; n < fine; n++) {
-            coordinates[n] = new Point3D(Math.sinh(radius) * Math.cos(2 * Math.PI * n / fine),
-                    Math.sinh(radius) * Math.sin(2 * Math.PI * n / fine), zvalue);
+            coordinates[n] = new Point3D(Math.sinh(radius * 0.01) * Math.cos(2 * Math.PI * n / fine),
+                    Math.sinh(radius * 0.01) * Math.sin(2 * Math.PI * n / fine), zvalue);
         }
 
         // rotates and translates circle points back to original center
         for (int i = 0; i < fine; i++) {
-            result[i] = rotateToXInv.transform(translate1Inv.transform(rotat2Inv.transform(coordinates[i]))).multiply(100);
+            returncoordinates[i] = rotateToXInv.transform(translate1Inv.transform(rotat2Inv.transform(coordinates[i])))
+                    .multiply(100);
         }
 
-        return result;
+        return returncoordinates;
     }
 
     /**
@@ -342,9 +364,6 @@ public class Tools {
      * @return transform
      */
     public static Transform hyperbolicTranslation(double dx, double dy) {
-        dx /= 100;
-        dy /= 100;
-
         Rotate rotateForward, rotateBackward; // Rotations to x-axis and back
         Affine translateX;
         final Point3D X_Axis = new Point3D(1, 0, 0);
@@ -384,87 +403,88 @@ public class Tools {
         return (point0n.add(difference.multiply(0.5))).normalize().multiply(100);
     }
 
-
     /**
-     * map 2D point (in 100*unit model) to 3D point (scaled by factor 100)
-     * geometry
+     * interpolates spherical points with recursive midpoint method by Cornelius
+     * 21.11.18
      *
-     * @param apt0
+     * @param a
+     * @param b
      * @return 3D point
      */
-    public static Point3D map2Dto3D(Geometry geometry, Point2D apt0) {
+    public static Point3D interpolateSpherePoints2(Point3D a, Point3D b, double pos, double intlength,
+                                                   double intupperbound) {
+        double tol = 0.000001; // minimum accuracy
+        double value = intupperbound - (intlength * 0.5);
+        Point3D midpoint = sphericalMidpoint(a, b);
+        if ((value - tol <= pos) && (pos <= value + tol)) {
+            return midpoint;
+        } else if (pos < value) {
+            return interpolateSpherePoints2(a, midpoint, pos, intlength * 0.5, value);
+        } else {
+            return interpolateSpherePoints2(midpoint, b, pos, intlength * 0.5, intupperbound);
+        }
+    }
+
+    // easier version to use
+    public static Point3D interpolateSpherePoints2(Point3D a, Point3D b, double pos) {
+        return interpolateSpherePoints2(a, b, pos, 1, 1);
+    }
+
+    /**
+     * map 2D point (unit model) to 3D point (scaled with 100), depending on set
+     * geometry
+     *
+     * @param apt
+     * @return 3D point
+     */
+    public static Point3D map2Dto3D(Geometry geometry, Point2D apt) {
+
         switch (geometry) {
             default:
             case Euclidean: {
-                return new Point3D(apt0.getX(), apt0.getY(), 0);
+                return new Point3D(100 * apt.getX(), 100 * apt.getY(), 0);
             }
             case Spherical: {
-                final Point2D apt = apt0.multiply(0.01);
-
                 final double d = apt.getX() * apt.getX() + apt.getY() * apt.getY();
-                Point3D point = new Point3D((2 * apt.getX() / (1 + d)), (2 * apt.getY() / (1 + d)), ((d - 1) / (d + 1))).multiply(100);
-
-                final Point2D back = map3Dto2D(geometry, point);
-                if (apt0.distance(back) > 0.00001)
-                    System.err.println(String.format("Mapping propblem (%.4f,%.4f) -> (%.1f,%.1f,%.1f) -back-> (%.4f,%.4f)",
-                            apt0.getX(), apt0.getY(), point.getX(), point.getY(), point.getZ(), back.getX(), back.getY()));
-
-                return point;
+                return new Point3D(100 * (2 * apt.getX() / (1 + d)), 100 * (2 * apt.getY() / (1 + d)),
+                        100 * ((d - 1) / (d + 1)));
             }
             case Hyperbolic: {
-                final Point2D apt = apt0.multiply(0.01);
-
                 final double d = apt.getX() * apt.getX() + apt.getY() * apt.getY();
-                if (d < 1) {
-                    final Point3D result = new Point3D((2 * apt.getX() / (1 - d)), (2 * apt.getY() / (1 - d)), ((1 + d) / (1 - d))).multiply(100);
-
-                    if (true) {
-                        final Point2D back = map3Dto2D(geometry, result);
-                        if (apt0.distance(back) > 0.00001)
-                            System.err.println(String.format("Mapping problem (%.4f,%.4f) -> (%.1f,%.1f,%.1f) -back-> (%.4f,%.4f)",
-                                    apt0.getX(), apt0.getY(), result.getX(), result.getY(), result.getZ(), back.getX(), back.getY()));
-                    }
-                    return result;
-                } else
+                if (d < 1)
+                    return new Point3D(100 * (2 * apt.getX() / (1 - d)), 100 * (2 * apt.getY() / (1 - d)),
+                            100 * ((1 + d) / (1 - d)));
+                else
                     return new Point3D(0, 0, 0);
             }
         }
     }
 
     /**
-     * Euclidean case:  drop coordinate z = 0. Spherical case:
+     * Euclidean case: Scaling by 0.01 and drop coordinate z = 0. Spherical case:
      * Calculates inverse of stereographic projection. Maps from sphere with radius
-     * 100 to Euclidean plane in 100*unit scale. Hyperbolic case: Maps a point on
-     * hyperboloid model (scaled by 100) to Poincare disk model (open 100*unit
+     * 100 to Euclidean plane in unit scale. Hyperbolic case: Maps a point on
+     * hyperboloid model (scaled with factor 100) to Poincare disk model (open unit
      * disk).
      *
-     * @param apt0
+     * @param bpt
      * @return
      */
 
-    public static Point2D map3Dto2D(Geometry geometry, Point3D apt0) {
+    public static Point2D map3Dto2D(Geometry geometry, Point3D bpt) {
+        bpt = bpt.multiply(0.01); // scale by 0.01
         switch (geometry) {
             default:
             case Euclidean: {
-                return new Point2D(apt0.getX(), apt0.getY());
+                return new Point2D(bpt.getX(), bpt.getY());
             }
             case Spherical: { // Inverse of stereographic projection
-                final Point3D apt = apt0.multiply(0.01); // scale by 0.01
-                double d = (1 + apt.getZ()) / (1 - apt.getZ());
-                return new Point2D((apt.getX() * (d + 1) / 2), (apt.getY() * (d + 1) / 2)).multiply(100);
+                double d = (1 + bpt.getZ()) / (1 - bpt.getZ());
+                return new Point2D((bpt.getX() * (d + 1) / 2), (bpt.getY() * (d + 1) / 2));
             }
             case Hyperbolic: { // Transforms hyperboloid model to Poincare disk
                 // model
-                final Point3D bpt = apt0.multiply(0.01); // scale by 0.01
-                final Point2D result = new Point2D(bpt.getX() / (1 + bpt.getZ()), bpt.getY() / (1 + bpt.getZ())).multiply(100);
-                if (false) {
-                    final Point3D back = map2Dto3D(geometry, result);
-                    if (apt0.distance(back) > 0.00001)
-                        System.err.println(String.format("Mapping problem (%.4f,%.4f,%.4f) -> (%.1f,%.1f) -back-> (%.4f,%.4f,%.4f)",
-                                apt0.getX(), apt0.getY(), apt0.getZ(), result.getX(), result.getY(), back.getX(), back.getY(), back.getZ()));
-                }
-
-                return result;
+                return new Point2D(bpt.getX() / (1 + bpt.getZ()), bpt.getY() / (1 + bpt.getZ()));
             }
         }
     }
@@ -493,11 +513,13 @@ public class Tools {
     }
 
     public static Point3D getSphericalNormal(Point3D point) {
-        return new Point3D(2 * point.getX(), 2 * point.getY(), 2 * point.getZ()).normalize();
+        Point3D p = new Point3D(2 * point.getX(), 2 * point.getY(), 2 * point.getZ()).normalize();
+        return p;
     }
 
     public static Point3D getHyperbolicNormal(Point3D point) {
-        return new Point3D(2 * point.getX(), 2 * point.getY(), -2 * point.getZ()).normalize();
+        Point3D p = new Point3D(2 * point.getX(), 2 * point.getY(), -2 * point.getZ()).normalize();
+        return p;
     }
     /////////////////////////////////////////////////
 }

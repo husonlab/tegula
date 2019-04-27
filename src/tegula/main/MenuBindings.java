@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019. Daniel H. Huson
+ * MenuBindings.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -146,7 +146,7 @@ public class MenuBindings {
                 final String prefix = tab.getTilingCollection().getTitle();
                 for (DSymbol dSymbol : symbols) {
                     final TilingEditorTab editorTab = new TilingEditorTab(dSymbol, prefix + "-" + (((TilingCollectionTab) selectedTab.get()).incrementSpawned()));
-                    editorTab.getTilingPane().getExtendedTiling().update();
+                    editorTab.getTilingPane().update();
                     mainWindow.getMainTabPane().getTabs().add(editorTab);
                 }
             }

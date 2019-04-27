@@ -1,3 +1,22 @@
+/*
+ * FDomain.java Copyright (C) 2019. Daniel H. Huson
+ *
+ *  (Some files contain contributions from other authors, who are then mentioned separately.)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package tiler.core.dsymbols;
 
 import javafx.geometry.Point2D;
@@ -7,11 +26,15 @@ import javafx.scene.transform.Transform;
 import tiler.core.fundamental.Approximate;
 import tiler.core.fundamental.Glue;
 import tiler.core.fundamental.data.*;
-import tiler.tiling.Tools;
+import tiler.geometry.Tools;
+import tiler.single.ComputeGeneratorsAndConstraints;
+import tiler.tiling.Constraints;
+import tiler.tiling.Generators;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.LinkedList;
 
 /**
  * Compute a fundamental domain for a given Delaney-symbol
@@ -19,9 +42,14 @@ import java.io.Writer;
  */
 public class FDomain {
     private Geometry geometry;
+    private String groupName;
 
     private final DSymbol dSymbol;
     private final DELANEY d;
+
+    private final Generators generators = new Generators();
+    private final Constraints constraints = new Constraints();
+
 
     /**
      * constructor
@@ -51,6 +79,8 @@ public class FDomain {
             geometry = Geometry.Spherical;
         else
             geometry = Geometry.Euclidean;
+
+        groupName = OrbifoldGroupName.getGroupName(dSymbol);
     }
 
     /**
@@ -314,6 +344,10 @@ public class FDomain {
         return geometry;
     }
 
+    public String getGroupName() {
+        return groupName;
+    }
+
     /**
      * Hyperbolic translation of fundamental domain in Poincare model
      *
@@ -417,4 +451,88 @@ public class FDomain {
             setChamberCenter(array[a][6], a);
         }
     }
+
+    /**
+     * get the computed generators
+     *
+     * @return generators
+     */
+    public Generators getGenerators() {
+        return generators;
+    }
+
+    /**
+     * get the compute constraints
+     *
+     * @return
+     */
+    public Constraints getConstraints() {
+        return constraints;
+    }
+
+    /**
+     * compute and/or update the generators and constraints
+     */
+    public void updateGeneratorsAndContraints() {
+        generators.setSize(0);
+        constraints.setSize(0);
+        ComputeGeneratorsAndConstraints.apply(this, generators, constraints);
+    }
+
+    /**
+     * compute the index of the optimal chamber to use for tracking copies of the fundamental domain
+     *
+     * @return index
+     */
+    public int computeOptimalChamberIndex() {
+        double dMax = 0, dMin = 1000, dist;
+        int index = 1;
+        for (int i = 1; i <= size(); i++) {
+            Point3D a = getChamberCenter3D(i).multiply(0.01);
+            for (int j = 1; j <= size(); j++) {
+                if (j != i) {
+                    dist = Tools.distance(getGeometry(), a, getChamberCenter3D(j).multiply(0.01));
+                    if (dist > dMax) {
+                        dMax = dist;
+                    }
+                }
+            }
+            if (dMax < dMin) {
+                dMin = dMax;
+                index = i;
+            }
+            dMax = 0;
+        }
+        return index;
+    }
+
+    /**
+     * calculate the diameter
+     *
+     * @return diameter
+     */
+    public double calculateDiameter() {
+        // Save vertices of fundamental domain in list:
+        LinkedList<Point3D> vertices = new LinkedList<>();
+        for (int k = 1; k <= size(); k++) {
+            vertices.add(getVertex3D(0, k));
+            vertices.add(getVertex3D(1, k));
+            vertices.add(getVertex3D(2, k));
+        }
+        double d = 0;
+
+        for (int i = 0; i <= vertices.size() - 1; i++) {
+            for (int j = i + 1; j <= vertices.size() - 1; j++) {
+                Point3D a = vertices.get(i), b = vertices.get(j);
+                // Calculate hyperbolic distance between a and b:
+                double scalar = (a.getZ() * b.getZ() - a.getX() * b.getX() - a.getY() * b.getY()) / 10000;
+                double dist = Math.log(Math.abs(scalar + Math.sqrt(Math.abs(scalar * scalar - 1)))); // Inverse function of cosh
+                if (dist > d) { // Find maximal distance
+                    d = dist;
+                }
+            }
+        }
+        return d;
+    }
+
 }
