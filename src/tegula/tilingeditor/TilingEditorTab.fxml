@@ -74,7 +74,8 @@
                 </TitledPane>
             </panes>
         </Accordion>
-        <Accordion maxWidth="130.0" prefWidth="130.0" AnchorPane.leftAnchor="130.0" AnchorPane.topAnchor="0.0">
+        <Accordion fx:id="hyperbolicModelAccordion" maxWidth="130.0" prefWidth="130.0" AnchorPane.leftAnchor="130.0"
+                   AnchorPane.topAnchor="0.0">
             <panes>
                 <TitledPane animated="false" style="-fx-font-size: 12;" text="Hyperbolic model">
                     <content>
@@ -140,15 +141,15 @@
                                         <Tooltip text="Set visibility of tiles"/>
                                     </tooltip>
                                 </CheckBox>
-                                <CheckBox fx:id="smoothEdgesCheckBox" mnemonicParsing="false" selected="true"
-                                          style="-fx-font-size: 12;" text="Smooth">
+                                <CheckBox fx:id="backFacesCheckBox" layoutX="20.0" layoutY="204.0"
+                                          mnemonicParsing="false" style="-fx-font-size: 12;" text="Show backs">
                                     <tooltip>
-                                        <Tooltip text="Use smoothing when drawing spherical or hyperbolic tilings"/>
+                                        <Tooltip text="Set visibility of backs of tiles"/>
                                     </tooltip>
                                 </CheckBox>
                                 <ColorPicker fx:id="tile1ColorPicker" promptText="tile1ColorPicker"
                                              style="-fx-font-size: 12;"/>
-                                <Slider fx:id="tilesOpacitySlider" blockIncrement="0.1" majorTickUnit="0.5" max="1.0"
+                                <Slider fx:id="tilesOpacitySlider" blockIncrement="0.1" majorTickUnit="0.25" max="1.0"
                                         showTickMarks="true" snapToTicks="true" value="1.0">
                                     <tooltip>
                                         <Tooltip text="Set opacity of tiles"/>
@@ -187,13 +188,20 @@
                                     </tooltip>
                                 </ColorPicker>
                                 <Slider fx:id="bandsOpacitySlider" blockIncrement="0.1" layoutX="20.0" layoutY="146.0"
-                                        majorTickUnit="0.5" max="1.0" showTickMarks="true" snapToTicks="true"
+                                        majorTickUnit="0.25" max="1.0" showTickMarks="true" snapToTicks="true"
                                         value="1.0">
                                     <tooltip>
                                         <Tooltip text="Set opacity of bands"/>
                                     </tooltip>
                                 </Slider>
                                 <Separator prefWidth="200.0"/>
+                                <CheckBox fx:id="smoothEdgesCheckBox" mnemonicParsing="false" selected="true"
+                                          style="-fx-font-size: 12;" text="Smooth">
+                                    <tooltip>
+                                        <Tooltip text="Use smoothing when drawing spherical or hyperbolic tilings"/>
+                                    </tooltip>
+                                </CheckBox>
+                                <Separator layoutX="20.0" layoutY="331.0" prefWidth="200.0"/>
                                 <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Background"/>
                                 <ColorPicker fx:id="backgroundColorPicker" style="-fx-font-size: 12;">
                                     <tooltip>
@@ -273,5 +281,21 @@
                 </TitledPane>
             </panes>
         </Accordion>
+        <Button fx:id="stopAnimationButton" minHeight="-Infinity" mnemonicParsing="false" prefHeight="23.0"
+                text="Animation" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="130.0">
+            <graphic>
+                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="/resources/icons/Close16.gif"/>
+                    </image>
+                </ImageView>
+            </graphic>
+            <font>
+                <Font size="12.0"/>
+            </font>
+            <tooltip>
+                <Tooltip text="Stop animation"/>
+            </tooltip>
+        </Button>
     </children>
 </AnchorPane>

@@ -50,6 +50,7 @@ import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.OrbifoldGroupName;
 import tegula.main.TilingStyle;
 import tegula.main.Window;
+import tegula.single.SingleTilingPane;
 
 import java.io.Closeable;
 import java.util.ArrayList;
@@ -71,12 +72,14 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable {
 
     private final TilingStyle tilingStyle;
 
-    private int countSpawned = 0; // how many tilings have been opened from this collection
+    private int spawnedCount = 0; // how many tilings have been opened from this collection
 
     private final FlowView<DSymbol> flowView;
 
     private ListChangeListener<DSymbol> selectionListener;
     private ListChangeListener<DSymbol> dsymbolsListener;
+
+    private final BooleanProperty showLabels = new SimpleBooleanProperty(true);
 
     private final IntegerProperty tilingsComputed = new SimpleIntegerProperty(0);
 
@@ -104,18 +107,19 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable {
 
         controller.getMainAnchorPane().getChildren().clear();
 
-        flowView = new FlowView<>(createNodeProducer(selectionModel), true);
+        flowView = new FlowView<>(createNodeProducer(selectionModel));
         flowView.setHgap(20);
         flowView.setVgap(20);
         flowView.setSelectionModel(tilingCollection.getSelectionModel());
         flowView.setScrollToSelection(true);
 
         this.tilingStyle = new TilingStyle();
-        tilingStyle.setShowBackEdges(false);
+        tilingStyle.setShowBackBands(false);
         tilingStyle.setShowBands(true);
-        tilingStyle.setBandWidth(1);
+        tilingStyle.setBandWidth(10);
         tilingStyle.setShowFaces(false);
         tilingStyle.setBandColor(Color.BLACK);
+        tilingStyle.setBackgroundColor(Color.GHOSTWHITE);
 
         final InvalidationListener listener = observable -> {
             // todo: need to do a better job of computing the new block size
@@ -207,7 +211,7 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable {
             final Label shortLabel = new Label(dSymbol.getNr1() + ".");
             shortLabel.setFont(font);
 
-            controller.getLabelsToggleButton().selectedProperty().addListener((c, o, n) -> {
+            showLabelsProperty().addListener((c, o, n) -> {
                 if (n) {
                     label.setTextFill(Color.BLACK);
                     shortLabel.setTextFill(Color.BLACK);
@@ -225,16 +229,16 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable {
             final VBox vBox = new VBox(rectangle, label);
 
             ProgramExecutorService.getInstance().submit(() -> {
-                final SimpleTilingPane simpleTilingPane = new SimpleTilingPane(dSymbol, tilingStyle);
-                simpleTilingPane.setPrefWidth(0.5 * controller.getSizeSlider().getMax());
-                simpleTilingPane.setPrefHeight(0.5 * controller.getSizeSlider().getMax());
-                new Scene(simpleTilingPane);
+                final SingleTilingPane singleTilingPane = new SingleTilingPane(dSymbol, tilingStyle, true, false);
+                singleTilingPane.setPrefWidth(0.5 * controller.getSizeSlider().getMax());
+                singleTilingPane.setPrefHeight(0.5 * controller.getSizeSlider().getMax());
+                new Scene(singleTilingPane);
 
                 Platform.runLater(() -> {
                     //simpleTilingPane.getSimpleTiling().getTilingStyle().setShowBackEdges(simpleTilingPane.getSimpleTiling().getTiling().getGeometry()== Geometry.Spherical);
-                    simpleTilingPane.update();
+                    singleTilingPane.update();
 
-                    final ImageView imageView = new ImageView(simpleTilingPane.snapshot(null, null));
+                    final ImageView imageView = new ImageView(singleTilingPane.snapshot(null, null));
                     imageView.setPreserveRatio(true);
 
                     imageView.fitWidthProperty().bind(controller.getSizeSlider().valueProperty());
@@ -285,7 +289,6 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable {
             return vBox;
         };
     }
-
 
     public TilingCollection getTilingCollection() {
         return tilingCollection;
@@ -339,7 +342,23 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable {
         return findToolBar;
     }
 
-    public int incrementSpawned() {
-        return ++countSpawned;
+    public int incrementSpawnedCount() {
+        return ++spawnedCount;
+    }
+
+    public boolean isShowLabels() {
+        return showLabels.get();
+    }
+
+    public BooleanProperty showLabelsProperty() {
+        return showLabels;
+    }
+
+    public void setShowLabels(boolean showLabels) {
+        this.showLabels.set(showLabels);
+    }
+
+    public BooleanProperty precomputeSnapshotsProperty() {
+        return flowView.precomputeSnapshotsProperty();
     }
 }

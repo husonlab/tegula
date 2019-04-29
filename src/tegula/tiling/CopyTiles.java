@@ -1,5 +1,5 @@
 /*
- * JavaFXUtils.java Copyright (C) 2019. Daniel H. Huson
+ * CopyTiles.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -17,10 +17,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.util;
+package tegula.tiling;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Polyline;
@@ -29,12 +30,14 @@ import javafx.scene.text.Text;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
- * some Java FX utilities
- * Created by huson on 4/19/16.
+ * Copy the tiles in a fundamental domain
+ *Daniel Huson 4/2016
+ *
  */
-public class JavaFXUtils {
+public class CopyTiles {
     private final static Set<Class> warned = new HashSet<>();
 
     /**
@@ -43,7 +46,7 @@ public class JavaFXUtils {
      * @param group
      * @return copy of group
      */
-    public static Group copyGroup(Group group) {
+    public static Group apply(Group group) {
         final Group result = new Group();
 
         for (Node node : group.getChildren()) {
@@ -51,6 +54,7 @@ public class JavaFXUtils {
                 MeshView src = (MeshView) node;
                 MeshView target = new MeshView(((MeshView) node).getMesh());
                 target.setMaterial(src.getMaterial());
+                target.setUserData(src.getUserData());
                 result.getChildren().add(target);
             } else if (node instanceof Polyline) {
                 Polyline src = (Polyline) node;
@@ -59,12 +63,14 @@ public class JavaFXUtils {
                 target.setFill(src.getFill());
                 target.setStroke(src.getStroke());
                 target.setStrokeLineCap(src.getStrokeLineCap());
+                target.setUserData(src.getUserData());
                 result.getChildren().add(target);
             } else if (node instanceof Sphere) {
                 Sphere src = (Sphere) node;
                 Sphere target = new Sphere(src.getRadius());
                 target.setMaterial(src.getMaterial());
                 target.getTransforms().addAll(src.getTransforms());
+                target.setUserData(src.getUserData());
                 result.getChildren().add(target);
             } else if (node instanceof Cylinder) {
                 Cylinder src = (Cylinder) node;
@@ -73,6 +79,7 @@ public class JavaFXUtils {
                 target.setDrawMode(src.getDrawMode());
                 target.setMaterial(src.getMaterial());
                 target.getTransforms().addAll(src.getTransforms());
+                target.setUserData(src.getUserData());
                 result.getChildren().add(target);
             } else if (node instanceof Text) {
                 Text src = (Text) node;
@@ -80,17 +87,20 @@ public class JavaFXUtils {
                 target.setFont(src.getFont());
                 target.setFill(src.getFill());
                 target.getTransforms().addAll(src.getTransforms());
+                target.setUserData(src.getUserData());
                 result.getChildren().add(target);
             } else if (node instanceof Group) {
                 Group src = (Group) node;
-                Group target = copyGroup(src);
+                Group target = apply(src);
                 target.getTransforms().addAll(src.getTransforms());
+                target.setUserData(src.getUserData());
                 result.getChildren().add(target);
             } else if (!warned.contains(node.getClass())) {
                 System.err.println("Warning: copyGroup(): not implemented for class: " + node.getClass());
                 warned.add(node.getClass());
             }
         }
+        result.setUserData(group.getUserData());
         result.setRotationAxis(group.getRotationAxis());
         result.setRotate(group.getRotate());
         result.setTranslateX(group.getTranslateX());
@@ -100,4 +110,11 @@ public class JavaFXUtils {
         return result;
     }
 
+    public static void visitAllNodes(Node node, Consumer<Node> consumer) {
+        consumer.accept(node);
+        if (node instanceof Parent) {
+            for (Node child : ((Parent) node).getChildrenUnmodifiable())
+                visitAllNodes(child, consumer);
+        }
+    }
 }

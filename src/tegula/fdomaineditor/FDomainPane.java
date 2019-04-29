@@ -40,7 +40,7 @@ import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
 import tegula.geometry.Tools;
 import tegula.main.TilingStyle;
-import tegula.tilingeditor.ExtendedTilingPane;
+import tegula.single.SingleTilingPane;
 
 import java.util.Arrays;
 import java.util.BitSet;
@@ -53,7 +53,7 @@ public class FDomainPane extends StackPane {
     private final ObjectProperty<DSymbol> dSymbol = new SimpleObjectProperty<>();
     private final TilingStyle tilingStyle;
 
-    private final ExtendedTilingPane extendedTilingPane;
+    private final SingleTilingPane singleTilingPane;
 
     private NGonShape[][] vertexHandles;
     private NGonShape[][] edgeHandles;
@@ -63,18 +63,18 @@ public class FDomainPane extends StackPane {
     /**
      * constructor
      *
-     * @param extendedTilingPane
+     * @param singleTilingPane
      */
-    public FDomainPane(ExtendedTilingPane extendedTilingPane) {
-        this.extendedTilingPane = extendedTilingPane;
-        tilingStyle = extendedTilingPane.getTilingStyle();
+    public FDomainPane(SingleTilingPane singleTilingPane) {
+        this.singleTilingPane = singleTilingPane;
+        tilingStyle = singleTilingPane.getTilingStyle();
 
-        setFDomain(extendedTilingPane.getTiling().getfDomain());
-        setDSymbol(extendedTilingPane.getTiling().getDSymbol());
+        setFDomain(singleTilingPane.getTiling().getfDomain());
+        setDSymbol(singleTilingPane.getTiling().getDSymbol());
 
-        extendedTilingPane.lastUpdateProperty().addListener((e) -> {
-            setFDomain(extendedTilingPane.getTiling().getfDomain());
-            setDSymbol(extendedTilingPane.getTiling().getDSymbol());
+        singleTilingPane.lastUpdateProperty().addListener((e) -> {
+            setFDomain(singleTilingPane.getTiling().getfDomain());
+            setDSymbol(singleTilingPane.getTiling().getDSymbol());
         });
 
         widthProperty().addListener((c) -> update());
@@ -184,15 +184,7 @@ public class FDomainPane extends StackPane {
             }
 
             // setup flag 2 tile number map
-            final int[] a2tileNumber = new int[ds.size() + 1];
-            {
-                int count = 0;
-                final BitSet visited = new BitSet();
-                for (int a = 1; a <= ds.size(); a = ds.nextOrbit(0, 1, a, visited)) {
-                    final int tileNumber = count++;
-                    ds.visitOrbit(0, 1, a, b -> a2tileNumber[b] = tileNumber);
-                }
-            }
+            final int[] a2tile = ds.computeOrbits(0, 1);
 
             // setup lines and polygons, and bind to nodes
             for (int a = 1; a <= ds.size(); a++) {
@@ -204,7 +196,7 @@ public class FDomainPane extends StackPane {
                         es[0].getLayoutX(), es[0].getLayoutY(), vs[2].getLayoutX(), vs[2].getLayoutY(), es[1].getLayoutX(), es[1].getLayoutY());
 
                 if (tilingStyle.isShowFaces())
-                    polygon.setFill(tilingStyle.getTileColor(a2tileNumber[a]));
+                    polygon.setFill(tilingStyle.getTileColor(a2tile[a]));
                 else
                     polygon.setFill(Color.GAINSBORO);
 
@@ -237,11 +229,11 @@ public class FDomainPane extends StackPane {
                         vePrev.setStroke(Color.BLACK);
                         vePrev.setStrokeWidth(3);
                         if (tilingStyle.isShowFaces() && fDomain.isBoundaryEdge(prev, a))
-                            vePrev.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColor(a2tileNumber[ds.getS2(a)]), 6, 1, 0, 0));
+                            vePrev.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColor(a2tile[ds.getS2(a)]), 6, 1, 0, 0));
                     } else {
                         vePrev.setStroke(Color.GRAY);
                         if (tilingStyle.isShowFaces() && fDomain.isBoundaryEdge(prev, a))
-                            vePrev.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColor(a2tileNumber[a]), 6, 1, 0, 0));
+                            vePrev.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColor(a2tile[a]), 6, 1, 0, 0));
                     }
 
                     final Line veNext = new Line();
@@ -253,11 +245,11 @@ public class FDomainPane extends StackPane {
                         veNext.setStroke(Color.BLACK);
                         veNext.setStrokeWidth(3);
                         if (tilingStyle.isShowFaces() && fDomain.isBoundaryEdge(next, a))
-                            veNext.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColor(a2tileNumber[ds.getS2(a)]), 6, 1, 0, 0));
+                            veNext.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColor(a2tile[ds.getS2(a)]), 6, 1, 0, 0));
                     } else {
                         veNext.setStroke(Color.GRAY);
                         if (tilingStyle.isShowFaces() && fDomain.isBoundaryEdge(next, a))
-                            veNext.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColor(a2tileNumber[a]), 6, 1, 0, 0));
+                            veNext.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColor(a2tile[a]), 6, 1, 0, 0));
                     }
 
                     final Line vc = new Line();
@@ -281,10 +273,8 @@ public class FDomainPane extends StackPane {
             final Group all = new Group(polygons, edges, vertices);
 
             getChildren().setAll(all);
-        }
-
-        if (false) { // active old reshaping code
-            ReshapeManager reshapeManager = new ReshapeManager(extendedTilingPane);
+        } else { // active old reshaping code
+            ReshapeManager reshapeManager = new ReshapeManager(singleTilingPane);
             final Group group = new Group(reshapeManager.createHandles(factor));
             getChildren().addAll(group);
         }
@@ -362,7 +352,7 @@ public class FDomainPane extends StackPane {
         });
 
         shape.setOnMouseReleased((e) -> {
-            extendedTilingPane.update();
+            singleTilingPane.update();
         });
     }
 }

@@ -17,15 +17,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tiler.single;
+package tiler.core.dsymbols;
 
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.transform.Transform;
 import javafx.util.Pair;
-import tiler.core.dsymbols.DSymbol;
-import tiler.core.dsymbols.FDomain;
-import tiler.core.dsymbols.Geometry;
 import tiler.geometry.EuclideanGeometry;
 import tiler.geometry.HyperbolicGeometry;
 import tiler.geometry.SphericalGeometry;

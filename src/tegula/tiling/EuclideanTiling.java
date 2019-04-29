@@ -29,7 +29,6 @@ import tegula.core.dsymbols.DSymbol;
 import tegula.core.reshape.ReshapeManager;
 import tegula.main.TilingStyle;
 import tegula.tiling.parts.QuadTree;
-import tegula.util.JavaFXUtils;
 import tegula.util.Updateable;
 
 import java.util.LinkedList;
@@ -403,7 +402,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
      * @return copy
      */
     private Group provideCopy(Transform transform, Point3D refPoint, Group fund) {
-        final Group copy = (recycler.size() > 0 ? recycler.pop() : JavaFXUtils.copyGroup(fund));
+        final Group copy = (recycler.size() > 0 ? recycler.pop() : CopyTiles.apply(fund));
         copy.setRotationAxis(refPoint);
         copy.getTransforms().setAll(transform.createConcatenation(transformRecycled));
         return copy;

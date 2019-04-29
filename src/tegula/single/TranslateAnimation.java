@@ -1,5 +1,5 @@
 /*
- * TranslationAnimation.java Copyright (C) 2019. Daniel H. Huson
+ * TranslateAnimation.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -17,19 +17,22 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tiler.single;
+package tegula.single;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.util.Duration;
 
 /**
  * translation animation
- * Created by huson on 11/11/16.
+ * Daniel HUson, 11.2016
  */
-public class TranslationAnimation {
+public class TranslateAnimation {
     private final Timeline timeline;
-    private boolean isPlaying;
+    private BooleanProperty playing = new SimpleBooleanProperty(false);
     private double dx;
     private double dy;
 
@@ -40,7 +43,7 @@ public class TranslationAnimation {
      *
      * @param singleTilingPane
      */
-    public TranslationAnimation(SingleTilingPane singleTilingPane) {
+    public TranslateAnimation(SingleTilingPane singleTilingPane) {
         this.singleTilingPane = singleTilingPane;
         timeline = new Timeline(Timeline.INDEFINITE);
         timeline.setCycleCount(10000);
@@ -62,16 +65,25 @@ public class TranslationAnimation {
     public void play() {
         if (dx != 0 || dy != 0) {
             timeline.play();
-            isPlaying = true;
+            playing.set(true);
         }
     }
 
     public void pause() {
         timeline.pause();
-        isPlaying = false;
+        playing.set(false);
+    }
+
+    public void stop() {
+        timeline.stop();
+        playing.set(false);
     }
 
     public boolean isPlaying() {
-        return isPlaying;
+        return playing.get();
+    }
+
+    public ReadOnlyBooleanProperty playingProperty() {
+        return playing;
     }
 }

@@ -293,7 +293,7 @@ public class Document implements Updateable, HasHyperbolicModel {
                 small.setStroke(Color.ORANGE);
 
                 additionalStuff.getChildren().addAll(rect, range, test, test2, small);
-                System.err.println(String.format("Rect: %.1f x %.1f", rect.getWidth(), rect.getHeight()));
+                //System.err.println(String.format("Rect: %.1f x %.1f", rect.getWidth(), rect.getHeight()));
             }
 
             additionalStuff.getChildren().add(tiling.getHandles());

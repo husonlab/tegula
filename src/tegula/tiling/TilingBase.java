@@ -70,8 +70,10 @@ public class TilingBase {
 
         this.tilingStyle = tilingStyle;
 
-        fundamentalDomain.includeTilesProperty().bind(tilingStyle.showFacesProperty());
+        fundamentalDomain.includeFacesProperty().bind(tilingStyle.showFacesProperty());
         fundamentalDomain.includeBandsProperty().bind(tilingStyle.showBandsProperty());
+        fundamentalDomain.includeBackBandsProperty().bind(tilingStyle.showBackBandsProperty());
+        fundamentalDomain.includeBackFacesProperty().bind(tilingStyle.showBackFacesProperty());
         fundamentalDomain.includeDecorationsProperty().bind(tilingStyle.showOtherStuffProperty());
         fundamentalDomain.includeChambersProperty().bind(tilingStyle.showAllChambersProperty());
     }
@@ -124,7 +126,7 @@ public class TilingBase {
      */
     public static double computeTolerance(FDomain fDomain, Generators generators, int referenceChamberIndex) {
         final Point3D refPoint;
-        if (fDomain.getGeometry() == Geometry.Euclidean) {
+        if (fDomain.getGeometry() == Geometry.Euclidean || fDomain.getGeometry() == Geometry.Spherical) {
             refPoint = fDomain.getChamberCenter3D(referenceChamberIndex);
         } else {
             refPoint = fDomain.getChamberCenter3D(referenceChamberIndex).multiply(0.01);
@@ -182,5 +184,9 @@ public class TilingBase {
 
     public Geometry getGeometry() {
         return fDomain.getGeometry();
+    }
+
+    public FundamentalDomain getFundamentalDomain() {
+        return fundamentalDomain;
     }
 }

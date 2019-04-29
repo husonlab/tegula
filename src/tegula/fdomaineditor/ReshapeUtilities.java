@@ -55,6 +55,8 @@ public class ReshapeUtilities {
 
         // apply this to update mouse position
         Point2D transVector = new Point2D(deltaX, deltaY);
+        deltaX *= 100;
+        deltaY *= 100;
 
         switch (type) {
             case Vertex: {
@@ -79,26 +81,31 @@ public class ReshapeUtilities {
                 final Translate translate = new Translate(transVector.getX(), transVector.getY());
 
                 // Translate Point of type k in chamber a
-                Point3D pt = Tools.map2Dto3D(fDomain.getGeometry(), fDomain.getVertex(k, a));
-                pt = translate.transform(pt);
-                Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt);
+                Point3D pt0 = Tools.map2Dto3D(fDomain.getGeometry(), fDomain.getVertex(k, a));
+                if (true) {
+                    final Translate translate100 = new Translate(translate.getX(), translate.getY());
+                    pt0 = translate100.transform(pt0);
+                } else
+                    pt0 = translate.transform(pt0);
+                Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt0);
+
                 fDomain.setVertex(pt2d, k, a);
 
                 // Consider all points in orbit of a (especially if chamber contains boundary edges)
                 for (int z = 1; z <= length; z++) {
                     // If (1-k)-edge is on boundary
-                    if (fDomain.isBoundaryEdge(i, a)) {
+                    if (fDomain.isBoundaryEdge(i, a) && ds.getSi(i, a) != a) {
                         final Transform g = fDomain.getGenerators().get(i, a);
-                        pt = g.transform(pt);
+                        final Point3D pt = g.transform(pt0);
                         pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt);
                         fDomain.setVertex(pt2d, k, ds.getSi(i, a));
                     }
                     a = ds.getSi(i, a);
 
                     // If 2-edge is on boundary
-                    if (fDomain.isBoundaryEdge(j, a)) {
+                    if (fDomain.isBoundaryEdge(j, a) && ds.getSi(j, a) != a) {
                         final Transform g = fDomain.getGenerators().get(j, a);
-                        pt = g.transform(pt);
+                        final Point3D pt = g.transform(pt0);
                         pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt);
                         fDomain.setVertex(pt2d, k, ds.getSi(j, a));
                     }
@@ -108,14 +115,15 @@ public class ReshapeUtilities {
             case EdgeCenter: {
                 if (k != 2)
                     break; // only allow reshaping of center of proper tiling edge
-                transVector = add2Restriction(fDomain, deltaX, deltaY, a);
-                final Translate t = new Translate(transVector.getX(), transVector.getY());
+                transVector = add2Restriction(fDomain, transVector.getX(), transVector.getY(), a);
+                final Translate translate = new Translate(deltaX, deltaY);
 
                 Point3D apt = Tools.map2Dto3D(fDomain.getGeometry(), fDomain.getEdgeCenter(k, a));
-                apt = t.transform(apt);
+                apt = translate.transform(apt);
                 Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), apt);
                 fDomain.setEdgeCenter(pt2d, k, a);
-                if (fDomain.isBoundaryEdge(k, a)) {
+
+                if (fDomain.isBoundaryEdge(k, a) && ds.getS2(a) != a) {
                     final Transform g = fDomain.getGenerators().get(k, a);
                     apt = g.transform(apt);
                     pt2d = Tools.map3Dto2D(fDomain.getGeometry(), apt);
@@ -127,8 +135,12 @@ public class ReshapeUtilities {
         }
 
         // Straighten 0- and 1-edges
-        StraightenEdges.straighten01Edges(fDomain);
-        return transVector;
+        if (false) {
+            StraightenEdges.straighten01Edges(fDomain);
+            return transVector;
+        } else {
+            return transVector;
+        }
     }
 
     /**

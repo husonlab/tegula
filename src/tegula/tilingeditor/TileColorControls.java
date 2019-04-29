@@ -24,6 +24,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ColorPicker;
 import tegula.color.ColorSchemeManager;
 import tegula.main.TilingStyle;
+import tegula.single.SingleTilingPane;
 
 /**
  * setup tile color controls
@@ -37,11 +38,10 @@ public class TileColorControls {
      */
     public static void setup(TilingEditorTab tilingEditorTab) {
         final TilingEditorTabController controller = tilingEditorTab.getController();
-        final ExtendedTilingPane extendedTilingPane = tilingEditorTab.getTilingPane();
-        final TilingStyle tilingStyle = extendedTilingPane.getTilingStyle();
+        final SingleTilingPane singleTilingPane = tilingEditorTab.getTilingPane();
+        final TilingStyle tilingStyle = singleTilingPane.getTilingStyle();
 
-
-        final int numberOfTiles = extendedTilingPane.getTiling().getDSymbol().countOrbits(0, 1);
+        final int numberOfTiles = singleTilingPane.getTiling().getDSymbol().countOrbits(0, 1);
 
         final ObservableList<Node> list = controller.getAppearanceVBox().getChildren();
 
@@ -58,12 +58,12 @@ public class TileColorControls {
             list.add(end++, colorPicker);
         }
 
-        for (int t = 0; t < numberOfTiles; t++) {
+        for (int t = 1; t <= numberOfTiles; t++) {
             final int tileNumber = t;
-            final ColorPicker colorPicker = (ColorPicker) list.get(pos + t);
+            final ColorPicker colorPicker = (ColorPicker) list.get(pos + t - 1);
             colorPicker.setOnAction((e) -> {
                 tilingStyle.setTileColor(tileNumber, colorPicker.getValue());
-                extendedTilingPane.update();
+                singleTilingPane.updateTileColors();
             });
             colorPicker.setOnShowing((e) -> {
                 colorPicker.getCustomColors().setAll(ColorSchemeManager.getInstance().getColorScheme(tilingStyle.getTileColorsScheme()));

@@ -27,7 +27,6 @@ import tiler.core.fundamental.Approximate;
 import tiler.core.fundamental.Glue;
 import tiler.core.fundamental.data.*;
 import tiler.geometry.Tools;
-import tiler.single.ComputeGeneratorsAndConstraints;
 import tiler.tiling.Constraints;
 import tiler.tiling.Generators;
 

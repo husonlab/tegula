@@ -26,6 +26,7 @@ import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Material;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Sphere;
@@ -42,6 +43,7 @@ import tegula.main.TilingStyle;
 import tegula.tiling.parts.Band3D;
 import tegula.tiling.parts.BandCap3D;
 import tegula.tiling.parts.Lines;
+import tegula.tiling.parts.MeshUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,8 +63,10 @@ public class FundamentalDomain {
     private final Group decorations = new Group();
     private final Group handles = new Group(); // not implemented here yet
 
-    private final BooleanProperty includeTiles = new SimpleBooleanProperty(true);
+    private final BooleanProperty includeFaces = new SimpleBooleanProperty(true);
+    private final BooleanProperty includeBackFaces = new SimpleBooleanProperty(true);
     private final BooleanProperty includeBands = new SimpleBooleanProperty(true);
+    private final BooleanProperty includeBackBands = new SimpleBooleanProperty(true);
     private final BooleanProperty includeChambers = new SimpleBooleanProperty(true);
     private final BooleanProperty includeDecorations = new SimpleBooleanProperty(false);
     private final BooleanProperty includeHandles = new SimpleBooleanProperty(false);
@@ -73,7 +77,7 @@ public class FundamentalDomain {
     public FundamentalDomain() {
         InvalidationListener listener = observable -> {
             allRequested.clear();
-            if (isIncludeTiles())
+            if (getIncludeFaces())
                 allRequested.add(tiles);
             if (isIncludeBands())
                 allRequested.add(bands);
@@ -84,7 +88,7 @@ public class FundamentalDomain {
             if (isIncludeHandles())
                 allRequested.add(handles);
         };
-        includeTilesProperty().addListener(listener);
+        includeFacesProperty().addListener(listener);
         includeBandsProperty().addListener(listener);
         includeChambersProperty().addListener(listener);
         includeDecorationsProperty().addListener(listener);
@@ -112,29 +116,33 @@ public class FundamentalDomain {
     public void buildFundamentalDomain(final DSymbol dsymbol, final FDomain fDomain, TilingStyle tilingStyle) {
         clear();
 
+        final int[] a2tile = dsymbol.computeOrbits(0, 1);
+        final int[] a2edge = dsymbol.computeOrbits(0, 2);
+
         chambers.getChildren().addAll(computeChambers(fDomain));
         chambers.getTransforms().setAll(new Translate());
 
         // set colors
-        final Color[] colors = new Color[fDomain.size() + 1];
+        final Material[] tileMaterial = new Material[dsymbol.countOrbits(0, 1) + 1];
         {
-            int tileNumber = 0;
-            final BitSet set = new BitSet();
-            for (int a = 1; a <= dsymbol.size(); a = dsymbol.nextOrbit(0, 1, a, set)) {
-                final Color color = tilingStyle.getTileColor(tileNumber++);
-                dsymbol.visitOrbit(0, 1, a, b -> colors[b] = color);
-            }
+            for (int t = 1; t < tileMaterial.length; t++)
+                tileMaterial[t] = new PhongMaterial(tilingStyle.getTileColor(t));
         }
 
+        final Material[] bandMaterial = new Material[dsymbol.countOrbits(0, 2) + 1];
+        final double[] bandWidth = new double[dsymbol.countOrbits(0, 2) + 1];
+        {
+            for (int e = 1; e < bandMaterial.length; e++) {
+                bandMaterial[e] = new PhongMaterial(tilingStyle.getBandColor());
+                bandWidth[e] = 0.1 * tilingStyle.getBandWidth();
+            }
+        }
         final Geometry geom = fDomain.getGeometry();
 
         // For bands and the band caps (i.e. circles at the ends of bands)
-        final double bandWidth = (fDomain.getGeometry() == Geometry.Euclidean ? 0.1 : 0.1) * tilingStyle.getBandWidth(); // size of edges
-        final Color bandColor = tilingStyle.getBandColor();
 
-        final double bandCapDiameter = bandWidth;
+        final double bandCapDiameter = 0.1 * tilingStyle.getBandWidth();
         final int bandCapFineness = tilingStyle.getBandCapFineness(); // defines how smooth the edges are
-        final Color bandCapColor = bandColor;
 
         double linesAbove; // defines the height of the line above the faces
 
@@ -149,10 +157,10 @@ public class FundamentalDomain {
         final int orientation = (computeWindingNumber(fDomain.getVertex3D(0, 1), fDomain.getVertex3D(1, 1),
                 fDomain.getVertex3D(2, 1)) < 0 ? fDomain.getOrientation(1) : -fDomain.getOrientation(1));
 
-        final BitSet flagAHasBand = new BitSet(fDomain.size());
+        final BitSet aHasABand = new BitSet(fDomain.size());
         final BitSet flagAHasBandCaps = new BitSet(fDomain.size());
 
-        for (int a = 1; a <= fDomain.size(); a++) {
+        for (int a = 1; a <= dsymbol.size(); a++) {
             final float[] trianglePointsCoordinates;
             final Point3D[] trianglePoints3D; // points that create the triangles
             final Point3D[] bandPoints3D;
@@ -364,17 +372,25 @@ public class FundamentalDomain {
 
             // Draw Faces
             if (drawFaces) {
-                TriangleMesh mesh = new TriangleMesh();
+                final TriangleMesh mesh = new TriangleMesh();
                 mesh.getPoints().addAll(trianglePointsCoordinates);
                 mesh.getTexCoords().addAll(texCoords);
                 mesh.getFaces().addAll(faces);
                 mesh.getFaceSmoothingGroups().addAll(smoothing);
-                MeshView meshView = new MeshView(mesh);
+                final MeshView meshView = new MeshView(mesh);
                 // meshView.setMesh(mesh);
-                PhongMaterial material = new PhongMaterial(colors[a].deriveColor(1, 1, 1, 0.7));
                 // material.setSpecularColor(Color.YELLOW);
-                meshView.setMaterial(material);
+                meshView.setUserData("t=" + a2tile[a]);
+                meshView.setMaterial(tileMaterial[a2tile[a]]);
                 tiles.getChildren().addAll(meshView);
+                if (isIncludeBackFaces()) {
+                    MeshView backMeshView = new MeshView(MeshUtils.reverseOrientation(mesh));
+                    // meshView.setMesh(mesh);
+                    // material.setSpecularColor(Color.YELLOW);
+                    backMeshView.setMaterial(tileMaterial[a2tile[a]]);
+                    backMeshView.setUserData("t=" + a2tile[a]);
+                    tiles.getChildren().addAll(backMeshView);
+                }
             }
 
             // defines the height of band and caps above the surface
@@ -386,22 +402,23 @@ public class FundamentalDomain {
                 linesAbove = 0.0;
             }
 
-            if (drawBands && !flagAHasBand.get(a)) {
+            if (drawBands && !aHasABand.get(a)) {
                 if (geom != Geometry.Euclidean)
-                    flagAHasBand.set(dsymbol.getS2(a));
+                    aHasABand.set(dsymbol.getS2(a));
 
                 TriangleMesh bandMesh = null;
                 TriangleMesh backBandMesh = null;
 
                 for (int i = 0; i < bandPoints3D.length - 1; i++) {
-                    final TriangleMesh tmpMesh = Band3D.connect(bandPoints3D[i], bandPoints3D[i + 1], geom, bandWidth, linesAbove, false);
+                    final TriangleMesh tmpMesh = Band3D.connect(bandPoints3D[i], bandPoints3D[i + 1], geom, bandWidth[a2edge[a]], linesAbove, false);
                     if (bandMesh == null)
                         bandMesh = tmpMesh;
                     else
                         bandMesh = combineTriangleMesh(bandMesh, tmpMesh);
 
-                    if (tilingStyle.isShowBackEdges()) {
-                        final TriangleMesh tmpMesh2 = Band3D.connect(bandPoints3D[i], bandPoints3D[i + 1], geom, bandWidth, linesAbove, true);
+                    if (false && isIncludeBackBands()) {
+                        // final TriangleMesh tmpMesh2 = Band3D.connect(bandPoints3D[i], bandPoints3D[i + 1], geom,  bandWidth[a2edge[a]], linesAbove, true);
+                        final TriangleMesh tmpMesh2 = Band3D.connect(bandPoints3D[i], bandPoints3D[i + 1], geom, bandWidth[a2edge[a]], linesAbove, true);
                         if (backBandMesh == null)
                             backBandMesh = tmpMesh2;
                         else
@@ -432,7 +449,7 @@ public class FundamentalDomain {
                             else
                                 bandMesh = combineTriangleMesh(bandMesh, tmpMesh);
 
-                            if (tilingStyle.isShowBackEdges()) {
+                            if (false && isIncludeBackBands()) {
                                 final TriangleMesh tmpMesh2 = BandCap3D.CircleMesh(center, coordinates, geom, linesAbove, true);
                                 if (backBandMesh == null)
                                     backBandMesh = tmpMesh2;
@@ -449,13 +466,21 @@ public class FundamentalDomain {
                 if (bandMesh != null) {
                     bandMesh.getTexCoords().addAll(texCoords);
                     final MeshView meshView = new MeshView(bandMesh);
-                    meshView.setMaterial(new PhongMaterial(bandColor));
+                    meshView.setMaterial(bandMaterial[a2edge[a]]);
+                    meshView.setUserData("e=" + a2edge[a]);
                     bands.getChildren().add(meshView);
+
+                    if (isIncludeBackBands()) {
+                        final MeshView backMeshView = new MeshView(MeshUtils.reverseOrientation(bandMesh));
+                        backMeshView.setMaterial(bandMaterial[a2edge[a]]);
+                        backMeshView.setUserData("e=" + a2edge[a]);
+                        bands.getChildren().add(backMeshView);
+                    }
                 }
-                if (backBandMesh != null) {
+                if (false && backBandMesh != null) {
                     backBandMesh.getTexCoords().addAll(texCoords);
                     final MeshView meshView = new MeshView(backBandMesh);
-                    meshView.setMaterial(new PhongMaterial(bandColor));
+                    meshView.setMaterial(bandMaterial[a2edge[a]]);
                     bands.getChildren().add(meshView);
                 }
             }
@@ -604,16 +629,44 @@ public class FundamentalDomain {
         return decorations;
     }
 
-    public boolean isIncludeTiles() {
-        return includeTiles.get();
+    public boolean getIncludeFaces() {
+        return includeFaces.get();
     }
 
-    public BooleanProperty includeTilesProperty() {
-        return includeTiles;
+    public BooleanProperty includeFacesProperty() {
+        return includeFaces;
     }
 
-    public void setIncludeTiles(boolean includeTiles) {
-        this.includeTiles.set(includeTiles);
+    public boolean isIncludeFaces() {
+        return includeFaces.get();
+    }
+
+    public boolean isIncludeBackFaces() {
+        return includeBackFaces.get();
+    }
+
+    public BooleanProperty includeBackFacesProperty() {
+        return includeBackFaces;
+    }
+
+    public void setIncludeBackFaces(boolean includeBackFaces) {
+        this.includeBackFaces.set(includeBackFaces);
+    }
+
+    public boolean isIncludeBackBands() {
+        return includeBackBands.get();
+    }
+
+    public BooleanProperty includeBackBandsProperty() {
+        return includeBackBands;
+    }
+
+    public void setIncludeBackBands(boolean includeBackBands) {
+        this.includeBackBands.set(includeBackBands);
+    }
+
+    public void setIncludeFaces(boolean includeFaces) {
+        this.includeFaces.set(includeFaces);
     }
 
     public boolean isIncludeBands() {

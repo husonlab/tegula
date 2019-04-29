@@ -19,6 +19,7 @@
 
 package tegula.single;
 
+import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.geometry.Pos;
 import javafx.scene.*;
@@ -27,23 +28,22 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
-import jloda.fx.util.ExtendedFXMLLoader;
+import jloda.util.Basic;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.DSymbolAlgorithms;
 import tegula.core.dsymbols.Geometry;
 import tegula.core.dsymbols.OrbifoldGroupName;
 import tegula.main.CameraSettings;
 import tegula.main.TilingStyle;
-import tegula.tiling.EuclideanTiling;
-import tegula.tiling.HyperbolicTiling;
-import tegula.tiling.TilingBase;
-import tegula.tiling.TilingCreator;
+import tegula.tiling.*;
 import tegula.util.HasHyperbolicModel;
 import tegula.util.Updateable;
 
@@ -52,28 +52,22 @@ import tegula.util.Updateable;
  * Daniel Huson and Ruediger Zeller, 4.2019
  */
 public class SingleTilingPane extends StackPane implements Updateable {
-    public final static Color DEFAULT_BACKGROUND_COLOR = Color.GHOSTWHITE;
-
-    private final SingleTilingPaneController controller;
-    private final Pane root;
-
     private final SimpleObjectProperty<HasHyperbolicModel.HyperbolicModel> hyperbolicModel = new SimpleObjectProperty<>(HasHyperbolicModel.HyperbolicModel.Poincare);
     private final ObjectProperty<TilingBase> tiling = new SimpleObjectProperty<>();
-    private final SimpleObjectProperty<Geometry> geometryProperty = new SimpleObjectProperty<>();
+    private final SimpleObjectProperty<Geometry> geometry = new SimpleObjectProperty<>();
     private final TilingStyle tilingStyle;
 
     private final DoubleProperty euclideanWidth = new SimpleDoubleProperty(800);
     private final DoubleProperty euclideanHeight = new SimpleDoubleProperty(800);
 
     private final ObjectProperty<Transform> worldRotate = new SimpleObjectProperty<>(this, "rotation", new Rotate(0, 0, 0, 1));
+
     private final Translate worldTranslate = new Translate(0, 0, 0);
     private final Scale worldScale = new Scale(1, 1);
-
 
     private final Group tiles = new Group();
     private final Group world = new Group();
     private final Group universe = new Group(world);
-
 
     private PerspectiveCamera perspectiveCamera;
 
@@ -83,7 +77,6 @@ public class SingleTilingPane extends StackPane implements Updateable {
     private boolean drawFundamentalDomainOnly = false;
 
     private final BooleanProperty showSphereAsDisk = new SimpleBooleanProperty(false);
-    private final ObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(Color.TRANSPARENT);
 
     private Circle disk;
 
@@ -94,6 +87,8 @@ public class SingleTilingPane extends StackPane implements Updateable {
     private final StringProperty groupName = new SimpleStringProperty();
     private final StringProperty infoLine = new SimpleStringProperty("");
 
+    private final MouseHandler mouseHandler;
+
     private SubScene subScene;
 
     /**
@@ -102,31 +97,20 @@ public class SingleTilingPane extends StackPane implements Updateable {
      * @param dSymbol
      */
     public SingleTilingPane(DSymbol dSymbol, TilingStyle tilingStyle) {
-        this(dSymbol, tilingStyle, Color.TRANSPARENT, false);
+        this(dSymbol, tilingStyle, false, true);
     }
 
     /**
      * constructor
-     *
      * @param dSymbol
-     * @param backgroundColor
      * @param showSphereAsDisk
+     * @param allowMouseInteraction
      */
-    public SingleTilingPane(DSymbol dSymbol, TilingStyle tilingStyle, Color backgroundColor, boolean showSphereAsDisk) {
+    public SingleTilingPane(DSymbol dSymbol, TilingStyle tilingStyle, boolean showSphereAsDisk, boolean allowMouseInteraction) {
         this.tilingStyle = tilingStyle;
 
-        final ExtendedFXMLLoader<SingleTilingPaneController> extendedFXMLLoader = new ExtendedFXMLLoader<>(SingleTilingPane.class);
-        root = (Pane) extendedFXMLLoader.getRoot();
-        controller = extendedFXMLLoader.getController();
-
-        root.prefWidthProperty().bind(widthProperty());
-        root.prefHeightProperty().bind(heightProperty());
-
-        setBackgroundColor(backgroundColor);
         setShowSphereAsDisk(showSphereAsDisk);
 
-        StackPane.setAlignment(root, Pos.CENTER);
-        getChildren().add(root);
         //root.prefWidthProperty().bind(widthProperty());
         //root.prefHeightProperty().bind(heightProperty());
 
@@ -156,48 +140,57 @@ public class SingleTilingPane extends StackPane implements Updateable {
             }
         });
 
-
-        final ObjectProperty<Transform> worldRotateProperty = new SimpleObjectProperty<>(this, "rotation", new Rotate(0, 0, 0, 1));
-        final Translate worldTranslate = new Translate(0, 0, 0);
-        final Scale worldScale = new Scale(1, 1);
-
-
         subScene = new SubScene(new Group(universe), 800, 800, false, SceneAntialiasing.BALANCED);
         subScene.setCamera(perspectiveCamera);
 
         world.getTransforms().add(worldTranslate);
         world.getTransforms().add(worldScale);
-        world.getTransforms().add(worldRotateProperty.get());
+        world.getTransforms().add(getWorldRotate());
 
-        final Pane mainPane = controller.getMainPane();
-        mainPane.getChildren().add(0, subScene);
+        //final Pane mainPane = controller.getMainPane();
+        StackPane.setAlignment(subScene, Pos.CENTER);
+        getChildren().add(0, subScene);
 
-        subScene.heightProperty().bind(mainPane.heightProperty());
-        subScene.widthProperty().bind(mainPane.widthProperty());
+        subScene.heightProperty().bind(heightProperty());
+        subScene.widthProperty().bind(widthProperty());
 
         // setup top pane and stacked pane
 
         geometryProperty().addListener((c, o, n) -> {
-            setUseDepthBuffer(mainPane, n != Geometry.Euclidean);
+            setUseDepthBuffer(this, n != Geometry.Euclidean);
             if (o == Geometry.Spherical && n != Geometry.Spherical) {
-                worldRotateProperty.setValue(new Rotate()); // remove any rotations
+                worldRotate.setValue(new Rotate()); // remove any rotations
             }
             if (o != Geometry.Hyperbolic && n == Geometry.Hyperbolic) {
                 reset(); // looks like this helps to avoid the program getting stuck????
             }
         });
 
+        setBackground(new Background(new BackgroundFill(tilingStyle.getBackgroundColor(), null, null)));
+
+        setBackground(new Background(new BackgroundFill(tilingStyle.getBackgroundColor(), null, null)));
+        tilingStyle.backgroundColorProperty().addListener((c, o, n) -> {
+            setBackground(new Background(new BackgroundFill(n, null, null)));
+        });
+
         // need to call this otherwise euclidean dimensions won't be correct
-        setUseDepthBuffer(mainPane, true);
+        setUseDepthBuffer(this, true);
 
 
-        worldRotateProperty.addListener((observable, oldValue, newValue) -> {
+        worldRotate.addListener((observable, oldValue, newValue) -> {
             int indexOf = world.getTransforms().indexOf(oldValue);
             world.getTransforms().set(indexOf, newValue);
         });
 
-        MouseHandler.addMouseHandler(this, worldTranslate, worldScale, worldRotateProperty, this);
+        if (allowMouseInteraction)
+            mouseHandler = new MouseHandler(this);
+        else
+            mouseHandler = null;
 
+        hyperbolicModel.addListener((c, o, n) -> {
+            if (getGeometry() == Geometry.Hyperbolic)
+                CameraSettings.setupHyperbolicCamera(perspectiveCamera, n, true);
+        });
 
         replaceTiling(dSymbol);
         update();
@@ -210,7 +203,7 @@ public class SingleTilingPane extends StackPane implements Updateable {
      * @param dSymbol
      */
     public void replaceTiling(DSymbol dSymbol) {
-        geometryProperty.set(dSymbol.computeGeometry());
+        geometry.set(dSymbol.computeGeometry());
         tiling.set(TilingCreator.create(dSymbol, tilingStyle, this));
         maximalTiling.set(DSymbolAlgorithms.isMaximalSymmetry(getTiling().getDSymbol()));
         orientableTiling.set(getTiling().getDSymbol().computeOrientation() == 2);
@@ -231,7 +224,7 @@ public class SingleTilingPane extends StackPane implements Updateable {
      * update the tiling
      */
     public void update() {
-        System.err.println("Update");
+        // System.err.println("Update");
 
         if (getTiling() == null)
             return;
@@ -242,12 +235,12 @@ public class SingleTilingPane extends StackPane implements Updateable {
         if (disk != null)
             getChildren().remove(disk);
 
-        if (getBackgroundColor() != Color.TRANSPARENT) {
+        if (getTilingStyle().getBackgroundColor() != Color.TRANSPARENT) {
             if (getGeometry() == Geometry.Spherical || getTiling().getGeometry() == Geometry.Hyperbolic) {
                 if (disk == null) {
                     disk = new Circle(100);
                     final double factor = (getTiling().getGeometry() == Geometry.Spherical ? 0.45 : 0.5);
-                    if (false) {
+                    if (true) {
                         subScene.heightProperty().addListener((e) -> {
                             disk.setRadius(factor * Math.min(getWidth(), getHeight()));
                         });
@@ -257,18 +250,17 @@ public class SingleTilingPane extends StackPane implements Updateable {
                     }
                     StackPane.setAlignment(disk, Pos.CENTER);
                     getChildren().add(0, disk);
-                } else if (getChildren().contains(disk))
+                } else if (!getChildren().contains(disk))
                     getChildren().add(0, disk);
 
-                disk.setStroke(getBackgroundColor().darker());
-                disk.setFill(getBackgroundColor());
-                disk.setFill(Color.RED);
+                disk.setStroke(getTilingStyle().getBackgroundColor().darker());
+                disk.setFill(getTilingStyle().getBackgroundColor());
 
                 disk.setStrokeWidth(2);
                 setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null, null)));
             } else // euclidean
             {
-                setBackground(new Background(new BackgroundFill(getBackgroundColor(), null, null)));
+                setBackground(new Background(new BackgroundFill(getTilingStyle().getBackgroundColor(), null, null)));
             }
         } else {
             setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null, null)));
@@ -288,7 +280,9 @@ public class SingleTilingPane extends StackPane implements Updateable {
                 if (!universe.getChildren().contains(ambientLight))
                     universe.getChildren().add(ambientLight);
 
-                CameraSettings.setupHyperbolicCamera(perspectiveCamera, hyperbolicModel.get(), false);
+                // need to do this later because tilings are built in separate thread when reading file
+                Platform.runLater(() -> CameraSettings.setupHyperbolicCamera(perspectiveCamera, hyperbolicModel.get(), false));
+
 
                 break;
             }
@@ -317,7 +311,7 @@ public class SingleTilingPane extends StackPane implements Updateable {
                     small.setStroke(Color.ORANGE);
 
                     additionalStuff.getChildren().addAll(rect, range, test, test2, small);
-                    System.err.println(String.format("Rect: %.1f x %.1f", rect.getWidth(), rect.getHeight()));
+                    //System.err.println(String.format("Rect: %.1f x %.1f", rect.getWidth(), rect.getHeight()));
                 }
                 break;
             }
@@ -423,7 +417,7 @@ public class SingleTilingPane extends StackPane implements Updateable {
     }
 
     public ReadOnlyObjectProperty<Geometry> geometryProperty() {
-        return geometryProperty;
+        return geometry;
     }
 
     public boolean isShowSphereAsDisk() {
@@ -438,20 +432,8 @@ public class SingleTilingPane extends StackPane implements Updateable {
         this.showSphereAsDisk.set(showSphereAsDisk);
     }
 
-    public Color getBackgroundColor() {
-        return backgroundColor.get();
-    }
-
-    public ObjectProperty<Color> backgroundColorProperty() {
-        return backgroundColor;
-    }
-
-    public void setBackgroundColor(Color backgroundColor) {
-        this.backgroundColor.set(backgroundColor);
-    }
-
     public Geometry getGeometry() {
-        return geometryProperty.get();
+        return geometry.get();
     }
 
 
@@ -522,4 +504,33 @@ public class SingleTilingPane extends StackPane implements Updateable {
     public ReadOnlyStringProperty infoLineProperty() {
         return infoLine;
     }
+
+    public MouseHandler getMouseHandler() {
+        return mouseHandler;
+    }
+
+    public void updateTileColors() {
+        CopyTiles.visitAllNodes(tiles, (node) -> {
+            if (node instanceof MeshView && node.getUserData() instanceof String) {
+                final String str = (String) node.getUserData();
+                //System.err.println(str);
+                if (str.startsWith("t=")) {
+                    final int tileNumber = Basic.parseInt(str.substring(2));
+                    ((MeshView) node).setMaterial(new PhongMaterial(tilingStyle.getTileColor(tileNumber)));
+                }
+            }
+        });
+    }
+
+    public void updateBandColors() {
+        CopyTiles.visitAllNodes(tiles, (node) -> {
+            if (node instanceof MeshView && node.getUserData() instanceof String) {
+                final String str = (String) node.getUserData();
+                if (str.startsWith("e=")) {
+                    ((MeshView) node).setMaterial(new PhongMaterial(getTilingStyle().getBandColor()));
+                }
+            }
+        });
+    }
+
 }

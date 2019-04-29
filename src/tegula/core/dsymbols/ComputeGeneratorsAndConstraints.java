@@ -17,15 +17,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.single;
+package tegula.core.dsymbols;
 
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.transform.Transform;
 import javafx.util.Pair;
-import tegula.core.dsymbols.DSymbol;
-import tegula.core.dsymbols.FDomain;
-import tegula.core.dsymbols.Geometry;
 import tegula.geometry.EuclideanGeometry;
 import tegula.geometry.HyperbolicGeometry;
 import tegula.geometry.SphericalGeometry;

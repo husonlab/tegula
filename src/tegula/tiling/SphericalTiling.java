@@ -22,11 +22,11 @@ package tegula.tiling;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.transform.Transform;
+import javafx.scene.transform.Translate;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
 import tegula.main.TilingStyle;
 import tegula.tiling.parts.OctTree;
-import tegula.util.JavaFXUtils;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -73,21 +73,26 @@ public class SphericalTiling extends TilingBase implements TilingCreator {
         final Group fundPrototype = new Group();
         fundPrototype.getChildren().setAll(fundamentalDomain.getAllRequested());
 
-        all.getChildren().add(fundPrototype);
+        final Point3D referencePoint = fDomain.getChamberCenter3D(referenceChamberIndex); // refPoint lies on unit sphere
 
+        {
+            final Group group = CopyTiles.apply(fundPrototype);
+            group.getTransforms().setAll(new Translate());
+            all.getChildren().add(group);
+        }
         if (!isDrawFundamentalDomainOnly()) {
             // Make copies of fundamental domain.
             final OctTree seen = new OctTree();
-            final Point3D refPoint = fDomain.getChamberCenter3D(referenceChamberIndex).multiply(0.01); // refPoint lies on unit sphere
-            seen.insert(getGeometry(), refPoint, tolerance); //root node of OctTree is point of reference.
+
+            seen.insert(getGeometry(), referencePoint, tolerance); //root node of OctTree is point of reference.
 
             final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
             for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
-                Point3D genRef = g.transform(refPoint);
-                if (seen.insert(getGeometry(), genRef, tolerance)) {    // Checks whether point "genRef" is in OctTree "seen". Adds it if not.
-                    final Group group2 = JavaFXUtils.copyGroup(fundPrototype);
-                    group2.getTransforms().add(g);
-                    all.getChildren().add(group2);
+                final Point3D ref = g.transform(referencePoint);
+                if (seen.insert(getGeometry(), ref, tolerance)) {
+                    final Group group = CopyTiles.apply(fundPrototype);
+                    group.getTransforms().setAll(g);
+                    all.getChildren().add(group);
                 }
             }
 
@@ -95,22 +100,26 @@ public class SphericalTiling extends TilingBase implements TilingCreator {
                 final Transform t = queue.poll(); // remove t from queue
 
                 for (Transform g : generators.getTransforms()) {
-                    Transform tg = t.createConcatenation(g);
-                    Point3D bpt = tg.transform(refPoint);
-                    if (seen.insert(getGeometry(), bpt, tolerance)) {
-                        final Group group2 = JavaFXUtils.copyGroup(fundPrototype);
-                        group2.getTransforms().add(tg);
-                        all.getChildren().add(group2);
-                        queue.add(tg);
+                    {
+                        final Transform tg = t.createConcatenation(g);
+                        final Point3D ref = tg.transform(referencePoint);
+                        if (seen.insert(getGeometry(), ref, tolerance)) {
+                            final Group group = CopyTiles.apply(fundPrototype);
+                            group.getTransforms().setAll(tg);
+                            all.getChildren().add(group);
+                            queue.add(tg);
+                        }
                     }
 
-                    Transform gt = g.createConcatenation(t);
-                    bpt = gt.transform(refPoint);
-                    if (seen.insert(getGeometry(), bpt, tolerance)) {
-                        Group group2 = JavaFXUtils.copyGroup(fundPrototype);
-                        group2.getTransforms().add(gt);
-                        all.getChildren().add(group2);
-                        queue.add(gt);
+                    {
+                        final Transform gt = g.createConcatenation(t);
+                        final Point3D ref = gt.transform(referencePoint);
+                        if (seen.insert(getGeometry(), ref, tolerance)) {
+                            final Group group = CopyTiles.apply(fundPrototype);
+                            group.getTransforms().setAll(gt);
+                            all.getChildren().add(group);
+                            queue.add(gt);
+                        }
                     }
                 }
             }

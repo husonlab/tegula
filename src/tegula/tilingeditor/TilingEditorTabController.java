@@ -73,6 +73,9 @@ public class TilingEditorTabController {
     private CheckBox showFacesCheckBox;
 
     @FXML
+    private CheckBox backFacesCheckBox;
+
+    @FXML
     private CheckBox smoothEdgesCheckBox;
 
     @FXML
@@ -120,10 +123,14 @@ public class TilingEditorTabController {
     @FXML
     private Slider tilesOpacitySlider;
 
-
     @FXML
     private Slider bandsOpacitySlider;
 
+    @FXML
+    private Button stopAnimationButton;
+
+    @FXML
+    private Accordion hyperbolicModelAccordion;
 
     public BorderPane getBorderPane() {
         return borderPane;
@@ -172,6 +179,11 @@ public class TilingEditorTabController {
     public CheckBox getShowFacesCheckBox() {
         return showFacesCheckBox;
     }
+
+    public CheckBox getBackFacesCheckBox() {
+        return backFacesCheckBox;
+    }
+
 
     public CheckBox getSmoothEdgesCheckBox() {
         return smoothEdgesCheckBox;
@@ -239,5 +251,13 @@ public class TilingEditorTabController {
 
     public Slider getBandsOpacitySlider() {
         return bandsOpacitySlider;
+    }
+
+    public Button getStopAnimationButton() {
+        return stopAnimationButton;
+    }
+
+    public Accordion getHyperbolicModelAccordion() {
+        return hyperbolicModelAccordion;
     }
 }

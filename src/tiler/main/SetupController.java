@@ -181,13 +181,6 @@ public class SetupController {
         controller.getTestButton().setOnAction((e) -> {
             final DSymbol dSymbol = document.getCurrentTiling().getfDomain().getDSymbol();
             if (dSymbol != null) {
-                new tiler.single.SingleTilingWindow(dSymbol);
-            }
-        });
-
-        controller.getTest2Button().setOnAction((e) -> {
-            final DSymbol dSymbol = document.getCurrentTiling().getfDomain().getDSymbol();
-            if (dSymbol != null) {
                 tegula.core.dsymbols.DSymbol tegulaDSymbol = new tegula.core.dsymbols.DSymbol();
                 try {
                     final StringWriter w = new StringWriter();

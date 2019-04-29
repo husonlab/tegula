@@ -206,28 +206,6 @@ public class DSymbol {
     }
 
     /**
-     * visit all flags contained in the i,j-orbit containing flag a
-     *
-     * @param i
-     * @param j
-     * @param a
-     * @param visited
-     * @param visitor
-     */
-    public void visitOrbit(final int i, final int j, final int a, final BitSet visited, final Consumer<Integer> visitor) {
-        int b = a;
-        do {
-            visitor.accept(b);
-            visited.set(b);
-            b = getSi(i, b);
-            visitor.accept(b);
-            visited.set(b);
-            b = getSi(j, b);
-        }
-        while (b != a);
-    }
-
-    /**
      * marks all flags contain in the i,j-orbit of a
      *
      * @param i
@@ -285,6 +263,15 @@ public class DSymbol {
         for (int a = 1; a <= size(); a = nextOrbit(i, j, a, mark))
             count++;
         return count;
+    }
+
+    public int[] computeOrbits(int i, int j) {
+        final int[] orbits = new int[size() + 1];
+        int a = 1;
+        int count = 0;
+        while (a <= size())
+            a = nextOrbit(i, j, a, orbits, ++count);
+        return orbits;
     }
 
     /**
@@ -566,11 +553,6 @@ public class DSymbol {
         w.write(">");
     }
 
-    /**
-     * computes the curvature
-     *
-     * @return curvature
-     */
     public Rational computeCurvature() {
         Rational curve = new Rational(-size(), 2);
 
@@ -579,11 +561,6 @@ public class DSymbol {
         return curve;
     }
 
-    /**
-     * compute the geometry for this symbol
-     *
-     * @return geometry
-     */
     public Geometry computeGeometry() {
         switch (computeCurvature().sign()) {
             case -1:
@@ -603,4 +580,5 @@ public class DSymbol {
     public static int j(int k) {
         return k == 2 ? 1 : 2;
     }
+
 }

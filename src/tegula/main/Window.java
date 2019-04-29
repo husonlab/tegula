@@ -27,8 +27,10 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import jloda.fx.control.SplittableTabPane;
 import jloda.fx.util.ExtendedFXMLLoader;
+import jloda.fx.util.MemoryUsage;
 import jloda.fx.window.IMainWindow;
 import tegula.tilingcollection.TilingCollection;
 import tegula.tilingcollection.TilingCollectionTab;
@@ -96,6 +98,13 @@ public class Window implements IMainWindow {
         });
         fileTreeView.getRoot().setExpanded(true);
 
+        mainTabPane.getSelectionModel().selectedItemProperty().addListener((c, o, n) -> {
+            if (o instanceof TilingCollectionTab)
+                ((TilingCollectionTab) o).precomputeSnapshotsProperty().set(false);
+            if (n instanceof TilingCollectionTab)
+                ((TilingCollectionTab) n).precomputeSnapshotsProperty().set(true);
+        });
+
         controller.getBorderPane().widthProperty().addListener((c, o, n) -> {
             if (o.doubleValue() > 0 && n.doubleValue() > 0) {
                 controller.getMainSplitPane().setDividerPositions
@@ -120,6 +129,13 @@ public class Window implements IMainWindow {
         stage.setY(screenY);
 
         MenuBindings.setup(this);
+
+        final MemoryUsage memoryUsage = MemoryUsage.getInstance();
+        controller.getMemoryUsageLabel().textProperty().bind(memoryUsage.memoryUsageStringProperty());
+
+        stage.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, (e) -> {
+            getMainTabPane().getTabs().clear();
+        });
 
         stage.show();
     }

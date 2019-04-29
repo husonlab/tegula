@@ -37,12 +37,16 @@ public class TilingStyle {
     private final BooleanProperty showFaces = new SimpleBooleanProperty(true);
     private final BooleanProperty showBands = new SimpleBooleanProperty(true);
 
-    private final BooleanProperty showBackEdges = new SimpleBooleanProperty(false);
+    private final BooleanProperty showBackFaces = new SimpleBooleanProperty(false);
+
+    private final BooleanProperty showBackBands = new SimpleBooleanProperty(false);
     private final BooleanProperty smoothEdges = new SimpleBooleanProperty(true);
 
     private final ObservableList<Color> tileColors = FXCollections.observableArrayList();
 
     private final StringProperty tileColorsScheme = new SimpleStringProperty();
+
+    private final ObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(Color.TRANSPARENT);
 
     private final BooleanProperty showFundamentalChambers = new SimpleBooleanProperty(false);
     private final BooleanProperty showAllChambers = new SimpleBooleanProperty(false);
@@ -69,16 +73,16 @@ public class TilingStyle {
     }
 
     public Color getTileColor(int tileNumber) {
-        return tileColors.get(tileNumber % tileColors.size());
+        return tileColors.get((tileNumber - 1) % tileColors.size());
     }
 
     public void setTileColor(int tileNumber, Color color) {
         { // pad to size
             final ObservableList<Color> colorScheme = ColorSchemeManager.getInstance().getColorScheme(getTileColorsScheme());
             while (tileNumber >= tileColors.size())
-                tileColors.add(colorScheme.get(tileNumber % colorScheme.size()));
+                tileColors.add(colorScheme.get((tileNumber - 1) % colorScheme.size()));
         }
-        tileColors.set(tileNumber, color);
+        tileColors.set(tileNumber - 1, color);
     }
 
     public int getBandWidth() {
@@ -154,16 +158,28 @@ public class TilingStyle {
         this.smoothEdges.set(smoothEdges);
     }
 
-    public boolean isShowBackEdges() {
-        return showBackEdges.get();
+    public boolean isShowBackFaces() {
+        return showBackFaces.get();
     }
 
-    public BooleanProperty showBackEdgesProperty() {
-        return showBackEdges;
+    public BooleanProperty showBackFacesProperty() {
+        return showBackFaces;
     }
 
-    public void setShowBackEdges(boolean showBackEdges) {
-        this.showBackEdges.set(showBackEdges);
+    public void setShowBackFaces(boolean showBackFaces) {
+        this.showBackFaces.set(showBackFaces);
+    }
+
+    public boolean getShowBackBands() {
+        return showBackBands.get();
+    }
+
+    public BooleanProperty showBackBandsProperty() {
+        return showBackBands;
+    }
+
+    public void setShowBackBands(boolean showBackBands) {
+        this.showBackBands.set(showBackBands);
     }
 
     public boolean isShowFundamentalChambers() {
@@ -224,5 +240,17 @@ public class TilingStyle {
 
     public void setShowOtherStuff(boolean showOtherStuff) {
         this.showOtherStuff.set(showOtherStuff);
+    }
+
+    public Color getBackgroundColor() {
+        return backgroundColor.get();
+    }
+
+    public ObjectProperty<Color> backgroundColorProperty() {
+        return backgroundColor;
+    }
+
+    public void setBackgroundColor(Color backgroundColor) {
+        this.backgroundColor.set(backgroundColor);
     }
 }

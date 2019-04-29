@@ -21,7 +21,6 @@ package tegula.tilingcollection;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Slider;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -49,9 +48,6 @@ public class TilingCollectionTabController {
     private ToolBar mainToolBar;
 
     @FXML
-    private ToggleButton labelsToggleButton;
-
-    @FXML
     private AnchorPane mainAnchorPane;
 
     @FXML
@@ -62,7 +58,6 @@ public class TilingCollectionTabController {
         assert topVBox != null : "fx:id=\"topVBox\" was not injected: check your FXML file 'TilingCollectionTab.fxml'.";
         assert borderPane != null : "fx:id=\"borderPane\" was not injected: check your FXML file 'TilingCollectionTab.fxml'.";
         assert mainToolBar != null : "fx:id=\"mainToolBar\" was not injected: check your FXML file 'TilingCollectionTab.fxml'.";
-        assert labelsToggleButton != null : "fx:id=\"labelsToggleButton\" was not injected: check your FXML file 'TilingCollectionTab.fxml'.";
         assert mainAnchorPane != null : "fx:id=\"mainAnchorPane\" was not injected: check your FXML file 'TilingCollectionTab.fxml'.";
     }
 
@@ -84,10 +79,6 @@ public class TilingCollectionTabController {
 
     public ToolBar getMainToolBar() {
         return mainToolBar;
-    }
-
-    public ToggleButton getLabelsToggleButton() {
-        return labelsToggleButton;
     }
 
     public AnchorPane getMainAnchorPane() {

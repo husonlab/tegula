@@ -307,7 +307,6 @@
                         <ToggleButton fx:id="toolsToggleButton" layoutX="529.0" layoutY="11.0" mnemonicParsing="false"
                                       text="Tools"/>
                         <Button fx:id="testButton" mnemonicParsing="false" text="Test"/>
-                        <Button fx:id="testButton2" mnemonicParsing="false" text="Test2"/>
                     </items>
                 </ToolBar>
             </children>

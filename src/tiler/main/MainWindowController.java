@@ -180,10 +180,6 @@ public class MainWindowController {
     private Button testButton;
 
     @FXML
-    private Button testButton2;
-
-
-    @FXML
     private FlowPane statusFlowPane;
 
     @FXML
@@ -607,10 +603,6 @@ public class MainWindowController {
 
     public Button getTestButton() {
         return testButton;
-    }
-
-    public Button getTest2Button() {
-        return testButton2;
     }
 
 }

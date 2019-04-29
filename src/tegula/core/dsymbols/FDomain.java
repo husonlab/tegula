@@ -29,7 +29,6 @@ import tegula.core.fundamental.Approximate;
 import tegula.core.fundamental.Glue;
 import tegula.core.fundamental.data.*;
 import tegula.geometry.Tools;
-import tegula.single.ComputeGeneratorsAndConstraints;
 import tegula.tiling.Constraints;
 import tegula.tiling.Generators;
 
@@ -85,8 +84,6 @@ public class FDomain {
 
         updateGeneratorsAndContraints();
         boundingBox = computeBoundingBox();
-
-        System.err.println("bbox: " + boundingBox);
     }
 
     /**

@@ -28,7 +28,6 @@ import tegula.core.dsymbols.DSymbol;
 import tegula.geometry.Tools;
 import tegula.main.TilingStyle;
 import tegula.tiling.parts.OctTree;
-import tegula.util.JavaFXUtils;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -77,6 +76,7 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
         transformRecycled = new Translate();
         fundPrototype.getChildren().clear();
         coveredPoints.clear();
+
 
         fDomain.updateGeneratorsAndContraints();
         generators = fDomain.getGenerators();
@@ -250,7 +250,7 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
         }
 
         if (recycler.size() == 0) { // Fill recycler if necessary
-            final Group fund = JavaFXUtils.copyGroup(this.fundPrototype); // Copy original fundamental domain which was used to build "tiles"
+            final Group fund = CopyTiles.apply(this.fundPrototype); // Copy original fundamental domain which was used to build "tiles"
             if (fund.getChildren().size() == 0)
                 throw new RuntimeException("Fund copy empty");
             recycler.push(fund); // Add copy to recycler
@@ -374,7 +374,7 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
      * @return copy
      */
     private Group provideCopy(Transform transform, Point3D refPoint, Group fund) {
-        final Group copy = (recycler.size() > 0 ? recycler.pop() : JavaFXUtils.copyGroup(fund));
+        final Group copy = (recycler.size() > 0 ? recycler.pop() : CopyTiles.apply(fund));
         copy.setRotationAxis(refPoint);
         copy.getTransforms().setAll(transform.createConcatenation(transformRecycled));
         return copy;

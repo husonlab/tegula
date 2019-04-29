@@ -124,6 +124,9 @@ public class WindowController {
     private CheckMenuItem showFDomainMenuItem;
 
     @FXML
+    private CheckMenuItem showLabelsMenuItem;
+
+    @FXML
     private CheckMenuItem showChambersMenuItem;
 
     @FXML
@@ -208,6 +211,7 @@ public class WindowController {
         assert addColorSchemeMenuItem != null : "fx:id=\"addColorSchemeMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert viewMenu != null : "fx:id=\"viewMenu\" was not injected: check your FXML file 'Window.fxml'.";
         assert showFDomainMenuItem != null : "fx:id=\"showFDomainMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
+        assert showLabelsMenuItem != null : "fx:id=\"showLabelsMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert showChambersMenuItem != null : "fx:id=\"showChambersMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert showMoreTilesMenuItem != null : "fx:id=\"showMoreTilesMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert showLessTilesMenuItem != null : "fx:id=\"showLessTilesMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
@@ -346,6 +350,10 @@ public class WindowController {
 
     public CheckMenuItem getShowFDomainMenuItem() {
         return showFDomainMenuItem;
+    }
+
+    public CheckMenuItem getShowLabelsMenuItem() {
+        return showLabelsMenuItem;
     }
 
     public CheckMenuItem getShowChambersMenuItem() {

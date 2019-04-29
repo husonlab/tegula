@@ -19,7 +19,6 @@
   ~  along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.input.*?>
@@ -159,6 +158,13 @@
                                 </Menu>
                                 <Menu fx:id="viewMenu" text="View">
                                     <items>
+                                        <CheckMenuItem fx:id="showLabelsMenuItem" text="Show Labels">
+                                            <accelerator>
+                                                <KeyCodeCombination alt="UP" code="L" control="UP" meta="UP"
+                                                                    shift="DOWN" shortcut="DOWN"/>
+                                            </accelerator>
+                                        </CheckMenuItem>
+                                        <SeparatorMenuItem mnemonicParsing="false"/>
                                         <CheckMenuItem fx:id="showFDomainMenuItem" text="Show F. Domain">
                                             <accelerator>
                                                 <KeyCodeCombination alt="UP" code="F" control="UP" meta="UP"

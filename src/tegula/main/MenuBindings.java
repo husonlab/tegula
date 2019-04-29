@@ -22,7 +22,6 @@ package tegula.main;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.scene.control.Tab;
-import jloda.fx.util.MemoryUsage;
 import jloda.fx.util.Print;
 import jloda.fx.util.Printable;
 import jloda.fx.window.MainWindowManager;
@@ -45,6 +44,12 @@ public class MenuBindings {
     public static void setup(Window mainWindow) {
         final WindowController controller = mainWindow.getController();
         final ReadOnlyObjectProperty<Tab> selectedTab = mainWindow.getMainTabPane().getSelectionModel().selectedItemProperty();
+        final BooleanProperty isCollectionTabSelected = new SimpleBooleanProperty(false);
+        selectedTab.addListener((c, o, n) -> {
+            isCollectionTabSelected.set(n instanceof TilingCollectionTab);
+            if (n instanceof TilingCollectionTab)
+                controller.getShowLabelsMenuItem().setSelected(((TilingCollectionTab) n).isShowLabels());
+        });
         final BooleanProperty canSave = new SimpleBooleanProperty(false);
         final IntegerProperty selectionInCollection = new SimpleIntegerProperty(0);
 
@@ -145,7 +150,7 @@ public class MenuBindings {
                 final Collection<DSymbol> symbols = tab.getSelectionModel().getSelectedItems();
                 final String prefix = tab.getTilingCollection().getTitle();
                 for (DSymbol dSymbol : symbols) {
-                    final TilingEditorTab editorTab = new TilingEditorTab(dSymbol, prefix + "-" + (((TilingCollectionTab) selectedTab.get()).incrementSpawned()));
+                    final TilingEditorTab editorTab = new TilingEditorTab(dSymbol, prefix + "-" + (((TilingCollectionTab) selectedTab.get()).incrementSpawnedCount()));
                     editorTab.getTilingPane().update();
                     mainWindow.getMainTabPane().getTabs().add(editorTab);
                 }
@@ -163,7 +168,11 @@ public class MenuBindings {
             }
         });
 
-        final MemoryUsage memoryUsage = MemoryUsage.getInstance();
-        controller.getMemoryUsageLabel().textProperty().bind(memoryUsage.memoryUsageStringProperty());
+        controller.getShowLabelsMenuItem().setOnAction((e) -> {
+            if (selectedTab.get() instanceof TilingCollectionTab) {
+                ((TilingCollectionTab) selectedTab.get()).setShowLabels(controller.getShowLabelsMenuItem().isSelected());
+            }
+        });
+        controller.getShowLabelsMenuItem().disableProperty().bind(isCollectionTabSelected.not());
     }
 }

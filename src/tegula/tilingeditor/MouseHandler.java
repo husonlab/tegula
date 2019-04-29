@@ -33,7 +33,8 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import jloda.util.Basic;
 import tegula.core.dsymbols.Geometry;
-import tegula.single.TranslationAnimation;
+import tegula.single.SingleTilingPane;
+import tegula.single.TranslateAnimation;
 import tegula.tiling.EuclideanTiling;
 import tegula.tiling.HyperbolicTiling;
 import tegula.tiling.SphericalTiling;
@@ -49,7 +50,7 @@ public class MouseHandler {
     private double mouseDownY;
     private long mouseDownTime;
 
-    private final TranslationAnimation animation;
+    private final TranslateAnimation animation;
 
     private final Sphere sphere = new Sphere(4, 4);
     private final RotateTransition rotateTransition = new RotateTransition();
@@ -65,9 +66,9 @@ public class MouseHandler {
      * @param tilingEditorTab
      */
     private MouseHandler(TilingEditorTab tilingEditorTab) {
-        final ExtendedTilingPane tilingPane = tilingEditorTab.getTilingPane();
+        final SingleTilingPane tilingPane = tilingEditorTab.getTilingPane();
 
-        animation = new TranslationAnimation(tilingPane);
+        animation = new TranslateAnimation(tilingPane);
 
         sphere.rotateProperty().addListener((c, o, n) -> {
             final Rotate rotate = new Rotate(n.doubleValue() - o.doubleValue(), sphere.getRotationAxis());
@@ -158,7 +159,6 @@ public class MouseHandler {
             }
         });
 
-
         tilingPane.setOnScroll((me) -> {
             final Scale worldScale = tilingPane.getWorldScale();
 
@@ -195,7 +195,7 @@ public class MouseHandler {
         );
 
         onScrollEnded.set((me) -> {
-            if (tilingPane.getGeometry() == Geometry.Euclidean)
+            if (tilingPane.getGeometry() == Geometry.Euclidean || tilingPane.getGeometry() == Geometry.Hyperbolic)
                 tilingPane.update();
         });
     }

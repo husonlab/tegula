@@ -26,11 +26,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.Pane;
 import javafx.scene.transform.Rotate;
-import javafx.scene.transform.Scale;
-import javafx.scene.transform.Transform;
-import javafx.scene.transform.Translate;
 import jloda.util.Basic;
 import tegula.core.dsymbols.Geometry;
 import tegula.tiling.EuclideanTiling;
@@ -39,7 +35,7 @@ import tegula.tiling.SphericalTiling;
 
 /**
  * mouse handler
- * Created by huson on 3/29/16.
+ * Daniel Huson 3/2016
  */
 public class MouseHandler {
     private double originalMouseDownX;
@@ -48,39 +44,25 @@ public class MouseHandler {
     private double mouseDownY;
     private long mouseDownTime;
 
-    private final TranslationAnimation animation;
+    private final Animator animator;
 
     private long lastScroll = 0;
     private Thread thread = null;
     private final ObjectProperty<EventHandler<? super ScrollEvent>> onScrollEnded = new SimpleObjectProperty<>();
 
-
-    /**
-     * add a mouse handler
-     *
-     * @param pane
-     * @param worldTranslate
-     * @param worldRotateProperty
-     */
-    public static void addMouseHandler(final Pane pane, final Translate worldTranslate, final Scale worldScale, final ObjectProperty<Transform> worldRotateProperty, final SingleTilingPane singleTilingPane) {
-        new MouseHandler(pane, worldTranslate, worldScale, worldRotateProperty, singleTilingPane);
-    }
-
     /**
      * constructor
      *
-     * @param worldTranslate
-     * @param worldRotateProperty
      */
-    private MouseHandler(final Pane pane, final Translate worldTranslate, final Scale worldScale, final ObjectProperty<Transform> worldRotateProperty, final SingleTilingPane singleTilingPane) {
-        animation = new TranslationAnimation(singleTilingPane);
+    public MouseHandler(final SingleTilingPane singleTilingPane) {
+        animator = new Animator(singleTilingPane);
 
-        pane.setOnMousePressed((me) -> {
+        singleTilingPane.setOnMousePressed((me) -> {
             originalMouseDownX = mouseDownX = me.getSceneX();
             originalMouseDownY = mouseDownY = me.getSceneY();
             mouseDownTime = System.currentTimeMillis();
         });
-        pane.setOnMouseDragged((me) -> {
+        singleTilingPane.setOnMouseDragged((me) -> {
             double mouseDeltaX = me.getSceneX() - mouseDownX;
             double mouseDeltaY = me.getSceneY() - mouseDownY;
 
@@ -90,7 +72,7 @@ public class MouseHandler {
                     //noinspection SuspiciousNameCombination
                     final Point3D dragOrthogonalAxis = new Point3D(delta.getY(), -delta.getX(), 0);
                     final Rotate rotate = new Rotate(0.25 * delta.magnitude(), dragOrthogonalAxis);
-                    worldRotateProperty.setValue(rotate.createConcatenation(worldRotateProperty.get()));
+                    singleTilingPane.setWorldRotate(rotate.createConcatenation(singleTilingPane.getWorldRotate()));
                     mouseDownX = me.getSceneX();
                     mouseDownY = me.getSceneY();
                 } else if (singleTilingPane.getTiling() instanceof HyperbolicTiling) {
@@ -127,9 +109,18 @@ public class MouseHandler {
                 }
             }
         });
-        pane.setOnMouseReleased((me) -> {
+        singleTilingPane.setOnMouseReleased((me) -> {
             if (me.isShiftDown()) {
-                if (singleTilingPane.geometryProperty().getValue() != Geometry.Spherical) { // slide
+                if (singleTilingPane.geometryProperty().getValue() == Geometry.Spherical) {
+                    final Point2D delta = new Point2D(me.getSceneX() - originalMouseDownX, me.getSceneY() - originalMouseDownY);
+                    final Point3D dragOrthogonalAxis = new Point3D(delta.getY(), -delta.getX(), 0);
+                    final double angle = 0.25 * delta.magnitude();
+                    animator.set(dragOrthogonalAxis, angle, System.currentTimeMillis() - mouseDownTime);
+                    if (angle != 0)
+                        animator.play();
+                    else
+                        animator.stop();
+                } else { // slide
                     double mouseDeltaX = me.getSceneX() - originalMouseDownX;
                     double mouseDeltaY = me.getSceneY() - originalMouseDownY;
 
@@ -137,21 +128,27 @@ public class MouseHandler {
                     double dx = mouseDeltaX * modifierFactor;
                     double dy = mouseDeltaY * modifierFactor;
 
-                    animation.set(dx, dy, System.currentTimeMillis() - mouseDownTime);
+                    animator.set(dx, dy, System.currentTimeMillis() - mouseDownTime);
 
                     if (dx != 0 || dy != 0) {
-                        animation.play();
+                        animator.play();
                     } else
-                        animation.pause();
+                        animator.stop();
                 }
             }
         });
 
-        pane.setOnScroll(me -> {
+        singleTilingPane.setOnMouseClicked((me) -> {
+            if (me.getClickCount() == 2) {
+                animator.stop();
+            }
+        });
+
+        singleTilingPane.setOnScroll(me -> {
                     if (me.getDeltaY() != 0) {
                         double factor = (me.getDeltaY() > 0 ? 1.1 : 0.9);
-                        worldScale.setX(factor * worldScale.getX());
-                        worldScale.setY(factor * worldScale.getY());
+                        singleTilingPane.getWorldScale().setX(factor * singleTilingPane.getWorldScale().getX());
+                        singleTilingPane.getWorldScale().setY(factor * singleTilingPane.getWorldScale().getY());
                         singleTilingPane.setEuclideanWidth((singleTilingPane.getEuclideanWidth()) / factor);
                         singleTilingPane.setEuclideanHeight((singleTilingPane.getEuclideanHeight()) / factor);
                     }
@@ -185,13 +182,13 @@ public class MouseHandler {
                 singleTilingPane.update();
         });
 
-        pane.setOnKeyPressed(event -> {
+        singleTilingPane.setOnKeyPressed(event -> {
             switch (event.getCode()) {
-                case P:
-                    if (animation.isPlaying())
-                        animation.pause();
-                    else
-                        animation.play();
+                case SPACE:
+                    if (animator.isPlaying())
+                        animator.pause();
+                    else if (animator.isPaused())
+                        animator.play();
                     break;
                 case LEFT:
                     if (singleTilingPane.getTilingStyle().getBandWidth() - 1 > 1)
@@ -216,5 +213,9 @@ public class MouseHandler {
                     break;
             }
         });
+    }
+
+    public Animator getAnimator() {
+        return animator;
     }
 }

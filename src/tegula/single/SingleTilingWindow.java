@@ -28,6 +28,7 @@ import tegula.main.TilingStyle;
 
 /**
  * setup and show a single tiling window
+ * Only for testing purposes, not part of the tegula program
  * Daniel Huson, 4.2019
  */
 public class SingleTilingWindow {
