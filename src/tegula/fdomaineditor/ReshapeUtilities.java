@@ -78,7 +78,7 @@ public class ReshapeUtilities {
                     transVector = addMirrorRestriction(fDomain, transVector.getX(), transVector.getY(), length, k, a); // Mirror axis restriction
                 }
 
-                final Translate translate = new Translate(transVector.getX(), transVector.getY());
+                final Translate translate = new Translate(deltaX, deltaY);
 
                 // Translate Point of type k in chamber a
                 Point3D pt0 = Tools.map2Dto3D(fDomain.getGeometry(), fDomain.getVertex(k, a));
@@ -135,12 +135,9 @@ public class ReshapeUtilities {
         }
 
         // Straighten 0- and 1-edges
-        if (false) {
-            StraightenEdges.straighten01Edges(fDomain);
+
+        StraightenEdges.straighten01Edges(fDomain);
             return transVector;
-        } else {
-            return transVector;
-        }
     }
 
     /**

@@ -427,33 +427,6 @@ public class FDomain {
     }
 
     /**
-     * compute the barycenter of all coordinates
-     *
-     * @return center
-     */
-    public Point2D computerCenter() {
-        double x = 0;
-        double y = 0;
-        int count = 0;
-
-        final Point2D[][] arrays = getCoordinates();
-        for (Point2D[] array : arrays) {
-            for (Point2D point : array) {
-                if (point != null) {
-                    x += point.getX();
-                    y += point.getY();
-                    count++;
-                }
-            }
-        }
-        if (count == 0)
-            return new Point2D(0, 0);
-        else
-            return new Point2D(x / count, y / count);
-
-    }
-
-    /**
      * set all coordinates (previously saved using getCoordinates)
      *
      * @param array
@@ -461,17 +434,14 @@ public class FDomain {
     public void setCoordinates(Point2D[][] array) {
         for (int a = 1; a <= dSymbol.size(); a++) {
             for (int i = 0; i <= 2; i++) {
-                System.err.println(String.format("vertex(%d,%d): (%.2f,%.2f) -> (%.2f,%.2f)",
-                        a, i, getVertex(i, a).getX(), getVertex(i, a).getY(), array[a][i].getX(), array[a][i].getY()));
+                //System.err.println(String.format("vertex(%d,%d): (%.2f,%.2f) -> (%.2f,%.2f)", a, i, getVertex(i, a).getX(), getVertex(i, a).getY(), array[a][i].getX(), array[a][i].getY()));
                 setVertex(array[a][i], i, a);
             }
             for (int i = 0; i <= 2; i++) {
-                System.err.println(String.format("edge(%d,%d): (%.2f,%.2f) -> (%.2f,%.2f)",
-                        a, i, getEdgeCenter(i, a).getX(), getEdgeCenter(i, a).getY(), array[a][i + 3].getX(), array[a][i + 3].getY()));
+                // System.err.println(String.format("edge(%d,%d): (%.2f,%.2f) -> (%.2f,%.2f)", a, i, getEdgeCenter(i, a).getX(), getEdgeCenter(i, a).getY(), array[a][i + 3].getX(), array[a][i + 3].getY()));
                 setEdgeCenter(array[a][i + 3], i, a);
             }
-            System.err.println(String.format("chamber(%d): (%.2f,%.2f) -> (%.2f,%.2f)",
-                    a, getChamberCenter(a).getX(), getChamberCenter(a).getY(), array[a][6].getX(), array[a][6].getY()));
+            // System.err.println(String.format("chamber(%d): (%.2f,%.2f) -> (%.2f,%.2f)", a, getChamberCenter(a).getX(), getChamberCenter(a).getY(), array[a][6].getX(), array[a][6].getY()));
             setChamberCenter(array[a][6], a);
         }
     }

@@ -36,6 +36,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
 import jloda.fx.shapes.NGonShape;
+import jloda.fx.undo.UndoManager;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
 import tegula.geometry.Tools;
@@ -59,14 +60,17 @@ public class FDomainPane extends StackPane {
     private NGonShape[][] edgeHandles;
     private NGonShape[] chamberCenterHandles;
 
+    private final UndoManager undoManager;
+
 
     /**
      * constructor
      *
      * @param singleTilingPane
      */
-    public FDomainPane(SingleTilingPane singleTilingPane) {
+    public FDomainPane(SingleTilingPane singleTilingPane, UndoManager undoManager) {
         this.singleTilingPane = singleTilingPane;
+        this.undoManager = undoManager;
         tilingStyle = singleTilingPane.getTilingStyle();
 
         setFDomain(singleTilingPane.getTiling().getfDomain());
@@ -121,7 +125,7 @@ public class FDomainPane extends StackPane {
                                     vertexHandle.setSize(10, 10);
                                 } else if ((ds.getVij(i, j, b) == 1) && !(i == 0 && j == 2 && b == ds.getS2(b))
                                         && !(k == 2 && !getFDomain().isBoundaryEdge(0, b))) {
-                                    setMouseHandler(factor, vertexHandle, ReshapeUtilities.Type.Vertex, k, b);
+                                    setMouseHandler(undoManager, factor, vertexHandle, ReshapeUtilities.Type.Vertex, k, b);
                                     if (ds.isCycle(i, j, b)) // can be freely moved
                                         color = Color.GREEN;
                                     else
@@ -151,7 +155,7 @@ public class FDomainPane extends StackPane {
                             else {
                                 Color color;
                                 if (k == 2) { // center of an edge
-                                    setMouseHandler(factor, edgeHandle, ReshapeUtilities.Type.EdgeCenter, 2, b);
+                                    setMouseHandler(undoManager, factor, edgeHandle, ReshapeUtilities.Type.EdgeCenter, 2, b);
                                     if (b != ds.getS2(b))
                                         color = Color.GREEN; // freely moveable
                                     else
@@ -325,14 +329,18 @@ public class FDomainPane extends StackPane {
             return new Point2D(apt.getX(), apt.getY());
     }
 
+    private ReshapUndoableRedoableCommand command = null;
+
     /**
      * set the mouse handler
      */
-    private void setMouseHandler(double factor, Shape shape, ReshapeUtilities.Type type, int k, int a) {
+    private void setMouseHandler(UndoManager undoManager, double factor, Shape shape, ReshapeUtilities.Type type, int k, int a) {
         final ObjectProperty<Point2D> mouseDown = new SimpleObjectProperty<>(new Point2D(0, 0));
+
 
         shape.setOnMousePressed((e) -> {
             mouseDown.set(new Point2D(e.getSceneX(), e.getSceneY()));
+            command = new ReshapUndoableRedoableCommand(getFDomain(), singleTilingPane);
         });
 
         shape.setOnMouseDragged((e) -> {
@@ -348,11 +356,16 @@ public class FDomainPane extends StackPane {
                 shape.setLayoutY(shape.getLayoutY() + factor * contraintsAdjustmentTranslationVector.getY());
 
                 mouseDown.set(new Point2D(e.getSceneX() - deltaX + factor * contraintsAdjustmentTranslationVector.getX(), e.getSceneY() - deltaY + factor * contraintsAdjustmentTranslationVector.getY()));
+                command.saveNewCoordinates();
+
             }
         });
 
         shape.setOnMouseReleased((e) -> {
-            singleTilingPane.update();
+            if (command.isRedoable()) { // have changed the cordinates
+                undoManager.add(command);
+                singleTilingPane.update();
+            }
         });
     }
 }

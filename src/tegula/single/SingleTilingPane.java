@@ -102,6 +102,7 @@ public class SingleTilingPane extends StackPane implements Updateable {
 
     /**
      * constructor
+     *
      * @param dSymbol
      * @param showSphereAsDisk
      * @param allowMouseInteraction
@@ -235,36 +236,32 @@ public class SingleTilingPane extends StackPane implements Updateable {
         if (disk != null)
             getChildren().remove(disk);
 
-        if (getTilingStyle().getBackgroundColor() != Color.TRANSPARENT) {
-            if (getGeometry() == Geometry.Spherical || getTiling().getGeometry() == Geometry.Hyperbolic) {
-                if (disk == null) {
-                    disk = new Circle(100);
-                    final double factor = (getTiling().getGeometry() == Geometry.Spherical ? 0.45 : 0.5);
-                    if (true) {
-                        subScene.heightProperty().addListener((e) -> {
-                            disk.setRadius(factor * Math.min(getWidth(), getHeight()));
-                        });
-                        subScene.widthProperty().addListener((e) -> {
-                            disk.setRadius(factor * Math.min(getWidth(), getHeight()));
-                        });
-                    }
-                    StackPane.setAlignment(disk, Pos.CENTER);
-                    getChildren().add(0, disk);
-                } else if (!getChildren().contains(disk))
-                    getChildren().add(0, disk);
+        if (isShowSphereAsDisk() && (getGeometry() == Geometry.Spherical || getTiling().getGeometry() == Geometry.Hyperbolic)) {
+            if (disk == null) {
+                disk = new Circle(100);
+                final double factor = (getTiling().getGeometry() == Geometry.Spherical ? 0.45 : 0.5);
+                if (true) {
+                    subScene.heightProperty().addListener((e) -> {
+                        disk.setRadius(factor * Math.min(getWidth(), getHeight()));
+                    });
+                    subScene.widthProperty().addListener((e) -> {
+                        disk.setRadius(factor * Math.min(getWidth(), getHeight()));
+                    });
+                }
+                StackPane.setAlignment(disk, Pos.CENTER);
+                getChildren().add(0, disk);
+            } else if (!getChildren().contains(disk))
+                getChildren().add(0, disk);
 
-                disk.setStroke(getTilingStyle().getBackgroundColor().darker());
-                disk.setFill(getTilingStyle().getBackgroundColor());
+            disk.setStroke(getTilingStyle().getBackgroundColor().darker());
+            disk.setFill(getTilingStyle().getBackgroundColor());
 
-                disk.setStrokeWidth(2);
-                setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null, null)));
-            } else // euclidean
-            {
-                setBackground(new Background(new BackgroundFill(getTilingStyle().getBackgroundColor(), null, null)));
-            }
-        } else {
+            disk.setStrokeWidth(2);
             setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null, null)));
+        } else {
+            setBackground(new Background(new BackgroundFill(getTilingStyle().getBackgroundColor(), null, null)));
         }
+
 
         switch (getGeometry()) {
             case Spherical: {

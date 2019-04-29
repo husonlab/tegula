@@ -174,7 +174,7 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable {
         });
         controller.getBackFacesCheckBox().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));
 
-
+        controller.getBandsColorPicker().setValue(tilingStyle.getBackgroundColor());
         controller.getBandsColorPicker().setOnAction((e) -> {
             tilingStyle.setBandColor(controller.getBandsColorPicker().getValue());
             tilingPane.updateBandColors();
@@ -184,6 +184,7 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable {
             controller.getBandsColorPicker().setValue(tilingStyle.getBandColor());
         });
 
+        controller.getBandsOpacitySlider().setValue(tilingStyle.getBandColor().getOpacity());
         controller.getBandsOpacitySlider().valueProperty().addListener((c, o, n) -> {
             final Color color = tilingStyle.getBandColor();
             tilingStyle.setBandColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), n.doubleValue()));
@@ -236,6 +237,11 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable {
             if (n != Geometry.Hyperbolic)
                 controller.getHyperbolicModelAccordion().setExpandedPane(null);
         });
+
+        controller.getUndoReshapeButton().setOnAction((e) -> fDomainEditor.getUndoManager().undo());
+        controller.getUndoReshapeButton().disableProperty().bind(fDomainEditor.getUndoManager().canUndoProperty().not());
+        controller.getRedoReshapeButton().setOnAction((e) -> fDomainEditor.getUndoManager().redo());
+        controller.getRedoReshapeButton().disableProperty().bind(fDomainEditor.getUndoManager().canRedoProperty().not());
 
         // reset the top node so it is drawn on top of the tiling:
 

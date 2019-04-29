@@ -515,7 +515,7 @@ public class Document implements Updateable, HasHyperbolicModel {
             } else { // No rounding errors: add new tiles
                 tiles.getChildren().addAll(newTiles.getChildren());
                 tiling.setNumberOfCopies(tiles.getChildren().size());
-                System.err.println("Number of copies: " + tiling.getNumberOfCopies());
+                // System.err.println("Number of copies: " + tiling.getNumberOfCopies());
             }
         }
 

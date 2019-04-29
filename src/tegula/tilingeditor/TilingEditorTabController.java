@@ -132,6 +132,13 @@ public class TilingEditorTabController {
     @FXML
     private Accordion hyperbolicModelAccordion;
 
+    @FXML
+    private Button undoReshapeButton;
+
+    @FXML
+    private Button redoReshapeButton;
+
+
     public BorderPane getBorderPane() {
         return borderPane;
     }
@@ -259,5 +266,13 @@ public class TilingEditorTabController {
 
     public Accordion getHyperbolicModelAccordion() {
         return hyperbolicModelAccordion;
+    }
+
+    public Button getUndoReshapeButton() {
+        return undoReshapeButton;
+    }
+
+    public Button getRedoReshapeButton() {
+        return redoReshapeButton;
     }
 }

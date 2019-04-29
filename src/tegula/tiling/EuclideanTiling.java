@@ -240,7 +240,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
         } else { // No rounding errors: add new tiles
             tiles.getChildren().addAll(newTiles.getChildren());
             setNumberOfCopies(tiles.getChildren().size());
-            System.err.println("Number of copies: " + getNumberOfCopies());
+            // System.err.println("Number of copies: " + getNumberOfCopies());
         }
     }
 

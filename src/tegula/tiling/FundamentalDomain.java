@@ -115,6 +115,7 @@ public class FundamentalDomain {
      */
     public void buildFundamentalDomain(final DSymbol dsymbol, final FDomain fDomain, TilingStyle tilingStyle) {
         clear();
+        final Geometry geom = fDomain.getGeometry();
 
         final int[] a2tile = dsymbol.computeOrbits(0, 1);
         final int[] a2edge = dsymbol.computeOrbits(0, 2);
@@ -134,14 +135,13 @@ public class FundamentalDomain {
         {
             for (int e = 1; e < bandMaterial.length; e++) {
                 bandMaterial[e] = new PhongMaterial(tilingStyle.getBandColor());
-                bandWidth[e] = 0.1 * tilingStyle.getBandWidth();
+                bandWidth[e] = (geom == Geometry.Euclidean ? 1 : 0.5) * tilingStyle.getBandWidth();
             }
         }
-        final Geometry geom = fDomain.getGeometry();
 
         // For bands and the band caps (i.e. circles at the ends of bands)
 
-        final double bandCapDiameter = 0.1 * tilingStyle.getBandWidth();
+        final double bandCapDiameter = bandWidth[1];
         final int bandCapFineness = tilingStyle.getBandCapFineness(); // defines how smooth the edges are
 
         double linesAbove; // defines the height of the line above the faces

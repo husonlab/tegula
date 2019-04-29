@@ -22,6 +22,7 @@ package tegula.fdomaineditor;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
+import jloda.fx.undo.UndoManager;
 import jloda.util.Single;
 import tegula.tilingeditor.TilingEditorTab;
 import tegula.tilingeditor.TilingEditorTabController;
@@ -44,6 +45,8 @@ public class FDomainEditor {
 
     private final FDomainPane fDomainPane;
 
+    private final UndoManager undoManager = new UndoManager();
+
     /**
      * constructor
      *
@@ -57,13 +60,13 @@ public class FDomainEditor {
         preferredWidthOpen = 2 * preferredWidthClosed;
         preferredHeightOpen = 2 * preferredHeightClosed;
 
-        fDomainPane = new FDomainPane(tilingEditorTab.getTilingPane());
+        fDomainPane = new FDomainPane(tilingEditorTab.getTilingPane(), undoManager);
 
         tilingEditorTab.getTilingPane().lastUpdateProperty().addListener((e) -> fDomainPane.update());
 
-        AnchorPane.setTopAnchor(fDomainPane, 0.0);
+        AnchorPane.setTopAnchor(fDomainPane, 30.0);
         AnchorPane.setLeftAnchor(fDomainPane, 0.0);
-        AnchorPane.setBottomAnchor(fDomainPane, 0.0);
+        AnchorPane.setBottomAnchor(fDomainPane, 5.0);
         AnchorPane.setRightAnchor(fDomainPane, 0.0);
 
         anchorPane.getChildren().add(0, fDomainPane);
@@ -79,8 +82,8 @@ public class FDomainEditor {
         resizeButton.setOnMouseDragged((e) -> {
             final Point2D delta;
             if (e.isShiftDown()) { // maintain aspect ratio
-                final double max = Math.max(e.getSceneX() - mouseDownX, mouseDownY - e.getSceneY());
-                delta = new Point2D(max, max);
+                final double min = Math.min(e.getSceneX() - mouseDownX, mouseDownY - e.getSceneY());
+                delta = new Point2D(min, min);
             } else
                 delta = new Point2D(e.getSceneX() - mouseDownX, mouseDownY - e.getSceneY());
 
@@ -117,5 +120,9 @@ public class FDomainEditor {
             else
                 resizeButton.setTranslateX(n.doubleValue() - origWidth.get());
         });
+    }
+
+    public UndoManager getUndoManager() {
+        return undoManager;
     }
 }

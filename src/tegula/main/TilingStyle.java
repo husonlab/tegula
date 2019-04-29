@@ -30,8 +30,8 @@ import tegula.color.ColorSchemeManager;
  * Daniel Huson, 11.18
  */
 public class TilingStyle {
-    private final IntegerProperty bandWidth = new SimpleIntegerProperty(15);
-    private final SimpleObjectProperty<Color> bandColor = new SimpleObjectProperty<>(Color.WHITE);
+    private final IntegerProperty bandWidth = new SimpleIntegerProperty(4);
+    private final SimpleObjectProperty<Color> bandColor = new SimpleObjectProperty<>(Color.BLACK);
     private final IntegerProperty bandCapFineness = new SimpleIntegerProperty(24);
 
     private final BooleanProperty showFaces = new SimpleBooleanProperty(true);

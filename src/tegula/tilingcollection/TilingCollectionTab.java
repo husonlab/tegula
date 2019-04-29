@@ -116,7 +116,7 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable {
         this.tilingStyle = new TilingStyle();
         tilingStyle.setShowBackBands(false);
         tilingStyle.setShowBands(true);
-        tilingStyle.setBandWidth(10);
+        tilingStyle.setBandWidth(2);
         tilingStyle.setShowFaces(false);
         tilingStyle.setBandColor(Color.BLACK);
         tilingStyle.setBackgroundColor(Color.GHOSTWHITE);
