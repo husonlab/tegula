@@ -30,6 +30,8 @@ import tegula.color.ColorSchemeManager;
  * Daniel Huson, 11.18
  */
 public class TilingStyle {
+    public double opacityForDebugging = 1;
+
     private final IntegerProperty bandWidth = new SimpleIntegerProperty(4);
     private final SimpleObjectProperty<Color> bandColor = new SimpleObjectProperty<>(Color.BLACK);
     private final IntegerProperty bandCapFineness = new SimpleIntegerProperty(24);
@@ -106,7 +108,10 @@ public class TilingStyle {
     }
 
     public Color getTileColor(int tileNumber) {
-        return tileColors.get((tileNumber - 1) % tileColors.size());
+        if (opacityForDebugging == 1)
+            return tileColors.get((tileNumber - 1) % tileColors.size());
+        else
+            return tileColors.get((tileNumber - 1) % tileColors.size()).deriveColor(1, 1, 1, opacityForDebugging);
     }
 
     public void setTileColor(int tileNumber, Color color) {

@@ -21,6 +21,7 @@ package tegula.single;
 
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import tegula.core.dsymbols.DSymbol;
 import tegula.main.TilingStyle;
@@ -41,7 +42,11 @@ public class SingleTilingWindow {
         final Stage stage = new Stage();
         stage.setTitle("New SingleWindow");
 
-        final SingleTilingPane singleTilingPane = new SingleTilingPane(dSymbol, new TilingStyle());
+        final TilingStyle tilingStyle = new TilingStyle();
+        tilingStyle.opacityForDebugging = 0.7;
+        tilingStyle.setBandColor(Color.WHITE);
+
+        final SingleTilingPane singleTilingPane = new SingleTilingPane(dSymbol, tilingStyle);
 
         final AnchorPane root = new AnchorPane();
         AnchorPane.setBottomAnchor(singleTilingPane, 0.0);
