@@ -35,11 +35,11 @@ public class TilingStyle {
     private final IntegerProperty bandCapFineness = new SimpleIntegerProperty(24);
 
     private final BooleanProperty showFaces = new SimpleBooleanProperty(true);
-    private final BooleanProperty showBands = new SimpleBooleanProperty(true);
-
     private final BooleanProperty showBackFaces = new SimpleBooleanProperty(false);
 
+    private final BooleanProperty showBands = new SimpleBooleanProperty(true);
     private final BooleanProperty showBackBands = new SimpleBooleanProperty(false);
+
     private final BooleanProperty smoothEdges = new SimpleBooleanProperty(true);
 
     private final ObservableList<Color> tileColors = FXCollections.observableArrayList();
@@ -52,21 +52,54 @@ public class TilingStyle {
     private final BooleanProperty showAllChambers = new SimpleBooleanProperty(false);
     private final BooleanProperty showHandles = new SimpleBooleanProperty(false);
     private final BooleanProperty showSymmetryIcons = new SimpleBooleanProperty(false);
-    private final BooleanProperty showOtherStuff = new SimpleBooleanProperty(false);
+    private final BooleanProperty showDecorations = new SimpleBooleanProperty(false);
 
 
     public TilingStyle() {
+        tileColorsScheme.addListener((c, o, n) -> tileColors.setAll(ColorSchemeManager.getInstance().getColorScheme(n)));
         setTileColorsScheme(ColorSchemeManager.getInstance().getLastColorScheme());
+    }
+
+    public TilingStyle(TilingStyle src) {
+        this();
+        copy(src);
+    }
+
+    public void copy(TilingStyle src) {
+        setBandWidth(src.getBandWidth());
+        setBandColor(src.getBandColor());
+        setBandCapFineness(src.getBandCapFineness());
+        setShowFaces(src.isShowFaces());
+        setShowBands(src.isShowBands());
+        setShowBackBands(src.isShowBackBands());
+
+        setSmoothEdges(src.isSmoothEdges());
+
+        tileColors.setAll(src.getTileColors());
+
+        setTileColorsScheme(src.getTileColorsScheme());
+
+        setBackgroundColor(src.getBackgroundColor());
+
+        setShowFundamentalChambers(src.isShowFundamentalChambers());
+        setShowAllChambers(src.isShowAllChambers());
+        setShowHandles(src.isShowHandles());
+        setShowSymmetryIcons(src.isShowSymmetryIcons());
+        setShowDecorations(src.getShowDecorations());
     }
 
     public void setTileColorsScheme(String colorSchemeName) {
         tileColorsScheme.set(colorSchemeName);
-        tileColors.setAll(ColorSchemeManager.getInstance().getColorScheme(colorSchemeName));
+    }
+
+    public StringProperty tileColorsSchemeProperty() {
+        return tileColorsScheme;
     }
 
     public String getTileColorsScheme() {
         return tileColorsScheme.get();
     }
+
 
     public ObservableList<Color> getTileColors() {
         return tileColors;
@@ -170,7 +203,7 @@ public class TilingStyle {
         this.showBackFaces.set(showBackFaces);
     }
 
-    public boolean getShowBackBands() {
+    public boolean isShowBackBands() {
         return showBackBands.get();
     }
 
@@ -230,16 +263,16 @@ public class TilingStyle {
         this.showSymmetryIcons.set(showSymmetryIcons);
     }
 
-    public boolean isShowOtherStuff() {
-        return showOtherStuff.get();
+    public boolean getShowDecorations() {
+        return showDecorations.get();
     }
 
-    public BooleanProperty showOtherStuffProperty() {
-        return showOtherStuff;
+    public BooleanProperty showDecorationsProperty() {
+        return showDecorations;
     }
 
-    public void setShowOtherStuff(boolean showOtherStuff) {
-        this.showOtherStuff.set(showOtherStuff);
+    public void setShowDecorations(boolean showDecorations) {
+        this.showDecorations.set(showDecorations);
     }
 
     public Color getBackgroundColor() {

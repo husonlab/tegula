@@ -19,6 +19,7 @@
 
 package tegula.main;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import javafx.scene.Parent;
@@ -134,7 +135,7 @@ public class Window implements IMainWindow {
         controller.getMemoryUsageLabel().textProperty().bind(memoryUsage.memoryUsageStringProperty());
 
         stage.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, (e) -> {
-            getMainTabPane().getTabs().clear();
+            Platform.runLater(() -> getMainTabPane().getTabs().clear());
         });
 
         stage.show();

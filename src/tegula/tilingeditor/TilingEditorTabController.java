@@ -85,7 +85,7 @@ public class TilingEditorTabController {
     private CheckBox showBandsCheckBox;
 
     @FXML
-    private CheckBox backEdgesCheckBox;
+    private CheckBox backBandsCheckBox;
 
     @FXML
     private Spinner<?> bandWidthSpinner;
@@ -204,8 +204,8 @@ public class TilingEditorTabController {
         return showBandsCheckBox;
     }
 
-    public CheckBox getBackEdgesCheckBox() {
-        return backEdgesCheckBox;
+    public CheckBox getBackBandsCheckBox() {
+        return backBandsCheckBox;
     }
 
     public Spinner<Integer> getBandWidthSpinner() {

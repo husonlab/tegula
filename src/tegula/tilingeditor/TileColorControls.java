@@ -19,9 +19,14 @@
 
 package tegula.tilingeditor;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.paint.Color;
+import jloda.fx.undo.UndoManager;
+import jloda.fx.undo.UndoableChangeProperty;
 import tegula.color.ColorSchemeManager;
 import tegula.main.TilingStyle;
 import tegula.single.SingleTilingPane;
@@ -40,6 +45,7 @@ public class TileColorControls {
         final TilingEditorTabController controller = tilingEditorTab.getController();
         final SingleTilingPane singleTilingPane = tilingEditorTab.getTilingPane();
         final TilingStyle tilingStyle = singleTilingPane.getTilingStyle();
+        final UndoManager undoManager = tilingEditorTab.getUndoManager();
 
         final int numberOfTiles = singleTilingPane.getTiling().getDSymbol().countOrbits(0, 1);
 
@@ -62,8 +68,14 @@ public class TileColorControls {
             final int tileNumber = t;
             final ColorPicker colorPicker = (ColorPicker) list.get(pos + t - 1);
             colorPicker.setOnAction((e) -> {
-                tilingStyle.setTileColor(tileNumber, colorPicker.getValue());
-                singleTilingPane.updateTileColors();
+                final ObjectProperty<Color> color = new SimpleObjectProperty<>();
+                undoManager.doAndAdd(new UndoableChangeProperty<>("tile color",
+                        color, tilingStyle.getTileColor(tileNumber), colorPicker.getValue(),
+                        (v) -> {
+                            tilingStyle.setTileColor(tileNumber, color.get());
+                            singleTilingPane.updateTileColors();
+                            colorPicker.setValue(v);
+                        }));
             });
             colorPicker.setOnShowing((e) -> {
                 colorPicker.getCustomColors().setAll(ColorSchemeManager.getInstance().getColorScheme(tilingStyle.getTileColorsScheme()));

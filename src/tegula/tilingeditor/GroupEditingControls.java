@@ -21,9 +21,12 @@ package tegula.tilingeditor;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.geometry.Point2D;
 import javafx.scene.layout.VBox;
+import jloda.fx.undo.UndoManager;
 import tegula.core.dsymbols.DSymbol;
-import tegula.tiling.TilingBase;
+import tegula.single.SingleTilingPane;
+import tegula.undoable.ChangeDSymbolCommand;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -39,8 +42,9 @@ public class GroupEditingControls {
      * @param tilingEditorTab
      */
     public static void setup(TilingEditorTab tilingEditorTab) {
-        final TilingBase tiling = tilingEditorTab.getTilingPane().getTiling();
-        final DSymbol ds = tiling.getDSymbol();
+        final SingleTilingPane tilingPane = tilingEditorTab.getTilingPane();
+        final DSymbol ds = tilingPane.getTiling().getDSymbol();
+        final UndoManager undoManager = tilingEditorTab.getUndoManager();
 
         final VBox vbox = tilingEditorTab.getController().getSymmetiesVBox();
         if (vbox.getChildren().size() > 1)
@@ -52,6 +56,7 @@ public class GroupEditingControls {
             final BitSet seen = new BitSet();
             for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, i + 1, a, seen)) {
                 final int fi = i;
+                final int fj = i + 1;
                 final int fa = a;
                 final IntegerChooser vChooser = new IntegerChooser();
                 vbox.getChildren().add(vChooser);
@@ -59,22 +64,35 @@ public class GroupEditingControls {
                 vChooser.setValue(ds.getVij(i, i + 1, a));
 
                 final ChangeListener<Number> listener = ((c, o, n) -> {
+                    final DSymbol oldDs = new DSymbol(ds);
                     if (n.intValue() < o.intValue()) {
-                        if (isOkDecreaseVij(ds, fa, fi, fi + 1, ds.getVij(fi, fi + 1, fa))) {
-                            ds.setVij(fi, fi + 1, fa, n.intValue());
+                        if (isOkDecreaseVij(ds, fa, fi, fj, ds.getVij(fi, fj, fa))) {
+                            ds.setVij(fi, fj, fa, n.intValue());
                             final boolean changed = ensureNNForSpherical(ds, n.intValue());
-                            tilingEditorTab.getTilingPane().replaceTiling(ds);
+                            tilingPane.replaceTiling(ds);
                             if (changed) // had to adjust a second value, need to update all values to capture this
                                 Platform.runLater(() -> setup(tilingEditorTab));
+
                         } else // set the value back
                             Platform.runLater(() -> vChooser.setValue(o.intValue()));
                     } else if (n.intValue() > o.intValue()) {
-                        ds.setVij(fi, fi + 1, fa, n.intValue());
+                        ds.setVij(fi, fj, fa, n.intValue());
                         final boolean changed = ensureNNForSpherical(ds, n.intValue());
-                        tilingEditorTab.getTilingPane().replaceTiling(ds);
+                        tilingPane.replaceTiling(ds);
                         if (changed) // had to adjust a second value, need to update all values to capture this
                             Platform.runLater(() -> setup(tilingEditorTab));
                     }
+                    final Point2D[][] currentCoordinates = tilingPane.getTiling().getfDomain().getCoordinates();
+                    undoManager.add(new ChangeDSymbolCommand(oldDs, ds, tilingPane::replaceTiling, currentCoordinates,
+                            (k) -> {
+                                Platform.runLater(() ->
+                                {
+                                    tilingPane.replaceTiling(tilingPane.getFDomain().getDSymbol());
+                                    // todo: this causes endless loop
+                                    tilingPane.getFDomain().setCoordinates(k);
+                                    tilingPane.update();
+                                });
+                            }));
                 });
                 vChooser.valueProperty().addListener(listener);
                 vChooser.setUserData(listener);

@@ -45,7 +45,7 @@ public class FDomainEditor {
 
     private final FDomainPane fDomainPane;
 
-    private final UndoManager undoManager = new UndoManager();
+    private final UndoManager undoManager;
 
     /**
      * constructor
@@ -54,6 +54,7 @@ public class FDomainEditor {
      */
     public FDomainEditor(TilingEditorTab tilingEditorTab) {
         this.controller = tilingEditorTab.getController();
+        this.undoManager = tilingEditorTab.getUndoManager();
         final AnchorPane anchorPane = controller.getFdomainAnchorPane();
         preferredWidthClosed = anchorPane.getPrefWidth();
         preferredHeightClosed = anchorPane.getPrefHeight();

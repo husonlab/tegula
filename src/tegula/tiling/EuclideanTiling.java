@@ -78,11 +78,10 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
         fundPrototype.getChildren().clear();
         coveredPoints.clear();
 
-        fDomain.updateGeneratorsAndContraints();
         generators = fDomain.getGenerators();
 
-        referenceChamberIndex = fDomain.computeOptimalChamberIndex();
-        tolerance = computeTolerance(fDomain, generators, referenceChamberIndex);
+        referencePoint = fDomain.computeReferencePoint();
+        tolerance = computeTolerance(getGeometry(), referencePoint, generators);
         fundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
 
         if (!isInWindowEuclidean(referencePoint, windowCorner, width.get(), height.get())) { // Fund. domain is not in visible window
@@ -99,14 +98,14 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
      * @return group
      */
     private Group produceTiles(boolean reset) {
-        fDomain.updateGeneratorsAndContraints();
         generators = fDomain.getGenerators();
 
         //Add handles
         handles.getChildren().setAll(((new ReshapeManager(this, doc).createHandles())));
 
         //Calculation of point of reference:
-        referencePoint = fDomain.getChamberCenter3D(referenceChamberIndex); // Reference point of actual fundamental domain
+        referencePoint = fDomain.computeReferencePoint();
+        tolerance = computeTolerance(getGeometry(), referencePoint, generators);
 
         final Group all = new Group();
 
@@ -200,7 +199,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
         fDomain.translate(dx, dy); // Translates fDomain by vector (dx,dy).
         transformRecycled = translate.createConcatenation(transformRecycled); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
 
-        final Point3D refPoint = getfDomain().getChamberCenter3D(getReferenceChamberIndex()); // Point of reference in Euclidean fundamental domain
+        final Point3D refPoint = getfDomain().computeReferencePoint(); // Point of reference in Euclidean fundamental domain
 
         if (!isInWindowEuclidean(refPoint, windowCorner, width.get(), height.get())) { // If fundamental domain is out of visible window
             Transform t = calculateBackShiftEuclidean(windowCorner, width.get(), height.get());
@@ -262,12 +261,12 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
         }
 
         //Add all generators
-        fDomain.updateGeneratorsAndContraints();
         generators = fDomain.getGenerators();
 
         final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
 
-        Point3D refPoint = fDomain.getChamberCenter3D(referenceChamberIndex);
+        Point3D refPoint = getfDomain().computeReferencePoint();
+
         final QuadTree seen = new QuadTree();
         seen.insert(refPoint.getX(), refPoint.getY(), tolerance);
 

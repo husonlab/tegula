@@ -79,6 +79,13 @@ public class WindowController {
     private Menu editMenu;
 
     @FXML
+    private MenuItem undoMenuItem;
+
+    @FXML
+    private MenuItem redoMenuItem;
+
+
+    @FXML
     private MenuItem copyMenuItem;
 
     @FXML
@@ -196,6 +203,8 @@ public class WindowController {
         assert closeMenuItem != null : "fx:id=\"closeMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert quitMenuItem != null : "fx:id=\"quitMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert editMenu != null : "fx:id=\"editMenu\" was not injected: check your FXML file 'Window.fxml'.";
+        assert undoMenuItem != null : "fx:id=\"undoMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
+        assert redoMenuItem != null : "fx:id=\"redoMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert copyMenuItem != null : "fx:id=\"copyMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert pasteMenuItem != null : "fx:id=\"pasteMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert selectAllMenuItem != null : "fx:id=\"selectAllMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
@@ -298,6 +307,14 @@ public class WindowController {
 
     public MenuItem getCopyMenuItem() {
         return copyMenuItem;
+    }
+
+    public MenuItem getUndoMenuItem() {
+        return undoMenuItem;
+    }
+
+    public MenuItem getRedoMenuItem() {
+        return redoMenuItem;
     }
 
     public MenuItem getPasteMenuItem() {

@@ -37,10 +37,7 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import jloda.util.Basic;
-import tegula.core.dsymbols.DSymbol;
-import tegula.core.dsymbols.DSymbolAlgorithms;
-import tegula.core.dsymbols.Geometry;
-import tegula.core.dsymbols.OrbifoldGroupName;
+import tegula.core.dsymbols.*;
 import tegula.main.CameraSettings;
 import tegula.main.TilingStyle;
 import tegula.tiling.*;
@@ -141,7 +138,7 @@ public class SingleTilingPane extends StackPane implements Updateable {
             }
         });
 
-        subScene = new SubScene(new Group(universe), 800, 800, false, SceneAntialiasing.BALANCED);
+        subScene = new SubScene(new Group(universe), 800, 800, true, SceneAntialiasing.BALANCED);
         subScene.setCamera(perspectiveCamera);
 
         world.getTransforms().add(worldTranslate);
@@ -161,9 +158,6 @@ public class SingleTilingPane extends StackPane implements Updateable {
             setUseDepthBuffer(this, n != Geometry.Euclidean);
             if (o == Geometry.Spherical && n != Geometry.Spherical) {
                 worldRotate.setValue(new Rotate()); // remove any rotations
-            }
-            if (o != Geometry.Hyperbolic && n == Geometry.Hyperbolic) {
-                reset(); // looks like this helps to avoid the program getting stuck????
             }
         });
 
@@ -192,7 +186,6 @@ public class SingleTilingPane extends StackPane implements Updateable {
             if (getGeometry() == Geometry.Hyperbolic)
                 CameraSettings.setupHyperbolicCamera(perspectiveCamera, n, true);
         });
-
         replaceTiling(dSymbol);
         update();
     }
@@ -262,14 +255,12 @@ public class SingleTilingPane extends StackPane implements Updateable {
             setBackground(new Background(new BackgroundFill(getTilingStyle().getBackgroundColor(), null, null)));
         }
 
-
         switch (getGeometry()) {
             case Spherical: {
-                CameraSettings.setupSphericalCamera(perspectiveCamera);
-
                 if (!universe.getChildren().contains(pointLight))
                     universe.getChildren().add(pointLight);
                 universe.getChildren().remove(ambientLight);
+                Platform.runLater(() -> CameraSettings.setupSphericalCamera(perspectiveCamera));
                 break;
             }
             case Hyperbolic: {
@@ -279,8 +270,6 @@ public class SingleTilingPane extends StackPane implements Updateable {
 
                 // need to do this later because tilings are built in separate thread when reading file
                 Platform.runLater(() -> CameraSettings.setupHyperbolicCamera(perspectiveCamera, hyperbolicModel.get(), false));
-
-
                 break;
             }
             case Euclidean: {
@@ -434,10 +423,6 @@ public class SingleTilingPane extends StackPane implements Updateable {
     }
 
 
-    public ReadOnlyObjectProperty<HasHyperbolicModel.HyperbolicModel> hyperbolicModelProperty() {
-        return hyperbolicModel;
-    }
-
     public LongProperty lastUpdateProperty() {
         return lastUpdate;
     }
@@ -469,6 +454,11 @@ public class SingleTilingPane extends StackPane implements Updateable {
     public void setHyperbolicModel(HasHyperbolicModel.HyperbolicModel hyperbolicModel) {
         this.hyperbolicModel.set(hyperbolicModel);
     }
+
+    public ObjectProperty<HasHyperbolicModel.HyperbolicModel> hyperbolicModelProperty() {
+        return hyperbolicModel;
+    }
+
 
     public boolean isMaximalTiling() {
         return maximalTiling.get();
@@ -528,6 +518,10 @@ public class SingleTilingPane extends StackPane implements Updateable {
                 }
             }
         });
+    }
+
+    public FDomain getFDomain() {
+        return getTiling().getfDomain();
     }
 
 }

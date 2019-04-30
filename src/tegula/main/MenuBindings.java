@@ -55,22 +55,32 @@ public class MenuBindings {
 
         selectedTab.addListener((c, o, n) -> {
             if (n instanceof TilingEditorTab) {
+                final TilingEditorTab tab = (TilingEditorTab) n;
                 canSave.unbind();
-                canSave.set(((TilingEditorTab) n).isDirty());
-                canSave.bind(((TilingEditorTab) n).dirtyProperty());
-                selectionInCollection.unbind();
-                selectionInCollection.set(0);
-            } else if (n instanceof TilingCollectionTab) {
-                selectionInCollection.unbind();
-                selectionInCollection.set(((TilingCollectionTab) n).getSelectionModel().getSelectedItems().size());
-                selectionInCollection.bind(Bindings.size(((TilingCollectionTab) n).getSelectionModel().getSelectedItems()));
+                canSave.set(tab.isDirty());
+                canSave.bind(tab.dirtyProperty());
+                controller.getUndoMenuItem().disableProperty().unbind();
+                controller.getUndoMenuItem().setDisable(!tab.getUndoManager().canUndoProperty().get());
+                controller.getUndoMenuItem().disableProperty().bind(tab.getUndoManager().canUndoProperty().not());
+                controller.getRedoMenuItem().disableProperty().unbind();
+                controller.getRedoMenuItem().setDisable(!tab.getUndoManager().canRedoProperty().get());
+                controller.getRedoMenuItem().disableProperty().bind(tab.getUndoManager().canRedoProperty().not());
+            } else {
                 canSave.unbind();
                 canSave.set(false);
+                controller.getUndoMenuItem().disableProperty().unbind();
+                controller.getUndoMenuItem().setDisable(true);
+                controller.getRedoMenuItem().disableProperty().unbind();
+                controller.getRedoMenuItem().setDisable(true);
+            }
+            if (n instanceof TilingCollectionTab) {
+                final TilingCollectionTab tab = (TilingCollectionTab) n;
+                selectionInCollection.unbind();
+                selectionInCollection.set(tab.getSelectionModel().getSelectedItems().size());
+                selectionInCollection.bind(Bindings.size(tab.getSelectionModel().getSelectedItems()));
             } else {
                 selectionInCollection.unbind();
                 selectionInCollection.set(0);
-                canSave.unbind();
-                canSave.set(false);
             }
         });
 
@@ -107,9 +117,24 @@ public class MenuBindings {
             }
         });
 
+        controller.getUndoMenuItem().setOnAction((e) -> {
+            if (selectedTab.get() instanceof TilingEditorTab) {
+                final TilingEditorTab tab = (TilingEditorTab) selectedTab.get();
+                tab.getUndoManager().undo();
+            }
+        });
+
+        controller.getRedoMenuItem().setOnAction((e) -> {
+            if (selectedTab.get() instanceof TilingEditorTab) {
+                final TilingEditorTab tab = (TilingEditorTab) selectedTab.get();
+                tab.getUndoManager().redo();
+            }
+        });
+
         controller.getSelectAllMenuItem().setOnAction((c) -> {
             if (selectedTab.get() instanceof TilingCollectionTab) {
-                ((TilingCollectionTab) selectedTab.get()).getSelectionModel().selectAll();
+                final TilingCollectionTab tab = (TilingCollectionTab) selectedTab.get();
+                tab.getSelectionModel().selectAll();
             }
         });
         controller.getSelectAllMenuItem().disableProperty().bind(selectedTab.isNull());
@@ -117,7 +142,8 @@ public class MenuBindings {
 
         controller.getSelectNoneMenuItem().setOnAction((c) -> {
             if (selectedTab.get() instanceof TilingCollectionTab) {
-                ((TilingCollectionTab) selectedTab.get()).getSelectionModel().clearSelection();
+                final TilingCollectionTab tab = (TilingCollectionTab) selectedTab.get();
+                tab.getSelectionModel().clearSelection();
             }
         });
         controller.getSelectNoneMenuItem().disableProperty().bind(selectedTab.isNull());
@@ -137,7 +163,8 @@ public class MenuBindings {
 
         selectedTab.addListener((c, o, n) -> {
             if (n instanceof TilingCollectionTab) {
-                controller.getFindAgainMenuItem().disableProperty().bind(((TilingCollectionTab) n).getFindToolBar().canFindAgainProperty());
+                final TilingCollectionTab tab = (TilingCollectionTab) selectedTab.get();
+                controller.getFindAgainMenuItem().disableProperty().bind(tab.getFindToolBar().canFindAgainProperty());
             } else {
                 controller.getFindAgainMenuItem().disableProperty().unbind();
                 controller.getFindAgainMenuItem().setDisable(true);
@@ -150,8 +177,7 @@ public class MenuBindings {
                 final Collection<DSymbol> symbols = tab.getSelectionModel().getSelectedItems();
                 final String prefix = tab.getTilingCollection().getTitle();
                 for (DSymbol dSymbol : symbols) {
-                    final TilingEditorTab editorTab = new TilingEditorTab(dSymbol, prefix + "-" + (((TilingCollectionTab) selectedTab.get()).incrementSpawnedCount()));
-                    editorTab.getTilingPane().update();
+                    final TilingEditorTab editorTab = new TilingEditorTab(new DSymbol(dSymbol), prefix + "-" + (((TilingCollectionTab) selectedTab.get()).incrementSpawnedCount()));
                     mainWindow.getMainTabPane().getTabs().add(editorTab);
                 }
             }

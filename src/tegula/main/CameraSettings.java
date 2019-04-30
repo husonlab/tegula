@@ -32,15 +32,6 @@ import tegula.util.HasHyperbolicModel;
  * Daniel Huson, 4.2019
  */
 public class CameraSettings {
-
-    public static void setupEuclideanCamera(PerspectiveCamera camera) {
-        camera.setRotate(0);
-        camera.setTranslateX(0);
-        camera.setTranslateZ(-500);
-        camera.setFieldOfView(35);
-        camera.setFarClip(10000);
-    }
-
     public static void setupSphericalCamera(PerspectiveCamera camera) {
         camera.setRotate(0);
         camera.setTranslateX(0);

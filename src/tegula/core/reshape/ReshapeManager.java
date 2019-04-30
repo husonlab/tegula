@@ -73,7 +73,7 @@ public class ReshapeManager {
     public Collection<Node> createHandles() {
         final ArrayList<Node> handles = new ArrayList<>();
         // Straighten 0- and 1-edges
-        StraightenEdges.straighten01Edges(fDomain);
+        //StraightenEdges.straighten01Edges(fDomain);
 
         final int size = fDomain.size();
 

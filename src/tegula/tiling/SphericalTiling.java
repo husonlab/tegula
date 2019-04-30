@@ -50,10 +50,9 @@ public class SphericalTiling extends TilingBase implements TilingCreator {
      * update the tiling
      */
     public Group update() {
-        fDomain.updateGeneratorsAndContraints();
         generators = fDomain.getGenerators();
-        referenceChamberIndex = fDomain.computeOptimalChamberIndex();
-        tolerance = computeTolerance(fDomain, generators, referenceChamberIndex);
+        referencePoint = fDomain.computeReferencePoint();
+        tolerance = computeTolerance(getGeometry(), referencePoint, generators);
         fundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
 
         final Group tiles = produceTiles();
@@ -72,8 +71,6 @@ public class SphericalTiling extends TilingBase implements TilingCreator {
         final Group all = new Group();
         final Group fundPrototype = new Group();
         fundPrototype.getChildren().setAll(fundamentalDomain.getAllRequested());
-
-        final Point3D referencePoint = fDomain.getChamberCenter3D(referenceChamberIndex); // refPoint lies on unit sphere
 
         {
             final Group group = CopyTiles.apply(fundPrototype);

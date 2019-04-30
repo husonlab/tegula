@@ -35,7 +35,7 @@ import tegula.main.TilingStyle;
  * tiling base class
  * Daniel Huson and Ruediger Zeller, 2016
  */
-public class TilingBase {
+abstract public class TilingBase {
     public static final Group FAILED = new Group();
     final DSymbol ds;
     String groupName;
@@ -51,7 +51,7 @@ public class TilingBase {
     Group handles = new Group();
 
     double tolerance = 0.0;
-    int referenceChamberIndex = 0;
+    Point3D referencePoint;
 
     private final BooleanProperty drawFundamentalDomainOnly = new SimpleBooleanProperty(false);
     private int numberOfCopies = 0;
@@ -74,14 +74,12 @@ public class TilingBase {
         fundamentalDomain.includeBandsProperty().bind(tilingStyle.showBandsProperty());
         fundamentalDomain.includeBackBandsProperty().bind(tilingStyle.showBackBandsProperty());
         fundamentalDomain.includeBackFacesProperty().bind(tilingStyle.showBackFacesProperty());
-        fundamentalDomain.includeDecorationsProperty().bind(tilingStyle.showOtherStuffProperty());
+        fundamentalDomain.includeDecorationsProperty().bind(tilingStyle.showDecorationsProperty());
         fundamentalDomain.includeChambersProperty().bind(tilingStyle.showAllChambersProperty());
     }
 
 
-    public Group update() {
-        return new Group();
-    }
+    abstract public Group update();
 
     /**
      * reset everything
@@ -93,22 +91,9 @@ public class TilingBase {
         this.generators = fDomain.getGenerators();
     }
 
-    /**
-     * set the reference chamber index and the corresponding tolerance
-     *
-     * @param referenceChamberIndex
-     */
-    public void setReferenceChamberIndex(int referenceChamberIndex) {
-        this.referenceChamberIndex = referenceChamberIndex;
-        tolerance = computeTolerance(fDomain, generators, referenceChamberIndex);
-    }
 
     public double getTolerance() {
         return tolerance;
-    }
-
-    public int getReferenceChamberIndex() {
-        return referenceChamberIndex;
     }
 
 
@@ -124,16 +109,11 @@ public class TilingBase {
      *
      * @return tolerance
      */
-    public static double computeTolerance(FDomain fDomain, Generators generators, int referenceChamberIndex) {
-        final Point3D refPoint;
-        if (fDomain.getGeometry() == Geometry.Euclidean || fDomain.getGeometry() == Geometry.Spherical) {
-            refPoint = fDomain.getChamberCenter3D(referenceChamberIndex);
-        } else {
-            refPoint = fDomain.getChamberCenter3D(referenceChamberIndex).multiply(0.01);
-        }
+    public static double computeTolerance(Geometry geometry, Point3D refPoint, Generators generators) {
+
         double tolerance = 100;
         for (Transform g : generators.getTransforms()) {
-            double dist = Tools.distance(fDomain.getGeometry(), g.transform(refPoint), refPoint);
+            double dist = Tools.distance(geometry, g.transform(refPoint), refPoint);
             if (dist < tolerance) {
                 tolerance = dist;
             }

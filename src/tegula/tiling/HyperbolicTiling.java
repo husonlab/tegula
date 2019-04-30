@@ -77,12 +77,11 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
         fundPrototype.getChildren().clear();
         coveredPoints.clear();
 
-
-        fDomain.updateGeneratorsAndContraints();
         generators = fDomain.getGenerators();
 
-        referenceChamberIndex = fDomain.computeOptimalChamberIndex();
-        tolerance = computeTolerance(fDomain, generators, referenceChamberIndex);
+        referencePoint = fDomain.computeReferencePoint();
+        tolerance = computeTolerance(getGeometry(), referencePoint, generators);
+
         fundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
 
         double diameterFDomain = fDomain.calculateDiameter();
@@ -109,14 +108,14 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
         handles.getChildren().clear();
 
         //Add all generators
-        fDomain.updateGeneratorsAndContraints();
         generators = fDomain.getGenerators();
 
         //System.out.println(refPointHyperbolic);
 
         final Group all = new Group();
 
-        referencePoint = fDomain.getChamberCenter3D(referenceChamberIndex).multiply(0.01);
+        referencePoint = fDomain.computeReferencePoint();
+        tolerance = computeTolerance(getGeometry(), referencePoint, generators);
 
         if (reset) { // need to recompute fundamental domain
             fundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
@@ -218,7 +217,8 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
 
 
         // Recenter fDomain if too far away from center
-        Point3D refPoint = getfDomain().getChamberCenter3D(getReferenceChamberIndex()).multiply(0.01);
+        final Point3D refPoint = fDomain.computeReferencePoint();
+
         if (refPoint.getZ() >= ValidHyperbolicRange) {
             final Transform t = calculateBackShiftHyperbolic();
             fDomain.recenterFDomain(t); // Shifts back fDomain into valid range
@@ -295,7 +295,8 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
             insertCoveredPoint(tiles.getChildren().get(i).getRotationAxis()); // Add existing tiles to tree structure
         }
 
-        setReferenceChamberIndex(getfDomain().computeOptimalChamberIndex());
+        referencePoint = getfDomain().computeReferencePoint();
+        tolerance = computeTolerance(getGeometry(), referencePoint, generators);
 
         setNumberOfCopies(0);
         // Add new tiles
@@ -312,12 +313,11 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
     public Transform calculateBackShiftHyperbolic() {
 
         //Add all generators
-        fDomain.updateGeneratorsAndContraints();
         generators = fDomain.getGenerators();
 
         final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
 
-        Point3D refPoint = fDomain.getChamberCenter3D(referenceChamberIndex);
+        Point3D refPoint = getfDomain().computeReferencePoint();
         final OctTree seen = new OctTree();
         seen.insert(getGeometry(), refPoint, tolerance);
 

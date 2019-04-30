@@ -162,7 +162,7 @@
                                         <Tooltip text="Draw edges as bands"/>
                                     </tooltip>
                                 </CheckBox>
-                                <CheckBox fx:id="backEdgesCheckBox" mnemonicParsing="false" style="-fx-font-size: 12;"
+                                <CheckBox fx:id="backBandsCheckBox" mnemonicParsing="false" style="-fx-font-size: 12;"
                                           text="Show backs">
                                     <tooltip>
                                         <Tooltip text="Set visibility of backs of band"/>
@@ -280,6 +280,9 @@
                                                     </image>
                                                 </ImageView>
                                             </graphic>
+                                            <tooltip>
+                                                <Tooltip text="Undo reshape"/>
+                                            </tooltip>
                                         </Button>
                                         <Button fx:id="redoReshapeButton" layoutX="10.0" layoutY="7.0"
                                                 maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
@@ -293,6 +296,9 @@
                                                     </image>
                                                 </ImageView>
                                             </graphic>
+                                            <tooltip>
+                                                <Tooltip text="Redo reshape"/>
+                                            </tooltip>
                                         </Button>
                                     </items>
                                 </ToolBar>

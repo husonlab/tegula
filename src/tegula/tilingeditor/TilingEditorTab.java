@@ -19,15 +19,13 @@
 
 package tegula.tilingeditor;
 
-import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.scene.Node;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
+import jloda.fx.undo.UndoManager;
+import jloda.fx.undo.UndoableChangeProperty;
 import jloda.fx.util.ExtendedFXMLLoader;
 import jloda.util.Basic;
 import tegula.color.ColorSchemeManager;
@@ -57,6 +55,8 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable {
     private final BooleanProperty dirty = new SimpleBooleanProperty(false);
     private final SingleTilingPane tilingPane;
     private final TilingStyle tilingStyle = new TilingStyle();
+
+    private final UndoManager undoManager = new UndoManager();
 
     /**
      * constructor
@@ -94,6 +94,7 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable {
         });
 
         controller.getModelChoiceBox().getSelectionModel().selectedIndexProperty().addListener((c, o, n) -> {
+            final HasHyperbolicModel.HyperbolicModel oldModel = tilingPane.getHyperbolicModel();
             switch (n.intValue()) {
                 default:
                 case 0: // Poincare
@@ -106,6 +107,8 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable {
                     tilingPane.setHyperbolicModel(HasHyperbolicModel.HyperbolicModel.Hyperboloid);
                     break;
             }
+            if (oldModel != null)
+                undoManager.add(new UndoableChangeProperty<>("set hyperbolic model", tilingPane.hyperbolicModelProperty(), oldModel, tilingPane.getHyperbolicModel()));
         });
         controller.getModelChoiceBox().disableProperty().bind(getTilingPane().geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
 
@@ -146,39 +149,100 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable {
         controller.getBandWidthSpinner().setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, tilingStyle.getBandWidth()));
 
         controller.getBandWidthSpinner().valueProperty().addListener((c, o, n) -> {
-            tilingStyle.setBandWidth((Integer) n);
+            tilingStyle.setBandWidth(n);
             tilingPane.update();
         });
 
         controller.getShowFacesCheckBox().setOnAction((e) -> {
-            tilingStyle.setShowFaces(controller.getShowFacesCheckBox().isSelected());
-            tilingPane.update();
+            undoManager.doAndAdd(new UndoableChangeProperty<>("show tiles",
+                    tilingStyle.showFacesProperty(), !controller.getShowFacesCheckBox().isSelected(),
+                    controller.getShowFacesCheckBox().isSelected(),
+                    (v) -> {
+                        tilingPane.update();
+                        controller.getShowFacesCheckBox().setSelected(v);
+                    }));
         });
-
-        controller.getShowBandsCheckBox().setOnAction((e) -> {
-            tilingStyle.setShowBands(controller.getShowBandsCheckBox().isSelected());
-            tilingPane.update();
-        });
-
-        controller.getSmoothEdgesCheckBox().setOnAction((e) -> {
-            tilingStyle.setSmoothEdges(controller.getSmoothEdgesCheckBox().isSelected());
-            tilingPane.update();
-        });
-        controller.getSmoothEdgesCheckBox().disableProperty().bind(tilingPane.geometryProperty().isNotEqualTo(Geometry.Spherical));
-
 
         controller.getBackFacesCheckBox().setSelected(tilingStyle.isShowBackFaces());
         controller.getBackFacesCheckBox().setOnAction((e) -> {
             tilingStyle.setShowBackFaces(controller.getBackFacesCheckBox().isSelected());
-            tilingPane.update();
+            undoManager.doAndAdd(new UndoableChangeProperty<>("show back faces",
+                    tilingStyle.showBackFacesProperty(), !controller.getBackFacesCheckBox().isSelected(),
+                    controller.getBackFacesCheckBox().isSelected(),
+                    (v) -> {
+                        tilingPane.updateTileColors();
+                        controller.getBackBandsCheckBox().setSelected(v);
+                    }));
         });
+        tilingStyle.showBackFacesProperty().addListener((c, o, n) -> controller.getBackFacesCheckBox().setSelected(n));
         controller.getBackFacesCheckBox().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));
+
+        final DoubleProperty tileOpacity = new SimpleDoubleProperty(1);
+        controller.getTilesOpacitySlider().valueProperty().addListener((c, o, n) -> {
+            undoManager.doAndAdd(new UndoableChangeProperty<>("tile opacity",
+                    tileOpacity, tileOpacity.get(), n,
+                    (v) -> {
+                        final int numTiles = dSymbol.countOrbits(0, 1);
+                        for (int t = 1; t <= numTiles; t++) {
+                            final Color color = tilingStyle.getTileColor(t);
+                            tilingStyle.setTileColor(t, new Color(color.getRed(), color.getGreen(), color.getBlue(), tileOpacity.getValue()));
+                        }
+                        tilingPane.updateTileColors();
+                        controller.getTilesOpacitySlider().setValue(n.doubleValue());
+                    })
+            );
+        });
+        tileOpacity.set(0.8);
+        undoManager.clear(); // don't want to keep this event
+
+
+        controller.getShowBandsCheckBox().setOnAction((e) -> {
+            undoManager.doAndAdd(new UndoableChangeProperty<>("show bands",
+                    tilingStyle.showBandsProperty(), !controller.getShowBandsCheckBox().isSelected(),
+                    controller.getShowBandsCheckBox().isSelected(),
+                    (v) -> {
+                        tilingPane.update();
+                        controller.getShowBandsCheckBox().setSelected(v);
+                    }));
+        });
+
+        controller.getBackBandsCheckBox().setSelected(tilingStyle.isShowBackBands());
+        controller.getBackBandsCheckBox().setOnAction((e) -> {
+            undoManager.doAndAdd(new UndoableChangeProperty<>("show back bands",
+                    tilingStyle.showBackBandsProperty(), !controller.getBackBandsCheckBox().isSelected(),
+                    controller.getBackBandsCheckBox().isSelected(),
+                    (v) -> {
+                        controller.getBackBandsCheckBox().setSelected(v);
+                        tilingPane.update();
+                    }));
+        });
+        controller.getBackBandsCheckBox().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));
+
+
+        controller.getSmoothEdgesCheckBox().setOnAction((e) -> {
+            undoManager.doAndAdd(new UndoableChangeProperty<>("smooth edges",
+                    tilingStyle.smoothEdgesProperty(), !controller.getSmoothEdgesCheckBox().isSelected(),
+                    controller.getSmoothEdgesCheckBox().isSelected(),
+                    (v) -> {
+                        tilingPane.update();
+                        controller.getSmoothEdgesCheckBox().setSelected(v);
+                    }
+            ));
+        });
+        controller.getSmoothEdgesCheckBox().disableProperty().bind(tilingPane.geometryProperty().isNotEqualTo(Geometry.Spherical));
+
 
         controller.getBandsColorPicker().setValue(tilingStyle.getBackgroundColor());
         controller.getBandsColorPicker().setOnAction((e) -> {
-            tilingStyle.setBandColor(controller.getBandsColorPicker().getValue());
-            tilingPane.updateBandColors();
+            undoManager.doAndAdd(new UndoableChangeProperty<>("band color",
+                    tilingStyle.bandColorProperty(), tilingStyle.getBandColor(), controller.getBandsColorPicker().getValue(),
+                    (v) -> tilingPane.updateBandColors()));
         });
+        tilingStyle.bandColorProperty().addListener((c, o, n) -> {
+            controller.getBandsColorPicker().setValue(n);
+            controller.getBandsOpacitySlider().setValue(n.getOpacity());
+        });
+
         controller.getBandsColorPicker().setOnShowing((e) -> {
             controller.getBandsColorPicker().getCustomColors().setAll(ColorSchemeManager.getInstance().getColorScheme(tilingStyle.getTileColorsScheme()));
             controller.getBandsColorPicker().setValue(tilingStyle.getBandColor());
@@ -186,45 +250,42 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable {
 
         controller.getBandsOpacitySlider().setValue(tilingStyle.getBandColor().getOpacity());
         controller.getBandsOpacitySlider().valueProperty().addListener((c, o, n) -> {
-            final Color color = tilingStyle.getBandColor();
-            tilingStyle.setBandColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), n.doubleValue()));
-            tilingPane.updateBandColors();
+            undoManager.doAndAdd(new UndoableChangeProperty<>("band opacity",
+                    tilingStyle.bandColorProperty(), tilingStyle.getBandColor(),
+                    new Color(tilingStyle.getBandColor().getRed(), tilingStyle.getBandColor().getGreen(), tilingStyle.getBandColor().getBlue(), n.doubleValue()),
+                    (v) -> {
+                        tilingPane.updateBandColors();
+                        controller.getBandsOpacitySlider().setValue(v.getOpacity());
+                    }));
         });
 
         controller.getBackgroundColorPicker().setOnAction((e) -> {
-            getTilingStyle().setBackgroundColor(controller.getBackgroundColorPicker().getValue());
+            undoManager.doAndAdd(new UndoableChangeProperty<>("background color",
+                    tilingStyle.backgroundColorProperty(), tilingStyle.getBackgroundColor(), controller.getBandsColorPicker().getValue(),
+                    null));
         });
+        tilingStyle.backgroundColorProperty().addListener((c, o, n) -> controller.getBackgroundColorPicker().setValue(n));
+        controller.getBackgroundColorPicker().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));
+
         controller.getBackgroundColorPicker().setOnShowing((e) -> {
             controller.getBackgroundColorPicker().setValue(tilingStyle.getBackgroundColor());
         });
 
-        controller.getBackEdgesCheckBox().setSelected(tilingStyle.getShowBackBands());
-        controller.getBackEdgesCheckBox().setOnAction((e) -> {
-            tilingStyle.setShowBackBands(controller.getBackEdgesCheckBox().isSelected());
-            tilingPane.update();
-        });
-        controller.getBackEdgesCheckBox().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));
-
         controller.getInfoTextField().textProperty().bind(tilingPane.infoLineProperty());
 
+        controller.getColorSchemeChoiceBox().getSelectionModel().select(tilingStyle.getTileColorsScheme());
         for (String colorSchemeName : ColorSchemeManager.getInstance().getNames()) {
             controller.getColorSchemeChoiceBox().getItems().add(colorSchemeName);
         }
         controller.getColorSchemeChoiceBox().getSelectionModel().selectedItemProperty().addListener((c, o, n) -> {
-            tilingStyle.setTileColorsScheme(n);
-            tilingPane.update();
+            undoManager.doAndAdd(new UndoableChangeProperty<>("color scheme",
+                    tilingStyle.tileColorsSchemeProperty(), tilingStyle.getTileColorsScheme(), n,
+                    (v) -> {
+                        controller.getColorSchemeChoiceBox().setValue(v);
+                        tilingPane.updateTileColors();
+                    }));
         });
-        controller.getColorSchemeChoiceBox().getSelectionModel().select(tilingStyle.getTileColorsScheme());
 
-        controller.getTilesOpacitySlider().valueProperty().addListener((c, o, n) -> {
-            final int numTiles = dSymbol.countOrbits(0, 1);
-            for (int t = 1; t <= numTiles; t++) {
-                final Color color = tilingStyle.getTileColor(t);
-                tilingStyle.setTileColor(t, new Color(color.getRed(), color.getGreen(), color.getBlue(), n.doubleValue()));
-            }
-            tilingPane.updateTileColors();
-        });
-        Platform.runLater(() -> controller.getTilesOpacitySlider().setValue(0.8));
 
         controller.getStopAnimationButton().setVisible(false);
         if (getTilingPane().getMouseHandler() != null) {
@@ -317,5 +378,9 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable {
     public void close() {
         if (getTilingPane().getMouseHandler() != null)
             getTilingPane().getMouseHandler().getAnimator().stop();
+    }
+
+    public UndoManager getUndoManager() {
+        return undoManager;
     }
 }

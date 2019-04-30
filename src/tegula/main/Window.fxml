@@ -87,6 +87,19 @@
                                 </Menu>
                                 <Menu fx:id="editMenu" text="Edit">
                                     <items>
+                                        <MenuItem fx:id="undoMenuItem" text="Undo">
+                                            <accelerator>
+                                                <KeyCodeCombination alt="UP" code="Z" control="UP" meta="UP" shift="UP"
+                                                                    shortcut="DOWN"/>
+                                            </accelerator>
+                                        </MenuItem>
+                                        <MenuItem fx:id="redoMenuItem" text="Redo">
+                                            <accelerator>
+                                                <KeyCodeCombination alt="UP" code="Z" control="UP" meta="UP"
+                                                                    shift="DOWN" shortcut="DOWN"/>
+                                            </accelerator>
+                                        </MenuItem>
+                                        <SeparatorMenuItem mnemonicParsing="false"/>
                                         <MenuItem fx:id="copyMenuItem" text="Copy">
                                             <accelerator>
                                                 <KeyCodeCombination alt="UP" code="C" control="UP" meta="UP" shift="UP"

@@ -31,7 +31,7 @@ import java.util.function.Consumer;
 
 /**
  * Delaney symbol
- * Created by huson on 3/28/16.
+ * Daniel Huson 3/2016
  */
 public class DSymbol {
     private int nr1;
@@ -40,21 +40,34 @@ public class DSymbol {
     private int[][] set;
     private int[][] matrix;
 
-    /**
-     * constructor
-     */
     public DSymbol() {
         this(0);
     }
 
-    /**
-     * constructor
-     *
-     * @param size
-     */
     public DSymbol(int size) {
         set = new int[size + 1][3];
         matrix = new int[size + 1][3];
+    }
+
+    public DSymbol(DSymbol src) {
+        copy(src);
+    }
+
+    public void copy(DSymbol src) {
+        nr1 = src.nr1;
+        nr2 = src.nr2;
+
+        set = new int[src.set.length][];
+        for (int i = 0; i < src.set.length; i++) {
+            set[i] = new int[src.set[i].length];
+            System.arraycopy(src.set[i], 0, set[i], 0, src.set[i].length);
+        }
+
+        matrix = new int[src.matrix.length][];
+        for (int i = 0; i < src.matrix.length; i++) {
+            matrix[i] = new int[src.matrix[i].length];
+            System.arraycopy(src.matrix[i], 0, matrix[i], 0, src.matrix[i].length);
+        }
     }
 
     public void resize(int newSize) {
@@ -580,5 +593,4 @@ public class DSymbol {
     public static int j(int k) {
         return k == 2 ? 1 : 2;
     }
-
 }

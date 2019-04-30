@@ -42,6 +42,7 @@ import tegula.core.dsymbols.FDomain;
 import tegula.geometry.Tools;
 import tegula.main.TilingStyle;
 import tegula.single.SingleTilingPane;
+import tegula.undoable.ChangeCoordinatesCommand;
 
 import java.util.Arrays;
 import java.util.BitSet;
@@ -95,7 +96,6 @@ public class FDomainPane extends StackPane {
 
         getChildren().clear();
 
-        if (true) {
             final Group vertices = new Group();
             final Group edges = new Group();
             final Group polygons = new Group();
@@ -277,11 +277,6 @@ public class FDomainPane extends StackPane {
             final Group all = new Group(polygons, edges, vertices);
 
             getChildren().setAll(all);
-        } else { // active old reshaping code
-            ReshapeManager reshapeManager = new ReshapeManager(singleTilingPane);
-            final Group group = new Group(reshapeManager.createHandles(factor));
-            getChildren().addAll(group);
-        }
     }
 
     /**
@@ -329,7 +324,7 @@ public class FDomainPane extends StackPane {
             return new Point2D(apt.getX(), apt.getY());
     }
 
-    private ReshapUndoableRedoableCommand command = null;
+    private Point2D[][] oldCoordinates;
 
     /**
      * set the mouse handler
@@ -340,7 +335,7 @@ public class FDomainPane extends StackPane {
 
         shape.setOnMousePressed((e) -> {
             mouseDown.set(new Point2D(e.getSceneX(), e.getSceneY()));
-            command = new ReshapUndoableRedoableCommand(getFDomain(), singleTilingPane);
+            oldCoordinates = getFDomain().getCoordinates();
         });
 
         shape.setOnMouseDragged((e) -> {
@@ -350,20 +345,23 @@ public class FDomainPane extends StackPane {
             if (deltaX != 0 || deltaY != 0) {
                 // Reset shape of fundamental domain
                 final Point2D contraintsAdjustmentTranslationVector = ReshapeUtilities.resetShape(getFDomain(), deltaX / factor, deltaY / factor, type, k, a);
-
                 // Move handles along transVector
                 shape.setLayoutX(shape.getLayoutX() + factor * contraintsAdjustmentTranslationVector.getX());
                 shape.setLayoutY(shape.getLayoutY() + factor * contraintsAdjustmentTranslationVector.getY());
 
                 mouseDown.set(new Point2D(e.getSceneX() - deltaX + factor * contraintsAdjustmentTranslationVector.getX(), e.getSceneY() - deltaY + factor * contraintsAdjustmentTranslationVector.getY()));
-                command.saveNewCoordinates();
-
             }
         });
 
         shape.setOnMouseReleased((e) -> {
-            if (command.isRedoable()) { // have changed the cordinates
-                undoManager.add(command);
+            if (oldCoordinates != null) {
+                undoManager.add(new ChangeCoordinatesCommand(oldCoordinates, getFDomain().getCoordinates(), (c) -> {
+                    update();
+                    getFDomain().setCoordinates(c);
+                    System.err.println("After reshape:");
+                    FDomain.reportCoordinates(getFDomain().getCoordinates());
+                }));
+                oldCoordinates = null;
                 singleTilingPane.update();
             }
         });

@@ -436,17 +436,11 @@ public class FDomain {
     public void setCoordinates(Point2D[][] array) {
         for (int a = 1; a <= dSymbol.size(); a++) {
             for (int i = 0; i <= 2; i++) {
-                System.err.println(String.format("vertex(%d,%d): (%.2f,%.2f) -> (%.2f,%.2f)",
-                        a, i, getVertex(i, a).getX(), getVertex(i, a).getY(), array[a][i].getX(), array[a][i].getY()));
                 setVertex(array[a][i], i, a);
             }
             for (int i = 0; i <= 2; i++) {
-                System.err.println(String.format("edge(%d,%d): (%.2f,%.2f) -> (%.2f,%.2f)",
-                        a, i, getEdgeCenter(i, a).getX(), getEdgeCenter(i, a).getY(), array[a][i + 3].getX(), array[a][i + 3].getY()));
                 setEdgeCenter(array[a][i + 3], i, a);
             }
-            System.err.println(String.format("chamber(%d): (%.2f,%.2f) -> (%.2f,%.2f)",
-                    a, getChamberCenter(a).getX(), getChamberCenter(a).getY(), array[a][6].getX(), array[a][6].getY()));
             setChamberCenter(array[a][6], a);
         }
     }
@@ -533,5 +527,4 @@ public class FDomain {
         }
         return d;
     }
-
 }

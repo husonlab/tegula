@@ -51,7 +51,7 @@ public class FDomain {
     private final Generators generators = new Generators();
     private final Constraints constraints = new Constraints();
 
-    private final Bounds boundingBox;
+    private Bounds boundingBox;
 
     /**
      * constructor
@@ -82,7 +82,6 @@ public class FDomain {
         else
             geometry = Geometry.Euclidean;
 
-        updateGeneratorsAndContraints();
         boundingBox = computeBoundingBox();
     }
 
@@ -405,79 +404,50 @@ public class FDomain {
         return new BoundingBox(minX, minY, maxX - minX, maxY - minY);
     }
 
-    /**
-     * get all coordinates
-     *
-     * @return coordinates
-     */
     public Point2D[][] getCoordinates() {
-        final Point2D[][] array = new Point2D[dSymbol.size() + 1][7];
+        final Point2D[][] table = new Point2D[dSymbol.size() + 1][7];
         // 0-vertex, 1-vertex, 2-vertex, 0-edge-center, 1-edge-center, 2-edge-center, chamber center
 
         for (int a = 1; a <= dSymbol.size(); a++) {
             for (int i = 0; i <= 2; i++) {
-                array[a][i] = getVertex(i, a);
+                table[a][i] = getVertex(i, a);
             }
             for (int i = 0; i <= 2; i++) {
-                array[a][i + 3] = getEdgeCenter(i, a);
+                table[a][i + 3] = getEdgeCenter(i, a);
             }
-            array[a][6] = getChamberCenter(a);
+            table[a][6] = getChamberCenter(a);
         }
-        return array;
+        return table;
     }
 
-    /**
-     * set all coordinates (previously saved using getCoordinates)
-     *
-     * @param array
-     */
-    public void setCoordinates(Point2D[][] array) {
+    public void setCoordinates(Point2D[][] table) {
         for (int a = 1; a <= dSymbol.size(); a++) {
             for (int i = 0; i <= 2; i++) {
-                //System.err.println(String.format("vertex(%d,%d): (%.2f,%.2f) -> (%.2f,%.2f)", a, i, getVertex(i, a).getX(), getVertex(i, a).getY(), array[a][i].getX(), array[a][i].getY()));
-                setVertex(array[a][i], i, a);
+                setVertex(table[a][i], i, a);
             }
             for (int i = 0; i <= 2; i++) {
-                // System.err.println(String.format("edge(%d,%d): (%.2f,%.2f) -> (%.2f,%.2f)", a, i, getEdgeCenter(i, a).getX(), getEdgeCenter(i, a).getY(), array[a][i + 3].getX(), array[a][i + 3].getY()));
-                setEdgeCenter(array[a][i + 3], i, a);
+                setEdgeCenter(table[a][i + 3], i, a);
             }
-            // System.err.println(String.format("chamber(%d): (%.2f,%.2f) -> (%.2f,%.2f)", a, getChamberCenter(a).getX(), getChamberCenter(a).getY(), array[a][6].getX(), array[a][6].getY()));
-            setChamberCenter(array[a][6], a);
+            setChamberCenter(table[a][6], a);
         }
+        boundingBox = computeBoundingBox();
     }
 
-    /**
-     * get the computed generators
-     *
-     * @return generators
-     */
     public Generators getGenerators() {
+        ComputeGeneratorsAndConstraints.apply(this, generators, constraints);
         return generators;
     }
 
-    /**
-     * get the compute constraints
-     *
-     * @return
-     */
     public Constraints getConstraints() {
-        return constraints;
-    }
-
-    /**
-     * compute and/or update the generators and constraints
-     */
-    public void updateGeneratorsAndContraints() {
-        generators.setSize(0);
-        constraints.setSize(0);
         ComputeGeneratorsAndConstraints.apply(this, generators, constraints);
+        return constraints;
     }
 
     public Bounds getBoundingBox() {
         return boundingBox;
     }
 
-    public int computeOptimalChamberIndex() {
+    public Point3D computeReferencePoint() {
         double dMax = 0, dMin = 100000, dist;
         int index = 1;
         for (int i = 1; i <= size(); i++) {
@@ -496,7 +466,10 @@ public class FDomain {
             }
             dMax = 0;
         }
-        return index;
+        if (geometry.equals(Geometry.Hyperbolic))
+            return getChamberCenter3D(index).multiply(0.01);
+        else
+            return getChamberCenter3D(index);
     }
 
     /**
@@ -526,5 +499,23 @@ public class FDomain {
             }
         }
         return d;
+    }
+
+
+    /**
+     * set all coordinates (previously saved using getCoordinates)
+     *
+     * @param table
+     */
+    public static void reportCoordinates(Point2D[][] table) {
+        for (int a = 1; a < table.length; a++) {
+            for (int i = 0; i <= 2; i++) {
+                System.err.println(String.format("Vertex(%d,%d): %.6f,%.6f", a, i, table[a][i].getX(), table[a][i].getY()));
+            }
+            for (int i = 0; i <= 2; i++) {
+                System.err.println(String.format("EdgeCr(%d,%d): %.6f,%.6f", a, i, table[a][i + 3].getX(), table[a][i + 3].getY()));
+            }
+            System.err.println(String.format("ChamberCr(%d): %.6f,%.6f", a, table[a][6].getX(), table[a][6].getY()));
+        }
     }
 }
