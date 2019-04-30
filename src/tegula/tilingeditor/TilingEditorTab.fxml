@@ -22,7 +22,8 @@
 <?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <?import java.lang.String?>
@@ -80,11 +81,11 @@
                     <content>
                         <VBox alignment="TOP_CENTER" spacing="5.0">
                             <children>
-                                <ChoiceBox fx:id="modelChoiceBox" style="-fx-font-size: 12;" value="Poincare Model">
+                                <ChoiceBox fx:id="modelChoiceBox" style="-fx-font-size: 12;" value="Poincare">
                                     <items>
                                         <FXCollections fx:factory="observableArrayList">
-                                            <String fx:value="Poincare Model"/>
-                                            <String fx:value="Klein Model"/>
+                                            <String fx:value="Poincare"/>
+                                            <String fx:value="Klein"/>
                                             <String fx:value="Hyperboloid"/>
                                         </FXCollections>
                                     </items>
@@ -262,48 +263,7 @@
                     <content>
                         <AnchorPane fx:id="fdomainAnchorPane" maxHeight="1.7976931348623157E308"
                                     maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity"
-                                    prefHeight="130.0" prefWidth="130.0">
-                            <children>
-                                <ToolBar layoutX="-18.0" layoutY="-6.0" maxHeight="-Infinity"
-                                         maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="24.0"
-                                         AnchorPane.leftAnchor="-10.0" AnchorPane.rightAnchor="-10.0"
-                                         AnchorPane.topAnchor="-10.0">
-                                    <items>
-                                        <Button fx:id="undoReshapeButton" maxHeight="-Infinity" maxWidth="-Infinity"
-                                                minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false"
-                                                prefHeight="18.0" prefWidth="18.0">
-                                            <graphic>
-                                                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
-                                                           preserveRatio="true">
-                                                    <image>
-                                                        <Image url="/resources/icons/sun/toolbarButtonGraphics/general/Undo16.gif"/>
-                                                    </image>
-                                                </ImageView>
-                                            </graphic>
-                                            <tooltip>
-                                                <Tooltip text="Undo reshape"/>
-                                            </tooltip>
-                                        </Button>
-                                        <Button fx:id="redoReshapeButton" layoutX="10.0" layoutY="7.0"
-                                                maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-                                                minWidth="-Infinity" mnemonicParsing="false" prefHeight="18.0"
-                                                prefWidth="18.0">
-                                            <graphic>
-                                                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
-                                                           preserveRatio="true">
-                                                    <image>
-                                                        <Image url="/resources/icons/sun/toolbarButtonGraphics/general/Redo16.gif"/>
-                                                    </image>
-                                                </ImageView>
-                                            </graphic>
-                                            <tooltip>
-                                                <Tooltip text="Redo reshape"/>
-                                            </tooltip>
-                                        </Button>
-                                    </items>
-                                </ToolBar>
-                            </children>
-                        </AnchorPane>
+                                    prefHeight="130.0" prefWidth="130.0"/>
                     </content>
                     <graphic>
                         <Button fx:id="resizeButton" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity"

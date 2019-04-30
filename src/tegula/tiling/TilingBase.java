@@ -20,6 +20,7 @@
 package tegula.tiling;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
@@ -55,6 +56,8 @@ abstract public class TilingBase {
 
     private final BooleanProperty drawFundamentalDomainOnly = new SimpleBooleanProperty(false);
     private int numberOfCopies = 0;
+
+    protected final BooleanProperty canDecreaseTiling = new SimpleBooleanProperty(false);
 
     /**
      * constructor
@@ -168,5 +171,14 @@ abstract public class TilingBase {
 
     public FundamentalDomain getFundamentalDomain() {
         return fundamentalDomain;
+    }
+
+
+    public boolean isCanDecreaseTiling() {
+        return canDecreaseTiling.get();
+    }
+
+    public ReadOnlyBooleanProperty canDecreaseTilingProperty() {
+        return canDecreaseTiling;
     }
 }

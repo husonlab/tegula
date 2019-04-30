@@ -64,7 +64,9 @@ public class GroupEditingControls {
                 vChooser.setValue(ds.getVij(i, i + 1, a));
 
                 final ChangeListener<Number> listener = ((c, o, n) -> {
-                    final DSymbol oldDs = new DSymbol(ds);
+                    final DSymbol dsOld = new DSymbol(ds);
+                    final Point2D[][] oldCoordinates = tilingPane.getTiling().getfDomain().getCoordinates();
+
                     if (n.intValue() < o.intValue()) {
                         if (isOkDecreaseVij(ds, fa, fi, fj, ds.getVij(fi, fj, fa))) {
                             ds.setVij(fi, fj, fa, n.intValue());
@@ -82,17 +84,8 @@ public class GroupEditingControls {
                         if (changed) // had to adjust a second value, need to update all values to capture this
                             Platform.runLater(() -> setup(tilingEditorTab));
                     }
-                    final Point2D[][] currentCoordinates = tilingPane.getTiling().getfDomain().getCoordinates();
-                    undoManager.add(new ChangeDSymbolCommand(oldDs, ds, tilingPane::replaceTiling, currentCoordinates,
-                            (k) -> {
-                                Platform.runLater(() ->
-                                {
-                                    tilingPane.replaceTiling(tilingPane.getFDomain().getDSymbol());
-                                    // todo: this causes endless loop
-                                    tilingPane.getFDomain().setCoordinates(k);
-                                    tilingPane.update();
-                                });
-                            }));
+                    if (!undoManager.isPerformingUndoOrRedo())
+                        undoManager.add(new ChangeDSymbolCommand("change rotation", dsOld, ds, tilingPane::replaceTiling, oldCoordinates, tilingPane::changeCoordinates));
                 });
                 vChooser.valueProperty().addListener(listener);
                 vChooser.setUserData(listener);

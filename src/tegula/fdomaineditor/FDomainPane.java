@@ -325,6 +325,7 @@ public class FDomainPane extends StackPane {
     }
 
     private Point2D[][] oldCoordinates;
+    private boolean moved = false;
 
     /**
      * set the mouse handler
@@ -336,6 +337,7 @@ public class FDomainPane extends StackPane {
         shape.setOnMousePressed((e) -> {
             mouseDown.set(new Point2D(e.getSceneX(), e.getSceneY()));
             oldCoordinates = getFDomain().getCoordinates();
+            moved = false;
         });
 
         shape.setOnMouseDragged((e) -> {
@@ -350,19 +352,18 @@ public class FDomainPane extends StackPane {
                 shape.setLayoutY(shape.getLayoutY() + factor * contraintsAdjustmentTranslationVector.getY());
 
                 mouseDown.set(new Point2D(e.getSceneX() - deltaX + factor * contraintsAdjustmentTranslationVector.getX(), e.getSceneY() - deltaY + factor * contraintsAdjustmentTranslationVector.getY()));
+                moved = true;
             }
         });
 
         shape.setOnMouseReleased((e) -> {
-            if (oldCoordinates != null) {
-                undoManager.add(new ChangeCoordinatesCommand(oldCoordinates, getFDomain().getCoordinates(), (c) -> {
-                    update();
+            if (moved) {
+                undoManager.doAndAdd(new ChangeCoordinatesCommand(oldCoordinates, getFDomain().getCoordinates(), (c) -> {
                     getFDomain().setCoordinates(c);
-                    System.err.println("After reshape:");
-                    FDomain.reportCoordinates(getFDomain().getCoordinates());
+                    singleTilingPane.update();
                 }));
                 oldCoordinates = null;
-                singleTilingPane.update();
+                moved = false;
             }
         });
     }

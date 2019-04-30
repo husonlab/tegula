@@ -76,19 +76,8 @@ public class TilingBase {
         fundamentalDomain.includeChambersProperty().bind(tilingStyle.showAllChambersProperty());
     }
 
-
     public Group update() {
         return new Group();
-    }
-
-    /**
-     * reset everything
-     */
-    public void reset() {
-        this.groupName = OrbifoldGroupName.getGroupName(ds);
-        this.fDomain = new FDomain(ds);
-        this.constraints = fDomain.getConstraints();
-        this.generators = fDomain.getGenerators();
     }
 
     /**

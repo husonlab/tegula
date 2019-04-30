@@ -21,6 +21,7 @@ package tegula.single;
 
 import javafx.application.Platform;
 import javafx.beans.property.*;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.layout.Background;
@@ -522,6 +523,12 @@ public class SingleTilingPane extends StackPane implements Updateable {
 
     public FDomain getFDomain() {
         return getTiling().getfDomain();
+    }
+
+    public void changeCoordinates(Point2D[][] coordinates) {
+        getFDomain().setCoordinates(coordinates);
+        update();
+
     }
 
 }

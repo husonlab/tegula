@@ -65,7 +65,7 @@ public class FDomainEditor {
 
         tilingEditorTab.getTilingPane().lastUpdateProperty().addListener((e) -> fDomainPane.update());
 
-        AnchorPane.setTopAnchor(fDomainPane, 30.0);
+        AnchorPane.setTopAnchor(fDomainPane, 5.0);
         AnchorPane.setLeftAnchor(fDomainPane, 0.0);
         AnchorPane.setBottomAnchor(fDomainPane, 5.0);
         AnchorPane.setRightAnchor(fDomainPane, 0.0);

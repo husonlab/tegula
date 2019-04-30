@@ -62,16 +62,22 @@ public class MenuBindings {
                 controller.getUndoMenuItem().disableProperty().unbind();
                 controller.getUndoMenuItem().setDisable(!tab.getUndoManager().canUndoProperty().get());
                 controller.getUndoMenuItem().disableProperty().bind(tab.getUndoManager().canUndoProperty().not());
+                controller.getUndoMenuItem().textProperty().bind(tab.getUndoManager().undoNameProperty());
                 controller.getRedoMenuItem().disableProperty().unbind();
                 controller.getRedoMenuItem().setDisable(!tab.getUndoManager().canRedoProperty().get());
                 controller.getRedoMenuItem().disableProperty().bind(tab.getUndoManager().canRedoProperty().not());
+                controller.getRedoMenuItem().textProperty().bind(tab.getUndoManager().redoNameProperty());
             } else {
                 canSave.unbind();
                 canSave.set(false);
                 controller.getUndoMenuItem().disableProperty().unbind();
                 controller.getUndoMenuItem().setDisable(true);
+                controller.getUndoMenuItem().textProperty().unbind();
+                controller.getUndoMenuItem().setText("Undo");
                 controller.getRedoMenuItem().disableProperty().unbind();
                 controller.getRedoMenuItem().setDisable(true);
+                controller.getRedoMenuItem().textProperty().unbind();
+                controller.getRedoMenuItem().setText("Redo");
             }
             if (n instanceof TilingCollectionTab) {
                 final TilingCollectionTab tab = (TilingCollectionTab) n;

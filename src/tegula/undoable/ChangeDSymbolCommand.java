@@ -19,6 +19,7 @@
 
 package tegula.undoable;
 
+import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import jloda.fx.undo.UndoableRedoableCommand;
 import tegula.core.dsymbols.DSymbol;
@@ -33,13 +34,13 @@ public class ChangeDSymbolCommand extends UndoableRedoableCommand {
     private final Runnable undo;
     private final Runnable redo;
 
-    public ChangeDSymbolCommand(DSymbol oldDs, DSymbol newDs, Consumer<DSymbol> replaceDSymbol, Point2D[][] oldCoordinates, Consumer<Point2D[][]> coordinatesSetter) {
-        super("Change D-symbol");
-        final DSymbol newDsCopy = new DSymbol(newDs);
+    public ChangeDSymbolCommand(String name, DSymbol dsOld, DSymbol dsNew, Consumer<DSymbol> replaceDSymbol, Point2D[][] oldCoordinates, Consumer<Point2D[][]> coordinatesSetter) {
+        super(name);
+        final DSymbol newDsCopy = new DSymbol(dsNew);
 
         undo = () -> {
-            replaceDSymbol.accept(oldDs);
-            coordinatesSetter.accept(oldCoordinates);
+            replaceDSymbol.accept(dsOld);
+            Platform.runLater(() -> coordinatesSetter.accept(oldCoordinates));
         };
 
         redo = () -> {

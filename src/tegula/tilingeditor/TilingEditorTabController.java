@@ -132,12 +132,6 @@ public class TilingEditorTabController {
     @FXML
     private Accordion hyperbolicModelAccordion;
 
-    @FXML
-    private Button undoReshapeButton;
-
-    @FXML
-    private Button redoReshapeButton;
-
 
     public BorderPane getBorderPane() {
         return borderPane;
@@ -163,8 +157,8 @@ public class TilingEditorTabController {
         return groupTextField;
     }
 
-    public ChoiceBox<?> getModelChoiceBox() {
-        return modelChoiceBox;
+    public ChoiceBox<String> getModelChoiceBox() {
+        return (ChoiceBox<String>) modelChoiceBox;
     }
 
     public Button getShowLessTilesButton() {
@@ -266,13 +260,5 @@ public class TilingEditorTabController {
 
     public Accordion getHyperbolicModelAccordion() {
         return hyperbolicModelAccordion;
-    }
-
-    public Button getUndoReshapeButton() {
-        return undoReshapeButton;
-    }
-
-    public Button getRedoReshapeButton() {
-        return redoReshapeButton;
     }
 }
