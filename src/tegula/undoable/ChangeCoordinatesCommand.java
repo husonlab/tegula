@@ -21,7 +21,6 @@ package tegula.undoable;
 
 import javafx.geometry.Point2D;
 import jloda.fx.undo.UndoableRedoableCommand;
-import tegula.core.dsymbols.FDomain;
 
 import java.util.function.Consumer;
 
@@ -35,12 +34,6 @@ public class ChangeCoordinatesCommand extends UndoableRedoableCommand {
 
     public ChangeCoordinatesCommand(Point2D[][] oldCoordinates, Point2D[][] newCoordinates, Consumer<Point2D[][]> coordinatesApplicator) {
         super("Change coordinates");
-
-        System.err.println("Change coordinates OLD:");
-        FDomain.reportCoordinates(oldCoordinates);
-        System.err.println("Change coordinates NEW:");
-        FDomain.reportCoordinates(newCoordinates);
-
         undo = () -> coordinatesApplicator.accept(oldCoordinates);
         redo = () -> coordinatesApplicator.accept(newCoordinates);
     }
