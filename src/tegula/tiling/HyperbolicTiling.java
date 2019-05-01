@@ -365,8 +365,6 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
                 }
             }
         }
-        if (!apt.equals(refPoint))
-            System.err.println("changed: " + backShift);
         return backShift;
     }
 
