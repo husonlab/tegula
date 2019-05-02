@@ -20,7 +20,7 @@
 package tiler.main;
 
 import javafx.scene.control.ColorPicker;
-import tiler.color.ColorSchemeManager;
+import jloda.fx.util.ColorSchemeManager;
 
 /**
  * setup tile color controls

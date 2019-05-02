@@ -23,7 +23,7 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
-import tiler.color.ColorSchemeManager;
+import jloda.fx.util.ColorSchemeManager;
 
 /**
  * class representing styling choices for tiling

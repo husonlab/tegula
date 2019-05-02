@@ -29,6 +29,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import jloda.fx.util.ColorSchemeManager;
 import tegula.main.Document;
 
 import java.io.IOException;
@@ -94,7 +95,7 @@ public class ColorSchemeDialog {
         controller.getCancelButton().setOnAction((e) -> stage.hide());
 
         final Scene scene = new Scene(root);
-        stage.setTitle("Color Scheme - PeriodicTiler");
+        stage.setTitle("Color Scheme - Tegula");
         stage.setScene(scene);
         stage.sizeToScene();
         stage.showAndWait(); // modal dialog?

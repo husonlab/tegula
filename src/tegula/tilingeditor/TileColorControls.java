@@ -27,7 +27,7 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoManager;
 import jloda.fx.undo.UndoableChangeProperty;
-import tegula.color.ColorSchemeManager;
+import jloda.fx.util.ColorSchemeManager;
 import tegula.main.TilingStyle;
 import tegula.single.SingleTilingPane;
 

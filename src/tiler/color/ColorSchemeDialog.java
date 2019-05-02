@@ -29,6 +29,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import jloda.fx.util.ColorSchemeManager;
 import tiler.main.Document;
 import tiler.main.MainWindowController;
 import tiler.main.SetupController;
