@@ -43,7 +43,6 @@ public class SingleTilingWindow {
         stage.setTitle("New SingleWindow");
 
         final TilingStyle tilingStyle = new TilingStyle();
-        tilingStyle.opacityForDebugging = 0.7;
         tilingStyle.setBandColor(Color.WHITE);
 
         final SingleTilingPane singleTilingPane = new SingleTilingPane(dSymbol, tilingStyle);

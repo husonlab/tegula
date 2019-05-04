@@ -74,7 +74,7 @@ public class TileColorControls {
                         (v) -> {
                             tilingStyle.setTileColor(tileNumber, color.get());
                             singleTilingPane.updateTileColors();
-                            colorPicker.setValue(v);
+                            colorPicker.setValue(getColorWithFullOpacity(v));
                         }));
             });
             colorPicker.setOnShowing((e) -> {
@@ -83,5 +83,12 @@ public class TileColorControls {
             });
             colorPicker.setValue(tilingStyle.getTileColor(tileNumber));
         }
+    }
+
+    private static Color getColorWithFullOpacity(Color color) {
+        if (color.getOpacity() == 1)
+            return color;
+        else
+            return new Color(color.getRed(), color.getGreen(), color.getBlue(), 1);
     }
 }

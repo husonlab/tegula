@@ -25,7 +25,6 @@ import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.geometry.Bounds;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -47,10 +46,12 @@ import jloda.fx.control.FlowPaneDragAndDrop;
 import jloda.fx.util.ColorSchemeManager;
 import jloda.fx.util.ExtendedFXMLLoader;
 import jloda.fx.util.NotificationManager;
-import jloda.swing.util.ProgramProperties;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Optional;
 
 /**
@@ -131,7 +132,11 @@ public class ColorCapture {
        });
        imageView.viewportProperty().addListener((e)-> Platform.runLater(()->ColorExtraction.apply(imageView, controller.getSeparationSlider().getValue(), colors,256)));
 
-        controller.getSeparationSlider().valueProperty().addListener((c,o,n)->ColorExtraction.apply(imageView,n.doubleValue(),colors,256));
+        controller.getSeparationSlider().valueProperty().addListener((c, o, n) -> {
+            final double value = Math.round(n.doubleValue());
+            ColorExtraction.apply(imageView, value, colors, 256);
+            controller.getSeparationSlider().setTooltip(new Tooltip(String.format("Percent separation of colors: %d", (int) value)));
+        });
 
         colorSwatches.addListener((InvalidationListener)(e)->{
             controller.getColorsFlowPane().getChildren().setAll(colorSwatches);

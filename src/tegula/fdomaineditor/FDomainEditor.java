@@ -102,8 +102,8 @@ public class FDomainEditor {
             mouseDownY = e.getSceneY();
         });
 
-        controller.getFundamentalDomainAccordion().expandedPaneProperty().addListener((c, o, n) -> {
-            if (n == controller.getFundamentalDomainTitledPane()) {
+        controller.getFundamentalDomainTitledPane().expandedProperty().addListener((c, o, n) -> {
+            if (n) {
                 anchorPane.setPrefWidth(Math.min(preferredWidthOpen, controller.getMainPane().getWidth() - 50));
                 anchorPane.setPrefHeight(Math.min(preferredHeightOpen, controller.getMainPane().getHeight() - 50));
                 controller.getResizeButton().setVisible(true);
@@ -115,7 +115,7 @@ public class FDomainEditor {
         });
 
         final Single<Double> origWidth = new Single<>(Double.MIN_VALUE);
-        controller.getFundamentalDomainAccordion().widthProperty().addListener((c, o, n) -> {
+        controller.getFundamentalDomainTitledPane().widthProperty().addListener((c, o, n) -> {
             if (origWidth.get() == Double.MIN_VALUE)
                 origWidth.set(n.doubleValue());
             else

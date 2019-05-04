@@ -21,11 +21,7 @@ package teguladesign.tools;
 
 import jloda.swing.export.gifEncode.Gif89Encoder;
 import jloda.swing.util.ArgsOptions;
-import jloda.swing.util.ProgramProperties;
-import jloda.util.Basic;
-import jloda.util.CanceledException;
-import jloda.util.Triplet;
-import jloda.util.UsageException;
+import jloda.util.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

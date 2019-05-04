@@ -31,7 +31,7 @@ import javafx.stage.Stage;
 import jloda.fx.control.CopyableLabel;
 import jloda.fx.util.ColorSchemeManager;
 import jloda.fx.util.Print;
-import jloda.swing.util.ProgramProperties;
+import jloda.util.ProgramProperties;
 import tegula.single.SingleTilingWindow;
 import tiler.color.ColorSchemeDialog;
 import tiler.core.dsymbols.DSymbol;

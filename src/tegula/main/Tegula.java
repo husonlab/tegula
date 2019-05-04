@@ -24,12 +24,12 @@ import javafx.stage.Stage;
 import jloda.fx.util.ArgsOptions;
 import jloda.fx.util.ColorSchemeManager;
 import jloda.fx.util.NotificationManager;
-import jloda.fx.util.ProgramPropertiesFX;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.SplashScreen;
 import jloda.fx.window.WindowGeometry;
 import jloda.util.Basic;
 import jloda.util.CanceledException;
+import jloda.util.ProgramProperties;
 import jloda.util.UsageException;
 
 import java.io.File;
@@ -44,7 +44,7 @@ public class Tegula extends Application {
 
     @Override
     public void init() throws Exception {
-        ProgramPropertiesFX.setUseGUI(true);
+        ProgramProperties.setUseGUI(true);
 
         ColorSchemeManager.BuiltInColorTables=new String[]{"Alhambra;6;0X4d66cc;0Xb3e6e6;0Xcc9933;0X669966;0X666666;0X994d00;" +
                 "Caspian8;8;0Xf64d1b;0X8633bc;0X41a744;0X747474;0X2746bc;0Xff9301;0Xc03150;0X2198bc;" +
@@ -70,20 +70,20 @@ public class Tegula extends Application {
         Basic.restoreSystemOut(System.err); // send system out to system err
         Basic.startCollectionStdErr();
 
-        ProgramPropertiesFX.setProgramName(Version.NAME);
-        ProgramPropertiesFX.setProgramVersion(Version.SHORT_DESCRIPTION);
+        ProgramProperties.setProgramName(Version.NAME);
+        ProgramProperties.setProgramVersion(Version.SHORT_DESCRIPTION);
 
         final ArgsOptions options = new ArgsOptions(args, Tegula.class, Version.NAME + " - Interactive periodic tilings");
         options.setAuthors("Daniel H. Huson, Klaus Westphal and Ruediger Zeller, with contributions from Julius Vetter and Cornelius Wiehl");
         options.setLicense("This is an early (ALPHA) version of TILER, made available for testing purposes. Source code will be released on publication.");
-        options.setVersion(ProgramPropertiesFX.getProgramVersion());
+        options.setVersion(ProgramProperties.getProgramVersion());
 
         options.comment("Input:");
         inputFilesAtStartup = options.getOption("-i", "input", "Input file(s)", new String[0]);
 
 
         final String defaultPropertiesFile;
-        if (ProgramPropertiesFX.isMacOS())
+        if (ProgramProperties.isMacOS())
             defaultPropertiesFile = System.getProperty("user.home") + "/Library/Preferences/Tegula.def";
         else
             defaultPropertiesFile = System.getProperty("user.home") + File.separator + ".Tegula.def";
@@ -92,7 +92,7 @@ public class Tegula extends Application {
         final boolean silentMode = options.getOption("-S", "silentMode", "Silent mode", false);
         options.done();
 
-        ProgramPropertiesFX.load(propertiesFile);
+        ProgramProperties.load(propertiesFile);
 
         if (silentMode) {
             Basic.stopCollectingStdErr();
@@ -101,15 +101,15 @@ public class Tegula extends Application {
         }
 
         if (showVersion) {
-            System.err.println(ProgramPropertiesFX.getProgramVersion());
-            System.err.println(jloda.util.Version.getVersion(Tegula.class, ProgramPropertiesFX.getProgramName()));
+            System.err.println(ProgramProperties.getProgramVersion());
+            System.err.println(jloda.util.Version.getVersion(Tegula.class, ProgramProperties.getProgramName()));
             System.err.println("Java version: " + System.getProperty("java.version"));
         }
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle(ProgramPropertiesFX.getProgramName());
+        primaryStage.setTitle(ProgramProperties.getProgramName());
         NotificationManager.setShowNotifications(true);
 
 
@@ -119,7 +119,7 @@ public class Tegula extends Application {
         // todo: setup file opener
         //RecentFilesManager.getInstance().setFileOpener(OpenFileAction.fileOpener());
 
-        final WindowGeometry windowGeometry = new WindowGeometry(ProgramPropertiesFX.get("WindowGeometry", "50 50 800 800"));
+        final WindowGeometry windowGeometry = new WindowGeometry(ProgramProperties.get("WindowGeometry", "50 50 800 800"));
 
 
         mainWindow.show(primaryStage, windowGeometry.getX(), windowGeometry.getY(), windowGeometry.getWidth(), windowGeometry.getHeight());
@@ -142,7 +142,7 @@ public class Tegula extends Application {
 
     @Override
     public void stop() {
-        ProgramPropertiesFX.store();
+        ProgramProperties.store();
         System.exit(0);
 
     }

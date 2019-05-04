@@ -20,14 +20,8 @@
 package tegula.tilingeditor;
 
 import javafx.beans.InvalidationListener;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableList;
-import javafx.collections.SetChangeListener;
 import javafx.geometry.Point2D;
 import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoManager;
 import jloda.fx.undo.UndoableChangeProperty;
 import jloda.fx.undo.UndoableRedoableCommand;
@@ -170,23 +164,16 @@ public class ControlBindings {
         tilingStyle.showBackFacesProperty().addListener((c, o, n) -> controller.getBackFacesCheckBox().setSelected(n));
         controller.getBackFacesCheckBox().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));
 
-        final DoubleProperty tileOpacity = new SimpleDoubleProperty(1);
         controller.getTilesOpacitySlider().valueProperty().addListener((c, o, n) -> {
             if (!undoManager.isPerformingUndoOrRedo())
                 undoManager.doAndAdd(new UndoableChangeProperty<>("tile opacity",
-                        tileOpacity, tileOpacity.get(), n,
+                        tilingStyle.tileOpacityProperty(), tilingStyle.getTileOpacity(), n,
                         (v) -> {
-                            final int numTiles = tilingPane.getTiling().getDSymbol().countOrbits(0, 1);
-                            for (int t = 1; t <= numTiles; t++) {
-                                final Color color = tilingStyle.getTileColor(t);
-                                tilingStyle.setTileColor(t, new Color(color.getRed(), color.getGreen(), color.getBlue(), tileOpacity.getValue()));
-                            }
                             tilingPane.updateTileColors();
-                            controller.getTilesOpacitySlider().setValue(v.doubleValue());
                         })
                 );
         });
-        controller.getTilesOpacitySlider().setValue(0.8);
+        controller.getTilesOpacitySlider().setValue(tilingStyle.getTileOpacity());
         undoManager.clear(); // don't want to keep this event
 
 
@@ -238,7 +225,6 @@ public class ControlBindings {
         });
         tilingStyle.bandColorProperty().addListener((c, o, n) -> {
             controller.getBandsColorPicker().setValue(n);
-            controller.getBandsOpacitySlider().setValue(n.getOpacity());
         });
 
         controller.getBandsColorPicker().setOnShowing((e) -> {
@@ -250,11 +236,10 @@ public class ControlBindings {
         controller.getBandsOpacitySlider().valueProperty().addListener((c, o, n) -> {
             if (!undoManager.isPerformingUndoOrRedo())
                 undoManager.doAndAdd(new UndoableChangeProperty<>("band opacity",
-                        tilingStyle.bandColorProperty(), tilingStyle.getBandColor(),
-                        new Color(tilingStyle.getBandColor().getRed(), tilingStyle.getBandColor().getGreen(), tilingStyle.getBandColor().getBlue(), n.doubleValue()),
+                        tilingStyle.bandOpacityProperty(), tilingStyle.getBandOpacity(),
+                        n,
                         (v) -> {
                             tilingPane.updateBandColors();
-                            controller.getBandsOpacitySlider().setValue(v.getOpacity());
                         }));
         });
 
@@ -282,7 +267,7 @@ public class ControlBindings {
             }
 
             controller.getColorSchemeChoiceBox().getSelectionModel().selectedItemProperty().addListener((c, o, n) -> {
-                if (!undoManager.isPerformingUndoOrRedo()) {
+                if (!undoManager.isPerformingUndoOrRedo() && n != null) {
                     undoManager.doAndAdd(new UndoableChangeProperty<>("colors",
                             tilingStyle.tileColorsSchemeProperty(), tilingStyle.getTileColorsScheme(), n,
                             (v) -> {
@@ -308,10 +293,10 @@ public class ControlBindings {
             controller.getStopAnimationButton().visibleProperty().bind(tilingPane.getMouseHandler().getAnimator().playingProperty());
         }
 
-        controller.getHyperbolicModelAccordion().disableProperty().bind(tilingPane.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
+        controller.getHyperbolicModelTitledPane().disableProperty().bind(tilingPane.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
         tilingPane.geometryProperty().addListener((c, o, n) -> {
             if (n != Geometry.Hyperbolic)
-                controller.getHyperbolicModelAccordion().setExpandedPane(null);
+                controller.getHyperbolicModelTitledPane().setExpanded(false);
         });
     }
 }

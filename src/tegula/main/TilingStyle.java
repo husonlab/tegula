@@ -30,11 +30,13 @@ import jloda.fx.util.ColorSchemeManager;
  * Daniel Huson, 11.18
  */
 public class TilingStyle {
-    public double opacityForDebugging = 1;
-
     private final IntegerProperty bandWidth = new SimpleIntegerProperty(4);
-    private final SimpleObjectProperty<Color> bandColor = new SimpleObjectProperty<>(Color.BLACK);
     private final IntegerProperty bandCapFineness = new SimpleIntegerProperty(24);
+
+    private final SimpleObjectProperty<Color> bandColor = new SimpleObjectProperty<>(Color.BLACK);
+    private final DoubleProperty bandOpacity = new SimpleDoubleProperty(1);
+
+
 
     private final BooleanProperty showFaces = new SimpleBooleanProperty(true);
     private final BooleanProperty showBackFaces = new SimpleBooleanProperty(false);
@@ -45,6 +47,8 @@ public class TilingStyle {
     private final BooleanProperty smoothEdges = new SimpleBooleanProperty(true);
 
     private final ObservableList<Color> tileColors = FXCollections.observableArrayList();
+
+    private final DoubleProperty tileOpacity = new SimpleDoubleProperty(0.8);
 
     private final StringProperty tileColorsScheme = new SimpleStringProperty();
 
@@ -108,10 +112,10 @@ public class TilingStyle {
     }
 
     public Color getTileColor(int tileNumber) {
-        if (opacityForDebugging == 1)
+        if (getTileOpacity() == 1)
             return tileColors.get((tileNumber - 1) % tileColors.size());
         else
-            return tileColors.get((tileNumber - 1) % tileColors.size()).deriveColor(1, 1, 1, opacityForDebugging);
+            return tileColors.get((tileNumber - 1) % tileColors.size()).deriveColor(1, 1, 1, getTileOpacity());
     }
 
     public void setTileColor(int tileNumber, Color color) {
@@ -136,7 +140,10 @@ public class TilingStyle {
     }
 
     public Color getBandColor() {
-        return bandColor.get();
+        if (getBandOpacity() == 1)
+            return bandColor.get();
+        else
+            return bandColor.get().deriveColor(1, 1, 1, getBandOpacity());
     }
 
     public SimpleObjectProperty<Color> bandColorProperty() {
@@ -290,5 +297,29 @@ public class TilingStyle {
 
     public void setBackgroundColor(Color backgroundColor) {
         this.backgroundColor.set(backgroundColor);
+    }
+
+    public double getTileOpacity() {
+        return tileOpacity.get();
+    }
+
+    public DoubleProperty tileOpacityProperty() {
+        return tileOpacity;
+    }
+
+    public void setTileOpacity(double tileOpacity) {
+        this.tileOpacity.set(tileOpacity);
+    }
+
+    public double getBandOpacity() {
+        return bandOpacity.get();
+    }
+
+    public DoubleProperty bandOpacityProperty() {
+        return bandOpacity;
+    }
+
+    public void setBandOpacity(double bandOpacity) {
+        this.bandOpacity.set(bandOpacity);
     }
 }

@@ -82,6 +82,9 @@ public class TilingEditorTabController {
     private ColorPicker tile1ColorPicker;
 
     @FXML
+    private Button permuteButton;
+
+    @FXML
     private CheckBox showBandsCheckBox;
 
     @FXML
@@ -109,10 +112,10 @@ public class TilingEditorTabController {
     private Button maximizeButton;
 
     @FXML
-    private Accordion fundamentalDomainAccordion;
+    private TitledPane fundamentalDomainTitledPane;
 
     @FXML
-    private TitledPane fundamentalDomainTitledPane;
+    private TitledPane hyperbolicModelTitledPane;
 
     @FXML
     private Button resizeButton;
@@ -128,9 +131,6 @@ public class TilingEditorTabController {
 
     @FXML
     private Button stopAnimationButton;
-
-    @FXML
-    private Accordion hyperbolicModelAccordion;
 
 
     public BorderPane getBorderPane() {
@@ -230,12 +230,12 @@ public class TilingEditorTabController {
         return maximizeButton;
     }
 
-    public Accordion getFundamentalDomainAccordion() {
-        return fundamentalDomainAccordion;
-    }
-
     public TitledPane getFundamentalDomainTitledPane() {
         return fundamentalDomainTitledPane;
+    }
+
+    public TitledPane getHyperbolicModelTitledPane() {
+        return hyperbolicModelTitledPane;
     }
 
     public Button getResizeButton() {
@@ -258,7 +258,7 @@ public class TilingEditorTabController {
         return stopAnimationButton;
     }
 
-    public Accordion getHyperbolicModelAccordion() {
-        return hyperbolicModelAccordion;
+    public Button getPermuteButton() {
+        return permuteButton;
     }
 }

@@ -24,8 +24,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
-import jloda.fx.util.ProgramPropertiesFX;
 import jloda.fx.window.SplashScreen;
+import jloda.util.ProgramProperties;
 
 import java.net.URL;
 import java.time.Duration;
@@ -242,7 +242,7 @@ public class WindowController {
 
 
         // if we are running on MacOS, put the specific menu items in the right places
-        if (ProgramPropertiesFX.isMacOS()) {
+        if (ProgramProperties.isMacOS()) {
             getMenuBar().setUseSystemMenuBar(true);
             fileMenu.getItems().remove(getQuitMenuItem());
             windowMenu.getItems().remove(getAboutMenuItem());

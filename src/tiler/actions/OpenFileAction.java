@@ -25,10 +25,10 @@ import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import jloda.fx.util.AService;
 import jloda.fx.util.NotificationManager;
-import jloda.fx.util.ProgramPropertiesFX;
 import jloda.fx.util.RecentFilesManager;
 import jloda.fx.window.MainWindowManager;
 import jloda.util.Basic;
+import jloda.util.ProgramProperties;
 import tiler.main.Document;
 import tiler.main.MainWindow;
 import tiler.main.Version;
@@ -41,7 +41,7 @@ import java.util.function.Consumer;
 public class OpenFileAction implements EventHandler<ActionEvent> {
     @Override
     public void handle(ActionEvent event) {
-        File previousDir = new File(ProgramPropertiesFX.get("OpenFileDir", ""));
+        File previousDir = new File(ProgramProperties.get("OpenFileDir", ""));
 
         final FileChooser fileChooser = new FileChooser();
         if (previousDir.isDirectory())
@@ -51,7 +51,7 @@ public class OpenFileAction implements EventHandler<ActionEvent> {
         final File selectedFile = fileChooser.showOpenDialog(MainWindowManager.getInstance().getLastFocusedMainWindow().getStage());
 
         if (selectedFile != null) {
-            ProgramPropertiesFX.put("OpenFileDir", selectedFile.getParent());
+            ProgramProperties.put("OpenFileDir", selectedFile.getParent());
             fileOpener().accept(selectedFile.getPath());
         }
     }
