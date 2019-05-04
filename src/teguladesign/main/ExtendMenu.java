@@ -25,14 +25,18 @@ import tegula.main.Window;
 import teguladesign.color.ColorCapture;
 
 public class ExtendMenu  {
-    private  ColorCapture colorCapture;
+    private static ColorCapture colorCapture;
 
-    public  void apply (Window window) {
+    public static void apply (Window window) {
         final MenuItem captureColorsMenuItem=new MenuItem("Capture Colors...");
         captureColorsMenuItem.setOnAction((e)->{
             if(colorCapture==null) {
                 colorCapture=new ColorCapture(ColorSchemeManager.getInstance());
             }
+            colorCapture.getStage().show();
+            colorCapture.getStage().toFront();
         });
+
+        window.getController().getColorsMenu().getItems().add(captureColorsMenuItem);
     }
 }

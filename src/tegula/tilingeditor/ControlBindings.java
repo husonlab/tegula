@@ -19,8 +19,12 @@
 
 package tegula.tilingeditor;
 
+import javafx.beans.InvalidationListener;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableList;
+import javafx.collections.SetChangeListener;
 import javafx.geometry.Point2D;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.paint.Color;
@@ -264,8 +268,10 @@ public class ControlBindings {
         controller.getBackgroundColorPicker().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));
 
         controller.getBackgroundColorPicker().setOnShowing((e) -> {
+            controller.getBackgroundColorPicker().getCustomColors().setAll(ColorSchemeManager.getInstance().getColorScheme(tilingStyle.getTileColorsScheme()));
             controller.getBackgroundColorPicker().setValue(tilingStyle.getBackgroundColor());
         });
+
 
         controller.getInfoTextField().textProperty().bind(tilingPane.infoLineProperty());
 
@@ -274,6 +280,7 @@ public class ControlBindings {
             for (String colorSchemeName : ColorSchemeManager.getInstance().getNames()) {
                 controller.getColorSchemeChoiceBox().getItems().add(colorSchemeName);
             }
+
             controller.getColorSchemeChoiceBox().getSelectionModel().selectedItemProperty().addListener((c, o, n) -> {
                 if (!undoManager.isPerformingUndoOrRedo()) {
                     undoManager.doAndAdd(new UndoableChangeProperty<>("colors",
@@ -281,7 +288,15 @@ public class ControlBindings {
                             (v) -> {
                                 tilingPane.updateTileColors();
                                 controller.getColorSchemeChoiceBox().setValue(v);
+                                TileColorControls.setup(tilingEditorTab);
                             }));
+                }
+            });
+
+            ColorSchemeManager.getInstance().getName2ColorSchemes().addListener((InvalidationListener) (c)->{
+                controller.getColorSchemeChoiceBox().getItems().clear();
+                for (String colorSchemeName : ColorSchemeManager.getInstance().getNames()) {
+                    controller.getColorSchemeChoiceBox().getItems().add(colorSchemeName);
                 }
             });
         }

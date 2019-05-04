@@ -4,8 +4,11 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
@@ -33,51 +36,58 @@
   ~  along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-
-<BorderPane xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="teguladesign.color.ColorCaptureController">
+<BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="250.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="teguladesign.color.ColorCaptureController">
    <top>
       <VBox maxWidth="1.7976931348623157E308" spacing="5.0" BorderPane.alignment="CENTER">
          <children>
-            <HBox spacing="5.0" VBox.vgrow="NEVER">
+            <HBox alignment="CENTER" spacing="5.0" VBox.vgrow="NEVER">
                <children>
-                  <Label contentDisplay="CENTER" text="Name:" HBox.hgrow="NEVER">
+                  <Label contentDisplay="CENTER" text="Name:" translateY="-2.0" HBox.hgrow="NEVER">
                      <HBox.margin>
-                        <Insets bottom="5.0" top="5.0" />
+                        <Insets top="5.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="nameTextField" maxWidth="1.7976931348623157E308" promptText="Color scheme name" HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="nameTextField" promptText="Color scheme name" HBox.hgrow="ALWAYS" />
                </children>
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </padding>
             </HBox>
-            <StackPane fx:id="dropTarget" minHeight="-Infinity" prefHeight="150.0" prefWidth="200.0" style="-fx-border-color: black;" VBox.vgrow="NEVER">
+            <StackPane fx:id="imagePane" prefHeight="150.0" style="-fx-border-color: black;" VBox.vgrow="NEVER">
                <children>
-                  <Text fx:id="dropLabel" fill="#bcb9b9" strokeType="OUTSIDE" strokeWidth="0.0" text="Drop or paste colors source image here" textAlignment="CENTER" wrappingWidth="100.0" />
+                  <Text fx:id="dropLabel" fill="#bcb9b9" strokeType="OUTSIDE" strokeWidth="0.0" text="Drop or paste colors source image here. Double-click for file chooser." textAlignment="CENTER" wrappingWidth="100.0" />
                   <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" stroke="BLACK" strokeType="INSIDE" width="100.0" />
                </children>
                <VBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
             </StackPane>
-            <HBox layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" spacing="5.0">
+            <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" spacing="5.0">
                <children>
                   <Label contentDisplay="CENTER" text="Separation:" HBox.hgrow="NEVER">
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>
                   </Label>
-                  <Slider fx:id="separationSlider" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                  <Slider fx:id="separationSlider" majorTickUnit="10.0" max="50.0" minWidth="-Infinity" minorTickCount="4" showTickLabels="true" showTickMarks="true" translateY="10.0" value="25.0" HBox.hgrow="SOMETIMES">
+                     <tooltip>
+                        <Tooltip text="Percent separation of colors" />
+                     </tooltip></Slider>
                </children>
                <VBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
             </HBox>
-            <HBox>
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
                <children>
-                  <Label text="Colors:">
+                  <Label text="Colors:" HBox.hgrow="NEVER">
                      <HBox.margin>
                         <Insets left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Label fx:id="countLabel" style="-fx-text-fill: lightgray;" text="0">
+                     <HBox.margin>
+                        <Insets right="5.0" top="5.0" />
                      </HBox.margin>
                   </Label>
                </children>
@@ -89,27 +99,36 @@
       </VBox>
    </top>
    <center>
-      <FlowPane hgap="5.0" style="-fx-border-color: lightgray;" vgap="5.0">
-         <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </padding>
+      <ScrollPane fitToHeight="true" fitToWidth="true" focusTraversable="false">
          <BorderPane.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" />
          </BorderPane.margin>
-      </FlowPane>
+         <content>
+            <FlowPane fx:id="colorsFlowPane" hgap="5.0" style="-fx-border-color: lightgray;" vgap="5.0">
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </FlowPane>
+         </content>
+      </ScrollPane>
    </center>
    <bottom>
-      <ButtonBar prefHeight="40.0" prefWidth="200.0" style="-fx-border-color: lightgray;" BorderPane.alignment="CENTER">
-        <buttons>
-          <Button fx:id="cancelButton" defaultButton="true" mnemonicParsing="false" text="Cancel" />
-            <Button fx:id="applyButton" cancelButton="true" layoutX="340.0" layoutY="17.0" mnemonicParsing="false" text="Apply" />
-        </buttons>
+      <AnchorPane BorderPane.alignment="CENTER">
          <BorderPane.margin>
             <Insets />
          </BorderPane.margin>
-         <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </padding>
-      </ButtonBar>
+         <children>
+            <ButtonBar prefHeight="40.0" prefWidth="200.0" style="-fx-border-color: lightgray;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+              <buttons>
+                <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" text="Cancel" />
+                  <Button fx:id="applyButton" layoutX="340.0" layoutY="17.0" mnemonicParsing="false" text="Apply" />
+              </buttons>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </ButtonBar>
+            <Button fx:id="clearButton" mnemonicParsing="false" text="Clear" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" />
+         </children>
+      </AnchorPane>
    </bottom>
 </BorderPane>

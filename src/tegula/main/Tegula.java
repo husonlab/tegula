@@ -23,6 +23,7 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import jloda.fx.util.ArgsOptions;
 import jloda.fx.util.ColorSchemeManager;
+import jloda.fx.util.NotificationManager;
 import jloda.fx.util.ProgramPropertiesFX;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.SplashScreen;
@@ -65,7 +66,7 @@ public class Tegula extends Application {
         launch(args);
     }
 
-    private static void parseArguments(String[] args) throws CanceledException, UsageException {
+    protected static void parseArguments(String[] args) throws CanceledException, UsageException {
         Basic.restoreSystemOut(System.err); // send system out to system err
         Basic.startCollectionStdErr();
 
@@ -106,10 +107,11 @@ public class Tegula extends Application {
         }
     }
 
-
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle(ProgramPropertiesFX.getProgramName());
+        NotificationManager.setShowNotifications(true);
+
 
         final Window mainWindow = new Window();
         MainWindowManager.getInstance().addMainWindow(mainWindow);

@@ -23,8 +23,10 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 
@@ -40,7 +42,7 @@ public class ColorCaptureController {
     private TextField nameTextField;
 
     @FXML
-    private StackPane dropTarget;
+    private StackPane imagePane;
 
     @FXML
     private Text dropLabel;
@@ -55,13 +57,25 @@ public class ColorCaptureController {
     private Button applyButton;
 
     @FXML
+    private Button clearButton;
+
+    @FXML
+    private FlowPane colorsFlowPane;
+
+    @FXML
+    private Label countLabel;
+
+    @FXML
     void initialize() {
         assert nameTextField != null : "fx:id=\"nameTextField\" was not injected: check your FXML file 'ColorCapture.fxml'.";
-        assert dropTarget != null : "fx:id=\"dropTarget\" was not injected: check your FXML file 'ColorCapture.fxml'.";
+        assert imagePane != null : "fx:id=\"imagePane\" was not injected: check your FXML file 'ColorCapture.fxml'.";
         assert dropLabel != null : "fx:id=\"dropLabel\" was not injected: check your FXML file 'ColorCapture.fxml'.";
         assert separationSlider != null : "fx:id=\"separationSlider\" was not injected: check your FXML file 'ColorCapture.fxml'.";
         assert cancelButton != null : "fx:id=\"cancelButton\" was not injected: check your FXML file 'ColorCapture.fxml'.";
         assert applyButton != null : "fx:id=\"applyButton\" was not injected: check your FXML file 'ColorCapture.fxml'.";
+        assert clearButton != null : "fx:id=\"clearButton\" was not injected: check your FXML file 'ColorCapture.fxml'.";
+        assert colorsFlowPane != null : "fx:id=\"colorsFlowPane\" was not injected: check your FXML file 'ColorCapture.fxml'.";
+        assert countLabel != null : "fx:id=\"countLabel\" was not injected: check your FXML file 'ColorCapture.fxml'.";
 
     }
 
@@ -77,8 +91,8 @@ public class ColorCaptureController {
         return nameTextField;
     }
 
-    public StackPane getDropTarget() {
-        return dropTarget;
+    public StackPane getImagePane() {
+        return imagePane;
     }
 
     public Text getDropLabel() {
@@ -95,5 +109,18 @@ public class ColorCaptureController {
 
     public Button getApplyButton() {
         return applyButton;
+    }
+
+    public Button getClearButton() {
+        return clearButton;
+    }
+
+
+    public FlowPane getColorsFlowPane() {
+        return colorsFlowPane;
+    }
+
+    public Label getCountLabel() {
+        return countLabel;
     }
 }
