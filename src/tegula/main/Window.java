@@ -27,16 +27,19 @@ import javafx.scene.Scene;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import jloda.fx.control.SplittableTabPane;
 import jloda.fx.util.ExtendedFXMLLoader;
 import jloda.fx.util.MemoryUsage;
 import jloda.fx.window.IMainWindow;
+import jloda.util.FileOpenManager;
 import tegula.tilingcollection.TilingCollection;
 import tegula.tilingcollection.TilingCollectionTab;
 
 import java.io.File;
+import java.util.Collections;
 
 /**
  * the main window
@@ -71,29 +74,17 @@ public class Window implements IMainWindow {
 
         controller.getCenterPane().getChildren().add(mainTabPane);
 
+
+        FileOpenManager.setExtensions(Collections.singletonList(new FileChooser.ExtensionFilter("tilings", "*.tgs", "*.2dt")));
+        FileOpenManager.setFileOpener(new FileOpener());
+
         FileBrowser.setup(new File("input"), TilingCollection.getExtensionFilter(), fileTreeView);
         fileTreeView.setOnMouseClicked((e) -> {
             if (e.getClickCount() == 2) {
                 final TreeItem<FileBrowser.FileNode> item = fileTreeView.getSelectionModel().getSelectedItem();
                 final File file = item.getValue().getFile();
                 if (file.isFile()) {
-                    TilingCollection tilingCollection = getDocument().getFile2tilingCollection().get(file);
-                    if (tilingCollection == null) {
-                        tilingCollection = new TilingCollection(file.getPath());
-                        getDocument().getFile2tilingCollection().put(file, tilingCollection);
-                        tilingCollection.load(getStatusPane(), null);
-                    }
-                    if (file2CollectionTab.get(file) == null) {
-                        final TilingCollectionTab tab = new TilingCollectionTab(this, tilingCollection);
-                        tab.setOnClosed((f) -> {
-                            getDocument().getFile2tilingCollection().remove(file);
-                            file2CollectionTab.remove(file);
-                            tab.close();
-                        });
-                        file2CollectionTab.put(file, tab);
-                        mainTabPane.getTabs().add(tab);
-                    }
-                    mainTabPane.getSelectionModel().select(file2CollectionTab.get(file));
+                    FileOpenManager.getFileOpener().accept(file.getPath());
                 }
             }
         });
@@ -129,7 +120,7 @@ public class Window implements IMainWindow {
         stage.setX(screenX);
         stage.setY(screenY);
 
-        MenuBindings.setup(this);
+        ControlBindings.setup(this);
 
         final MemoryUsage memoryUsage = MemoryUsage.getInstance();
         controller.getMemoryUsageLabel().textProperty().bind(memoryUsage.memoryUsageStringProperty());

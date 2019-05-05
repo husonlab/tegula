@@ -1,5 +1,5 @@
 /*
- * MenuBindings.java Copyright (C) 2019. Daniel H. Huson
+ * ControlBindings.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -24,7 +24,10 @@ import javafx.beans.property.*;
 import javafx.scene.control.Tab;
 import jloda.fx.util.Print;
 import jloda.fx.util.Printable;
+import jloda.fx.util.RecentFilesManager;
 import jloda.fx.window.MainWindowManager;
+import jloda.util.FileOpenManager;
+import jloda.util.ProgramProperties;
 import tegula.core.dsymbols.DSymbol;
 import tegula.tilingcollection.TilingCollectionTab;
 import tegula.tilingeditor.TilingEditorTab;
@@ -35,15 +38,17 @@ import java.util.Collection;
  * sets up menu item bindings
  * Daniel Huson, 4.2019
  */
-public class MenuBindings {
+public class ControlBindings {
+    private static int windowsCreated = 1;
+
     /**
      * setup all menu item bindings
      *
-     * @param mainWindow
+     * @param window
      */
-    public static void setup(Window mainWindow) {
-        final WindowController controller = mainWindow.getController();
-        final ReadOnlyObjectProperty<Tab> selectedTab = mainWindow.getMainTabPane().getSelectionModel().selectedItemProperty();
+    public static void setup(final Window window) {
+        final WindowController controller = window.getController();
+        final ReadOnlyObjectProperty<Tab> selectedTab = window.getMainTabPane().getSelectionModel().selectedItemProperty();
         final BooleanProperty isCollectionTabSelected = new SimpleBooleanProperty(false);
         selectedTab.addListener((c, o, n) -> {
             isCollectionTabSelected.set(n instanceof TilingCollectionTab);
@@ -90,7 +95,16 @@ public class MenuBindings {
             }
         });
 
-        controller.getNewMenuItem().setOnAction((e) -> MainWindowManager.getInstance().createAndShowWindow(false));
+        controller.getNewMenuItem().setOnAction((e) -> {
+            final Window newWindow = (Window) MainWindowManager.getInstance().createAndShowWindow(false);
+            newWindow.getStage().setTitle(ProgramProperties.getProgramName() + " [" + (++windowsCreated) + "]");
+            MainWindowManager.getInstance().setLastFocusedMainWindow(newWindow);
+        });
+
+        controller.getOpenMenuItem().setOnAction(FileOpenManager.createOpenFileEventHandler(window.getStage()));
+
+        RecentFilesManager.getInstance().setFileOpener(FileOpenManager.getFileOpener());
+        RecentFilesManager.getInstance().setupMenu(controller.getOpenRecentMenu());
 
         controller.getSaveMenuItem().setOnAction((e) -> {
             System.err.println("Save: not implemented");
@@ -100,26 +114,26 @@ public class MenuBindings {
         controller.getPrintMenuItem().setOnAction((e) -> {
             final Tab tab = selectedTab.get();
             if (tab instanceof Printable)
-                Print.print(mainWindow.getStage(), ((Printable) tab).getPrintable());
+                Print.print(window.getStage(), ((Printable) tab).getPrintable());
         });
         controller.getPrintMenuItem().disableProperty().bind(selectedTab.isNull());
 
-        controller.getPageSetupMenuItem().setOnAction((e) -> Print.showPageLayout(mainWindow.getStage()));
+        controller.getPageSetupMenuItem().setOnAction((e) -> Print.showPageLayout(window.getStage()));
 
         controller.getCloseMenuItem().setOnAction((e) -> {
-            mainWindow.close();
+            window.close();
         });
 
-        mainWindow.getStage().setOnCloseRequest((e) -> {
-            mainWindow.close();
+        window.getStage().setOnCloseRequest((e) -> {
+            window.close();
             e.consume();
         });
 
         controller.getQuitMenuItem().setOnAction((e) -> {
             while (MainWindowManager.getInstance().size() > 0) {
-                final Window window = (Window) MainWindowManager.getInstance().getMainWindow(MainWindowManager.getInstance().size() - 1);
-                // if (!window.clear(true, true)) break;
-                window.close();
+                final Window aWindow = (Window) MainWindowManager.getInstance().getMainWindow(MainWindowManager.getInstance().size() - 1);
+                // if (!aWindow.clear(true, true)) break;
+                aWindow.close();
             }
         });
 
@@ -184,18 +198,18 @@ public class MenuBindings {
                 final String prefix = tab.getTilingCollection().getTitle();
                 for (DSymbol dSymbol : symbols) {
                     final TilingEditorTab editorTab = new TilingEditorTab(new DSymbol(dSymbol), prefix + "-" + (((TilingCollectionTab) selectedTab.get()).incrementSpawnedCount()));
-                    mainWindow.getMainTabPane().getTabs().add(editorTab);
+                    window.getMainTabPane().getTabs().add(editorTab);
                 }
             }
         });
         controller.getOpenInEditorMenuItem().disableProperty().bind(selectionInCollection.isEqualTo(0));
 
         controller.getFullScreenMenuItem().setOnAction((e) -> {
-            if (mainWindow.getStage().isFullScreen()) {
-                mainWindow.getStage().setFullScreen(false);
+            if (window.getStage().isFullScreen()) {
+                window.getStage().setFullScreen(false);
                 controller.getFullScreenMenuItem().setText("Enter Fullscreen");
             } else {
-                mainWindow.getStage().setFullScreen(true);
+                window.getStage().setFullScreen(true);
                 controller.getFullScreenMenuItem().setText("Exit Fullscreen");
             }
         });

@@ -200,7 +200,7 @@ public class FDomainPane extends StackPane {
                         es[0].getLayoutX(), es[0].getLayoutY(), vs[2].getLayoutX(), vs[2].getLayoutY(), es[1].getLayoutX(), es[1].getLayoutY());
 
                 if (tilingStyle.isShowFaces())
-                    polygon.setFill(tilingStyle.getTileColor(a2tile[a]));
+                    polygon.setFill(tilingStyle.getTileColorFullOpacity(a2tile[a]));
                 else
                     polygon.setFill(Color.GAINSBORO);
 
@@ -233,11 +233,11 @@ public class FDomainPane extends StackPane {
                         vePrev.setStroke(Color.BLACK);
                         vePrev.setStrokeWidth(3);
                         if (tilingStyle.isShowFaces() && fDomain.isBoundaryEdge(prev, a))
-                            vePrev.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColor(a2tile[ds.getS2(a)]), 6, 1, 0, 0));
+                            vePrev.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColorFullOpacity(a2tile[ds.getS2(a)]), 6, 1, 0, 0));
                     } else {
                         vePrev.setStroke(Color.GRAY);
                         if (tilingStyle.isShowFaces() && fDomain.isBoundaryEdge(prev, a))
-                            vePrev.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColor(a2tile[a]), 6, 1, 0, 0));
+                            vePrev.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColorFullOpacity(a2tile[a]), 6, 1, 0, 0));
                     }
 
                     final Line veNext = new Line();
@@ -249,11 +249,11 @@ public class FDomainPane extends StackPane {
                         veNext.setStroke(Color.BLACK);
                         veNext.setStrokeWidth(3);
                         if (tilingStyle.isShowFaces() && fDomain.isBoundaryEdge(next, a))
-                            veNext.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColor(a2tile[ds.getS2(a)]), 6, 1, 0, 0));
+                            veNext.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColorFullOpacity(a2tile[ds.getS2(a)]), 6, 1, 0, 0));
                     } else {
                         veNext.setStroke(Color.GRAY);
                         if (tilingStyle.isShowFaces() && fDomain.isBoundaryEdge(next, a))
-                            veNext.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColor(a2tile[a]), 6, 1, 0, 0));
+                            veNext.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColorFullOpacity(a2tile[a]), 6, 1, 0, 0));
                     }
 
                     final Line vc = new Line();

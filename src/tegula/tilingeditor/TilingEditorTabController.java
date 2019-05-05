@@ -82,9 +82,6 @@ public class TilingEditorTabController {
     private ColorPicker tile1ColorPicker;
 
     @FXML
-    private Button permuteButton;
-
-    @FXML
     private CheckBox showBandsCheckBox;
 
     @FXML
@@ -256,9 +253,5 @@ public class TilingEditorTabController {
 
     public Button getStopAnimationButton() {
         return stopAnimationButton;
-    }
-
-    public Button getPermuteButton() {
-        return permuteButton;
     }
 }

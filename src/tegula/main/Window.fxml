@@ -49,11 +49,7 @@
                                                                     shortcut="DOWN"/>
                                             </accelerator>
                                         </MenuItem>
-                                        <Menu fx:id="openRecentMenu" mnemonicParsing="false" text="Open Recent">
-                                            <items>
-                                                <MenuItem mnemonicParsing="false" text="Action 1"/>
-                                            </items>
-                                        </Menu>
+                                        <Menu fx:id="openRecentMenu" mnemonicParsing="false" text="Open Recent"/>
                                         <SeparatorMenuItem/>
                                         <MenuItem fx:id="saveMenuItem" text="Save...">
                                             <accelerator>
@@ -139,34 +135,12 @@
                                             </accelerator>
                                         </MenuItem>
                                         <SeparatorMenuItem mnemonicParsing="false"/>
-                                        <MenuItem fx:id="lineWidthMenuItem" text="Line Width"/>
-                                        <Menu text="Straigthen">
-                                            <items>
-                                                <MenuItem fx:id="straightenSelectedMenuItem" text="Selected">
-                                                    <accelerator>
-                                                        <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP"
-                                                                            shift="DOWN" shortcut="DOWN"/>
-                                                    </accelerator>
-                                                </MenuItem>
-                                                <MenuItem fx:id="straightenAllMenuItem" text="All"/>
-                                                <SeparatorMenuItem mnemonicParsing="false"/>
-                                                <CheckMenuItem fx:id="straightenAlwaysCheckMenuItem" text="Always"/>
-                                            </items>
-                                        </Menu>
-                                        <SeparatorMenuItem mnemonicParsing="false"/>
                                         <MenuItem fx:id="openInEditorMenuItem" text="Open in Editor...">
                                             <accelerator>
                                                 <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="UP"
                                                                     shortcut="DOWN"/>
                                             </accelerator>
                                         </MenuItem>
-                                    </items>
-                                </Menu>
-                                <Menu fx:id="colorsMenu" mnemonicParsing="false" text="Colors">
-                                    <items>
-                                        <SeparatorMenuItem mnemonicParsing="false"/>
-                                        <MenuItem fx:id="addColorSchemeMenuItem" mnemonicParsing="false"
-                                                  text="Add Color Scheme..."/>
                                     </items>
                                 </Menu>
                                 <Menu fx:id="viewMenu" text="View">
@@ -239,9 +213,9 @@
                                             </accelerator>
                                         </MenuItem>
                                         <SeparatorMenuItem mnemonicParsing="false"/>
-                                        <CheckMenuItem fx:id="editSymmetryGroupMenuItem" text="Symmetry Group">
+                                        <CheckMenuItem fx:id="straightenMenuItem" text="Straighten">
                                             <accelerator>
-                                                <KeyCodeCombination alt="UP" code="G" control="UP" meta="UP" shift="UP"
+                                                <KeyCodeCombination alt="UP" code="T" control="UP" meta="UP" shift="UP"
                                                                     shortcut="DOWN"/>
                                             </accelerator>
                                         </CheckMenuItem>

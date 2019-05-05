@@ -24,6 +24,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 import jloda.fx.util.ColorSchemeManager;
+import tegula.util.HasHyperbolicModel;
 
 /**
  * class representing styling choices for tiling
@@ -35,8 +36,6 @@ public class TilingStyle {
 
     private final SimpleObjectProperty<Color> bandColor = new SimpleObjectProperty<>(Color.BLACK);
     private final DoubleProperty bandOpacity = new SimpleDoubleProperty(1);
-
-
 
     private final BooleanProperty showFaces = new SimpleBooleanProperty(true);
     private final BooleanProperty showBackFaces = new SimpleBooleanProperty(false);
@@ -60,6 +59,9 @@ public class TilingStyle {
     private final BooleanProperty showSymmetryIcons = new SimpleBooleanProperty(false);
     private final BooleanProperty showDecorations = new SimpleBooleanProperty(false);
 
+    private final ObjectProperty<HasHyperbolicModel.HyperbolicModel> hyperbolicModel = new SimpleObjectProperty<>(HasHyperbolicModel.HyperbolicModel.Poincare);
+    public static final int minLimitHyperbolicGroup = 5;
+    private final IntegerProperty hyperbolicLimit = new SimpleIntegerProperty(minLimitHyperbolicGroup);
 
     public TilingStyle() {
         tileColorsScheme.addListener((c, o, n) -> tileColors.setAll(ColorSchemeManager.getInstance().getColorScheme(n)));
@@ -73,7 +75,8 @@ public class TilingStyle {
 
     public void copy(TilingStyle src) {
         setBandWidth(src.getBandWidth());
-        setBandColor(src.getBandColor());
+        setBandColor(src.getBandColorFullOpacity());
+        setBandOpacity(src.getBandOpacity());
         setBandCapFineness(src.getBandCapFineness());
         setShowFaces(src.isShowFaces());
         setShowBands(src.isShowBands());
@@ -82,6 +85,7 @@ public class TilingStyle {
         setSmoothEdges(src.isSmoothEdges());
 
         tileColors.setAll(src.getTileColors());
+        setTileOpacity(src.getTileOpacity());
 
         setTileColorsScheme(src.getTileColorsScheme());
 
@@ -111,6 +115,10 @@ public class TilingStyle {
         return tileColors;
     }
 
+    public Color getTileColorFullOpacity(int tileNumber) {
+        return tileColors.get((tileNumber - 1) % tileColors.size());
+    }
+
     public Color getTileColor(int tileNumber) {
         if (getTileOpacity() == 1)
             return tileColors.get((tileNumber - 1) % tileColors.size());
@@ -137,6 +145,10 @@ public class TilingStyle {
 
     public void setBandWidth(int bandWidth) {
         this.bandWidth.set(bandWidth);
+    }
+
+    public Color getBandColorFullOpacity() {
+        return bandColor.get();
     }
 
     public Color getBandColor() {
@@ -321,5 +333,29 @@ public class TilingStyle {
 
     public void setBandOpacity(double bandOpacity) {
         this.bandOpacity.set(bandOpacity);
+    }
+
+    public HasHyperbolicModel.HyperbolicModel getHyperbolicModel() {
+        return hyperbolicModel.get();
+    }
+
+    public ObjectProperty<HasHyperbolicModel.HyperbolicModel> hyperbolicModelProperty() {
+        return hyperbolicModel;
+    }
+
+    public void setHyperbolicModel(HasHyperbolicModel.HyperbolicModel hyperbolicModel) {
+        this.hyperbolicModel.set(hyperbolicModel);
+    }
+
+    public int getHyperbolicLimit() {
+        return hyperbolicLimit.get();
+    }
+
+    public IntegerProperty hyperbolicLimitProperty() {
+        return hyperbolicLimit;
+    }
+
+    public void setHyperbolicLimit(int hyperbolicLimit) {
+        this.hyperbolicLimit.set(hyperbolicLimit);
     }
 }

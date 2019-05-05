@@ -45,6 +45,8 @@ import tegula.tiling.*;
 import tegula.util.HasHyperbolicModel;
 import tegula.util.Updateable;
 
+import java.util.function.Consumer;
+
 /**
  * a single tiling pane
  * Daniel Huson and Ruediger Zeller, 4.2019
@@ -280,7 +282,7 @@ public class SingleTilingPane extends StackPane implements Updateable {
                 // CameraSettings.setupEuclideanCamera(perspectiveCamera);
 
                 //Add rectangles for debugging
-                if (true) {
+                if (false) {
                     Rectangle rect = new Rectangle(euclideanWidth.get(), euclideanHeight.get());
                     rect.setFill(Color.TRANSPARENT);
                     rect.setStroke(Color.BLACK);
@@ -498,7 +500,7 @@ public class SingleTilingPane extends StackPane implements Updateable {
     }
 
     public void updateTileColors() {
-        CopyTiles.visitAllNodes(tiles, (node) -> {
+        final Consumer<Node> update = (node) -> {
             if (node instanceof MeshView && node.getUserData() instanceof String) {
                 final String str = (String) node.getUserData();
                 //System.err.println(str);
@@ -507,18 +509,38 @@ public class SingleTilingPane extends StackPane implements Updateable {
                     ((MeshView) node).setMaterial(new PhongMaterial(tilingStyle.getTileColor(tileNumber)));
                 }
             }
-        });
+        };
+
+        CopyTiles.visitAllNodes(tiles, update);
+
+        for (Group group : getTiling().recycler()) {
+            CopyTiles.visitAllNodes(group, update);
+        }
+
+        if (getTiling().getFundPrototype() != null) {
+            CopyTiles.visitAllNodes(getTiling().getFundPrototype(), update);
+        }
     }
 
     public void updateBandColors() {
-        CopyTiles.visitAllNodes(tiles, (node) -> {
+        final Consumer<Node> update = (node) -> {
             if (node instanceof MeshView && node.getUserData() instanceof String) {
                 final String str = (String) node.getUserData();
                 if (str.startsWith("e=")) {
                     ((MeshView) node).setMaterial(new PhongMaterial(getTilingStyle().getBandColor()));
                 }
             }
-        });
+        };
+
+        CopyTiles.visitAllNodes(tiles, update);
+
+        for (Group group : getTiling().recycler()) {
+            CopyTiles.visitAllNodes(group, update);
+        }
+
+        if (getTiling().getFundPrototype() != null) {
+            CopyTiles.visitAllNodes(getTiling().getFundPrototype(), update);
+        }
     }
 
     public FDomain getFDomain() {

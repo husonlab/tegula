@@ -27,11 +27,13 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <?import java.lang.String?>
-<AnchorPane prefHeight="500.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8.0.111"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="tegula.tilingeditor.TilingEditorTabController">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="500.0" prefWidth="500.0"
+            xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tegula.tilingeditor.TilingEditorTabController">
     <children>
-        <BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" AnchorPane.bottomAnchor="0.0"
-                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <BorderPane fx:id="borderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                    AnchorPane.topAnchor="0.0">
             <top>
                 <ToolBar fx:id="mainToolBar" maxHeight="-Infinity" maxWidth="1.7976931348623157E308"
                          minHeight="-Infinity" prefHeight="24.0" BorderPane.alignment="TOP_CENTER"/>
@@ -42,9 +44,10 @@
                 </StackPane>
             </center>
             <bottom>
-                <StackPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="24.0"
-                           style="-fx-border-color: lightgray;" BorderPane.alignment="BOTTOM_CENTER">
-                    <children>
+                <BorderPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="24.0"
+                            style="-fx-border-color: lightgray; -fx-background-color: #f4f4f4;"
+                            BorderPane.alignment="BOTTOM_CENTER">
+                    <center>
                         <TextField fx:id="infoTextField" alignment="CENTER" editable="false" focusTraversable="false"
                                    maxHeight="-Infinity" minHeight="-Infinity" prefHeight="24.0" promptText="Tiling"
                                    style="-fx-background-color: transparent;">
@@ -52,8 +55,8 @@
                                 <Font name="Helvetica" size="12.0"/>
                             </font>
                         </TextField>
-                    </children>
-                </StackPane>
+                    </center>
+                </BorderPane>
             </bottom>
         </BorderPane>
         <TitledPane expanded="false" maxWidth="130.0" prefWidth="130.0" style="-fx-font-size: 12;" text="Symmetries"
@@ -147,11 +150,6 @@
                                 <Tooltip text="Set opacity of tiles"/>
                             </tooltip>
                         </Slider>
-                        <Button fx:id="permuteButton" mnemonicParsing="false" text="Permute">
-                            <tooltip>
-                                <Tooltip text="Permute assignment of colors to tiles"/>
-                            </tooltip>
-                        </Button>
                         <Separator layoutX="20.0" layoutY="147.0" prefWidth="200.0"/>
                         <CheckBox fx:id="showBandsCheckBox" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
                                   selected="true" style="-fx-font-size: 12;" text="Show Bands">
@@ -209,7 +207,6 @@
                 <Font size="12.0"/>
             </font>
         </TitledPane>
-        <Accordion maxWidth="130.0" prefWidth="130.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
         <TitledPane fx:id="fundamentalDomainTitledPane" contentDisplay="RIGHT" expanded="false"
                     maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="140.0"
                     style="-fx-font-size: 12;" text="Fundamental domain" AnchorPane.bottomAnchor="0.0"

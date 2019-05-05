@@ -70,25 +70,18 @@ public class TileColorControls {
             colorPicker.setOnAction((e) -> {
                 final ObjectProperty<Color> color = new SimpleObjectProperty<>();
                 undoManager.doAndAdd(new UndoableChangeProperty<>("tile color",
-                        color, tilingStyle.getTileColor(tileNumber), colorPicker.getValue(),
+                        color, tilingStyle.getTileColorFullOpacity(tileNumber), colorPicker.getValue(),
                         (v) -> {
                             tilingStyle.setTileColor(tileNumber, color.get());
                             singleTilingPane.updateTileColors();
-                            colorPicker.setValue(getColorWithFullOpacity(v));
+                            colorPicker.setValue(v);
                         }));
             });
             colorPicker.setOnShowing((e) -> {
                 colorPicker.getCustomColors().setAll(ColorSchemeManager.getInstance().getColorScheme(tilingStyle.getTileColorsScheme()));
-                colorPicker.setValue(tilingStyle.getTileColor(tileNumber));
+                colorPicker.setValue(tilingStyle.getTileColorFullOpacity(tileNumber));
             });
-            colorPicker.setValue(tilingStyle.getTileColor(tileNumber));
+            colorPicker.setValue(tilingStyle.getTileColorFullOpacity(tileNumber));
         }
-    }
-
-    private static Color getColorWithFullOpacity(Color color) {
-        if (color.getOpacity() == 1)
-            return color;
-        else
-            return new Color(color.getRed(), color.getGreen(), color.getBlue(), 1);
     }
 }

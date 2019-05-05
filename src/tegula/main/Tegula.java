@@ -62,6 +62,11 @@ public class Tegula extends Application {
      * @param args
      */
     public static void main(String[] args) throws CanceledException, UsageException {
+        ProgramProperties.setProgramName(Version.NAME);
+        ProgramProperties.setProgramVersion(Version.SHORT_DESCRIPTION);
+        ProgramProperties.setProgramLicence("This is an early (ALPHA) version of Tegula, made available for testing purposes. Source code will be released on publication.");
+        SplashScreen.setVersionString(Version.SHORT_DESCRIPTION);
+
         parseArguments(args);
         launch(args);
     }
@@ -70,12 +75,9 @@ public class Tegula extends Application {
         Basic.restoreSystemOut(System.err); // send system out to system err
         Basic.startCollectionStdErr();
 
-        ProgramProperties.setProgramName(Version.NAME);
-        ProgramProperties.setProgramVersion(Version.SHORT_DESCRIPTION);
-
         final ArgsOptions options = new ArgsOptions(args, Tegula.class, Version.NAME + " - Interactive periodic tilings");
         options.setAuthors("Daniel H. Huson, Klaus Westphal and Ruediger Zeller, with contributions from Julius Vetter and Cornelius Wiehl");
-        options.setLicense("This is an early (ALPHA) version of TILER, made available for testing purposes. Source code will be released on publication.");
+        options.setLicense(ProgramProperties.getProgramLicence());
         options.setVersion(ProgramProperties.getProgramVersion());
 
         options.comment("Input:");
@@ -117,18 +119,17 @@ public class Tegula extends Application {
         MainWindowManager.getInstance().addMainWindow(mainWindow);
 
         // todo: setup file opener
-        //RecentFilesManager.getInstance().setFileOpener(OpenFileAction.fileOpener());
+        //RecentFilesManager.getInstance().setFileOpener(FileOpenManager.fileOpener());
 
         final WindowGeometry windowGeometry = new WindowGeometry(ProgramProperties.get("WindowGeometry", "50 50 800 800"));
 
 
         mainWindow.show(primaryStage, windowGeometry.getX(), windowGeometry.getY(), windowGeometry.getWidth(), windowGeometry.getHeight());
         for (String fileName : inputFilesAtStartup) {
-            //OpenFileAction.fileOpener().accept(fileName);
+            //FileOpenManager.fileOpener().accept(fileName);
         }
 
         // setup about and preferences menu for apple:
-        SplashScreen.setVersionString(Version.SHORT_DESCRIPTION);
         OSXIntegration.init();
         OSXIntegration.populateAppleMenu(() -> SplashScreen.getInstance().showSplash(Duration.ofMinutes(1)), () -> System.err.println("Preferences"));
 

@@ -33,7 +33,6 @@ import tegula.util.Updateable;
 
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Stack;
 
 /**
  * a euclidean tiling
@@ -46,10 +45,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
 
     private Point3D referencePoint = new Point3D(1, 1, 0);
 
-    private final Stack<Group> recycler = new Stack<>();
     private Transform transformRecycled = new Translate();
-
-    private final Group fundPrototype = new Group();
 
     private final Updateable doc;
 
@@ -401,7 +397,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
      * @return copy
      */
     private Group provideCopy(Transform transform, Point3D refPoint, Group fund) {
-        final Group copy = (recycler.size() > 0 ? recycler.pop() : CopyTiles.apply(fund));
+        final Group copy = (recycler.size() > 0 ? recycler().pop() : CopyTiles.apply(fund));
         copy.setRotationAxis(refPoint);
         copy.getTransforms().setAll(transform.createConcatenation(transformRecycled));
         return copy;
@@ -451,4 +447,5 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
     public void setHeight(double height) {
         this.height.set(height);
     }
+
 }

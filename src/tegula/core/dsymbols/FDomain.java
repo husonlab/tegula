@@ -128,17 +128,17 @@ public class FDomain {
         */
     }
 
-    public Point2D getVertex(int i, int a) {
-        int vertex = d.getNcr(a - 1).getOc(i);
+    public Point2D getVertex(int k, int a) {
+        int vertex = d.getNcr(a - 1).getOc(k);
         return new Point2D(d.getOcr()[vertex].getPosx(), d.getOcr()[vertex].getPosy());
     }
 
-    public Point3D getVertex3D(int i, int a) {
-        return Tools.map2Dto3D(geometry, getVertex(i, a));
+    public Point3D getVertex3D(int k, int a) {
+        return Tools.map2Dto3D(geometry, getVertex(k, a));
     }
 
-    public void setVertex(Point2D apt, int i, int a) {
-        int vertex = d.getNcr(a - 1).getOc(i);
+    public void setVertex(Point2D apt, int k, int a) {
+        int vertex = d.getNcr(a - 1).getOc(k);
         d.getOcr()[vertex].setPosx(apt.getX());
         d.getOcr()[vertex].setPosy(apt.getY());
     }
@@ -148,12 +148,12 @@ public class FDomain {
         return new Point2D(d.getEcr()[edge].getPosx(), d.getEcr()[edge].getPosy());
     }
 
-    public Point3D getEdgeCenter3D(int i, int a) {
-        return Tools.map2Dto3D(geometry, getEdgeCenter(i, a));
+    public Point3D getEdgeCenter3D(int k, int a) {
+        return Tools.map2Dto3D(geometry, getEdgeCenter(k, a));
     }
 
-    public void setEdgeCenter(Point2D apt, int i, int a) {
-        int edge = d.getNcr(a - 1).getEc()[i];
+    public void setEdgeCenter(Point2D apt, int k, int a) {
+        int edge = d.getNcr(a - 1).getEc()[k];
         d.getEcr()[edge].setPosx(apt.getX());
         d.getEcr()[edge].setPosy(apt.getY());
     }
@@ -285,8 +285,8 @@ public class FDomain {
         }
     }
 
-    public boolean isBoundaryEdge(int i, int a) {
-        int edge = d.getNcr(a - 1).getEc()[i];
+    public boolean isBoundaryEdge(int k, int a) {
+        int edge = d.getNcr(a - 1).getEc()[k];
         edge = d.getEcr()[edge].getEp();
         return d.getEdg()[edge].getId() == 0;
     }
@@ -296,8 +296,8 @@ public class FDomain {
         return d.getNod()[node].getSg();
     }
 
-    public boolean isUnsplitRotation(int i, int a) {
-        final int vertex = d.getNcr(a - 1).getOc(i);
+    public boolean isUnsplitRotation(int k, int a) {
+        final int vertex = d.getNcr(a - 1).getOc(k);
         final ORB orb = d.getOrb(d.getOcr(vertex).getOp());
         return orb.getS() == 1;
     }

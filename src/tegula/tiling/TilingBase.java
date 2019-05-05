@@ -20,7 +20,6 @@
 package tegula.tiling;
 
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
@@ -32,12 +31,16 @@ import tegula.core.dsymbols.OrbifoldGroupName;
 import tegula.geometry.Tools;
 import tegula.main.TilingStyle;
 
+import java.util.Stack;
+
 /**
  * tiling base class
  * Daniel Huson and Ruediger Zeller, 2016
  */
 abstract public class TilingBase {
     public static final Group FAILED = new Group();
+    protected final Stack<Group> recycler = new Stack<>();
+    protected final Group fundPrototype = new Group();
     final DSymbol ds;
     String groupName;
     FDomain fDomain;
@@ -56,8 +59,6 @@ abstract public class TilingBase {
 
     private final BooleanProperty drawFundamentalDomainOnly = new SimpleBooleanProperty(false);
     private int numberOfCopies = 0;
-
-    protected final BooleanProperty canDecreaseTiling = new SimpleBooleanProperty(false);
 
     /**
      * constructor
@@ -173,12 +174,11 @@ abstract public class TilingBase {
         return fundamentalDomain;
     }
 
-
-    public boolean isCanDecreaseTiling() {
-        return canDecreaseTiling.get();
+    public Stack<Group> recycler() {
+        return recycler;
     }
 
-    public ReadOnlyBooleanProperty canDecreaseTilingProperty() {
-        return canDecreaseTiling;
+    public Group getFundPrototype() {
+        return fundPrototype;
     }
 }

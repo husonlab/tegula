@@ -19,8 +19,6 @@
 
 package tegula.tiling;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
@@ -33,7 +31,6 @@ import tegula.tiling.parts.OctTree;
 
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Stack;
 
 /**
  * a hyperbolic tiling
@@ -46,19 +43,12 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
 
     private Point3D referencePoint = new Point3D(0, 0, 1);
 
-    private final Stack<Group> recycler = new Stack<>();
     private Transform transformRecycled = new Translate();
-
-    private final Group fundPrototype = new Group(); // a fundamental domain
 
     private Group handles = new Group();
 
-    private static final int minLimitHyperbolicGroup = 5;
-    private final IntegerProperty limitHyperbolicGroup = new SimpleIntegerProperty(minLimitHyperbolicGroup);
-
     private Point2D transVector = new Point2D(0, 0);
     private boolean changeDirection;
-
 
     /**
      * constructor
@@ -67,8 +57,6 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
      */
     public HyperbolicTiling(DSymbol ds, TilingStyle tilingStyle) {
         super(ds, tilingStyle);
-
-        canDecreaseTiling.bind(limitHyperbolicGroup.greaterThanOrEqualTo(minLimitHyperbolicGroup));
     }
 
     /**
@@ -88,8 +76,8 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
         fundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
 
         double diameterFDomain = fDomain.calculateDiameter();
-        if (2.8 * diameterFDomain > getLimitHyperbolicGroup()) {
-            limitHyperbolicGroup.set((int) Math.round(2.8 * diameterFDomain));
+        if (2.8 * diameterFDomain > tilingStyle.getHyperbolicLimit()) {
+            tilingStyle.setHyperbolicLimit((int) Math.round(2.8 * diameterFDomain));
         }
 
         if (referencePoint.getZ() >= ValidHyperbolicRange) {// Fundamental domain is shifted back
@@ -105,7 +93,7 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
      * produces hyperbolic tiles
      */
     private Group produceTiles(boolean reset) {
-        final double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());
+        final double maxDist = Math.cosh(0.5 * tilingStyle.getHyperbolicLimit());
         //System.err.println("Create Hyperbolic Tiling");
 
         handles.getChildren().clear();
@@ -206,7 +194,7 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
 
         dx /= 300;
         dy /= 300;
-        double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());
+        double maxDist = Math.cosh(0.5 * tilingStyle.getHyperbolicLimit());
 
         // Calculate hyperbolic translation of group:
         Transform translate = Tools.hyperbolicTranslation(dx, dy);
@@ -272,9 +260,9 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
      * Deletes copies of fundamental domain in hyperbolic case when less tiles are shown.
      */
     public void decreaseTiling(Group tiles) {
-        setLimitHyperbolicGroup(getLimitHyperbolicGroup() - 1);
+        tilingStyle.setHyperbolicLimit(tilingStyle.getHyperbolicLimit() - 1);
 
-        double maxDist = Math.cosh(0.5 * getLimitHyperbolicGroup());
+        double maxDist = Math.cosh(0.5 * tilingStyle.getHyperbolicLimit());
         int bound = tiles.getChildren().size();
         for (int i = 1; i <= bound; i++) {
             final Group group = (Group) tiles.getChildren().get(bound - i);
@@ -289,7 +277,7 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
      * Adds copies of fundamental domain in hyperbolic case when more tiles are shown
      */
     public void increaseTiling(Group tiles) {
-        setLimitHyperbolicGroup(getLimitHyperbolicGroup() + 1);
+        tilingStyle.setHyperbolicLimit(tilingStyle.getHyperbolicLimit() + 1);
 
         coveredPoints.clear();
         for (int i = 0; i < tiles.getChildren().size(); i++) {
@@ -409,13 +397,4 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
     private boolean insertCoveredPoint(Point3D p) {
         return coveredPoints.insert(getGeometry(), p, tolerance);
     }
-
-    private int getLimitHyperbolicGroup() {
-        return limitHyperbolicGroup.get();
-    }
-
-    private void setLimitHyperbolicGroup(int limitHyperbolicGroup) {
-        this.limitHyperbolicGroup.set(limitHyperbolicGroup);
-    }
-
 }

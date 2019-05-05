@@ -27,8 +27,10 @@ import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import jloda.fx.undo.UndoManager;
 import jloda.fx.util.ExtendedFXMLLoader;
+import jloda.fx.util.Printable;
 import jloda.util.Basic;
 import tegula.core.dsymbols.DSymbol;
+import tegula.core.dsymbols.Geometry;
 import tegula.fdomaineditor.FDomainEditor;
 import tegula.main.TilingStyle;
 import tegula.single.SingleTilingPane;
@@ -42,7 +44,7 @@ import java.io.File;
  * a tab that contains a single editable tiling
  * Daniel Huson, 4.2019
  */
-public class TilingEditorTab extends Tab implements IFileBased, Closeable {
+public class TilingEditorTab extends Tab implements IFileBased, Closeable, Printable {
     private final StringProperty fileName = new SimpleStringProperty("Untitled");
 
     private final TilingEditorTabController controller;
@@ -92,10 +94,18 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable {
 
         ControlBindings.setup(this);
 
-        // reset the top node so it is drawn on top of the tiling:
+        // reset the top and bottom node so they are drawn on top of the tiling:
 
-        controller.getBorderPane().setTop(controller.getBorderPane().getTop());
-        controller.getBorderPane().setBottom(controller.getBorderPane().getBottom());
+        final Node top = controller.getBorderPane().getTop();
+        if (top != null) {
+            controller.getBorderPane().getChildren().remove(top);
+            controller.getBorderPane().setTop(top);
+        }
+        final Node bottom = controller.getBorderPane().getBottom();
+        if (bottom != null) {
+            controller.getBorderPane().getChildren().remove(bottom);
+            controller.getBorderPane().setBottom(bottom);
+        }
 
         GroupEditingControls.setup(this);
         TileColorControls.setup(this);
@@ -107,6 +117,25 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable {
                     controller.getBorderPane().setBottom(controller.getBorderPane().getBottom());
                 }
         );
+
+        controller.getMainPane().widthProperty().addListener((c, o, n) -> {
+            if (o.doubleValue() == 0)
+                o = 800;
+
+            tilingPane.setEuclideanWidth(tilingPane.getEuclideanWidth() * (n.doubleValue() / o.doubleValue()));
+            if (getTiling().getGeometry() == Geometry.Euclidean)
+                tilingPane.update();
+        });
+
+        controller.getMainPane().heightProperty().addListener((c, o, n) -> {
+            if (o.doubleValue() == 0)
+                o = 800;
+
+            tilingPane.setEuclideanHeight(tilingPane.getEuclideanHeight() * (n.doubleValue() / o.doubleValue()));
+            if (getTiling().getGeometry() == Geometry.Euclidean)
+                tilingPane.update();
+        });
+
     }
 
     /**
@@ -141,6 +170,7 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable {
 
     public void setFileName(String fileName) {
         this.fileName.set(fileName);
+        setText(getTitle());
     }
 
     public String getTitle() {
@@ -171,4 +201,9 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable {
     public UndoManager getUndoManager() {
         return undoManager;
     }
+
+    public Node getPrintable() {
+        return controller.getMainPane();
+    }
+
 }

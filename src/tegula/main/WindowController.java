@@ -84,7 +84,6 @@ public class WindowController {
     @FXML
     private MenuItem redoMenuItem;
 
-
     @FXML
     private MenuItem copyMenuItem;
 
@@ -107,31 +106,16 @@ public class WindowController {
     private MenuItem lineWidthMenuItem;
 
     @FXML
-    private MenuItem straightenSelectedMenuItem;
-
-    @FXML
-    private MenuItem straightenAllMenuItem;
-
-    @FXML
-    private CheckMenuItem straightenAlwaysCheckMenuItem;
-
-    @FXML
     private MenuItem openInEditorMenuItem;
-
-    @FXML
-    private Menu colorsMenu;
-
-    @FXML
-    private MenuItem addColorSchemeMenuItem;
 
     @FXML
     private Menu viewMenu;
 
     @FXML
-    private CheckMenuItem showFDomainMenuItem;
+    private CheckMenuItem showLabelsMenuItem;
 
     @FXML
-    private CheckMenuItem showLabelsMenuItem;
+    private CheckMenuItem showFDomainMenuItem;
 
     @FXML
     private CheckMenuItem showChambersMenuItem;
@@ -161,7 +145,7 @@ public class WindowController {
     private MenuItem orientateMenuItem;
 
     @FXML
-    private CheckMenuItem editSymmetryGroupMenuItem;
+    private CheckMenuItem straightenMenuItem;
 
     @FXML
     private Menu windowMenu;
@@ -187,7 +171,6 @@ public class WindowController {
     @FXML
     private Label memoryUsageLabel;
 
-
     @FXML
     void initialize() {
         assert anchorPane != null : "fx:id=\"anchorPane\" was not injected: check your FXML file 'Window.fxml'.";
@@ -212,15 +195,10 @@ public class WindowController {
         assert findMenuItem != null : "fx:id=\"findMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert findAgainMenuItem != null : "fx:id=\"findAgainMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert lineWidthMenuItem != null : "fx:id=\"lineWidthMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
-        assert straightenSelectedMenuItem != null : "fx:id=\"straightenSelectedMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
-        assert straightenAllMenuItem != null : "fx:id=\"straightenAllMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
-        assert straightenAlwaysCheckMenuItem != null : "fx:id=\"straightenAlwaysCheckMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert openInEditorMenuItem != null : "fx:id=\"openInEditorMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
-        assert colorsMenu != null : "fx:id=\"colorsMenu\" was not injected: check your FXML file 'Window.fxml'.";
-        assert addColorSchemeMenuItem != null : "fx:id=\"addColorSchemeMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert viewMenu != null : "fx:id=\"viewMenu\" was not injected: check your FXML file 'Window.fxml'.";
-        assert showFDomainMenuItem != null : "fx:id=\"showFDomainMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert showLabelsMenuItem != null : "fx:id=\"showLabelsMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
+        assert showFDomainMenuItem != null : "fx:id=\"showFDomainMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert showChambersMenuItem != null : "fx:id=\"showChambersMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert showMoreTilesMenuItem != null : "fx:id=\"showMoreTilesMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert showLessTilesMenuItem != null : "fx:id=\"showLessTilesMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
@@ -230,7 +208,7 @@ public class WindowController {
         assert dualizeMenuItem != null : "fx:id=\"dualizeMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert maxSymmetryMenuItem != null : "fx:id=\"maxSymmetryMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert orientateMenuItem != null : "fx:id=\"orientateMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
-        assert editSymmetryGroupMenuItem != null : "fx:id=\"editSymmetryGroupMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
+        assert straightenMenuItem != null : "fx:id=\"straightenMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert windowMenu != null : "fx:id=\"windowMenu\" was not injected: check your FXML file 'Window.fxml'.";
         assert aboutMenuItem != null : "fx:id=\"aboutMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert mainToolBar != null : "fx:id=\"mainToolBar\" was not injected: check your FXML file 'Window.fxml'.";
@@ -239,7 +217,6 @@ public class WindowController {
         assert centerPane != null : "fx:id=\"centerPane\" was not injected: check your FXML file 'Window.fxml'.";
         assert statusBar != null : "fx:id=\"statusBar\" was not injected: check your FXML file 'Window.fxml'.";
         assert memoryUsageLabel != null : "fx:id=\"memoryUsageLabel\" was not injected: check your FXML file 'Window.fxml'.";
-
 
         // if we are running on MacOS, put the specific menu items in the right places
         if (ProgramProperties.isMacOS()) {
@@ -271,6 +248,10 @@ public class WindowController {
 
     public MenuBar getMenuBar() {
         return menuBar;
+    }
+
+    public Menu getFileMenu() {
+        return fileMenu;
     }
 
     public MenuItem getNewMenuItem() {
@@ -305,8 +286,8 @@ public class WindowController {
         return quitMenuItem;
     }
 
-    public MenuItem getCopyMenuItem() {
-        return copyMenuItem;
+    public Menu getEditMenu() {
+        return editMenu;
     }
 
     public MenuItem getUndoMenuItem() {
@@ -315,6 +296,10 @@ public class WindowController {
 
     public MenuItem getRedoMenuItem() {
         return redoMenuItem;
+    }
+
+    public MenuItem getCopyMenuItem() {
+        return copyMenuItem;
     }
 
     public MenuItem getPasteMenuItem() {
@@ -341,36 +326,20 @@ public class WindowController {
         return lineWidthMenuItem;
     }
 
-    public MenuItem getStraightenSelectedMenuItem() {
-        return straightenSelectedMenuItem;
-    }
-
-    public MenuItem getStraightenAllMenuItem() {
-        return straightenAllMenuItem;
-    }
-
-    public CheckMenuItem getStraightenAlwaysCheckMenuItem() {
-        return straightenAlwaysCheckMenuItem;
-    }
-
     public MenuItem getOpenInEditorMenuItem() {
         return openInEditorMenuItem;
     }
 
-    public Menu getColorsMenu() {
-        return colorsMenu;
-    }
-
-    public MenuItem getAddColorSchemeMenuItem() {
-        return addColorSchemeMenuItem;
-    }
-
-    public CheckMenuItem getShowFDomainMenuItem() {
-        return showFDomainMenuItem;
+    public Menu getViewMenu() {
+        return viewMenu;
     }
 
     public CheckMenuItem getShowLabelsMenuItem() {
         return showLabelsMenuItem;
+    }
+
+    public CheckMenuItem getShowFDomainMenuItem() {
+        return showFDomainMenuItem;
     }
 
     public CheckMenuItem getShowChambersMenuItem() {
@@ -389,6 +358,13 @@ public class WindowController {
         return resetMenuItem;
     }
 
+    public MenuItem getFullScreenMenuItem() {
+        return fullScreenMenuItem;
+    }
+
+    public Menu getTilingsMenu() {
+        return tilingsMenu;
+    }
 
     public MenuItem getDualizeMenuItem() {
         return dualizeMenuItem;
@@ -402,8 +378,12 @@ public class WindowController {
         return orientateMenuItem;
     }
 
-    public CheckMenuItem getEditSymmetryGroupMenuItem() {
-        return editSymmetryGroupMenuItem;
+    public CheckMenuItem getStraightenMenuItem() {
+        return straightenMenuItem;
+    }
+
+    public Menu getWindowMenu() {
+        return windowMenu;
     }
 
     public MenuItem getAboutMenuItem() {
@@ -428,30 +408,6 @@ public class WindowController {
 
     public FlowPane getStatusBar() {
         return statusBar;
-    }
-
-    public Menu getFileMenu() {
-        return fileMenu;
-    }
-
-    public Menu getEditMenu() {
-        return editMenu;
-    }
-
-    public Menu getViewMenu() {
-        return viewMenu;
-    }
-
-    public MenuItem getFullScreenMenuItem() {
-        return fullScreenMenuItem;
-    }
-
-    public Menu getTilingsMenu() {
-        return tilingsMenu;
-    }
-
-    public Menu getWindowMenu() {
-        return windowMenu;
     }
 
     public Label getMemoryUsageLabel() {

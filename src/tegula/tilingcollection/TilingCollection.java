@@ -86,15 +86,18 @@ public class TilingCollection implements IFileBased {
                         final ArrayList<DSymbol> cache = new ArrayList<>(getBlockSize());
                         String line;
                         while ((line = br.readLine()) != null) {
-                            final DSymbol dSymbol = new DSymbol();
-                            dSymbol.read(new StringReader(line));
-                            cache.add(dSymbol);
-                            if (cache.size() == getBlockSize()) {
-                                final DSymbol[] array = cache.toArray(new DSymbol[0]);
-                                cache.clear();
-                                Platform.runLater(() -> dSymbols.addAll(array));
+                            line = line.trim();
+                            if (line.startsWith("<") && line.endsWith(">")) {
+                                final DSymbol dSymbol = new DSymbol();
+                                dSymbol.read(new StringReader(line));
+                                cache.add(dSymbol);
+                                if (cache.size() == getBlockSize()) {
+                                    final DSymbol[] array = cache.toArray(new DSymbol[0]);
+                                    cache.clear();
+                                    Platform.runLater(() -> dSymbols.addAll(array));
+                                }
+                                progress.setProgress(progress.getProgress() + getBlockSize()); // wild guess
                             }
-                            progress.setProgress(progress.getProgress() + getBlockSize()); // wild guess
                         }
                         if (cache.size() > 0)
                             Platform.runLater(() -> dSymbols.addAll(cache));

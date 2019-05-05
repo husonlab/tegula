@@ -112,6 +112,7 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable {
         flowView.setVgap(20);
         flowView.setSelectionModel(tilingCollection.getSelectionModel());
         flowView.setScrollToSelection(true);
+        flowView.setPrecomputeSnapshots(false);
 
         this.tilingStyle = new TilingStyle();
         tilingStyle.setShowBackBands(false);

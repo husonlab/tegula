@@ -69,19 +69,22 @@ public class ControlBindings {
         }));
         controller.getShowMoreTilesButton().disableProperty().bind(tilingPane.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
 
-        controller.getShowLessTilesButton().setOnAction((e) -> undoManager.doAndAdd(new UndoableRedoableCommand("show less tiles") {
-            @Override
-            public void undo() {
-                tilingPane.increaseTiling();
-            }
+        controller.getShowLessTilesButton().setOnAction((e) -> {
+            if (tilingStyle.getHyperbolicLimit() > TilingStyle.minLimitHyperbolicGroup) {
+                undoManager.doAndAdd(new UndoableRedoableCommand("show less tiles") {
+                    @Override
+                    public void undo() {
+                        tilingPane.increaseTiling();
+                    }
 
-            @Override
-            public void redo() {
-                tilingPane.decreaseTiling();
+                    @Override
+                    public void redo() {
+                        tilingPane.decreaseTiling();
+                    }
+                });
             }
-        }));
-        controller.getShowLessTilesButton().disableProperty().bind(tilingPane.geometryProperty().isNotEqualTo(Geometry.Hyperbolic).or(
-                tilingPane.getTiling().canDecreaseTilingProperty().not()));
+        });
+        controller.getShowLessTilesButton().disableProperty().bind(tilingPane.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
 
         controller.getGroupTextField().textProperty().bind(tilingPane.groupNameProperty());
 
@@ -167,7 +170,7 @@ public class ControlBindings {
         controller.getTilesOpacitySlider().valueProperty().addListener((c, o, n) -> {
             if (!undoManager.isPerformingUndoOrRedo())
                 undoManager.doAndAdd(new UndoableChangeProperty<>("tile opacity",
-                        tilingStyle.tileOpacityProperty(), tilingStyle.getTileOpacity(), n,
+                        tilingStyle.tileOpacityProperty(), o, n,
                         (v) -> {
                             tilingPane.updateTileColors();
                         })
@@ -175,7 +178,6 @@ public class ControlBindings {
         });
         controller.getTilesOpacitySlider().setValue(tilingStyle.getTileOpacity());
         undoManager.clear(); // don't want to keep this event
-
 
         controller.getShowBandsCheckBox().setOnAction((e) -> {
             if (!undoManager.isPerformingUndoOrRedo())
@@ -216,11 +218,11 @@ public class ControlBindings {
         controller.getSmoothEdgesCheckBox().disableProperty().bind(tilingPane.geometryProperty().isNotEqualTo(Geometry.Spherical));
 
 
-        controller.getBandsColorPicker().setValue(tilingStyle.getBandColor());
+        controller.getBandsColorPicker().setValue(tilingStyle.getBandColorFullOpacity());
         controller.getBandsColorPicker().setOnAction((e) -> {
             if (!undoManager.isPerformingUndoOrRedo())
                 undoManager.doAndAdd(new UndoableChangeProperty<>("band color",
-                        tilingStyle.bandColorProperty(), tilingStyle.getBandColor(), controller.getBandsColorPicker().getValue(),
+                        tilingStyle.bandColorProperty(), tilingStyle.getBandColorFullOpacity(), controller.getBandsColorPicker().getValue(),
                         (v) -> tilingPane.updateBandColors()));
         });
         tilingStyle.bandColorProperty().addListener((c, o, n) -> {
@@ -229,14 +231,14 @@ public class ControlBindings {
 
         controller.getBandsColorPicker().setOnShowing((e) -> {
             controller.getBandsColorPicker().getCustomColors().setAll(ColorSchemeManager.getInstance().getColorScheme(tilingStyle.getTileColorsScheme()));
-            controller.getBandsColorPicker().setValue(tilingStyle.getBandColor());
+            controller.getBandsColorPicker().setValue(tilingStyle.getBandColorFullOpacity());
         });
 
-        controller.getBandsOpacitySlider().setValue(tilingStyle.getBandColor().getOpacity());
+        controller.getBandsOpacitySlider().setValue(tilingStyle.getBandOpacity());
         controller.getBandsOpacitySlider().valueProperty().addListener((c, o, n) -> {
             if (!undoManager.isPerformingUndoOrRedo())
                 undoManager.doAndAdd(new UndoableChangeProperty<>("band opacity",
-                        tilingStyle.bandOpacityProperty(), tilingStyle.getBandOpacity(),
+                        tilingStyle.bandOpacityProperty(), o,
                         n,
                         (v) -> {
                             tilingPane.updateBandColors();
@@ -285,6 +287,9 @@ public class ControlBindings {
                 }
             });
         }
+        tilingStyle.tileColorsSchemeProperty().addListener((c, o, n) -> {
+            controller.getColorSchemeChoiceBox().getSelectionModel().select(n);
+        });
 
 
         controller.getStopAnimationButton().setVisible(false);

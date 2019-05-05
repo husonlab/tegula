@@ -69,7 +69,6 @@ public class SphericalTiling extends TilingBase implements TilingCreator {
         handles.getChildren().clear();
 
         final Group all = new Group();
-        final Group fundPrototype = new Group();
         fundPrototype.getChildren().setAll(fundamentalDomain.getAllRequested());
 
         {
