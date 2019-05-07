@@ -58,7 +58,7 @@ public class OctTree {
      * @return true, if inserted
      */
     public boolean insert(Geometry geom, Point3D point, double tolerance) {
-        double tol = tolerance * 0.1;
+        double tol = tolerance * 0.01;
         if (root == null) {
             root = new Node(point);
             size++;

@@ -113,14 +113,14 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
         //Add all generators
         generators = fDomain.getGenerators();
 
-        //System.out.println(refPointHyperbolic);
-
         final Group all = new Group();
 
-        referencePoint = fDomain.computeReferencePoint();
-        tolerance = computeTolerance(getGeometry(), referencePoint, generators);
 
         if (reset) { // need to recompute fundamental domain
+            referencePoint = fDomain.computeReferencePoint();
+            tolerance = computeTolerance(getGeometry(), referencePoint, generators);
+            System.out.println("Referenz:" + referencePoint);
+
             fundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
             fundPrototype.getChildren().setAll(fundamentalDomain.getAllRequested());
 
@@ -129,6 +129,7 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
 
             all.getChildren().add(provideCopy(new Translate(), referencePoint, fundPrototype));
         }
+
 
         if (!isDrawFundamentalDomainOnly()) {
             final OctTree seen = new OctTree();
@@ -216,14 +217,15 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
 
         // Translates fDomain by vector (dx,dy).
         fDomain.translate(dx, dy);
+        referencePoint = translate.transform(referencePoint);
         transformRecycled = translate.createConcatenation(transformRecycled); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
 
 
         // Recenter fDomain if too far away from center
-        final Point3D refPoint = fDomain.computeReferencePoint();
-        tolerance = computeTolerance(getGeometry(), refPoint, generators);
+        //final Point3D refPoint = fDomain.computeReferencePoint();
+        //tolerance = computeTolerance(getGeometry(), refPoint, generators);
 
-        if (refPoint.getZ() >= ValidHyperbolicRange) {
+        if (referencePoint.getZ() >= ValidHyperbolicRange) {
             final Transform t = calculateBackShiftHyperbolic();
             if (t instanceof Translate) {
                 System.err.println("calculateBackShiftHyperbolic: failed");
@@ -231,6 +233,7 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
             }
             fDomain.recenterFDomain(t); // Shifts back fDomain into valid range
             transformRecycled = t.createConcatenation(transformRecycled); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
+            referencePoint = t.transform(referencePoint);
         }
 
         //First step: Translate tiles by vector (dx,dy) ------------------------------------------------------------
@@ -245,12 +248,13 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
             final Transform nodeTransform = group.getTransforms().get(0);
             final Point3D point = translate.transform(group.getRotationAxis()); // point = translated reference point of node
 
-            if (point.getZ() > maxDist || !insertCoveredPoint(point)) {
+            if (point.getZ() > maxDist) {
                 tiles.getChildren().remove(i);
                 recycler.push(group); // Remove node and add to recycler
             } else {
                 group.getTransforms().setAll(translate.createConcatenation(nodeTransform));
                 group.setRotationAxis(point);
+                insertCoveredPoint(point);
                 // if (!insertCoveredPoint(point))
                 //     System.err.println("Already present");
                 i++;
