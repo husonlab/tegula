@@ -30,6 +30,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
@@ -46,11 +47,13 @@ import jloda.fx.util.ExtendedFXMLLoader;
 import jloda.fx.util.Printable;
 import jloda.fx.util.ProgramExecutorService;
 import jloda.fx.util.SelectionEffect;
+import jloda.util.ProgramProperties;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.OrbifoldGroupName;
 import tegula.main.TilingStyle;
 import tegula.main.Window;
 import tegula.single.SingleTilingPane;
+import tegula.util.IFileBased;
 
 import java.io.Closeable;
 import java.util.ArrayList;
@@ -61,7 +64,7 @@ import java.util.function.Function;
  * tab that shows a collection of tilings
  * Daniel Huson, 4.2019
  */
-public class TilingCollectionTab extends Tab implements Closeable, Printable {
+public class TilingCollectionTab extends Tab implements Closeable, Printable, IFileBased {
     private final TilingCollectionTabController controller;
     private final Parent root;
     private final IntegerProperty focusIndex = new SimpleIntegerProperty(-1);
@@ -132,6 +135,8 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable {
 
         flowView.widthProperty().addListener(listener);
         controller.getSizeSlider().valueProperty().addListener(listener);
+        controller.getSizeSlider().setValue(ProgramProperties.get("PreviewSize", 128.0));
+        controller.getSizeSlider().valueProperty().addListener((c, o, n) -> ProgramProperties.put("PreviewSize", n.doubleValue()));
 
         AnchorPane.setLeftAnchor(flowView, 0.0);
         AnchorPane.setRightAnchor(flowView, 0.0);
@@ -162,7 +167,6 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable {
 
         selectionModel.getSelectedItems().addListener(selectionListener);
 
-
         setText(tilingCollection.getTitle());
         setTooltip(new Tooltip(tilingCollection.getFileName()));
 
@@ -176,14 +180,13 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable {
 
         tilingCollection.getDSymbols().addListener(dsymbolsListener);
 
-
         focusIndex.addListener((c, o, n) -> {
             if (n != null && n.intValue() >= 0 && n.intValue() < flowView.size()) {
                 selectionModel.clearAndSelect(n.intValue());
             }
         });
 
-        labelGetter = (dSymbol) -> String.format("%d. t:%d e:%d v:%d g:%s", dSymbol.getNr1(),
+        labelGetter = (dSymbol) -> String.format("%d. n:%d t:%d e:%d v:%d g:%s", dSymbol.getNr1(), dSymbol.size(),
                 dSymbol.countOrbits(0, 1), dSymbol.countOrbits(0, 2), dSymbol.countOrbits(1, 2), OrbifoldGroupName.getGroupName(dSymbol));
 
         findToolBar = new FindToolBar(new Searcher<>(selectionModel, labelGetter, null));
@@ -230,30 +233,46 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable {
             final VBox vBox = new VBox(rectangle, label);
 
             ProgramExecutorService.getInstance().submit(() -> {
-                final SingleTilingPane singleTilingPane = new SingleTilingPane(dSymbol, tilingStyle, true, false);
-                singleTilingPane.setPrefWidth(0.5 * controller.getSizeSlider().getMax());
-                singleTilingPane.setPrefHeight(0.5 * controller.getSizeSlider().getMax());
-                new Scene(singleTilingPane);
 
-                Platform.runLater(() -> {
-                    //simpleTilingPane.getSimpleTiling().getTilingStyle().setShowBackEdges(simpleTilingPane.getSimpleTiling().getTiling().getGeometry()== Geometry.Spherical);
-                    singleTilingPane.update();
-
-                    final ImageView imageView = new ImageView(singleTilingPane.snapshot(null, null));
+                final Image preview = tilingCollection.getPreviewImage(dSymbol);
+                if (preview != null) {
+                    final ImageView imageView = new ImageView(preview);
                     imageView.setPreserveRatio(true);
-
                     imageView.fitWidthProperty().bind(controller.getSizeSlider().valueProperty());
-
                     imageView.fitWidthProperty().addListener((c, o, n) -> {
                         if (label.getWidth() >= n.doubleValue()) {
                             vBox.getChildren().set(1, shortLabel);
                         } else
                             vBox.getChildren().set(1, label);
                     });
+                    Platform.runLater(() -> {
+                        tilingsComputed.set(tilingsComputed.get() + 1);
+                        vBox.getChildren().set(0, imageView);
+                    });
+                } else {
+                    final SingleTilingPane singleTilingPane = new SingleTilingPane(dSymbol, tilingStyle, true, false);
+                    singleTilingPane.setPrefWidth(0.5 * controller.getSizeSlider().getMax());
+                    singleTilingPane.setPrefHeight(0.5 * controller.getSizeSlider().getMax());
+                    new Scene(singleTilingPane);
 
-                    tilingsComputed.set(tilingsComputed.get() + 1);
-                    vBox.getChildren().set(0, imageView);
-                });
+                    Platform.runLater(() -> {
+                        //simpleTilingPane.getSimpleTiling().getTilingStyle().setShowBackEdges(simpleTilingPane.getSimpleTiling().getTiling().getGeometry()== Geometry.Spherical);
+                        singleTilingPane.update();
+
+                        final ImageView imageView = new ImageView(singleTilingPane.snapshot(null, null));
+                        imageView.setPreserveRatio(true);
+                        imageView.fitWidthProperty().bind(controller.getSizeSlider().valueProperty());
+                        imageView.fitWidthProperty().addListener((c, o, n) -> {
+                            if (label.getWidth() >= n.doubleValue()) {
+                                vBox.getChildren().set(1, shortLabel);
+                            } else
+                                vBox.getChildren().set(1, label);
+                        });
+
+                        tilingsComputed.set(tilingsComputed.get() + 1);
+                        vBox.getChildren().set(0, imageView);
+                    });
+                }
             });
 
             vBox.setOnMouseClicked((e) -> {
@@ -361,5 +380,30 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable {
 
     public BooleanProperty precomputeSnapshotsProperty() {
         return flowView.precomputeSnapshotsProperty();
+    }
+
+    public FlowView<DSymbol> getFlowView() {
+        return flowView;
+    }
+
+    @Override
+    public String getFileName() {
+        return tilingCollection.getFileName();
+    }
+
+    @Override
+    public StringProperty fileNameProperty() {
+        return tilingCollection.fileNameProperty();
+    }
+
+    @Override
+    public void setFileName(String fileName) {
+        tilingCollection.setFileName(fileName);
+
+    }
+
+    @Override
+    public String getTitle() {
+        return tilingCollection.getTitle();
     }
 }

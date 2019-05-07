@@ -86,7 +86,7 @@ public class ControlBindings {
         });
         controller.getShowLessTilesButton().disableProperty().bind(tilingPane.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
 
-        controller.getGroupTextField().textProperty().bind(tilingPane.groupNameProperty());
+        controller.getGroupTextField().textProperty().bind(tilingEditorTab.groupNameProperty());
 
         controller.getStraightenEdgesButton().setOnAction((e) -> {
 
@@ -117,7 +117,7 @@ public class ControlBindings {
                     tilingPane::replaceTiling, coordinates, tilingPane::changeCoordinates));
 
         });
-        controller.getMaximizeButton().disableProperty().bind(tilingPane.maximalTilingProperty());
+        controller.getMaximizeButton().disableProperty().bind(tilingEditorTab.maximalTilingProperty());
 
         controller.getOrientateButton().setOnAction((e) -> {
             final Point2D[][] coordinates = tilingPane.getTiling().getfDomain().getCoordinates();
@@ -125,7 +125,7 @@ public class ControlBindings {
                     tilingPane::replaceTiling, coordinates, tilingPane::changeCoordinates));
 
         });
-        controller.getOrientateButton().disableProperty().bind(tilingPane.orientableTilingProperty());
+        controller.getOrientateButton().disableProperty().bind(tilingEditorTab.orientableTilingProperty());
 
         controller.getBandWidthSpinner().setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, tilingStyle.getBandWidth()));
 
@@ -260,7 +260,7 @@ public class ControlBindings {
         });
 
 
-        controller.getInfoTextField().textProperty().bind(tilingPane.infoLineProperty());
+        controller.getInfoTextField().textProperty().bind(tilingEditorTab.infoLineProperty());
 
         {
             controller.getColorSchemeChoiceBox().getSelectionModel().select(tilingStyle.getTileColorsScheme());

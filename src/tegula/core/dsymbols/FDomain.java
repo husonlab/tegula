@@ -82,6 +82,27 @@ public class FDomain {
         else
             geometry = Geometry.Euclidean;
 
+        if (true) { // add a small "nose" to tile to show symmetry (note that some tilings exist for which this doesn't work)
+            final Generators generators = getGenerators();
+
+            for (int a = 1; a <= dSymbol.size(); a++) {
+                final int b = dSymbol.getS2(a);
+                if (a != b) {
+                    final Point2D addA = getChamberCenter(a).subtract(getEdgeCenter(2, a)).multiply(0.6);
+                    setEdgeCenter(getEdgeCenter(2, a).add(addA), 2, a);
+                    if (isBoundaryEdge(2, a)) {
+                        final Point3D a3D = Tools.map2Dto3D(getGeometry(), getEdgeCenter(2, a));
+                        final Transform gen = generators.get(2, a);
+                        final Point3D b3D = gen.transform(a3D);
+                        final Point2D b2D = Tools.map3Dto2D(getGeometry(), b3D);
+                        setEdgeCenter(b2D, 2, b);
+                    }
+                    break;
+                }
+            }
+        }
+
+
         boundingBox = computeBoundingBox();
     }
 

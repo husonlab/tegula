@@ -26,8 +26,8 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
-import javafx.stage.FileChooser;
 import jloda.fx.control.AnotherMultipleSelectionModel;
 import jloda.fx.util.AService;
 import jloda.fx.util.NotificationManager;
@@ -35,10 +35,13 @@ import jloda.util.Basic;
 import jloda.util.ProgressListener;
 import tegula.core.dsymbols.DSymbol;
 import tegula.util.IFileBased;
+import tegula.util.ImageEncoding;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * a collection of tilings
@@ -48,6 +51,7 @@ public class TilingCollection implements IFileBased {
     private final StringProperty fileName = new SimpleStringProperty("Untitled");
 
     private final ObservableList<DSymbol> dSymbols = FXCollections.observableArrayList();
+    private final Map<DSymbol, Image> dSymbolImageMap = new HashMap<>();
     private final IntegerProperty size = new SimpleIntegerProperty(0);
     private final AnotherMultipleSelectionModel<DSymbol> selectionModel;
 
@@ -84,25 +88,34 @@ public class TilingCollection implements IFileBased {
 
                     try (BufferedReader br = new BufferedReader(Basic.getReaderPossiblyZIPorGZIP(getFileName()))) {
                         final ArrayList<DSymbol> cache = new ArrayList<>(getBlockSize());
-                        String line;
-                        while ((line = br.readLine()) != null) {
+                        String line = br.readLine();
+                        while (line != null) {
                             line = line.trim();
                             if (line.startsWith("<") && line.endsWith(">")) {
                                 final DSymbol dSymbol = new DSymbol();
                                 dSymbol.read(new StringReader(line));
                                 cache.add(dSymbol);
+                                line = br.readLine();
+                                if (line != null && line.startsWith("[") && line.endsWith("]")) {
+                                    final Image image = ImageEncoding.decodeImage(line.substring(1, line.length() - 1));
+                                    dSymbolImageMap.put(dSymbol, image);
+                                    line = br.readLine();
+                                }
+
                                 if (cache.size() == getBlockSize()) {
                                     final DSymbol[] array = cache.toArray(new DSymbol[0]);
                                     cache.clear();
                                     Platform.runLater(() -> dSymbols.addAll(array));
                                 }
                                 progress.setProgress(progress.getProgress() + getBlockSize()); // wild guess
-                            }
+                            } else
+                                line = br.readLine();
+
                         }
                         if (cache.size() > 0)
                             Platform.runLater(() -> dSymbols.addAll(cache));
                     }
-                    return true;
+            return true;
                 }
         );
         aService.setOnCancelled((e) -> NotificationManager.showInformation(String.format("CANCELED, loaded %,d tilings", getSize())));
@@ -114,19 +127,6 @@ public class TilingCollection implements IFileBased {
         aService.start();
     }
 
-
-    private static FileChooser.ExtensionFilter instance;
-
-    /**
-     * gets an extension filter
-     *
-     * @return extension filter
-     */
-    public static FileChooser.ExtensionFilter getExtensionFilter() {
-        if (instance == null)
-            instance = new FileChooser.ExtensionFilter("Tilings File", "*.tgs", "*.tgs.gz");
-        return instance;
-    }
 
     public ObservableList<DSymbol> getDSymbols() {
         return dSymbols;
@@ -179,6 +179,10 @@ public class TilingCollection implements IFileBased {
 
     public String getTitle() {
         return Basic.replaceFileSuffix(Basic.getFileNameWithoutPath(fileName.get()), "");
+    }
+
+    public Image getPreviewImage(DSymbol ds) {
+        return dSymbolImageMap.get(ds);
     }
 
 }

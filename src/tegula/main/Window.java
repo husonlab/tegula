@@ -27,7 +27,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Pane;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import jloda.fx.control.SplittableTabPane;
@@ -35,8 +34,8 @@ import jloda.fx.util.ExtendedFXMLLoader;
 import jloda.fx.util.MemoryUsage;
 import jloda.fx.window.IMainWindow;
 import jloda.util.FileOpenManager;
-import tegula.tilingcollection.TilingCollection;
 import tegula.tilingcollection.TilingCollectionTab;
+import tegula.util.TilingFileFilter;
 
 import java.io.File;
 import java.util.Collections;
@@ -75,10 +74,10 @@ public class Window implements IMainWindow {
         controller.getCenterPane().getChildren().add(mainTabPane);
 
 
-        FileOpenManager.setExtensions(Collections.singletonList(new FileChooser.ExtensionFilter("tilings", "*.tgs", "*.2dt")));
+        FileOpenManager.setExtensions(Collections.singletonList(TilingFileFilter.getInstance()));
         FileOpenManager.setFileOpener(new FileOpener());
 
-        FileBrowser.setup(new File("input"), TilingCollection.getExtensionFilter(), fileTreeView);
+        FileBrowser.setup(new File("input"), TilingFileFilter.getInstance(), fileTreeView);
         fileTreeView.setOnMouseClicked((e) -> {
             if (e.getClickCount() == 2) {
                 final TreeItem<FileBrowser.FileNode> item = fileTreeView.getSelectionModel().getSelectedItem();

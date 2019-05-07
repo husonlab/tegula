@@ -19,6 +19,8 @@
 
 package tegula.core.dsymbols;
 
+import java.util.BitSet;
+
 /**
  * algorithms for modifying Delaney symbols
  * Daniel Huson, 11.2018
@@ -223,5 +225,108 @@ public class DSymbolAlgorithms {
             }
             return ds2;
         }
+    }
+
+    /*
+     ** determines whether all tiles involved in a tiling are disks
+     */
+    public static boolean allTilesAreDisks(DSymbol ds) {
+        if (ds.computeOrientation() != 2)
+            ds = orientate(ds);
+
+        final int[][][] v = computeV(ds);
+
+        final int[] fl_01 = new int[ds.size() + 1];
+        final int[] fl_12 = new int[ds.size() + 1];
+
+        for (int a = 1; a <= ds.size(); a++) {
+            ds.markOrbitX(0, 1, a, fl_01, 1);
+            ds.markOrbitX(1, 2, a, fl_12, 1);
+            int b = otherSideOfBottleneck(a, fl_01, ds);
+            if (b != 0 && bottleneck(a, b, fl_01, fl_12, v, ds))
+                return false;
+        }
+        return true;
+    }
+
+    /*
+     ** determines the flag b on the other side of the bottleneck at flag a,
+     ** returns 0 if no such flag exists
+     */
+    private static int otherSideOfBottleneck(int a, int[] fl_01, DSymbol ds) {
+        int b = ds.getS2(a);
+
+        while (ds.getS1(b) != a) {
+            b = ds.getS2(ds.getS1(b));
+            if (fl_01[b] == 1) {
+                if (b <= a) /*	consider every 2-edge once only	*/
+                    return 0;
+                else
+                    return b;
+            }
+        }
+        return 0;
+    }
+
+    /*
+     ** determines whether the flags a and b correspond to a bottleneck
+     ** vertex in a non disk tile
+     */
+    private static boolean bottleneck(int a, int b, int[] fl_01, int[] fl_12, int[][][] v, DSymbol ds) {
+        final int[] fl = new int[ds.size() + 1];
+
+        boolean ok = bottleneckRec(a, b, a, fl, fl_01, fl_12, v, ds);
+        if (ok && fl[ds.getS1(a)] == 1)
+            ok = false;	/*	1-op neighbour of 'a' has been marked,
+				hence we do not have two components	*/
+        return ok;
+    }
+
+    /*
+     ** determines whether a and b define a bottleneck to a component without
+     ** branching numbers
+     */
+    private static boolean bottleneckRec(int a, int b, int c, int[] fl, int[] fl_01, int[] fl_12, int[][][] v, DSymbol ds) {
+        if (fl[c] != 0)
+            return true;
+        fl[c] = 1;
+        if ((fl_01[c] == 0 && v[c][0][1] > 1) || (fl_12[c] == 0 && v[c][1][2] > 1)
+                || (v[c][0][2] > 1))
+            return false;    /* component contains branching number	*/
+
+        for (int i = 0; i <= 2; i++)
+            if (i != 1 || (c != a && c != b)) { /*	do not use 1-op leaving from a or b	*/
+                if (!bottleneckRec(a, b, ds.getSi(i, c), fl, fl_01, fl_12, v, ds))
+                    return false;
+            }
+        return true;
+    }
+
+    /**
+     * compute the branching numbers v_ij
+     *
+     * @param ds
+     * @return branching numbers
+     */
+    public static int[][][] computeV(DSymbol ds) {
+        final int[][][] v = new int[ds.size() + 1][2][3];
+
+        for (int k = 0; k <= 2; k++) {
+            final int i = DSymbol.i(k);
+            final int j = DSymbol.j(k);
+            final BitSet fl = new BitSet();
+            for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, j, a, fl)) {
+                int b = a;
+                int va = ds.getMij(i, j, a) / ds.computeOrbitLength(i, j, a);
+                do {
+                    b = ds.getSi(i, b);
+                    v[b][i][j] = va;
+                    b = ds.getSi(j, b);
+                    v[b][i][j] = va;
+                }
+                while (b != a);
+            }
+        }
+        return v;
     }
 }

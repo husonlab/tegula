@@ -19,10 +19,7 @@
 
 package tegula.tilingeditor;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import jloda.fx.undo.UndoManager;
@@ -30,7 +27,9 @@ import jloda.fx.util.ExtendedFXMLLoader;
 import jloda.fx.util.Printable;
 import jloda.util.Basic;
 import tegula.core.dsymbols.DSymbol;
+import tegula.core.dsymbols.DSymbolAlgorithms;
 import tegula.core.dsymbols.Geometry;
+import tegula.core.dsymbols.OrbifoldGroupName;
 import tegula.fdomaineditor.FDomainEditor;
 import tegula.main.TilingStyle;
 import tegula.single.SingleTilingPane;
@@ -53,6 +52,13 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
     private final BooleanProperty dirty = new SimpleBooleanProperty(false);
     private final SingleTilingPane tilingPane;
     private final TilingStyle tilingStyle = new TilingStyle();
+
+    private final BooleanProperty maximalTiling = new SimpleBooleanProperty();
+    private final BooleanProperty orientableTiling = new SimpleBooleanProperty();
+    private final BooleanProperty diskTiling = new SimpleBooleanProperty();
+    private final StringProperty groupName = new SimpleStringProperty();
+    private final StringProperty infoLine = new SimpleStringProperty("");
+
 
     private final UndoManager undoManager = new UndoManager();
 
@@ -136,6 +142,15 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
                 tilingPane.update();
         });
 
+        tilingPane.lastUpdateProperty().addListener((e) -> {
+            maximalTiling.set(DSymbolAlgorithms.isMaximalSymmetry(getTiling().getDSymbol()));
+            orientableTiling.set(getTiling().getDSymbol().computeOrientation() == 2);
+            diskTiling.set(DSymbolAlgorithms.allTilesAreDisks(getTiling().getDSymbol()));
+            groupName.setValue(OrbifoldGroupName.getGroupName(dSymbol));
+            infoLine.setValue(String.format("n:%d t:%d e:%d v:%d g:%s", dSymbol.size(), dSymbol.countOrbits(0, 1), dSymbol.countOrbits(0, 2), dSymbol.countOrbits(1, 2),
+                    getGroupName() + (isMaximalTiling() ? " max" : "") + (isOrientableTiling() ? " orient." : "") + (isDiskTiling() ? "" : " non-disks")));
+        });
+
     }
 
     /**
@@ -206,4 +221,40 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
         return controller.getMainPane();
     }
 
+    public boolean isMaximalTiling() {
+        return maximalTiling.get();
+    }
+
+    public ReadOnlyBooleanProperty maximalTilingProperty() {
+        return maximalTiling;
+    }
+
+    public boolean isOrientableTiling() {
+        return orientableTiling.get();
+    }
+
+    public ReadOnlyBooleanProperty orientableTilingProperty() {
+        return orientableTiling;
+    }
+
+    public boolean isDiskTiling() {
+        return diskTiling.get();
+    }
+
+    public BooleanProperty diskTilingProperty() {
+        return diskTiling;
+    }
+
+    public String getGroupName() {
+        return groupName.get();
+    }
+
+    public ReadOnlyStringProperty groupNameProperty() {
+        return groupName;
+    }
+
+
+    public ReadOnlyStringProperty infoLineProperty() {
+        return infoLine;
+    }
 }

@@ -38,7 +38,9 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import jloda.util.Basic;
-import tegula.core.dsymbols.*;
+import tegula.core.dsymbols.DSymbol;
+import tegula.core.dsymbols.FDomain;
+import tegula.core.dsymbols.Geometry;
 import tegula.main.CameraSettings;
 import tegula.main.TilingStyle;
 import tegula.tiling.*;
@@ -81,11 +83,6 @@ public class SingleTilingPane extends StackPane implements Updateable {
     private Circle disk;
 
     private final LongProperty lastUpdate = new SimpleLongProperty();
-
-    private final BooleanProperty maximalTiling = new SimpleBooleanProperty();
-    private final BooleanProperty orientableTiling = new SimpleBooleanProperty();
-    private final StringProperty groupName = new SimpleStringProperty();
-    private final StringProperty infoLine = new SimpleStringProperty("");
 
     private final MouseHandler mouseHandler;
 
@@ -202,11 +199,6 @@ public class SingleTilingPane extends StackPane implements Updateable {
     public void replaceTiling(DSymbol dSymbol) {
         geometry.set(dSymbol.computeGeometry());
         tiling.set(TilingCreator.create(dSymbol, tilingStyle, this));
-        maximalTiling.set(DSymbolAlgorithms.isMaximalSymmetry(getTiling().getDSymbol()));
-        orientableTiling.set(getTiling().getDSymbol().computeOrientation() == 2);
-        groupName.setValue(OrbifoldGroupName.getGroupName(dSymbol));
-        infoLine.setValue(String.format("n:%d t:%d e:%d v:%d g:%s", dSymbol.size(), dSymbol.countOrbits(0, 1), dSymbol.countOrbits(0, 2), dSymbol.countOrbits(1, 2),
-                getGroupName() + (isMaximalTiling() ? " max" : "") + (isOrientableTiling() ? " orient." : "")));
         update();
     }
 
@@ -463,37 +455,6 @@ public class SingleTilingPane extends StackPane implements Updateable {
     }
 
 
-    public boolean isMaximalTiling() {
-        return maximalTiling.get();
-    }
-
-    public ReadOnlyBooleanProperty maximalTilingProperty() {
-        return maximalTiling;
-    }
-
-    public boolean isOrientableTiling() {
-        return orientableTiling.get();
-    }
-
-    public ReadOnlyBooleanProperty orientableTilingProperty() {
-        return orientableTiling;
-    }
-
-    public String getGroupName() {
-        return groupName.get();
-    }
-
-    public ReadOnlyStringProperty groupNameProperty() {
-        return groupName;
-    }
-
-    public String getInfoLine() {
-        return infoLine.get();
-    }
-
-    public ReadOnlyStringProperty infoLineProperty() {
-        return infoLine;
-    }
 
     public MouseHandler getMouseHandler() {
         return mouseHandler;

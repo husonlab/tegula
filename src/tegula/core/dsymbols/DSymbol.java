@@ -239,11 +239,11 @@ public class DSymbol {
 
     /**
      * marks all flags contain in the i,j-orbit of a
-     *
      * @param i
      * @param j
      * @param a
      * @param visited
+     * @param mark
      */
     public void markOrbit(final int i, final int j, final int a, final int[] visited, final int mark) {
         if (mark == 0)
@@ -256,6 +256,21 @@ public class DSymbol {
             b = getSi(j, b);
         }
         while (b != a);
+    }
+
+    /**
+     * marks all flags contain in the i,j-orbit of a. Unmark all others
+     *
+     * @param i
+     * @param j
+     * @param a
+     * @param visited
+     * @param mark
+     */
+    public void markOrbitX(final int i, final int j, final int a, final int[] visited, final int mark) {
+        for (int b = 0; b < visited.length; b++)
+            visited[b] = 0;
+        markOrbit(i, j, a, visited, mark);
     }
 
     public int computeOrbitLength(final int i, final int j, final int a) {
