@@ -119,7 +119,6 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
         if (reset) { // need to recompute fundamental domain
             referencePoint = fDomain.computeReferencePoint();
             tolerance = computeTolerance(getGeometry(), referencePoint, generators);
-            System.out.println("Referenz:" + referencePoint);
 
             fundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
             fundPrototype.getChildren().setAll(fundamentalDomain.getAllRequested());
@@ -222,10 +221,10 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
 
 
         // Recenter fDomain if too far away from center
-        //final Point3D refPoint = fDomain.computeReferencePoint();
+        final Point3D refPoint = fDomain.computeReferencePoint();
         //tolerance = computeTolerance(getGeometry(), refPoint, generators);
 
-        if (referencePoint.getZ() >= ValidHyperbolicRange) {
+        if (refPoint.getZ() >= ValidHyperbolicRange) {
             final Transform t = calculateBackShiftHyperbolic();
             if (t instanceof Translate) {
                 System.err.println("calculateBackShiftHyperbolic: failed");
