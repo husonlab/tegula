@@ -99,15 +99,17 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
         //Add handles
         handles.getChildren().setAll(((new ReshapeManager(this, doc).createHandles())));
 
-        //Calculation of point of reference:
-        referencePoint = fDomain.computeReferencePoint();
-        tolerance = computeTolerance(getGeometry(), referencePoint, generators);
 
         final Group all = new Group();
 
         if (reset) { // need to recompute fundamental domain
             recycler.clear();
             coveredPoints.clear();
+
+            //Calculation of point of reference:
+            referencePoint = fDomain.computeReferencePoint();
+            tolerance = computeTolerance(getGeometry(), referencePoint, generators);
+
             fundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
             fundPrototype.getChildren().setAll(fundamentalDomain.getAllRequested());
             fundPrototype.getTransforms().setAll(new Translate()); // Add transform (= identity)
@@ -195,12 +197,15 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
         fDomain.translate(dx, dy); // Translates fDomain by vector (dx,dy).
         transformRecycled = translate.createConcatenation(transformRecycled); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
 
+        referencePoint = translate.transform(referencePoint);
+
         final Point3D refPoint = getfDomain().computeReferencePoint(); // Point of reference in Euclidean fundamental domain
 
         if (!isInWindowEuclidean(refPoint, windowCorner, width.get(), height.get())) { // If fundamental domain is out of visible window
             Transform t = calculateBackShiftEuclidean(windowCorner, width.get(), height.get());
             transformRecycled = t.createConcatenation(transformRecycled); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
             fDomain.recenterFDomain(t); // Shifts back fDomain into visible window
+            referencePoint = t.transform(referencePoint);
         }
 
         //First step: Translate tiles by vector (dx,dy) ------------------------------------------------------------

@@ -79,7 +79,6 @@ public class SphericalTiling extends TilingBase implements TilingCreator {
         if (!isDrawFundamentalDomainOnly()) {
             // Make copies of fundamental domain.
             final OctTree seen = new OctTree();
-
             seen.insert(getGeometry(), referencePoint, tolerance); //root node of OctTree is point of reference.
 
             final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
