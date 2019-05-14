@@ -50,13 +50,15 @@ public class ReshapeUtilities {
      * @param a
      * @return
      */
-    public static Point2D resetShape(FDomain fDomain, double deltaX, double deltaY, Type type, int k, int a) {
+    public static Point2D resetShape(FDomain fDomain, double deltaX, double deltaY, Type type, int k, int a, double factor) {
         final DSymbol ds = fDomain.getDSymbol();
 
         // apply this to update mouse position
+        //deltaX /= factor;
+        //deltaY /= factor;
         Point2D transVector = new Point2D(deltaX, deltaY);
-        deltaX *= 100;
-        deltaY *= 100;
+
+
 
         switch (type) {
             case Vertex: {
@@ -78,7 +80,7 @@ public class ReshapeUtilities {
                     transVector = addMirrorRestriction(fDomain, transVector.getX(), transVector.getY(), length, k, a); // Mirror axis restriction
                 }
 
-                final Translate translate = new Translate(deltaX, deltaY);
+                final Translate translate = new Translate(transVector.getX(), transVector.getY());
 
                 // Translate Point of type k in chamber a
                 Point3D pt0 = Tools.map2Dto3D(fDomain.getGeometry(), fDomain.getVertex(k, a));
@@ -116,7 +118,7 @@ public class ReshapeUtilities {
                 if (k != 2)
                     break; // only allow reshaping of center of proper tiling edge
                 transVector = add2Restriction(fDomain, transVector.getX(), transVector.getY(), a);
-                final Translate translate = new Translate(deltaX, deltaY);
+                final Translate translate = new Translate(transVector.getX(), transVector.getY());
 
                 Point3D apt = Tools.map2Dto3D(fDomain.getGeometry(), fDomain.getEdgeCenter(k, a));
                 apt = translate.transform(apt);
@@ -137,7 +139,7 @@ public class ReshapeUtilities {
         // Straighten 0- and 1-edges
 
         StraightenEdges.straighten01Edges(fDomain);
-            return transVector;
+        return transVector;
     }
 
     /**
