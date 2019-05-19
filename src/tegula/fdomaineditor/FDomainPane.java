@@ -333,7 +333,6 @@ public class FDomainPane extends StackPane {
     private void setMouseHandler(UndoManager undoManager, double factor, Shape shape, ReshapeUtilities.Type type, int k, int a) {
         final ObjectProperty<Point2D> mouseDown = new SimpleObjectProperty<>(new Point2D(0, 0));
 
-
         shape.setOnMousePressed((e) -> {
             mouseDown.set(new Point2D(e.getSceneX(), e.getSceneY()));
             oldCoordinates = getFDomain().getCoordinates();
@@ -346,12 +345,13 @@ public class FDomainPane extends StackPane {
 
             if (deltaX != 0 || deltaY != 0) {
                 // Reset shape of fundamental domain
-                final Point2D contraintsAdjustmentTranslationVector = ReshapeUtilities.resetShape(getFDomain(), deltaX / factor, deltaY / factor, type, k, a);
+                final Point2D constraintsAdjustmentTranslationVector = ReshapeUtilities.resetShape(getFDomain(), deltaX, deltaY, type, k, a, factor);
                 // Move handles along transVector
-                shape.setLayoutX(shape.getLayoutX() + factor * contraintsAdjustmentTranslationVector.getX());
-                shape.setLayoutY(shape.getLayoutY() + factor * contraintsAdjustmentTranslationVector.getY());
+                double fac = 0.01*factor;
+                shape.setLayoutX(shape.getLayoutX() + fac* constraintsAdjustmentTranslationVector.getX());
+                shape.setLayoutY(shape.getLayoutY() + fac* constraintsAdjustmentTranslationVector.getY());
 
-                mouseDown.set(new Point2D(e.getSceneX() - deltaX + factor * contraintsAdjustmentTranslationVector.getX(), e.getSceneY() - deltaY + factor * contraintsAdjustmentTranslationVector.getY()));
+                mouseDown.set(new Point2D(e.getSceneX() - deltaX + fac* constraintsAdjustmentTranslationVector.getX(), e.getSceneY() - deltaY +fac* constraintsAdjustmentTranslationVector.getY()));
                 moved = true;
             }
         });
