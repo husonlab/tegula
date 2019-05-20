@@ -17,7 +17,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.single;
+package tegula.xtra;
 
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
@@ -25,6 +25,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import tegula.core.dsymbols.DSymbol;
 import tegula.main.TilingStyle;
+import tegula.tilingpane.TilingPane;
 
 
 /**
@@ -45,24 +46,24 @@ public class SingleTilingWindow {
         final TilingStyle tilingStyle = new TilingStyle();
         tilingStyle.setBandColor(Color.WHITE);
 
-        final SingleTilingPane singleTilingPane = new SingleTilingPane(dSymbol, tilingStyle);
+        final TilingPane tilingPane = new TilingPane(dSymbol, tilingStyle);
 
         final AnchorPane root = new AnchorPane();
-        AnchorPane.setBottomAnchor(singleTilingPane, 0.0);
-        AnchorPane.setTopAnchor(singleTilingPane, 0.0);
-        AnchorPane.setLeftAnchor(singleTilingPane, 0.0);
-        AnchorPane.setRightAnchor(singleTilingPane, 0.0);
-        root.getChildren().add(singleTilingPane);
+        AnchorPane.setBottomAnchor(tilingPane, 0.0);
+        AnchorPane.setTopAnchor(tilingPane, 0.0);
+        AnchorPane.setLeftAnchor(tilingPane, 0.0);
+        AnchorPane.setRightAnchor(tilingPane, 0.0);
+        root.getChildren().add(tilingPane);
 
         root.widthProperty().addListener((c, o, n) -> {
-            singleTilingPane.setPrefWidth(n.doubleValue());
+            tilingPane.setPrefWidth(n.doubleValue());
             if (o != null && o.doubleValue() > 0)
-                singleTilingPane.setEuclideanWidth(singleTilingPane.getEuclideanWidth() / o.doubleValue() * n.doubleValue());
+                tilingPane.setEuclideanWidth(tilingPane.getEuclideanWidth() / o.doubleValue() * n.doubleValue());
         });
         root.heightProperty().addListener((c, o, n) -> {
-            singleTilingPane.setPrefHeight(n.doubleValue());
+            tilingPane.setPrefHeight(n.doubleValue());
             if (o != null && o.doubleValue() > 0)
-                singleTilingPane.setEuclideanHeight(singleTilingPane.getEuclideanHeight() / o.doubleValue() * n.doubleValue());
+                tilingPane.setEuclideanHeight(tilingPane.getEuclideanHeight() / o.doubleValue() * n.doubleValue());
         });
 
 

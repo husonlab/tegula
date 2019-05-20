@@ -19,6 +19,8 @@
 
 package tegula.core.dsymbols;
 
+import jloda.util.BitSetUtils;
+import jloda.util.Single;
 import tegula.core.fundamental.utils.Wrap;
 
 import java.io.IOException;
@@ -51,6 +53,13 @@ public class DSymbol {
 
     public DSymbol(DSymbol src) {
         copy(src);
+    }
+
+    public void clear() {
+        nr1 = 0;
+        nr2 = 0;
+        set = new int[0][0];
+        matrix = new int[0][0];
     }
 
     public void copy(DSymbol src) {
@@ -118,6 +127,14 @@ public class DSymbol {
 
     public int getSi(int i, int a) {
         return set[a][i];
+    }
+
+    public BitSet getSi(int i, BitSet set) {
+        final BitSet result = new BitSet();
+        for (int a : BitSetUtils.members(set)) {
+            result.set(getSi(i, a));
+        }
+        return result;
     }
 
     public void setS0(int a, int value) {
@@ -228,11 +245,14 @@ public class DSymbol {
      */
     public void markOrbit(final int i, final int j, final int a, final BitSet visited) {
         int b = a;
+        int length = 0;
         do {
             visited.set(b);
             b = getSi(i, b);
             visited.set(b);
             b = getSi(j, b);
+            if (++length > size())
+                throw new RuntimeException("Orbit too long");
         }
         while (b != a);
     }
@@ -323,6 +343,9 @@ public class DSymbol {
 
     public void setMatrixIJ(int i, int j, int a, int value) {
         matrix[a][i + j - 1] = value;
+
+        //getVij(i,j,a);
+
     }
 
     public int getVij(int i, int j, int a) {
@@ -607,5 +630,22 @@ public class DSymbol {
 
     public static int j(int k) {
         return k == 2 ? 1 : 2;
+    }
+
+    public int getFixpointInOrbit(int i, int j, int a) {
+        final Single<Integer> fixedPoint = new Single<>(-1);
+        visitOrbit(i, j, a, (b) -> {
+            if (fixedPoint.get() == -1 && getSi(i, b) == b || getSi(j, b) == b)
+                fixedPoint.set(b);
+        });
+        return fixedPoint.get();
+    }
+
+    public BitSet computeFirstInOrbit(int i, int j) {
+        final BitSet visited = new BitSet();
+        final BitSet result = new BitSet();
+        for (int a = 1; a <= size(); a = nextOrbit(i, j, a, visited))
+            result.set(a);
+        return result;
     }
 }

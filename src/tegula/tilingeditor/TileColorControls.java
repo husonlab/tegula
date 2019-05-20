@@ -29,7 +29,7 @@ import jloda.fx.undo.UndoManager;
 import jloda.fx.undo.UndoableChangeProperty;
 import jloda.fx.util.ColorSchemeManager;
 import tegula.main.TilingStyle;
-import tegula.single.SingleTilingPane;
+import tegula.tilingpane.TilingPane;
 
 /**
  * setup tile color controls
@@ -43,11 +43,11 @@ public class TileColorControls {
      */
     public static void setup(TilingEditorTab tilingEditorTab) {
         final TilingEditorTabController controller = tilingEditorTab.getController();
-        final SingleTilingPane singleTilingPane = tilingEditorTab.getTilingPane();
-        final TilingStyle tilingStyle = singleTilingPane.getTilingStyle();
+        final TilingPane tilingPane = tilingEditorTab.getTilingPane();
+        final TilingStyle tilingStyle = tilingPane.getTilingStyle();
         final UndoManager undoManager = tilingEditorTab.getUndoManager();
 
-        final int numberOfTiles = singleTilingPane.getTiling().getDSymbol().countOrbits(0, 1);
+        final int numberOfTiles = tilingPane.getTiling().getDSymbol().countOrbits(0, 1);
 
         final ObservableList<Node> list = controller.getAppearanceVBox().getChildren();
 
@@ -73,7 +73,7 @@ public class TileColorControls {
                         color, tilingStyle.getTileColorFullOpacity(tileNumber), colorPicker.getValue(),
                         (v) -> {
                             tilingStyle.setTileColor(tileNumber, color.get());
-                            singleTilingPane.updateTileColors();
+                            tilingPane.updateTileColors();
                             colorPicker.setValue(v);
                         }));
             });

@@ -115,9 +115,6 @@ public class WindowController {
     private CheckMenuItem showLabelsMenuItem;
 
     @FXML
-    private CheckMenuItem showFDomainMenuItem;
-
-    @FXML
     private CheckMenuItem showChambersMenuItem;
 
     @FXML
@@ -145,7 +142,7 @@ public class WindowController {
     private MenuItem orientateMenuItem;
 
     @FXML
-    private CheckMenuItem straightenMenuItem;
+    private MenuItem straightenMenuItem;
 
     @FXML
     private Menu windowMenu;
@@ -198,7 +195,6 @@ public class WindowController {
         assert openInEditorMenuItem != null : "fx:id=\"openInEditorMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert viewMenu != null : "fx:id=\"viewMenu\" was not injected: check your FXML file 'Window.fxml'.";
         assert showLabelsMenuItem != null : "fx:id=\"showLabelsMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
-        assert showFDomainMenuItem != null : "fx:id=\"showFDomainMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert showChambersMenuItem != null : "fx:id=\"showChambersMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert showMoreTilesMenuItem != null : "fx:id=\"showMoreTilesMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert showLessTilesMenuItem != null : "fx:id=\"showLessTilesMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
@@ -338,10 +334,6 @@ public class WindowController {
         return showLabelsMenuItem;
     }
 
-    public CheckMenuItem getShowFDomainMenuItem() {
-        return showFDomainMenuItem;
-    }
-
     public CheckMenuItem getShowChambersMenuItem() {
         return showChambersMenuItem;
     }
@@ -378,7 +370,7 @@ public class WindowController {
         return orientateMenuItem;
     }
 
-    public CheckMenuItem getStraightenMenuItem() {
+    public MenuItem getStraightenMenuItem() {
         return straightenMenuItem;
     }
 

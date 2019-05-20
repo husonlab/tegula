@@ -29,7 +29,7 @@ import jloda.fx.util.ColorSchemeManager;
 import tegula.core.dsymbols.DSymbolAlgorithms;
 import tegula.core.dsymbols.Geometry;
 import tegula.main.TilingStyle;
-import tegula.single.SingleTilingPane;
+import tegula.tilingpane.TilingPane;
 import tegula.undoable.ChangeDSymbolCommand;
 import tegula.util.HasHyperbolicModel;
 
@@ -39,7 +39,7 @@ import tegula.util.HasHyperbolicModel;
  */
 public class ControlBindings {
     public static void setup(TilingEditorTab tilingEditorTab) {
-        final SingleTilingPane tilingPane = tilingEditorTab.getTilingPane();
+        final TilingPane tilingPane = tilingEditorTab.getTilingPane();
         final TilingStyle tilingStyle = tilingEditorTab.getTilingStyle();
         final TilingEditorTabController controller = tilingEditorTab.getController();
         final UndoManager undoManager = tilingEditorTab.getUndoManager();
@@ -108,13 +108,13 @@ public class ControlBindings {
         controller.getDualizeButton().setOnAction((e) -> {
             final Point2D[][] coordinates = tilingPane.getTiling().getfDomain().getCoordinates();
             undoManager.doAndAdd(new ChangeDSymbolCommand("dualize", tilingPane.getTiling().getDSymbol(), DSymbolAlgorithms.dualize(tilingPane.getTiling().getDSymbol()),
-                    tilingPane::replaceTiling, coordinates, tilingPane::changeCoordinates));
+                    tilingPane::computTiling, coordinates, tilingPane::changeCoordinates));
         });
 
         controller.getMaximizeButton().setOnAction((e) -> {
             final Point2D[][] coordinates = tilingPane.getTiling().getfDomain().getCoordinates();
             undoManager.doAndAdd(new ChangeDSymbolCommand("maximize", tilingPane.getTiling().getDSymbol(), DSymbolAlgorithms.maxSymmetry(tilingPane.getTiling().getDSymbol()),
-                    tilingPane::replaceTiling, coordinates, tilingPane::changeCoordinates));
+                    tilingPane::computTiling, coordinates, tilingPane::changeCoordinates));
 
         });
         controller.getMaximizeButton().disableProperty().bind(tilingEditorTab.maximalTilingProperty());
@@ -122,7 +122,7 @@ public class ControlBindings {
         controller.getOrientateButton().setOnAction((e) -> {
             final Point2D[][] coordinates = tilingPane.getTiling().getfDomain().getCoordinates();
             undoManager.doAndAdd(new ChangeDSymbolCommand("orientate", tilingPane.getTiling().getDSymbol(), DSymbolAlgorithms.orientate(tilingPane.getTiling().getDSymbol()),
-                    tilingPane::replaceTiling, coordinates, tilingPane::changeCoordinates));
+                    tilingPane::computTiling, coordinates, tilingPane::changeCoordinates));
 
         });
         controller.getOrientateButton().disableProperty().bind(tilingEditorTab.orientableTilingProperty());
@@ -141,31 +141,32 @@ public class ControlBindings {
             tilingPane.update();
         });
 
-        controller.getShowFacesCheckBox().setOnAction((e) -> {
+        controller.getShowFacesToggleButton().setSelected(tilingStyle.isShowFaces());
+        controller.getShowFacesToggleButton().setOnAction((e) -> {
             if (!undoManager.isPerformingUndoOrRedo())
-                undoManager.doAndAdd(new UndoableChangeProperty<>("tiles",
-                        tilingStyle.showFacesProperty(), !controller.getShowFacesCheckBox().isSelected(),
-                        controller.getShowFacesCheckBox().isSelected(),
+                undoManager.doAndAdd(new UndoableChangeProperty<>("show faces",
+                        tilingStyle.showFacesProperty(), !controller.getShowFacesToggleButton().isSelected(),
+                        controller.getShowFacesToggleButton().isSelected(),
                         (v) -> {
                             tilingPane.update();
-                            controller.getShowFacesCheckBox().setSelected(v);
+                            controller.getShowFacesToggleButton().setSelected(v);
                         }));
         });
 
-        controller.getBackFacesCheckBox().setSelected(tilingStyle.isShowBackFaces());
-        controller.getBackFacesCheckBox().setOnAction((e) -> {
-            tilingStyle.setShowBackFaces(controller.getBackFacesCheckBox().isSelected());
+        controller.getBackFacesToggleButton().setSelected(tilingStyle.isShowBackFaces());
+        controller.getBackFacesToggleButton().setOnAction((e) -> {
+            tilingStyle.setShowBackFaces(controller.getBackFacesToggleButton().isSelected());
             if (!undoManager.isPerformingUndoOrRedo())
-                undoManager.doAndAdd(new UndoableChangeProperty<>("back faces",
-                        tilingStyle.showBackFacesProperty(), !controller.getBackFacesCheckBox().isSelected(),
-                        controller.getBackFacesCheckBox().isSelected(),
+                undoManager.doAndAdd(new UndoableChangeProperty<>("show back faces",
+                        tilingStyle.showBackFacesProperty(), !controller.getBackFacesToggleButton().isSelected(),
+                        controller.getBackFacesToggleButton().isSelected(),
                         (v) -> {
-                            tilingPane.updateTileColors();
-                            controller.getBackBandsCheckBox().setSelected(v);
+                            tilingPane.update();
+                            controller.getBackFacesToggleButton().setSelected(v);
                         }));
         });
-        tilingStyle.showBackFacesProperty().addListener((c, o, n) -> controller.getBackFacesCheckBox().setSelected(n));
-        controller.getBackFacesCheckBox().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));
+        tilingStyle.showBackFacesProperty().addListener((c, o, n) -> controller.getBackFacesToggleButton().setSelected(n));
+        controller.getBackFacesToggleButton().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));
 
         controller.getTilesOpacitySlider().valueProperty().addListener((c, o, n) -> {
             if (!undoManager.isPerformingUndoOrRedo())
@@ -179,29 +180,55 @@ public class ControlBindings {
         controller.getTilesOpacitySlider().setValue(tilingStyle.getTileOpacity());
         undoManager.clear(); // don't want to keep this event
 
-        controller.getShowBandsCheckBox().setOnAction((e) -> {
+        controller.getShowEdgesToggleButton().setSelected(tilingStyle.isShowEdges());
+        controller.getShowEdgesToggleButton().setOnAction((e) -> {
             if (!undoManager.isPerformingUndoOrRedo())
-                undoManager.doAndAdd(new UndoableChangeProperty<>("bands",
-                        tilingStyle.showBandsProperty(), !controller.getShowBandsCheckBox().isSelected(),
-                        controller.getShowBandsCheckBox().isSelected(),
+                undoManager.doAndAdd(new UndoableChangeProperty<>("show edges",
+                        tilingStyle.showEdgesProperty(), !controller.getShowEdgesToggleButton().isSelected(),
+                        controller.getShowEdgesToggleButton().isSelected(),
                         (v) -> {
                             tilingPane.update();
-                            controller.getShowBandsCheckBox().setSelected(v);
+                            controller.getShowEdgesToggleButton().setSelected(v);
                         }));
         });
 
-        controller.getBackBandsCheckBox().setSelected(tilingStyle.isShowBackBands());
-        controller.getBackBandsCheckBox().setOnAction((e) -> {
+        controller.getShowBackEdgesToggleButton().setSelected(tilingStyle.isShowBackEdges());
+        controller.getShowBackEdgesToggleButton().setOnAction((e) -> {
             if (!undoManager.isPerformingUndoOrRedo())
-                undoManager.doAndAdd(new UndoableChangeProperty<>("back bands",
-                        tilingStyle.showBackBandsProperty(), !controller.getBackBandsCheckBox().isSelected(),
-                        controller.getBackBandsCheckBox().isSelected(),
+                undoManager.doAndAdd(new UndoableChangeProperty<>("show back edges",
+                        tilingStyle.showBackEdgesProperty(), !controller.getShowBackEdgesToggleButton().isSelected(),
+                        controller.getShowBackEdgesToggleButton().isSelected(),
                         (v) -> {
-                            controller.getBackBandsCheckBox().setSelected(v);
                             tilingPane.update();
+                            controller.getShowBackEdgesToggleButton().setSelected(v);
                         }));
         });
-        controller.getBackBandsCheckBox().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));
+        controller.getShowBackEdgesToggleButton().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));
+
+        controller.getShowNodesToggleButton().setSelected(tilingStyle.isShowVertices());
+        controller.getShowNodesToggleButton().setOnAction((e) -> {
+            if (!undoManager.isPerformingUndoOrRedo())
+                undoManager.doAndAdd(new UndoableChangeProperty<>("show nodes",
+                        tilingStyle.showVerticesProperty(), !controller.getShowNodesToggleButton().isSelected(),
+                        controller.getShowNodesToggleButton().isSelected(),
+                        (v) -> {
+                            tilingPane.update();
+                            controller.getShowNodesToggleButton().setSelected(v);
+                        }));
+        });
+
+        controller.getShowBackNodesToggleButton().setSelected(tilingStyle.isShowBackVertices());
+        controller.getShowBackNodesToggleButton().setOnAction((e) -> {
+            if (!undoManager.isPerformingUndoOrRedo())
+                undoManager.doAndAdd(new UndoableChangeProperty<>("show back nodes",
+                        tilingStyle.showBackVerticesProperty(), !controller.getShowBackNodesToggleButton().isSelected(),
+                        controller.getShowBackNodesToggleButton().isSelected(),
+                        (v) -> {
+                            tilingPane.update();
+                            controller.getShowBackNodesToggleButton().setSelected(v);
+                        }));
+        });
+        controller.getShowBackNodesToggleButton().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));
 
 
         controller.getSmoothEdgesCheckBox().setOnAction((e) -> {
@@ -216,7 +243,6 @@ public class ControlBindings {
                 ));
         });
         controller.getSmoothEdgesCheckBox().disableProperty().bind(tilingPane.geometryProperty().isNotEqualTo(Geometry.Spherical));
-
 
         controller.getBandsColorPicker().setValue(tilingStyle.getBandColorFullOpacity());
         controller.getBandsColorPicker().setOnAction((e) -> {
@@ -252,7 +278,7 @@ public class ControlBindings {
                         null));
         });
         tilingStyle.backgroundColorProperty().addListener((c, o, n) -> controller.getBackgroundColorPicker().setValue(n));
-        controller.getBackgroundColorPicker().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));
+        //controller.getBackgroundColorPicker().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));
 
         controller.getBackgroundColorPicker().setOnShowing((e) -> {
             controller.getBackgroundColorPicker().getCustomColors().setAll(ColorSchemeManager.getInstance().getColorScheme(tilingStyle.getTileColorsScheme()));

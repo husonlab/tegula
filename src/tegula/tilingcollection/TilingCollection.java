@@ -57,6 +57,8 @@ public class TilingCollection implements IFileBased {
 
     private final IntegerProperty blockSize = new SimpleIntegerProperty(60);
 
+    private AService<Boolean> loadingService;
+
     /**
      * setup a new tiling collection
      *
@@ -79,10 +81,10 @@ public class TilingCollection implements IFileBased {
      * @param runAfterwards if non null, will be run in FX thread after loading
      */
     public void load(Pane statusPane, Runnable runAfterwards) {
-        final AService<Boolean> aService = new AService<>(statusPane);
+        loadingService = new AService<>(statusPane);
 
-        aService.setCallable(() -> {
-                    final ProgressListener progress = aService.getProgressListener();
+        loadingService.setCallable(() -> {
+            final ProgressListener progress = loadingService.getProgressListener();
                     progress.setTasks("Loading", getFileName());
                     progress.setMaximum(Basic.guessUncompressedSizeOfFile(getFileName()));
 
@@ -118,13 +120,13 @@ public class TilingCollection implements IFileBased {
             return true;
                 }
         );
-        aService.setOnCancelled((e) -> NotificationManager.showInformation(String.format("CANCELED, loaded %,d tilings", getSize())));
-        aService.setOnSucceeded((e) -> {
+        loadingService.setOnCancelled((e) -> NotificationManager.showInformation(String.format("CANCELED, loaded %,d tilings", getSize())));
+        loadingService.setOnSucceeded((e) -> {
             NotificationManager.showInformation(String.format("Loaded %,d tilings", getSize()));
             if (runAfterwards != null)
                 runAfterwards.run();
         });
-        aService.start();
+        loadingService.start();
     }
 
 
@@ -183,6 +185,12 @@ public class TilingCollection implements IFileBased {
 
     public Image getPreviewImage(DSymbol ds) {
         return dSymbolImageMap.get(ds);
+    }
+
+    public void cancelLoading() {
+        if (loadingService != null)
+            loadingService.cancel();
+
     }
 
 }

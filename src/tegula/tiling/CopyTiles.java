@@ -21,7 +21,6 @@ package tegula.tiling;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Polyline;
@@ -30,7 +29,6 @@ import javafx.scene.text.Text;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * Copy the tiles in a fundamental domain
@@ -54,8 +52,13 @@ public class CopyTiles {
                 MeshView src = (MeshView) node;
                 MeshView target = new MeshView(((MeshView) node).getMesh());
                 target.setMaterial(src.getMaterial());
+                target.setId(src.getId());
                 target.setUserData(src.getUserData());
                 result.getChildren().add(target);
+
+                if (node.getOnMouseClicked() != null)
+                    target.setOnMouseClicked(node.getOnMouseClicked());
+
             } else if (node instanceof Polyline) {
                 Polyline src = (Polyline) node;
                 Polyline target = new Polyline();
@@ -63,15 +66,25 @@ public class CopyTiles {
                 target.setFill(src.getFill());
                 target.setStroke(src.getStroke());
                 target.setStrokeLineCap(src.getStrokeLineCap());
+                target.setId(src.getId());
                 target.setUserData(src.getUserData());
                 result.getChildren().add(target);
+
+                if (node.getOnMouseClicked() != null)
+                    target.setOnMouseClicked(node.getOnMouseClicked());
+
             } else if (node instanceof Sphere) {
                 Sphere src = (Sphere) node;
                 Sphere target = new Sphere(src.getRadius());
                 target.setMaterial(src.getMaterial());
                 target.getTransforms().addAll(src.getTransforms());
+                target.setId(src.getId());
                 target.setUserData(src.getUserData());
                 result.getChildren().add(target);
+
+                if (node.getOnMouseClicked() != null)
+                    target.setOnMouseClicked(node.getOnMouseClicked());
+
             } else if (node instanceof Cylinder) {
                 Cylinder src = (Cylinder) node;
                 Cylinder target = new Cylinder(src.getRadius(), src.getHeight(), src.getDivisions());
@@ -79,27 +92,38 @@ public class CopyTiles {
                 target.setDrawMode(src.getDrawMode());
                 target.setMaterial(src.getMaterial());
                 target.getTransforms().addAll(src.getTransforms());
+                target.setId(src.getId());
                 target.setUserData(src.getUserData());
                 result.getChildren().add(target);
+
+                if (node.getOnMouseClicked() != null)
+                    target.setOnMouseClicked(node.getOnMouseClicked());
+
             } else if (node instanceof Text) {
                 Text src = (Text) node;
                 Text target = new Text(src.getText());
                 target.setFont(src.getFont());
                 target.setFill(src.getFill());
                 target.getTransforms().addAll(src.getTransforms());
+                target.setId(src.getId());
                 target.setUserData(src.getUserData());
                 result.getChildren().add(target);
             } else if (node instanceof Group) {
                 Group src = (Group) node;
                 Group target = apply(src);
                 target.getTransforms().addAll(src.getTransforms());
+                target.setId(src.getId());
                 target.setUserData(src.getUserData());
                 result.getChildren().add(target);
+
+                if (node.getOnMouseClicked() != null)
+                    target.setOnMouseClicked(node.getOnMouseClicked());
             } else if (!warned.contains(node.getClass())) {
                 System.err.println("Warning: copyGroup(): not implemented for class: " + node.getClass());
                 warned.add(node.getClass());
             }
         }
+        result.setId(group.getId());
         result.setUserData(group.getUserData());
         result.setRotationAxis(group.getRotationAxis());
         result.setRotate(group.getRotate());
@@ -110,11 +134,4 @@ public class CopyTiles {
         return result;
     }
 
-    public static void visitAllNodes(Node node, Consumer<Node> consumer) {
-        consumer.accept(node);
-        if (node instanceof Parent) {
-            for (Node child : ((Parent) node).getChildrenUnmodifiable())
-                visitAllNodes(child, consumer);
-        }
-    }
 }

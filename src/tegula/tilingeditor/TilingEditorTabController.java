@@ -1,21 +1,3 @@
-/*
- * TilingEditorTabController.java Copyright (C) 2019. Daniel H. Huson
- *
- *  (Some files contain contributions from other authors, who are then mentioned separately.)
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 package tegula.tilingeditor;
 
 import javafx.fxml.FXML;
@@ -55,6 +37,9 @@ public class TilingEditorTabController {
     private TextField groupTextField;
 
     @FXML
+    private TitledPane hyperbolicModelTitledPane;
+
+    @FXML
     private ChoiceBox<?> modelChoiceBox;
 
     @FXML
@@ -70,22 +55,28 @@ public class TilingEditorTabController {
     private ChoiceBox<?> colorSchemeChoiceBox;
 
     @FXML
-    private CheckBox showFacesCheckBox;
+    private ToggleButton showFacesToggleButton;
 
     @FXML
-    private CheckBox backFacesCheckBox;
-
-    @FXML
-    private CheckBox smoothEdgesCheckBox;
+    private ToggleButton showBackFacesToggleButton;
 
     @FXML
     private ColorPicker tile1ColorPicker;
 
     @FXML
-    private CheckBox showBandsCheckBox;
+    private Slider tilesOpacitySlider;
 
     @FXML
-    private CheckBox backBandsCheckBox;
+    private ToggleButton showEdgesToggleButton;
+
+    @FXML
+    private ToggleButton showBackEdgesToggleButton;
+
+    @FXML
+    private ToggleButton showVerticesToggleButton;
+
+    @FXML
+    private ToggleButton showBackVerticesToggleButton;
 
     @FXML
     private Spinner<?> bandWidthSpinner;
@@ -94,7 +85,22 @@ public class TilingEditorTabController {
     private ColorPicker bandsColorPicker;
 
     @FXML
+    private Slider bandsOpacitySlider;
+
+    @FXML
+    private CheckBox smoothEdgesCheckBox;
+
+    @FXML
     private ColorPicker backgroundColorPicker;
+
+    @FXML
+    private TitledPane fundamentalDomainTitledPane;
+
+    @FXML
+    private AnchorPane fdomainAnchorPane;
+
+    @FXML
+    private Button resizeButton;
 
     @FXML
     private Button straightenEdgesButton;
@@ -109,25 +115,45 @@ public class TilingEditorTabController {
     private Button maximizeButton;
 
     @FXML
-    private TitledPane fundamentalDomainTitledPane;
-
-    @FXML
-    private TitledPane hyperbolicModelTitledPane;
-
-    @FXML
-    private Button resizeButton;
-
-    @FXML
-    private AnchorPane fdomainAnchorPane;
-
-    @FXML
-    private Slider tilesOpacitySlider;
-
-    @FXML
-    private Slider bandsOpacitySlider;
-
-    @FXML
     private Button stopAnimationButton;
+
+    @FXML
+    void initialize() {
+        assert borderPane != null : "fx:id=\"borderPane\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert mainToolBar != null : "fx:id=\"mainToolBar\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert mainPane != null : "fx:id=\"mainPane\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert infoTextField != null : "fx:id=\"infoTextField\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert symmetiesVBox != null : "fx:id=\"symmetiesVBox\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert groupTextField != null : "fx:id=\"groupTextField\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert hyperbolicModelTitledPane != null : "fx:id=\"hyperbolicModelTitledPane\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert modelChoiceBox != null : "fx:id=\"modelChoiceBox\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert showLessTilesButton != null : "fx:id=\"showLessTilesButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert showMoreTilesButton != null : "fx:id=\"showMoreTilesButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert appearanceVBox != null : "fx:id=\"appearanceVBox\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert colorSchemeChoiceBox != null : "fx:id=\"colorSchemeChoiceBox\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert showFacesToggleButton != null : "fx:id=\"showFacesToggleButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert showBackFacesToggleButton != null : "fx:id=\"showBackFacesToggleButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert tile1ColorPicker != null : "fx:id=\"tile1ColorPicker\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert tilesOpacitySlider != null : "fx:id=\"tilesOpacitySlider\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert showEdgesToggleButton != null : "fx:id=\"showEdgesToggleButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert showBackEdgesToggleButton != null : "fx:id=\"showBackEdgesToggleButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert showVerticesToggleButton != null : "fx:id=\"showNodesToggleButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert showBackVerticesToggleButton != null : "fx:id=\"showBackNodesToggleButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert bandWidthSpinner != null : "fx:id=\"bandWidthSpinner\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert bandsColorPicker != null : "fx:id=\"bandsColorPicker\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert bandsOpacitySlider != null : "fx:id=\"bandsOpacitySlider\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert smoothEdgesCheckBox != null : "fx:id=\"smoothEdgesCheckBox\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert backgroundColorPicker != null : "fx:id=\"backgroundColorPicker\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert fundamentalDomainTitledPane != null : "fx:id=\"fundamentalDomainTitledPane\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert fdomainAnchorPane != null : "fx:id=\"fdomainAnchorPane\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert resizeButton != null : "fx:id=\"resizeButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert straightenEdgesButton != null : "fx:id=\"straightenEdgesButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert dualizeButton != null : "fx:id=\"dualizeButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert orientateButton != null : "fx:id=\"orientateButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert maximizeButton != null : "fx:id=\"maximizeButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert stopAnimationButton != null : "fx:id=\"stopAnimationButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+
+    }
 
 
     public BorderPane getBorderPane() {
@@ -174,14 +200,13 @@ public class TilingEditorTabController {
         return (ChoiceBox<String>) colorSchemeChoiceBox;
     }
 
-    public CheckBox getShowFacesCheckBox() {
-        return showFacesCheckBox;
+    public ToggleButton getShowFacesToggleButton() {
+        return showFacesToggleButton;
     }
 
-    public CheckBox getBackFacesCheckBox() {
-        return backFacesCheckBox;
+    public ToggleButton getBackFacesToggleButton() {
+        return showBackFacesToggleButton;
     }
-
 
     public CheckBox getSmoothEdgesCheckBox() {
         return smoothEdgesCheckBox;
@@ -191,12 +216,20 @@ public class TilingEditorTabController {
         return tile1ColorPicker;
     }
 
-    public CheckBox getShowBandsCheckBox() {
-        return showBandsCheckBox;
+    public ToggleButton getShowEdgesToggleButton() {
+        return showEdgesToggleButton;
     }
 
-    public CheckBox getBackBandsCheckBox() {
-        return backBandsCheckBox;
+    public ToggleButton getShowBackEdgesToggleButton() {
+        return showBackEdgesToggleButton;
+    }
+
+    public ToggleButton getShowNodesToggleButton() {
+        return showVerticesToggleButton;
+    }
+
+    public ToggleButton getShowBackNodesToggleButton() {
+        return showBackVerticesToggleButton;
     }
 
     public Spinner<Integer> getBandWidthSpinner() {

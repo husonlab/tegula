@@ -152,18 +152,13 @@
                                             </accelerator>
                                         </CheckMenuItem>
                                         <SeparatorMenuItem mnemonicParsing="false"/>
-                                        <CheckMenuItem fx:id="showFDomainMenuItem" text="Show F. Domain">
-                                            <accelerator>
-                                                <KeyCodeCombination alt="UP" code="F" control="UP" meta="UP"
-                                                                    shift="DOWN" shortcut="DOWN"/>
-                                            </accelerator>
-                                        </CheckMenuItem>
                                         <CheckMenuItem fx:id="showChambersMenuItem" text="Show Chambers">
                                             <accelerator>
                                                 <KeyCodeCombination alt="UP" code="K" control="UP" meta="UP"
                                                                     shift="DOWN" shortcut="DOWN"/>
                                             </accelerator>
                                         </CheckMenuItem>
+
                                         <SeparatorMenuItem mnemonicParsing="false"/>
                                         <MenuItem fx:id="showMoreTilesMenuItem" text="Show More Tiles">
                                             <accelerator>
@@ -213,12 +208,12 @@
                                             </accelerator>
                                         </MenuItem>
                                         <SeparatorMenuItem mnemonicParsing="false"/>
-                                        <CheckMenuItem fx:id="straightenMenuItem" text="Straighten">
+                                        <MenuItem fx:id="straightenMenuItem" text="Straighten">
                                             <accelerator>
                                                 <KeyCodeCombination alt="UP" code="T" control="UP" meta="UP" shift="UP"
                                                                     shortcut="DOWN"/>
                                             </accelerator>
-                                        </CheckMenuItem>
+                                        </MenuItem>
                                     </items>
                                 </Menu>
                                 <Menu fx:id="windowMenu" text="Window">

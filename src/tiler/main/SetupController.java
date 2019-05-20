@@ -32,7 +32,7 @@ import jloda.fx.control.CopyableLabel;
 import jloda.fx.util.ColorSchemeManager;
 import jloda.fx.util.Print;
 import jloda.util.ProgramProperties;
-import tegula.single.SingleTilingWindow;
+import tegula.xtra.SingleTilingWindow;
 import tiler.color.ColorSchemeDialog;
 import tiler.core.dsymbols.DSymbol;
 import tiler.core.dsymbols.DSymbolAlgorithms;

@@ -22,6 +22,7 @@ package tegula.main;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.scene.control.Tab;
+import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.Print;
 import jloda.fx.util.Printable;
 import jloda.fx.util.RecentFilesManager;
@@ -29,6 +30,7 @@ import jloda.fx.window.MainWindowManager;
 import jloda.util.FileOpenManager;
 import jloda.util.ProgramProperties;
 import tegula.core.dsymbols.DSymbol;
+import tegula.tiling.HyperbolicTiling;
 import tegula.tilingcollection.TilingCollectionTab;
 import tegula.tilingeditor.TilingEditorTab;
 
@@ -72,6 +74,8 @@ public class ControlBindings {
                 controller.getRedoMenuItem().setDisable(!tab.getUndoManager().canRedoProperty().get());
                 controller.getRedoMenuItem().disableProperty().bind(tab.getUndoManager().canRedoProperty().not());
                 controller.getRedoMenuItem().textProperty().bind(tab.getUndoManager().redoNameProperty());
+
+                controller.getShowChambersMenuItem().setSelected(tab.getTilingStyle().isShowAllChambers());
             } else {
                 canSave.unbind();
                 canSave.set(false);
@@ -83,6 +87,8 @@ public class ControlBindings {
                 controller.getRedoMenuItem().setDisable(true);
                 controller.getRedoMenuItem().textProperty().unbind();
                 controller.getRedoMenuItem().setText("Redo");
+
+                controller.getShowChambersMenuItem().setSelected(false);
             }
             if (n instanceof TilingCollectionTab) {
                 final TilingCollectionTab tab = (TilingCollectionTab) n;
@@ -192,8 +198,8 @@ public class ControlBindings {
         });
 
         controller.getOpenInEditorMenuItem().setOnAction((e) -> {
-            final TilingCollectionTab tab = (TilingCollectionTab) selectedTab.get();
-            if (tab != null) {
+            if (selectedTab.get() instanceof TilingCollectionTab) {
+                final TilingCollectionTab tab = (TilingCollectionTab) selectedTab.get();
                 final Collection<DSymbol> symbols = tab.getSelectionModel().getSelectedItems();
                 final String prefix = tab.getTilingCollection().getTitle();
                 for (DSymbol dSymbol : symbols) {
@@ -207,11 +213,12 @@ public class ControlBindings {
         controller.getFullScreenMenuItem().setOnAction((e) -> {
             if (window.getStage().isFullScreen()) {
                 window.getStage().setFullScreen(false);
-                controller.getFullScreenMenuItem().setText("Enter Fullscreen");
             } else {
                 window.getStage().setFullScreen(true);
-                controller.getFullScreenMenuItem().setText("Exit Fullscreen");
             }
+        });
+        window.getStage().fullScreenProperty().addListener((c, o, n) -> {
+            controller.getFullScreenMenuItem().setText(n ? "Exit Fullscreen" : "Enter Fullscreen");
         });
 
         controller.getShowLabelsMenuItem().setOnAction((e) -> {
@@ -220,5 +227,112 @@ public class ControlBindings {
             }
         });
         controller.getShowLabelsMenuItem().disableProperty().bind(isCollectionTabSelected.not());
+
+        controller.getShowChambersMenuItem().setOnAction((e) -> {
+            final boolean selected = controller.getShowChambersMenuItem().isSelected();
+            if (selectedTab.get() instanceof TilingEditorTab) {
+                final TilingEditorTab tab = (TilingEditorTab) selectedTab.get();
+                tab.getUndoManager().doAndAdd(new UndoableRedoableCommand("show chambers") {
+                    @Override
+                    public void undo() {
+                        tab.getTilingStyle().setShowAllChambers(!selected);
+                        tab.getTilingPane().update();
+                    }
+
+                    @Override
+                    public void redo() {
+                        tab.getTilingStyle().setShowAllChambers(selected);
+                        tab.getTilingPane().update();
+                    }
+                });
+            }
+        });
+        controller.getShowChambersMenuItem().disableProperty().bind(isCollectionTabSelected);
+
+        controller.getShowMoreTilesMenuItem().setOnAction((e) -> {
+            if (selectedTab.get() instanceof TilingEditorTab) {
+                final TilingEditorTab tab = (TilingEditorTab) selectedTab.get();
+                if (tab.getTiling() instanceof HyperbolicTiling)
+                    tab.getUndoManager().doAndAdd(new UndoableRedoableCommand("show more tiles") {
+                        @Override
+                        public void undo() {
+                            tab.getTilingPane().decreaseTiling();
+                        }
+
+                        @Override
+                        public void redo() {
+                            tab.getTilingPane().increaseTiling();
+                        }
+                    });
+            }
+        });
+        controller.getShowLessTilesMenuItem().disableProperty().bind(isCollectionTabSelected);
+        controller.getShowLessTilesMenuItem().setOnAction((e) -> {
+            if (selectedTab.get() instanceof TilingEditorTab) {
+                final TilingEditorTab tab = (TilingEditorTab) selectedTab.get();
+                if (tab.getTiling() instanceof HyperbolicTiling)
+                    tab.getUndoManager().doAndAdd(new UndoableRedoableCommand("show less tiles") {
+                        @Override
+                        public void undo() {
+                            tab.getTilingPane().increaseTiling();
+                        }
+
+                        @Override
+                        public void redo() {
+                            tab.getTilingPane().decreaseTiling();
+                        }
+                    });
+            }
+        });
+        controller.getShowLessTilesMenuItem().disableProperty().bind(isCollectionTabSelected);
+
+        controller.getStraightenMenuItem().setOnAction((e) -> {
+            if (selectedTab.get() instanceof TilingEditorTab) {
+                final TilingEditorTab tab = (TilingEditorTab) selectedTab.get();
+                tab.getController().getStraightenEdgesButton().getOnAction().handle(e);
+            }
+        });
+        controller.getStraightenMenuItem().disableProperty().bind(isCollectionTabSelected);
+
+        controller.getDualizeMenuItem().setOnAction((e) -> {
+            if (selectedTab.get() instanceof TilingEditorTab) {
+                final TilingEditorTab tab = (TilingEditorTab) selectedTab.get();
+                tab.getController().getDualizeButton().getOnAction().handle(e);
+            }
+        });
+        controller.getDualizeMenuItem().disableProperty().bind(isCollectionTabSelected);
+
+        controller.getMaxSymmetryMenuItem().setOnAction((e) -> {
+            if (selectedTab.get() instanceof TilingEditorTab) {
+                final TilingEditorTab tab = (TilingEditorTab) selectedTab.get();
+                tab.getController().getMaximizeButton().getOnAction().handle(e);
+            }
+        });
+        controller.getMaxSymmetryMenuItem().disableProperty().bind(isCollectionTabSelected);
+
+        controller.getOrientateMenuItem().setOnAction((e) -> {
+            if (selectedTab.get() instanceof TilingEditorTab) {
+                final TilingEditorTab tab = (TilingEditorTab) selectedTab.get();
+                tab.getController().getOrientateButton().getOnAction().handle(e);
+            }
+        });
+        controller.getOrientateMenuItem().disableProperty().bind(isCollectionTabSelected);
+
+        controller.getSelectAllMenuItem().setOnAction((e) -> {
+            if (selectedTab.get() instanceof TilingEditorTab) {
+                final TilingEditorTab tab = (TilingEditorTab) selectedTab.get();
+                tab.selectAll(true);
+            }
+        });
+        controller.getSelectAllMenuItem().disableProperty().bind(isCollectionTabSelected);
+
+        controller.getSelectNoneMenuItem().setOnAction((e) -> {
+            if (selectedTab.get() instanceof TilingEditorTab) {
+                final TilingEditorTab tab = (TilingEditorTab) selectedTab.get();
+                tab.selectAll(false);
+            }
+        });
+        controller.getSelectNoneMenuItem().disableProperty().bind(isCollectionTabSelected);
+
     }
 }

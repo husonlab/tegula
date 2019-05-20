@@ -47,8 +47,6 @@ abstract public class TilingBase {
 
     final TilingStyle tilingStyle;
 
-    final FundamentalDomain fundamentalDomain = new FundamentalDomain();
-
     Generators generators;
     Constraints constraints;
 
@@ -68,18 +66,11 @@ abstract public class TilingBase {
     public TilingBase(DSymbol ds, TilingStyle tilingStyle) {
         this.ds = ds;
         this.groupName = OrbifoldGroupName.getGroupName(ds);
-        this.fDomain = new FDomain(ds);
+        this.fDomain = new FDomain(ds, tilingStyle.isBendAnEdge());
         this.constraints = fDomain.getConstraints();
         this.generators = fDomain.getGenerators();
 
         this.tilingStyle = tilingStyle;
-
-        fundamentalDomain.includeFacesProperty().bind(tilingStyle.showFacesProperty());
-        fundamentalDomain.includeBandsProperty().bind(tilingStyle.showBandsProperty());
-        fundamentalDomain.includeBackBandsProperty().bind(tilingStyle.showBackBandsProperty());
-        fundamentalDomain.includeBackFacesProperty().bind(tilingStyle.showBackFacesProperty());
-        fundamentalDomain.includeDecorationsProperty().bind(tilingStyle.showDecorationsProperty());
-        fundamentalDomain.includeChambersProperty().bind(tilingStyle.showAllChambersProperty());
     }
 
 
@@ -90,7 +81,7 @@ abstract public class TilingBase {
      */
     public void reset() {
         this.groupName = OrbifoldGroupName.getGroupName(ds);
-        this.fDomain = new FDomain(ds);
+        this.fDomain = new FDomain(ds, tilingStyle.isBendAnEdge());
         this.constraints = fDomain.getConstraints();
         this.generators = fDomain.getGenerators();
     }
@@ -168,10 +159,6 @@ abstract public class TilingBase {
 
     public Geometry getGeometry() {
         return fDomain.getGeometry();
-    }
-
-    public FundamentalDomain getFundamentalDomain() {
-        return fundamentalDomain;
     }
 
     public Stack<Group> recycler() {

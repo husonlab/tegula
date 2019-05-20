@@ -40,8 +40,11 @@ public class TilingStyle {
     private final BooleanProperty showFaces = new SimpleBooleanProperty(true);
     private final BooleanProperty showBackFaces = new SimpleBooleanProperty(false);
 
-    private final BooleanProperty showBands = new SimpleBooleanProperty(true);
-    private final BooleanProperty showBackBands = new SimpleBooleanProperty(false);
+    private final BooleanProperty showEdges = new SimpleBooleanProperty(true);
+    private final BooleanProperty showBackEdges = new SimpleBooleanProperty(false);
+
+    private final BooleanProperty showVertices = new SimpleBooleanProperty(true);
+    private final BooleanProperty showBackVertices = new SimpleBooleanProperty(false);
 
     private final BooleanProperty smoothEdges = new SimpleBooleanProperty(true);
 
@@ -53,7 +56,8 @@ public class TilingStyle {
 
     private final ObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(Color.TRANSPARENT);
 
-    private final BooleanProperty showFundamentalChambers = new SimpleBooleanProperty(false);
+    private final BooleanProperty bendAnEdge = new SimpleBooleanProperty(false);
+
     private final BooleanProperty showAllChambers = new SimpleBooleanProperty(false);
     private final BooleanProperty showHandles = new SimpleBooleanProperty(false);
     private final BooleanProperty showSymmetryIcons = new SimpleBooleanProperty(false);
@@ -71,6 +75,14 @@ public class TilingStyle {
     public TilingStyle(TilingStyle src) {
         this();
         copy(src);
+
+        showEdges.addListener((c, o, n) -> {
+            System.err.println("Show edges: " + n);
+        });
+
+        showVertices.addListener((c, o, n) -> {
+            System.err.println("Show vertices: " + n);
+        });
     }
 
     public void copy(TilingStyle src) {
@@ -79,8 +91,11 @@ public class TilingStyle {
         setBandOpacity(src.getBandOpacity());
         setBandCapFineness(src.getBandCapFineness());
         setShowFaces(src.isShowFaces());
-        setShowBands(src.isShowBands());
-        setShowBackBands(src.isShowBackBands());
+        setShowBackFaces(src.isShowBackFaces());
+        setShowEdges(src.isShowEdges());
+        setShowBackEdges(src.isShowBackEdges());
+        setShowVertices(src.isShowVertices());
+        setShowBackVertices(src.isShowBackVertices());
 
         setSmoothEdges(src.isSmoothEdges());
 
@@ -91,7 +106,6 @@ public class TilingStyle {
 
         setBackgroundColor(src.getBackgroundColor());
 
-        setShowFundamentalChambers(src.isShowFundamentalChambers());
         setShowAllChambers(src.isShowAllChambers());
         setShowHandles(src.isShowHandles());
         setShowSymmetryIcons(src.isShowSymmetryIcons());
@@ -178,18 +192,17 @@ public class TilingStyle {
         this.bandCapFineness.set(bandCapFineness);
     }
 
-    public boolean isShowBands() {
-        return showBands.get();
+    public boolean isShowEdges() {
+        return showEdges.get();
     }
 
-    public BooleanProperty showBandsProperty() {
-        return showBands;
+    public BooleanProperty showEdgesProperty() {
+        return showEdges;
     }
 
-    public void setShowBands(boolean showBands) {
-        this.showBands.set(showBands);
+    public void setShowEdges(boolean showEdges) {
+        this.showEdges.set(showEdges);
     }
-
 
     public boolean isShowFaces() {
         return showFaces.get();
@@ -227,28 +240,52 @@ public class TilingStyle {
         this.showBackFaces.set(showBackFaces);
     }
 
-    public boolean isShowBackBands() {
-        return showBackBands.get();
+    public boolean isShowBackEdges() {
+        return showBackEdges.get();
     }
 
-    public BooleanProperty showBackBandsProperty() {
-        return showBackBands;
+    public BooleanProperty showBackEdgesProperty() {
+        return showBackEdges;
     }
 
-    public void setShowBackBands(boolean showBackBands) {
-        this.showBackBands.set(showBackBands);
+    public void setShowBackEdges(boolean showBackEdges) {
+        this.showBackEdges.set(showBackEdges);
     }
 
-    public boolean isShowFundamentalChambers() {
-        return showFundamentalChambers.get();
+    public boolean isShowVertices() {
+        return showVertices.get();
     }
 
-    public BooleanProperty showFundamentalChambersProperty() {
-        return showFundamentalChambers;
+    public BooleanProperty showVerticesProperty() {
+        return showVertices;
     }
 
-    public void setShowFundamentalChambers(boolean showFundamentalChambers) {
-        this.showFundamentalChambers.set(showFundamentalChambers);
+    public void setShowVertices(boolean showVertices) {
+        this.showVertices.set(showVertices);
+    }
+
+    public boolean isShowBackVertices() {
+        return showBackVertices.get();
+    }
+
+    public BooleanProperty showBackVerticesProperty() {
+        return showBackVertices;
+    }
+
+    public void setShowBackVertices(boolean showBackVertices) {
+        this.showBackVertices.set(showBackVertices);
+    }
+
+    public boolean isBendAnEdge() {
+        return bendAnEdge.get();
+    }
+
+    public BooleanProperty bendAnEdgeProperty() {
+        return bendAnEdge;
+    }
+
+    public void setBendAnEdge(boolean bendAnEdge) {
+        this.bendAnEdge.set(bendAnEdge);
     }
 
     public boolean isShowAllChambers() {

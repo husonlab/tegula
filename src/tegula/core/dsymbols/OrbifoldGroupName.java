@@ -29,7 +29,6 @@ import java.util.Iterator;
  * Created by huson on 3/29/16.
  */
 public class OrbifoldGroupName {
-
     /**
      * computes the orbifold group name
      *
@@ -40,21 +39,18 @@ public class OrbifoldGroupName {
         final ArrayList<Integer> rotations = new ArrayList<>();
         final ArrayList<ArrayList<Integer>> boundary = new ArrayList<>();
         final ArrayList<ArrayList<Integer>> rev_boundary = new ArrayList<>();
-        int n_boundary;
-        int i, j;
-        int a;
         final BitSet[] mark = new BitSet[]{new BitSet(), new BitSet(), new BitSet()};
         final BitSet fl = new BitSet();
-        int[] orientation = new int[dSymbol.size() + 1];
-
 
         final int euler = dSymbol.computeEulerCharacteristic();
 
+        final int[] orientation = new int[dSymbol.size() + 1];
         final int orientable = dSymbol.computeOrientation(orientation);
 
-        for (i = 0; i <= 1; i++) {
-            for (j = i + 1; j <= 2; j++) {
-                for (a = 1; a <= dSymbol.size(); a = dSymbol.nextOrbit(i, j, a, fl)) {
+        for (int k = 0; k <= 2; k++) {
+            final int i = DSymbol.i(k);
+            final int j = DSymbol.j(k);
+            for (int a = 1; a <= dSymbol.size(); a = dSymbol.nextOrbit(i, j, a, fl)) {
                     if (dSymbol.isCycle(i, j, a)) {
                         int v = dSymbol.getVij(i, j, a);
                         if (v > 1)
@@ -62,15 +58,15 @@ public class OrbifoldGroupName {
                         dSymbol.markOrbit(i, j, a, mark[3 - (i + j)]);
                     }
                 }
-            }
         }
 
         int n_boundary_rotations = 0;
 
         if (!dSymbol.isFixedPointFree()) {
-            for (a = 1; a <= dSymbol.size(); a++) {
-                for (i = 0; i <= 2; i++) {
+            for (int a = 1; a <= dSymbol.size(); a++) {
+                for (int i = 0; i <= 2; i++) {
                     if (dSymbol.getSi(i, a) == a) {
+                        int j;
                         if (orientation[a] == 1)
                             j = ((i + 1) % 3);
                         else
@@ -89,24 +85,23 @@ public class OrbifoldGroupName {
             }
         }
 
-        n_boundary = boundary.size();
+        final StringBuilder name = new StringBuilder();
 
-        String conway = "";
+        final int n_boundary = boundary.size();
 
-        int genus = 0;
         if (orientable > 0) {
-            genus = (2 - euler - n_boundary) / 2;
+            final int genus = (2 - euler - n_boundary) / 2;
             for (int k = 1; k <= genus; k++)
-                conway += 'o';
+                name.append('o');
         }
 
         if (rotations.size() > 0) {
             rotations.sort(new IntegerCompareDown());
-            conway += intsAsString(rotations);
+            name.append(intsAsString(rotations));
         }
 
         if (rotations.size() == 0 && n_boundary_rotations == 0)
-            conway += '1';
+            name.append('1');
 
         if (n_boundary > 0) {
             boundary.sort(new IntegerListCompareDown());
@@ -115,17 +110,17 @@ public class OrbifoldGroupName {
             final ArrayList<ArrayList<Integer>> boundaryToReport = (compare(boundary, rev_boundary) < 0 ? rev_boundary : boundary);
 
             for (ArrayList<Integer> it : boundaryToReport) {
-                conway += '*';
-                conway += intsAsString(it);
+                name.append('*');
+                name.append(intsAsString(it));
             }
         }
 
         if (orientable == 0) {
-            genus = 2 - euler - n_boundary;
+            final int genus = 2 - euler - n_boundary;
             for (int k = 1; k <= genus; k++)
-                conway += 'x';
+                name.append('x');
         }
-        return conway;
+        return name.toString();
     }
 
     /**

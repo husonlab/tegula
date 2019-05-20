@@ -33,11 +33,11 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import jloda.util.Basic;
 import tegula.core.dsymbols.Geometry;
-import tegula.single.SingleTilingPane;
-import tegula.single.TranslateAnimation;
 import tegula.tiling.EuclideanTiling;
 import tegula.tiling.HyperbolicTiling;
 import tegula.tiling.SphericalTiling;
+import tegula.tilingpane.TilingPane;
+import tegula.tilingpane.TranslateAnimation;
 
 /**
  * set up user interaction
@@ -66,7 +66,7 @@ public class MouseHandler {
      * @param tilingEditorTab
      */
     private MouseHandler(TilingEditorTab tilingEditorTab) {
-        final SingleTilingPane tilingPane = tilingEditorTab.getTilingPane();
+        final TilingPane tilingPane = tilingEditorTab.getTilingPane();
 
         animation = new TranslateAnimation(tilingPane);
 

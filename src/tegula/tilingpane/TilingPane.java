@@ -1,5 +1,5 @@
 /*
- * SingleTilingPane.java Copyright (C) 2019. Daniel H. Huson
+ * TilingPane.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -17,7 +17,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.single;
+package tegula.tilingpane;
 
 import javafx.application.Platform;
 import javafx.beans.property.*;
@@ -37,13 +37,17 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
-import jloda.util.Basic;
+import jloda.util.Pair;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
 import tegula.core.dsymbols.Geometry;
 import tegula.main.CameraSettings;
 import tegula.main.TilingStyle;
-import tegula.tiling.*;
+import tegula.tiling.EuclideanTiling;
+import tegula.tiling.HyperbolicTiling;
+import tegula.tiling.TilingBase;
+import tegula.tiling.TilingCreator;
+import tegula.tilingeditor.SelectionSupport;
 import tegula.util.HasHyperbolicModel;
 import tegula.util.Updateable;
 
@@ -53,7 +57,7 @@ import java.util.function.Consumer;
  * a single tiling pane
  * Daniel Huson and Ruediger Zeller, 4.2019
  */
-public class SingleTilingPane extends StackPane implements Updateable {
+public class TilingPane extends StackPane implements Updateable {
     private final SimpleObjectProperty<HasHyperbolicModel.HyperbolicModel> hyperbolicModel = new SimpleObjectProperty<>(HasHyperbolicModel.HyperbolicModel.Poincare);
     private final ObjectProperty<TilingBase> tiling = new SimpleObjectProperty<>();
     private final SimpleObjectProperty<Geometry> geometry = new SimpleObjectProperty<>();
@@ -76,13 +80,13 @@ public class SingleTilingPane extends StackPane implements Updateable {
     private final PointLight pointLight;
     private final AmbientLight ambientLight;
 
-    private boolean drawFundamentalDomainOnly = false;
-
     private final BooleanProperty showSphereAsDisk = new SimpleBooleanProperty(false);
 
     private Circle disk;
 
-    private final LongProperty lastUpdate = new SimpleLongProperty();
+    private final LongProperty lastWorldUpdate = new SimpleLongProperty();
+
+    private final LongProperty lastDSymbolUpdate = new SimpleLongProperty();
 
     private final MouseHandler mouseHandler;
 
@@ -90,21 +94,18 @@ public class SingleTilingPane extends StackPane implements Updateable {
 
     /**
      * constructor
-     *
-     * @param dSymbol
      */
-    public SingleTilingPane(DSymbol dSymbol, TilingStyle tilingStyle) {
+    public TilingPane(DSymbol dSymbol, TilingStyle tilingStyle) {
         this(dSymbol, tilingStyle, false, true);
     }
 
     /**
      * constructor
      *
-     * @param dSymbol
      * @param showSphereAsDisk
      * @param allowMouseInteraction
      */
-    public SingleTilingPane(DSymbol dSymbol, TilingStyle tilingStyle, boolean showSphereAsDisk, boolean allowMouseInteraction) {
+    public TilingPane(DSymbol dSymbol, TilingStyle tilingStyle, boolean showSphereAsDisk, boolean allowMouseInteraction) {
         this.tilingStyle = tilingStyle;
 
         setShowSphereAsDisk(showSphereAsDisk);
@@ -186,26 +187,26 @@ public class SingleTilingPane extends StackPane implements Updateable {
             if (getGeometry() == Geometry.Hyperbolic)
                 CameraSettings.setupHyperbolicCamera(perspectiveCamera, n, true);
         });
-        replaceTiling(dSymbol);
-        update();
-    }
 
+        computTiling(dSymbol);
+    }
 
     /**
      * set the Delaney-Dress symbol
      *
      * @param dSymbol
      */
-    public void replaceTiling(DSymbol dSymbol) {
+    public void computTiling(DSymbol dSymbol) {
         geometry.set(dSymbol.computeGeometry());
         tiling.set(TilingCreator.create(dSymbol, tilingStyle, this));
+        incrementLastDSymbolUpdate();
         update();
     }
 
     // Reset fundamental domain (without updating the set of tiles)
     public void reset() {
         if (getTiling() != null)
-            replaceTiling(getTiling().getDSymbol());
+            computTiling(getTiling().getDSymbol());
     }
 
 
@@ -300,8 +301,7 @@ public class SingleTilingPane extends StackPane implements Updateable {
         tiles.getChildren().setAll(getTiling().update().getChildren());
 
         getWorld().getChildren().addAll(tiles, additionalStuff);
-
-        lastUpdate.set(System.currentTimeMillis());
+        incrementLastWorldUpdate();
     }
 
     /**
@@ -418,8 +418,20 @@ public class SingleTilingPane extends StackPane implements Updateable {
     }
 
 
-    public LongProperty lastUpdateProperty() {
-        return lastUpdate;
+    public LongProperty lastWorldUpdateProperty() {
+        return lastWorldUpdate;
+    }
+
+    public void incrementLastWorldUpdate() {
+        lastWorldUpdate.set(lastWorldUpdate.get() + 1);
+    }
+
+    public LongProperty lastDSymbolUpdateProperty() {
+        return lastDSymbolUpdate;
+    }
+
+    public void incrementLastDSymbolUpdate() {
+        lastDSymbolUpdate.set(lastDSymbolUpdate.get() + 1);
     }
 
     public Transform getWorldRotate() {
@@ -455,53 +467,48 @@ public class SingleTilingPane extends StackPane implements Updateable {
     }
 
 
-
     public MouseHandler getMouseHandler() {
         return mouseHandler;
     }
 
     public void updateTileColors() {
         final Consumer<Node> update = (node) -> {
-            if (node instanceof MeshView && node.getUserData() instanceof String) {
-                final String str = (String) node.getUserData();
-                //System.err.println(str);
-                if (str.startsWith("t=")) {
-                    final int tileNumber = Basic.parseInt(str.substring(2));
-                    ((MeshView) node).setMaterial(new PhongMaterial(tilingStyle.getTileColor(tileNumber)));
-                }
+            final Pair<Character, Integer> pair = SelectionSupport.getTypeAndId(node);
+            if (pair != null && pair.getFirst() == 't') {
+                ((MeshView) node).setMaterial(new PhongMaterial(tilingStyle.getTileColor(pair.getSecond())));
             }
         };
 
-        CopyTiles.visitAllNodes(tiles, update);
+        visitAllNodes(tiles, update);
 
         for (Group group : getTiling().recycler()) {
-            CopyTiles.visitAllNodes(group, update);
+            visitAllNodes(group, update);
         }
 
         if (getTiling().getFundPrototype() != null) {
-            CopyTiles.visitAllNodes(getTiling().getFundPrototype(), update);
+            visitAllNodes(getTiling().getFundPrototype(), update);
         }
+        incrementLastWorldUpdate();
     }
 
     public void updateBandColors() {
         final Consumer<Node> update = (node) -> {
-            if (node instanceof MeshView && node.getUserData() instanceof String) {
-                final String str = (String) node.getUserData();
-                if (str.startsWith("e=")) {
-                    ((MeshView) node).setMaterial(new PhongMaterial(getTilingStyle().getBandColor()));
-                }
+            final Pair<Character, Integer> pair = SelectionSupport.getTypeAndId(node);
+            if (pair != null && (pair.getFirst() == 'e' || pair.getFirst() == 'v')) {
+                ((MeshView) node).setMaterial(new PhongMaterial(getTilingStyle().getBandColor()));
             }
         };
 
-        CopyTiles.visitAllNodes(tiles, update);
+        visitAllNodes(tiles, update);
 
         for (Group group : getTiling().recycler()) {
-            CopyTiles.visitAllNodes(group, update);
+            visitAllNodes(group, update);
         }
 
         if (getTiling().getFundPrototype() != null) {
-            CopyTiles.visitAllNodes(getTiling().getFundPrototype(), update);
+            visitAllNodes(getTiling().getFundPrototype(), update);
         }
+        incrementLastWorldUpdate();
     }
 
     public FDomain getFDomain() {
@@ -514,4 +521,11 @@ public class SingleTilingPane extends StackPane implements Updateable {
 
     }
 
+    private static void visitAllNodes(Node node, Consumer<Node> consumer) {
+        consumer.accept(node);
+        if (node instanceof Parent) {
+            for (Node child : ((Parent) node).getChildrenUnmodifiable())
+                visitAllNodes(child, consumer);
+        }
+    }
 }

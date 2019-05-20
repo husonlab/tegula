@@ -63,7 +63,7 @@ public class FDomainEditor {
 
         fDomainPane = new FDomainPane(tilingEditorTab.getTilingPane(), undoManager);
 
-        tilingEditorTab.getTilingPane().lastUpdateProperty().addListener((e) -> fDomainPane.update());
+        tilingEditorTab.getTilingPane().lastWorldUpdateProperty().addListener((e) -> fDomainPane.update());
 
         AnchorPane.setTopAnchor(fDomainPane, 5.0);
         AnchorPane.setLeftAnchor(fDomainPane, 0.0);

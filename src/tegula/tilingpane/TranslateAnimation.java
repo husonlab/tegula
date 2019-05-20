@@ -1,5 +1,5 @@
 /*
- * Animator.java Copyright (C) 2019. Daniel H. Huson
+ * TranslateAnimation.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -17,104 +17,66 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.single;
+package tegula.tilingpane;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.geometry.Point3D;
-import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
 
 /**
- * Translate or rotate animation
- * Daniel Huson, 4.2019
+ * translation animation
+ * Daniel HUson, 11.2016
  */
-public class Animator {
+public class TranslateAnimation {
     private final Timeline timeline;
     private BooleanProperty playing = new SimpleBooleanProperty(false);
-    private BooleanProperty paused = new SimpleBooleanProperty(false);
-
     private double dx;
     private double dy;
 
-    private double angle;
-    private Point3D rotationalAxis;
-
-    private final SingleTilingPane singleTilingPane;
+    private final TilingPane tilingPane;
 
     /**
      * setup animation
      *
-     * @param singleTilingPane
+     * @param tilingPane
      */
-    public Animator(SingleTilingPane singleTilingPane) {
-        this.singleTilingPane = singleTilingPane;
-        timeline = new Timeline(Timeline.INDEFINITE);
-        timeline.setCycleCount(10000);
+    public TranslateAnimation(TilingPane tilingPane) {
+        this.tilingPane = tilingPane;
+        timeline = new Timeline();
+        timeline.setCycleCount(Timeline.INDEFINITE);
     }
 
-    /**
-     * set a rotational animation
-     *
-     * @param rotationalAxis
-     * @param angle
-     * @param millis
-     */
-    public void set(final Point3D rotationalAxis, double angle, final long millis) {
-        dx = dy = 0;
-        double factor = 100.0 / millis;
-        this.angle = angle;
-        this.rotationalAxis = rotationalAxis;
-        timeline.stop();
-        final KeyFrame keyFrame = new KeyFrame(Duration.millis(10), (e) -> {
-            final Rotate rotate = new Rotate(factor * angle, rotationalAxis);
-            singleTilingPane.setWorldRotate(rotate.createConcatenation(singleTilingPane.getWorldRotate()));
-        });
-        timeline.getKeyFrames().setAll(keyFrame);
-        timeline.playFromStart();
-    }
-
-    /**
-     * set a translational animation
-     *
-     * @param dx0
-     * @param dy0
-     * @param millis
-     */
     public void set(final double dx0, final double dy0, final long millis) {
-        angle=0;
         double factor = 100.0 / millis;
         this.dx = factor * dx0;
         this.dy = factor * dy0;
         timeline.stop();
+        timeline.getKeyFrames().clear();
         final KeyFrame keyFrame = new KeyFrame(Duration.millis(10), (e) -> {
-            singleTilingPane.translateTiling(dx, dy);
+            tilingPane.translateTiling(dx, dy);
         });
-        timeline.getKeyFrames().setAll(keyFrame);
+        timeline.getKeyFrames().add(keyFrame);
         timeline.playFromStart();
     }
 
     public void play() {
-        if (rotationalAxis != null && angle != 0 || dx !=0 || dy!=0) {
+        if (dx != 0 || dy != 0) {
             timeline.play();
             playing.set(true);
-            paused.set(false);
         }
     }
 
     public void pause() {
         timeline.pause();
         playing.set(false);
-        paused.set(true);
     }
 
     public void stop() {
         timeline.stop();
         playing.set(false);
-        paused.set(false);
     }
 
     public boolean isPlaying() {
@@ -123,13 +85,5 @@ public class Animator {
 
     public ReadOnlyBooleanProperty playingProperty() {
         return playing;
-    }
-
-    public boolean isPaused() {
-        return paused.get();
-    }
-
-    public ReadOnlyBooleanProperty pausedProperty() {
-        return paused;
     }
 }

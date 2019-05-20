@@ -131,38 +131,62 @@
                             </tooltip>
                         </ChoiceBox>
                         <Separator prefWidth="200.0"/>
-                        <CheckBox fx:id="showFacesCheckBox" mnemonicParsing="false" selected="true"
-                                  style="-fx-font-size: 12;" text="Show Tiles">
-                            <tooltip>
-                                <Tooltip text="Set visibility of tiles"/>
-                            </tooltip>
-                        </CheckBox>
-                        <CheckBox fx:id="backFacesCheckBox" layoutX="20.0" layoutY="204.0" mnemonicParsing="false"
-                                  style="-fx-font-size: 12;" text="Show backs">
-                            <tooltip>
-                                <Tooltip text="Set visibility of backs of tiles"/>
-                            </tooltip>
-                        </CheckBox>
+                        <HBox layoutX="20.0" layoutY="218.0">
+                            <children>
+                                <ToggleButton fx:id="showFacesToggleButton" mnemonicParsing="false"
+                                              style="-fx-font-size: 12;" text="Faces">
+                                    <tooltip>
+                                        <Tooltip text="Set visibility of faces"/>
+                                    </tooltip>
+                                </ToggleButton>
+                                <ToggleButton fx:id="showBackFacesToggleButton" layoutX="10.0" layoutY="10.0"
+                                              mnemonicParsing="false" style="-fx-font-size: 12;" text="Backs">
+                                    <tooltip>
+                                        <Tooltip text="Set visibility of backs of faces"/>
+                                    </tooltip>
+                                </ToggleButton>
+                            </children>
+                        </HBox>
                         <ColorPicker fx:id="tile1ColorPicker" promptText="tile1ColorPicker" style="-fx-font-size: 12;"/>
-                        <Slider fx:id="tilesOpacitySlider" blockIncrement="0.1" majorTickUnit="0.25" max="1.0"
+                        <Slider fx:id="tilesOpacitySlider" blockIncrement="0.05" majorTickUnit="0.25" max="1.0"
                                 showTickMarks="true" snapToTicks="true" value="1.0">
                             <tooltip>
-                                <Tooltip text="Set opacity of tiles"/>
+                                <Tooltip text="Set opacity of faces"/>
                             </tooltip>
                         </Slider>
                         <Separator layoutX="20.0" layoutY="147.0" prefWidth="200.0"/>
-                        <CheckBox fx:id="showBandsCheckBox" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                  selected="true" style="-fx-font-size: 12;" text="Show Bands">
-                            <tooltip>
-                                <Tooltip text="Draw edges as bands"/>
-                            </tooltip>
-                        </CheckBox>
-                        <CheckBox fx:id="backBandsCheckBox" mnemonicParsing="false" style="-fx-font-size: 12;"
-                                  text="Show backs">
-                            <tooltip>
-                                <Tooltip text="Set visibility of backs of band"/>
-                            </tooltip>
-                        </CheckBox>
+                        <HBox layoutX="20.0" layoutY="218.0">
+                            <children>
+                                <ToggleButton fx:id="showEdgesToggleButton" mnemonicParsing="false"
+                                              style="-fx-font-size: 12;" text="Edges">
+                                    <tooltip>
+                                        <Tooltip text="Draw edges as bands"/>
+                                    </tooltip>
+                                </ToggleButton>
+                                <ToggleButton fx:id="showBackEdgesToggleButton" layoutX="10.0" layoutY="10.0"
+                                              mnemonicParsing="false" style="-fx-font-size: 12;" text="Backs">
+                                    <tooltip>
+                                        <Tooltip text="Set visibility of backs of bands"/>
+                                    </tooltip>
+                                </ToggleButton>
+                            </children>
+                        </HBox>
+                        <HBox>
+                            <children>
+                                <ToggleButton fx:id="showVerticesToggleButton" mnemonicParsing="false"
+                                              style="-fx-font-size: 12;" text="Nodes">
+                                    <tooltip>
+                                        <Tooltip text="Show vertices"/>
+                                    </tooltip>
+                                </ToggleButton>
+                                <ToggleButton fx:id="showBackVerticesToggleButton" layoutX="10.0" layoutY="10.0"
+                                              mnemonicParsing="false" style="-fx-font-size: 12;" text="Backs">
+                                    <tooltip>
+                                        <Tooltip text="Show backs of vertices"/>
+                                    </tooltip>
+                                </ToggleButton>
+                            </children>
+                        </HBox>
                         <HBox spacing="5.0" VBox.vgrow="NEVER">
                             <children>
                                 <Label alignment="CENTER" maxWidth="1.7976931348623157E308" style="-fx-font-size: 12;"
@@ -180,7 +204,7 @@
                                 <Tooltip text="Set the color of bands"/>
                             </tooltip>
                         </ColorPicker>
-                        <Slider fx:id="bandsOpacitySlider" blockIncrement="0.1" layoutX="20.0" layoutY="146.0"
+                        <Slider fx:id="bandsOpacitySlider" blockIncrement="0.05" layoutX="20.0" layoutY="146.0"
                                 majorTickUnit="0.25" max="1.0" showTickMarks="true" snapToTicks="true" value="1.0">
                             <tooltip>
                                 <Tooltip text="Set opacity of bands"/>

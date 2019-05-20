@@ -78,7 +78,6 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
 
         referencePoint = fDomain.computeReferencePoint();
         tolerance = computeTolerance(getGeometry(), referencePoint, generators);
-        fundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
 
         if (!isInWindowEuclidean(referencePoint, windowCorner, width.get(), height.get())) { // Fund. domain is not in visible window
             fDomain.recenterFDomain(calculateBackShiftEuclidean(windowCorner, width.get(), height.get())); // Shifts back fDomain into valid range for fund. domain
@@ -110,8 +109,8 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
             referencePoint = fDomain.computeReferencePoint();
             tolerance = computeTolerance(getGeometry(), referencePoint, generators);
 
-            fundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
-            fundPrototype.getChildren().setAll(fundamentalDomain.getAllRequested());
+            fundPrototype.getChildren().setAll(FundamentalDomain.compute(ds, fDomain, tilingStyle));
+
             fundPrototype.getTransforms().setAll(new Translate()); // Add transform (= identity)
             fundPrototype.setRotationAxis(referencePoint); // Reference point of fundamental domain
 
@@ -170,14 +169,6 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
                 }
             }
         }
-
-        // only what one copy of these things:
-        if (tilingStyle.isShowFundamentalChambers() && !tilingStyle.isShowAllChambers())
-            all.getChildren().add(fundamentalDomain.getChambers());
-
-        if (tilingStyle.isShowHandles())
-            all.getChildren().add(fundamentalDomain.getHandles());
-
         return all;
     }
 

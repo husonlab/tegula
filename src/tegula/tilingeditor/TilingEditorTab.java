@@ -19,9 +19,13 @@
 
 package tegula.tilingeditor;
 
+import javafx.beans.InvalidationListener;
 import javafx.beans.property.*;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tab;
+import jloda.fx.control.AnotherMultipleSelectionModel;
 import jloda.fx.undo.UndoManager;
 import jloda.fx.util.ExtendedFXMLLoader;
 import jloda.fx.util.Printable;
@@ -32,12 +36,13 @@ import tegula.core.dsymbols.Geometry;
 import tegula.core.dsymbols.OrbifoldGroupName;
 import tegula.fdomaineditor.FDomainEditor;
 import tegula.main.TilingStyle;
-import tegula.single.SingleTilingPane;
 import tegula.tiling.TilingBase;
+import tegula.tilingpane.TilingPane;
 import tegula.util.IFileBased;
 
 import java.io.Closeable;
 import java.io.File;
+import java.util.Stack;
 
 /**
  * a tab that contains a single editable tiling
@@ -50,7 +55,7 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
     private final Node root;
 
     private final BooleanProperty dirty = new SimpleBooleanProperty(false);
-    private final SingleTilingPane tilingPane;
+    private final TilingPane tilingPane;
     private final TilingStyle tilingStyle = new TilingStyle();
 
     private final BooleanProperty maximalTiling = new SimpleBooleanProperty();
@@ -59,6 +64,9 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
     private final StringProperty groupName = new SimpleStringProperty();
     private final StringProperty infoLine = new SimpleStringProperty("");
 
+    private final AnotherMultipleSelectionModel<Integer> vertexSelection = new AnotherMultipleSelectionModel<>();
+    private final AnotherMultipleSelectionModel<Integer> edgeSelection = new AnotherMultipleSelectionModel<>();
+    private final AnotherMultipleSelectionModel<Integer> tileSelection = new AnotherMultipleSelectionModel<>();
 
     private final UndoManager undoManager = new UndoManager();
 
@@ -72,13 +80,17 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
         setFileName(name);
         setText(getTitle());
 
+        vertexSelection.setSelectionMode(SelectionMode.MULTIPLE);
+        edgeSelection.setSelectionMode(SelectionMode.MULTIPLE);
+        tileSelection.setSelectionMode(SelectionMode.MULTIPLE);
+
         final ExtendedFXMLLoader<TilingEditorTabController> extendedFXMLLoader = new ExtendedFXMLLoader<>(this.getClass());
         root = extendedFXMLLoader.getRoot();
         controller = extendedFXMLLoader.getController();
 
         setContent(root);
 
-        tilingPane = new SingleTilingPane(dSymbol, tilingStyle);
+        tilingPane = new TilingPane(dSymbol, tilingStyle);
         tilingPane.prefWidthProperty().bind(controller.getMainPane().widthProperty());
 
         final FDomainEditor fDomainEditor = new FDomainEditor(this);
@@ -116,14 +128,6 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
         GroupEditingControls.setup(this);
         TileColorControls.setup(this);
 
-        tilingPane.lastUpdateProperty().addListener((c, o, n) -> {
-                    TileColorControls.setup(this);
-                    GroupEditingControls.setup(this);
-                    controller.getBorderPane().setTop(controller.getBorderPane().getTop());
-                    controller.getBorderPane().setBottom(controller.getBorderPane().getBottom());
-                }
-        );
-
         controller.getMainPane().widthProperty().addListener((c, o, n) -> {
             if (o.doubleValue() == 0)
                 o = 800;
@@ -142,15 +146,58 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
                 tilingPane.update();
         });
 
-        tilingPane.lastUpdateProperty().addListener((e) -> {
+        tilingPane.lastDSymbolUpdateProperty().addListener((e) -> {
             maximalTiling.set(DSymbolAlgorithms.isMaximalSymmetry(getTiling().getDSymbol()));
             orientableTiling.set(getTiling().getDSymbol().computeOrientation() == 2);
             diskTiling.set(DSymbolAlgorithms.allTilesAreDisks(getTiling().getDSymbol()));
-            groupName.setValue(OrbifoldGroupName.getGroupName(dSymbol));
-            infoLine.setValue(String.format("n:%d t:%d e:%d v:%d g:%s", dSymbol.size(), dSymbol.countOrbits(0, 1), dSymbol.countOrbits(0, 2), dSymbol.countOrbits(1, 2),
-                    getGroupName() + (isMaximalTiling() ? " max" : "") + (isOrientableTiling() ? " orient." : "") + (isDiskTiling() ? "" : " non-disks")));
+            groupName.setValue(OrbifoldGroupName.getGroupName(getTiling().getDSymbol()));
+            infoLine.setValue(String.format("n:%d t:%d e:%d v:%d g:%s", getTiling().getDSymbol().size(), getTiling().getDSymbol().countOrbits(0, 1),
+                    getTiling().getDSymbol().countOrbits(0, 2), getTiling().getDSymbol().countOrbits(1, 2),
+                    getGroupName() + (isMaximalTiling() ? " max" : "") + (isOrientableTiling() ? " orient." : "") + (isDiskTiling() ? "" : " non-disks"))
+                    + (DSymbolAlgorithms.isSimpleTiling(getTiling().getDSymbol()) ? " simple" : "")
+                    + String.format(" (objects: %,d)", computeSize(tilingPane.getWorld())));
+
+            SelectionSupport.setupSelection(getTiling().getDSymbol(), vertexSelection, edgeSelection, tileSelection);
         });
 
+        tilingPane.lastWorldUpdateProperty().addListener((e) -> {
+            TileColorControls.setup(this);
+            GroupEditingControls.setup(this);
+            controller.getBorderPane().setTop(controller.getBorderPane().getTop());
+            controller.getBorderPane().setBottom(controller.getBorderPane().getBottom());
+
+            SelectionSupport.setupListeners(tilingPane.getWorld(), vertexSelection, edgeSelection, tileSelection);
+            highlightSelections(null);
+        });
+
+        vertexSelection.getSelectedItems().addListener((InvalidationListener) (e) -> highlightSelections('v'));
+        edgeSelection.getSelectedItems().addListener((InvalidationListener) (e) -> highlightSelections('e'));
+        tileSelection.getSelectedItems().addListener((InvalidationListener) (e) -> highlightSelections('t'));
+
+        tilingPane.setOnMouseClicked((e) -> {
+            if (!e.isMetaDown() && e.getClickCount() == 2) {
+                vertexSelection.clearSelection();
+                edgeSelection.clearSelection();
+                tileSelection.clearSelection();
+            }
+        });
+
+        tilingPane.incrementLastDSymbolUpdate();
+        tilingPane.incrementLastWorldUpdate();
+    }
+
+    public static int computeSize(Node node) {
+        int count = 0;
+        final Stack<Node> stack = new Stack<>();
+        stack.push(node);
+        while (stack.size() > 0) {
+            node = stack.pop();
+            count++;
+            if (node instanceof Parent) {
+                stack.addAll(((Parent) node).getChildrenUnmodifiable());
+            }
+        }
+        return count;
     }
 
     /**
@@ -196,7 +243,7 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
         return tilingStyle;
     }
 
-    public SingleTilingPane getTilingPane() {
+    public TilingPane getTilingPane() {
         return tilingPane;
     }
 
@@ -208,9 +255,17 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
         return controller;
     }
 
+    private boolean closing = false;
+
     public void close() {
-        if (getTilingPane().getMouseHandler() != null)
-            getTilingPane().getMouseHandler().getAnimator().stop();
+        if (!closing) {
+            closing = true;
+            if (getTilingPane().getMouseHandler() != null)
+                getTilingPane().getMouseHandler().getAnimator().stop();
+            if (getOnClosed() != null) {
+                getOnClosed().handle(null);
+            }
+        }
     }
 
     public UndoManager getUndoManager() {
@@ -256,5 +311,21 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
 
     public ReadOnlyStringProperty infoLineProperty() {
         return infoLine;
+    }
+
+    public void highlightSelections(Character type) {
+        SelectionSupport.highlightSelection(tilingPane.getWorld(), vertexSelection, edgeSelection, tileSelection, tilingStyle, type);
+    }
+
+    public void selectAll(boolean select) {
+        if (select) {
+            vertexSelection.selectAll();
+            edgeSelection.selectAll();
+            tileSelection.selectAll();
+        } else {
+            vertexSelection.clearSelection();
+            edgeSelection.clearSelection();
+            tileSelection.clearSelection();
+        }
     }
 }

@@ -55,4 +55,50 @@ public class MeshUtils {
         result.getPoints().addAll(mesh.getPoints());
         return result;
     }
+
+    /**
+     * combines two Triangle Meshes by Cornelius 21.11.18
+     *
+     * @param mesh1
+     * @param mesh2
+     * @return combined mesh of mesh1 and mesh2
+     */
+    public static TriangleMesh combineTriangleMesh(TriangleMesh mesh1, TriangleMesh mesh2) {
+
+        TriangleMesh newMesh = new TriangleMesh(); // mesh that is returned later
+        int mesh1pointsize = mesh1.getPoints().size(); // number of points of mesh1
+        int mesh1facesize = mesh1.getFaces().size(); // number of faces of mesh1
+        int facesize = mesh1facesize + mesh2.getFaces().size();// number of faces for new mesh
+
+        // recalculates which points belong to which face
+        int[] faces = new int[facesize];
+        // no changes for faces of mesh1
+        for (int i = 0; i < mesh1facesize; i++) {
+            faces[i] = mesh1.getFaces().get(i);
+        }
+        // changes for mesh2
+        for (int i = mesh1facesize; i < facesize; i = i + 6) {
+
+            faces[i] = mesh2.getFaces().get(i - mesh1facesize) + (mesh1pointsize / 3);
+            faces[i + 1] = 0;
+            faces[i + 2] = mesh2.getFaces().get(i + 2 - mesh1facesize) + (mesh1pointsize / 3);
+            faces[i + 3] = 1;
+            faces[i + 4] = mesh2.getFaces().get(i + 4 - mesh1facesize) + (mesh1pointsize / 3);
+            faces[i + 5] = 2;
+
+        }
+
+        // points can be added easily
+        newMesh.getPoints().addAll(mesh1.getPoints());
+        newMesh.getPoints().addAll(mesh2.getPoints());
+
+        // handles smoothing groups of mesh
+        newMesh.getFaceSmoothingGroups().addAll(mesh1.getFaceSmoothingGroups());
+        newMesh.getFaceSmoothingGroups().addAll(mesh2.getFaceSmoothingGroups());
+
+        newMesh.getFaces().addAll(faces);
+
+        return newMesh;
+
+    }
 }

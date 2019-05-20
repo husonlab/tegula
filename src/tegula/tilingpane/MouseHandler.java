@@ -17,7 +17,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.single;
+package tegula.tilingpane;
 
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -52,38 +52,37 @@ public class MouseHandler {
 
     /**
      * constructor
-     *
      */
-    public MouseHandler(final SingleTilingPane singleTilingPane) {
-        animator = new Animator(singleTilingPane);
+    public MouseHandler(final TilingPane tilingPane) {
+        animator = new Animator(tilingPane);
 
-        singleTilingPane.setOnMousePressed((me) -> {
+        tilingPane.setOnMousePressed((me) -> {
             originalMouseDownX = mouseDownX = me.getSceneX();
             originalMouseDownY = mouseDownY = me.getSceneY();
             mouseDownTime = System.currentTimeMillis();
         });
-        singleTilingPane.setOnMouseDragged((me) -> {
+        tilingPane.setOnMouseDragged((me) -> {
             double mouseDeltaX = me.getSceneX() - mouseDownX;
             double mouseDeltaY = me.getSceneY() - mouseDownY;
 
             if (me.isPrimaryButtonDown()) {
-                if (singleTilingPane.getTiling() instanceof SphericalTiling) {
+                if (tilingPane.getTiling() instanceof SphericalTiling) {
                     final Point2D delta = new Point2D(me.getSceneX() - mouseDownX, me.getSceneY() - mouseDownY);
                     //noinspection SuspiciousNameCombination
                     final Point3D dragOrthogonalAxis = new Point3D(delta.getY(), -delta.getX(), 0);
                     final Rotate rotate = new Rotate(0.25 * delta.magnitude(), dragOrthogonalAxis);
-                    singleTilingPane.setWorldRotate(rotate.createConcatenation(singleTilingPane.getWorldRotate()));
+                    tilingPane.setWorldRotate(rotate.createConcatenation(tilingPane.getWorldRotate()));
                     mouseDownX = me.getSceneX();
                     mouseDownY = me.getSceneY();
-                } else if (singleTilingPane.getTiling() instanceof HyperbolicTiling) {
-                    final HyperbolicTiling tiling = (HyperbolicTiling) singleTilingPane.getTiling();
+                } else if (tilingPane.getTiling() instanceof HyperbolicTiling) {
+                    final HyperbolicTiling tiling = (HyperbolicTiling) tilingPane.getTiling();
 
                     double modifierFactor = 1;
                     double dx = mouseDeltaX * modifierFactor;
                     double dy = mouseDeltaY * modifierFactor;
 
                     if (dx != 0 || dy != 0) {
-                        singleTilingPane.translateTiling(dx, dy);
+                        tilingPane.translateTiling(dx, dy);
 
                         // Checks whether (dx,dy) has been modified.
                         if (tiling.directionChanged()) {
@@ -95,13 +94,13 @@ public class MouseHandler {
                             mouseDownY = me.getSceneY();
                         }
                     }
-                } else if (singleTilingPane.getTiling() instanceof EuclideanTiling) {
+                } else if (tilingPane.getTiling() instanceof EuclideanTiling) {
                     double modifierFactor = 1;
                     double dx = mouseDeltaX * modifierFactor;
                     double dy = mouseDeltaY * modifierFactor;
 
                     if (dx != 0 || dy != 0) {
-                        singleTilingPane.translateTiling(dx, dy);
+                        tilingPane.translateTiling(dx, dy);
 
                         mouseDownX = me.getSceneX();
                         mouseDownY = me.getSceneY();
@@ -109,9 +108,9 @@ public class MouseHandler {
                 }
             }
         });
-        singleTilingPane.setOnMouseReleased((me) -> {
+        tilingPane.setOnMouseReleased((me) -> {
             if (me.isShiftDown()) {
-                if (singleTilingPane.geometryProperty().getValue() == Geometry.Spherical) {
+                if (tilingPane.geometryProperty().getValue() == Geometry.Spherical) {
                     final Point2D delta = new Point2D(me.getSceneX() - originalMouseDownX, me.getSceneY() - originalMouseDownY);
                     final Point3D dragOrthogonalAxis = new Point3D(delta.getY(), -delta.getX(), 0);
                     final double angle = 0.25 * delta.magnitude();
@@ -138,19 +137,19 @@ public class MouseHandler {
             }
         });
 
-        singleTilingPane.setOnMouseClicked((me) -> {
+        tilingPane.setOnMouseClicked((me) -> {
             if (me.getClickCount() == 2) {
                 animator.stop();
             }
         });
 
-        singleTilingPane.setOnScroll(me -> {
+        tilingPane.setOnScroll(me -> {
                     if (me.getDeltaY() != 0) {
                         double factor = (me.getDeltaY() > 0 ? 1.1 : 0.9);
-                        singleTilingPane.getWorldScale().setX(factor * singleTilingPane.getWorldScale().getX());
-                        singleTilingPane.getWorldScale().setY(factor * singleTilingPane.getWorldScale().getY());
-                        singleTilingPane.setEuclideanWidth((singleTilingPane.getEuclideanWidth()) / factor);
-                        singleTilingPane.setEuclideanHeight((singleTilingPane.getEuclideanHeight()) / factor);
+                        tilingPane.getWorldScale().setX(factor * tilingPane.getWorldScale().getX());
+                        tilingPane.getWorldScale().setY(factor * tilingPane.getWorldScale().getY());
+                        tilingPane.setEuclideanWidth((tilingPane.getEuclideanWidth()) / factor);
+                        tilingPane.setEuclideanHeight((tilingPane.getEuclideanHeight()) / factor);
                     }
                     if (onScrollEnded.get() != null) {
                         lastScroll = System.currentTimeMillis();
@@ -178,11 +177,11 @@ public class MouseHandler {
         );
 
         onScrollEnded.set(me -> {
-            if (singleTilingPane.getGeometry() == Geometry.Euclidean)
-                singleTilingPane.update();
+            if (tilingPane.getGeometry() == Geometry.Euclidean)
+                tilingPane.update();
         });
 
-        singleTilingPane.setOnKeyPressed(event -> {
+        tilingPane.setOnKeyPressed(event -> {
             switch (event.getCode()) {
                 case SPACE:
                     if (animator.isPlaying())
@@ -191,18 +190,18 @@ public class MouseHandler {
                         animator.play();
                     break;
                 case LEFT:
-                    if (singleTilingPane.getTilingStyle().getBandWidth() - 1 > 1)
-                        singleTilingPane.getTilingStyle().setBandWidth(singleTilingPane.getTilingStyle().getBandWidth() - 1);
+                    if (tilingPane.getTilingStyle().getBandWidth() - 1 > 1)
+                        tilingPane.getTilingStyle().setBandWidth(tilingPane.getTilingStyle().getBandWidth() - 1);
                     break;
                 case RIGHT:
-                    singleTilingPane.getTilingStyle().setBandWidth(singleTilingPane.getTilingStyle().getBandWidth() + 1);
+                    tilingPane.getTilingStyle().setBandWidth(tilingPane.getTilingStyle().getBandWidth() + 1);
                     break;
                 case DOWN: {
-                    singleTilingPane.decreaseTiling();
+                    tilingPane.decreaseTiling();
                     break;
                 }
                 case UP: {
-                    singleTilingPane.increaseTiling();
+                    tilingPane.increaseTiling();
                     break;
                 }
                 case EQUALS:

@@ -41,7 +41,7 @@ import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
 import tegula.geometry.Tools;
 import tegula.main.TilingStyle;
-import tegula.single.SingleTilingPane;
+import tegula.tilingpane.TilingPane;
 import tegula.undoable.ChangeCoordinatesCommand;
 
 import java.util.Arrays;
@@ -55,7 +55,7 @@ public class FDomainPane extends StackPane {
     private final ObjectProperty<DSymbol> dSymbol = new SimpleObjectProperty<>();
     private final TilingStyle tilingStyle;
 
-    private final SingleTilingPane singleTilingPane;
+    private final TilingPane tilingPane;
 
     private NGonShape[][] vertexHandles;
     private NGonShape[][] edgeHandles;
@@ -67,19 +67,19 @@ public class FDomainPane extends StackPane {
     /**
      * constructor
      *
-     * @param singleTilingPane
+     * @param tilingPane
      */
-    public FDomainPane(SingleTilingPane singleTilingPane, UndoManager undoManager) {
-        this.singleTilingPane = singleTilingPane;
+    public FDomainPane(TilingPane tilingPane, UndoManager undoManager) {
+        this.tilingPane = tilingPane;
         this.undoManager = undoManager;
-        tilingStyle = singleTilingPane.getTilingStyle();
+        tilingStyle = tilingPane.getTilingStyle();
 
-        setFDomain(singleTilingPane.getTiling().getfDomain());
-        setDSymbol(singleTilingPane.getTiling().getDSymbol());
+        setFDomain(tilingPane.getTiling().getfDomain());
+        setDSymbol(tilingPane.getTiling().getDSymbol());
 
-        singleTilingPane.lastUpdateProperty().addListener((e) -> {
-            setFDomain(singleTilingPane.getTiling().getfDomain());
-            setDSymbol(singleTilingPane.getTiling().getDSymbol());
+        tilingPane.lastWorldUpdateProperty().addListener((e) -> {
+            setFDomain(tilingPane.getTiling().getfDomain());
+            setDSymbol(tilingPane.getTiling().getDSymbol());
         });
 
         widthProperty().addListener((c) -> update());
@@ -360,7 +360,8 @@ public class FDomainPane extends StackPane {
             if (moved) {
                 undoManager.doAndAdd(new ChangeCoordinatesCommand(oldCoordinates, getFDomain().getCoordinates(), (c) -> {
                     getFDomain().setCoordinates(c);
-                    singleTilingPane.update();
+                    tilingPane.update();
+                    update();
                 }));
                 oldCoordinates = null;
                 moved = false;

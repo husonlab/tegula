@@ -25,7 +25,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.layout.VBox;
 import jloda.fx.undo.UndoManager;
 import tegula.core.dsymbols.DSymbol;
-import tegula.single.SingleTilingPane;
+import tegula.tilingpane.TilingPane;
 import tegula.undoable.ChangeDSymbolCommand;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class GroupEditingControls {
      * @param tilingEditorTab
      */
     public static void setup(TilingEditorTab tilingEditorTab) {
-        final SingleTilingPane tilingPane = tilingEditorTab.getTilingPane();
+        final TilingPane tilingPane = tilingEditorTab.getTilingPane();
         final DSymbol ds = tilingPane.getTiling().getDSymbol();
         final UndoManager undoManager = tilingEditorTab.getUndoManager();
 
@@ -71,7 +71,7 @@ public class GroupEditingControls {
                         if (isOkDecreaseVij(ds, fa, fi, fj, ds.getVij(fi, fj, fa))) {
                             ds.setVij(fi, fj, fa, n.intValue());
                             final boolean changed = ensureNNForSpherical(ds, n.intValue());
-                            tilingPane.replaceTiling(ds);
+                            tilingPane.computTiling(ds);
                             if (changed) // had to adjust a second value, need to update all values to capture this
                                 Platform.runLater(() -> setup(tilingEditorTab));
 
@@ -80,12 +80,12 @@ public class GroupEditingControls {
                     } else if (n.intValue() > o.intValue()) {
                         ds.setVij(fi, fj, fa, n.intValue());
                         final boolean changed = ensureNNForSpherical(ds, n.intValue());
-                        tilingPane.replaceTiling(ds);
+                        tilingPane.computTiling(ds);
                         if (changed) // had to adjust a second value, need to update all values to capture this
                             Platform.runLater(() -> setup(tilingEditorTab));
                     }
                     if (!undoManager.isPerformingUndoOrRedo())
-                        undoManager.add(new ChangeDSymbolCommand("change rotation", dsOld, ds, tilingPane::replaceTiling, oldCoordinates, tilingPane::changeCoordinates));
+                        undoManager.add(new ChangeDSymbolCommand("change rotation", dsOld, ds, tilingPane::computTiling, oldCoordinates, tilingPane::changeCoordinates));
                 });
                 vChooser.valueProperty().addListener(listener);
                 vChooser.setUserData(listener);

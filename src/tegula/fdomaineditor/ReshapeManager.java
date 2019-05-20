@@ -33,9 +33,9 @@ import javafx.scene.transform.Translate;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
 import tegula.geometry.Tools;
-import tegula.single.SingleTilingPane;
 import tegula.tiling.Generators;
 import tegula.tilingeditor.StraightenEdges;
+import tegula.tilingpane.TilingPane;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,7 +48,7 @@ import java.util.Collection;
  * @deprecated
  */
 public class ReshapeManager {
-    private final SingleTilingPane extendedTiling;
+    private final TilingPane extendedTiling;
     private final FDomain fDomain;
     private final DSymbol ds;
     private final Generators generators;
@@ -58,7 +58,7 @@ public class ReshapeManager {
      *
      * @param extendedTiling
      */
-    public ReshapeManager(SingleTilingPane extendedTiling) {
+    public ReshapeManager(TilingPane extendedTiling) {
         this.extendedTiling = extendedTiling;
         fDomain = extendedTiling.getTiling().getfDomain();
         ds = extendedTiling.getTiling().getfDomain().getDSymbol();

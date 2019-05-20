@@ -53,7 +53,6 @@ public class SphericalTiling extends TilingBase implements TilingCreator {
         generators = fDomain.getGenerators();
         referencePoint = fDomain.computeReferencePoint();
         tolerance = computeTolerance(getGeometry(), referencePoint, generators);
-        fundamentalDomain.buildFundamentalDomain(ds, fDomain, tilingStyle);
 
         final Group tiles = produceTiles();
         setNumberOfCopies(tiles.getChildren().size());
@@ -69,7 +68,7 @@ public class SphericalTiling extends TilingBase implements TilingCreator {
         handles.getChildren().clear();
 
         final Group all = new Group();
-        fundPrototype.getChildren().setAll(fundamentalDomain.getAllRequested());
+        fundPrototype.getChildren().setAll(FundamentalDomain.compute(ds, fDomain, tilingStyle));
 
         {
             final Group group = CopyTiles.apply(fundPrototype);
@@ -119,14 +118,6 @@ public class SphericalTiling extends TilingBase implements TilingCreator {
                 }
             }
         }
-
-        // only want one copy of these things:
-        if (tilingStyle.isShowFundamentalChambers() && !tilingStyle.isShowAllChambers())
-            all.getChildren().add(fundamentalDomain.getHandles());
-
-        if (tilingStyle.isShowHandles())
-            all.getChildren().add(fundamentalDomain.getHandles());
-
         return all;
     }
 

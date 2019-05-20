@@ -58,7 +58,7 @@ public class FDomain {
      *
      * @param dSymbol
      */
-    public FDomain(DSymbol dSymbol) {
+    public FDomain(DSymbol dSymbol, boolean addBendToAnEdge) {
         this.dSymbol = dSymbol;
         this.d = new DELANEY();
 
@@ -82,7 +82,7 @@ public class FDomain {
         else
             geometry = Geometry.Euclidean;
 
-        if (true) { // add a small "nose" to tile to show symmetry (note that some tilings exist for which this doesn't work)
+        if (addBendToAnEdge) { // add a small "nose" to tile to show symmetry (note that some tilings exist for which this doesn't work)
             final Generators generators = getGenerators();
 
             for (int a = 1; a <= dSymbol.size(); a++) {
