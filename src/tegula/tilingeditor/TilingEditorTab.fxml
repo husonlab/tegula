@@ -284,6 +284,21 @@
                                 <Tooltip text="Maximize the symmetries of the tiling"/>
                             </tooltip>
                         </Button>
+                        <Separator layoutX="20.0" layoutY="48.0" prefWidth="200.0"/>
+                        <Button fx:id="truncateVertexButton" layoutX="20.0" layoutY="56.0"
+                                maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-font-size: 12;"
+                                text="Truncate Vertex">
+                            <tooltip>
+                                <Tooltip text="Replace the current tiling by its dual"/>
+                            </tooltip>
+                        </Button>
+                        <Button fx:id="contractEdgeButton" layoutX="20.0" layoutY="148.0"
+                                maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-font-size: 12;"
+                                text="Contract Edge">
+                            <tooltip>
+                                <Tooltip text="Replace the current tiling by its dual"/>
+                            </tooltip>
+                        </Button>
                     </children>
                 </VBox>
             </content>

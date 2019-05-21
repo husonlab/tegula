@@ -382,7 +382,7 @@ public class FundamentalDomain {
                     circleMesh.getTexCoords().addAll(texCoords);
 
                     // if(firstInVertex.get(a) || fDomain.isBoundaryEdge(2,a))
-                    if (false) {
+                    if (true) {
                         if (i == 0) {
                             if (tilingStyle.isShowVertices()) {
                                 final MeshView meshView = new MeshView(circleMesh);
@@ -489,9 +489,9 @@ public class FundamentalDomain {
         final ArrayList<Node> all = new ArrayList<>();
 
         for (int a = 1; a <= fDomain.size(); a++) {
-            all.add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a), Color.DARKGRAY, 1));
+            all.add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a), Color.BLACK.deriveColor(1, 1, 1, 0.2), 1));
 
-            all.add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a), Color.LIGHTGRAY, 1));
+            all.add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a), Color.BLACK.deriveColor(1, 1, 1, 0.1), 1));
 
             //all.getChildren().add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a), Color.LIGHTGRAY, 0.5f));
             //all.getChildren().add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(1, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a), Color.LIGHTGRAY, 0.5f));

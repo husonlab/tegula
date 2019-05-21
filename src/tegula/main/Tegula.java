@@ -111,34 +111,39 @@ public class Tegula extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle(ProgramProperties.getProgramName());
-        NotificationManager.setShowNotifications(true);
+        try {
+            primaryStage.setTitle(ProgramProperties.getProgramName());
+            NotificationManager.setShowNotifications(true);
 
 
-        final Window mainWindow = new Window();
-        MainWindowManager.getInstance().addMainWindow(mainWindow);
+            final Window mainWindow = new Window();
+            MainWindowManager.getInstance().addMainWindow(mainWindow);
 
-        // todo: setup file opener
-        //RecentFilesManager.getInstance().setFileOpener(FileOpenManager.fileOpener());
+            // todo: setup file opener
+            //RecentFilesManager.getInstance().setFileOpener(FileOpenManager.fileOpener());
 
-        final WindowGeometry windowGeometry = new WindowGeometry(ProgramProperties.get("WindowGeometry", "50 50 800 800"));
+            final WindowGeometry windowGeometry = new WindowGeometry(ProgramProperties.get("WindowGeometry", "50 50 800 800"));
 
 
-        mainWindow.show(primaryStage, windowGeometry.getX(), windowGeometry.getY(), windowGeometry.getWidth(), windowGeometry.getHeight());
-        for (String fileName : inputFilesAtStartup) {
-            //FileOpenManager.fileOpener().accept(fileName);
-        }
-
-        // setup about and preferences menu for apple:
-        OSXIntegration.init();
-        OSXIntegration.populateAppleMenu(() -> SplashScreen.getInstance().showSplash(Duration.ofMinutes(1)), () -> System.err.println("Preferences"));
-
-        // open files by double-click under Mac OS: // untested
-        OSXIntegration.setOpenFilesHandler(files -> {
-            for (File file : files) {
-                System.err.println("Open file " + file + ": not implemented");
+            mainWindow.show(primaryStage, windowGeometry.getX(), windowGeometry.getY(), windowGeometry.getWidth(), windowGeometry.getHeight());
+            for (String fileName : inputFilesAtStartup) {
+                //FileOpenManager.fileOpener().accept(fileName);
             }
-        });
+
+            // setup about and preferences menu for apple:
+            OSXIntegration.init();
+            OSXIntegration.populateAppleMenu(() -> SplashScreen.getInstance().showSplash(Duration.ofMinutes(1)), () -> System.err.println("Preferences"));
+
+            // open files by double-click under Mac OS: // untested
+            OSXIntegration.setOpenFilesHandler(files -> {
+                for (File file : files) {
+                    System.err.println("Open file " + file + ": not implemented");
+                }
+            });
+        } catch (Exception ex) {
+            Basic.caught(ex);
+            throw ex;
+        }
     }
 
     @Override

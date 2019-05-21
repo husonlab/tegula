@@ -117,6 +117,14 @@ public class TilingEditorTabController {
     @FXML
     private Button stopAnimationButton;
 
+
+    @FXML
+    private Button contractEdgeButton;
+
+    @FXML
+    private Button truncateVertexButton;
+
+
     @FXML
     void initialize() {
         assert borderPane != null : "fx:id=\"borderPane\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
@@ -286,5 +294,13 @@ public class TilingEditorTabController {
 
     public Button getStopAnimationButton() {
         return stopAnimationButton;
+    }
+
+    public Button getContractEdgeButton() {
+        return contractEdgeButton;
+    }
+
+    public Button getTruncateVertexButton() {
+        return truncateVertexButton;
     }
 }

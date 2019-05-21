@@ -30,10 +30,7 @@ import jloda.fx.undo.UndoManager;
 import jloda.fx.util.ExtendedFXMLLoader;
 import jloda.fx.util.Printable;
 import jloda.util.Basic;
-import tegula.core.dsymbols.DSymbol;
-import tegula.core.dsymbols.DSymbolAlgorithms;
-import tegula.core.dsymbols.Geometry;
-import tegula.core.dsymbols.OrbifoldGroupName;
+import tegula.core.dsymbols.*;
 import tegula.fdomaineditor.FDomainEditor;
 import tegula.main.TilingStyle;
 import tegula.tiling.TilingBase;
@@ -58,11 +55,15 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
     private final TilingPane tilingPane;
     private final TilingStyle tilingStyle = new TilingStyle();
 
+    private final ObjectProperty<Geometry> geometry = new SimpleObjectProperty<>(Geometry.Euclidean);
     private final BooleanProperty maximalTiling = new SimpleBooleanProperty();
     private final BooleanProperty orientableTiling = new SimpleBooleanProperty();
     private final BooleanProperty diskTiling = new SimpleBooleanProperty();
     private final StringProperty groupName = new SimpleStringProperty();
     private final StringProperty infoLine = new SimpleStringProperty("");
+
+    private final BooleanProperty canContractEdge = new SimpleBooleanProperty(false);
+    private final BooleanProperty canTruncateVertex = new SimpleBooleanProperty(false);
 
     private final AnotherMultipleSelectionModel<Integer> vertexSelection = new AnotherMultipleSelectionModel<>();
     private final AnotherMultipleSelectionModel<Integer> edgeSelection = new AnotherMultipleSelectionModel<>();
@@ -147,6 +148,7 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
         });
 
         tilingPane.lastDSymbolUpdateProperty().addListener((e) -> {
+            geometry.set(dSymbol.computeGeometry());
             maximalTiling.set(DSymbolAlgorithms.isMaximalSymmetry(getTiling().getDSymbol()));
             orientableTiling.set(getTiling().getDSymbol().computeOrientation() == 2);
             diskTiling.set(DSymbolAlgorithms.allTilesAreDisks(getTiling().getDSymbol()));
@@ -158,6 +160,7 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
                     + String.format(" (objects: %,d)", computeSize(tilingPane.getWorld())));
 
             SelectionSupport.setupSelection(getTiling().getDSymbol(), vertexSelection, edgeSelection, tileSelection);
+            updateCanContractEdge();
         });
 
         tilingPane.lastWorldUpdateProperty().addListener((e) -> {
@@ -170,8 +173,14 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
             highlightSelections(null);
         });
 
-        vertexSelection.getSelectedItems().addListener((InvalidationListener) (e) -> highlightSelections('v'));
-        edgeSelection.getSelectedItems().addListener((InvalidationListener) (e) -> highlightSelections('e'));
+        vertexSelection.getSelectedItems().addListener((InvalidationListener) (e) -> {
+            highlightSelections('v');
+            canTruncateVertex.set(vertexSelection.getSelectedItems().size() == 1);
+        });
+        edgeSelection.getSelectedItems().addListener((InvalidationListener) (e) -> {
+            highlightSelections('e');
+            updateCanContractEdge();
+        });
         tileSelection.getSelectedItems().addListener((InvalidationListener) (e) -> highlightSelections('t'));
 
         tilingPane.setOnMouseClicked((e) -> {
@@ -276,6 +285,14 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
         return controller.getMainPane();
     }
 
+    public Geometry getGeometry() {
+        return geometry.get();
+    }
+
+    public ReadOnlyObjectProperty<Geometry> geometryProperty() {
+        return geometry;
+    }
+
     public boolean isMaximalTiling() {
         return maximalTiling.get();
     }
@@ -313,6 +330,22 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
         return infoLine;
     }
 
+    public ReadOnlyBooleanProperty canContractEdgeProperty() {
+        return canContractEdge;
+    }
+
+    public void updateCanContractEdge() {
+        if (edgeSelection.getSelectedItems().size() == 1) {
+            int edge = edgeSelection.getSelectedItems().get(0);
+            canContractEdge.set(ContractEdge.getContractEdge(edge, getTiling().getDSymbol()) != 0);
+        } else
+            canContractEdge.set(false);
+    }
+
+    public ReadOnlyBooleanProperty canTruncateVertexProperty() {
+        return canTruncateVertex;
+    }
+
     public void highlightSelections(Character type) {
         SelectionSupport.highlightSelection(tilingPane.getWorld(), vertexSelection, edgeSelection, tileSelection, tilingStyle, type);
     }
@@ -327,5 +360,17 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
             edgeSelection.clearSelection();
             tileSelection.clearSelection();
         }
+    }
+
+    public AnotherMultipleSelectionModel<Integer> getVertexSelection() {
+        return vertexSelection;
+    }
+
+    public AnotherMultipleSelectionModel<Integer> getEdgeSelection() {
+        return edgeSelection;
+    }
+
+    public AnotherMultipleSelectionModel<Integer> getTileSelection() {
+        return tileSelection;
     }
 }

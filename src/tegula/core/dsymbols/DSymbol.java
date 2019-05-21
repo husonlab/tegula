@@ -79,13 +79,20 @@ public class DSymbol {
         }
     }
 
+    /**
+     * resize, maintaining previous data
+     *
+     * @param newSize
+     */
     public void resize(int newSize) {
         final int[][] tmpSet = new int[newSize + 1][3];
-        final int top = Math.min(size(), newSize);
-        System.arraycopy(set, 0, tmpSet, 0, top);
-        set = tmpSet;
         final int[][] tmpMatrix = new int[newSize + 1][3];
-        System.arraycopy(matrix, 0, tmpMatrix, 0, top);
+        final int top = Math.min(size(), newSize);
+        for (int i = 0; i <= top; i++) {
+            System.arraycopy(set[i], 0, tmpSet[i], 0, 3);
+            System.arraycopy(matrix[i], 0, tmpMatrix[i], 0, 3);
+        }
+        set = tmpSet;
         matrix = tmpMatrix;
     }
 
@@ -293,6 +300,13 @@ public class DSymbol {
         markOrbit(i, j, a, visited, mark);
     }
 
+    /**
+     * computes the orbit length (number si*sj operations required to get from a to a
+     * @param i
+     * @param j
+     * @param a
+     * @return
+     */
     public int computeOrbitLength(final int i, final int j, final int a) {
         int length = 0;
         int b = a;
@@ -303,6 +317,13 @@ public class DSymbol {
         }
         while (b != a);
         return length;
+    }
+
+    /*
+     ** computes the cardinality of an i,j-orbit
+     */
+    int computeOrbitCardinality(int i, int j, int a) {
+        return (hasFixPoints(i, j, a) ? 1 : 2) * computeOrbitLength(i, j, a);
     }
 
     public int countOrbits(final int i, final int j) {
@@ -360,6 +381,26 @@ public class DSymbol {
     public void setVij(int i, int j, int a, int v) {
         int r = computeOrbitLength(i, j, a);
         setMij(i, j, a, r * v);
+    }
+
+    public int getPij(int i, int j, int a) {
+        return hasFixPoints(i, j, a) ? 2 : 0;
+    }
+
+    public boolean hasFixPoints(int i, int j, int a) {
+        int c = a;
+        do {
+            if (getSi(i, a) == a)
+                return true;
+            else
+                a = getSi(i, a);
+            if (getSi(j, a) == a)
+                return true;
+            else
+                a = getSi(j, a);
+        }
+        while (a != c);
+        return false;
     }
 
     /**

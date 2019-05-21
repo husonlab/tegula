@@ -19,10 +19,10 @@
 
 package tegula.fdomaineditor;
 
-import javafx.beans.InvalidationListener;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
@@ -207,7 +207,7 @@ public class FDomainPane extends StackPane {
                 polygon.setUserData(a);
                 polygons.getChildren().add(polygon);
 
-                final InvalidationListener listener = observable -> polygon.getPoints().setAll(vs[0].getLayoutX(), vs[0].getLayoutY(), es[2].getLayoutX(), es[2].getLayoutY(), vs[1].getLayoutX(), vs[1].getLayoutY(),
+                final ChangeListener<Number> listener = (d, o, n) -> polygon.getPoints().setAll(vs[0].getLayoutX(), vs[0].getLayoutY(), es[2].getLayoutX(), es[2].getLayoutY(), vs[1].getLayoutX(), vs[1].getLayoutY(),
                         es[0].getLayoutX(), es[0].getLayoutY(), vs[2].getLayoutX(), vs[2].getLayoutY(), es[1].getLayoutX(), es[1].getLayoutY());
 
                 for (DoubleProperty property : Arrays.asList(vs[0].layoutXProperty(), vs[0].layoutYProperty(), es[2].layoutXProperty(), es[2].layoutYProperty(), vs[1].layoutXProperty(), vs[1].layoutYProperty(),

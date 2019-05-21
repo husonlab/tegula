@@ -26,8 +26,10 @@ import jloda.fx.undo.UndoManager;
 import jloda.fx.undo.UndoableChangeProperty;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.ColorSchemeManager;
+import tegula.core.dsymbols.ContractEdge;
 import tegula.core.dsymbols.DSymbolAlgorithms;
 import tegula.core.dsymbols.Geometry;
+import tegula.core.dsymbols.TruncateVertex;
 import tegula.main.TilingStyle;
 import tegula.tilingpane.TilingPane;
 import tegula.undoable.ChangeDSymbolCommand;
@@ -127,8 +129,30 @@ public class ControlBindings {
         });
         controller.getOrientateButton().disableProperty().bind(tilingEditorTab.orientableTilingProperty());
 
-        controller.getBandWidthSpinner().setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, tilingStyle.getBandWidth()));
+        controller.getContractEdgeButton().setOnAction((e) -> {
+            final Point2D[][] coordinates = tilingPane.getTiling().getfDomain().getCoordinates();
+            if (tilingEditorTab.canContractEdgeProperty().get()) {
+                final int edge = tilingEditorTab.getEdgeSelection().getSelectedItems().get(0);
+                undoManager.doAndAdd(new ChangeDSymbolCommand("contract", tilingPane.getTiling().getDSymbol(), ContractEdge.apply(edge, tilingPane.getTiling().getDSymbol()),
+                        tilingPane::computTiling, coordinates, tilingPane::changeCoordinates));
+            }
 
+        });
+        controller.getContractEdgeButton().disableProperty().bind(tilingEditorTab.canContractEdgeProperty().not());
+
+
+        controller.getTruncateVertexButton().setOnAction((e) -> {
+            final Point2D[][] coordinates = tilingPane.getTiling().getfDomain().getCoordinates();
+            if (tilingEditorTab.canTruncateVertexProperty().get()) {
+                final int vertex = tilingEditorTab.getVertexSelection().getSelectedItems().get(0);
+                undoManager.doAndAdd(new ChangeDSymbolCommand("truncate", tilingPane.getTiling().getDSymbol(), TruncateVertex.apply(vertex, tilingPane.getTiling().getDSymbol()),
+                        tilingPane::computTiling, coordinates, tilingPane::changeCoordinates));
+            }
+
+        });
+        controller.getTruncateVertexButton().disableProperty().bind(tilingEditorTab.canTruncateVertexProperty().not());
+
+        controller.getBandWidthSpinner().setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, tilingStyle.getBandWidth()));
         controller.getBandWidthSpinner().valueProperty().addListener((c, o, n) -> {
             if (!undoManager.isPerformingUndoOrRedo())
                 undoManager.doAndAdd(new UndoableChangeProperty<>("width",

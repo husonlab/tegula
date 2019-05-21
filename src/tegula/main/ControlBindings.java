@@ -30,6 +30,7 @@ import jloda.fx.window.MainWindowManager;
 import jloda.util.FileOpenManager;
 import jloda.util.ProgramProperties;
 import tegula.core.dsymbols.DSymbol;
+import tegula.core.dsymbols.Geometry;
 import tegula.tiling.HyperbolicTiling;
 import tegula.tilingcollection.TilingCollectionTab;
 import tegula.tilingeditor.TilingEditorTab;
@@ -76,6 +77,10 @@ public class ControlBindings {
                 controller.getRedoMenuItem().textProperty().bind(tab.getUndoManager().redoNameProperty());
 
                 controller.getShowChambersMenuItem().setSelected(tab.getTilingStyle().isShowAllChambers());
+
+                controller.getShowMoreTilesMenuItem().setDisable(tab.getTiling().getGeometry() != Geometry.Hyperbolic);
+                controller.getShowLessTilesMenuItem().setDisable(tab.getTiling().getGeometry() != Geometry.Hyperbolic);
+
             } else {
                 canSave.unbind();
                 canSave.set(false);
@@ -89,6 +94,9 @@ public class ControlBindings {
                 controller.getRedoMenuItem().setText("Redo");
 
                 controller.getShowChambersMenuItem().setSelected(false);
+
+                controller.getShowMoreTilesMenuItem().setDisable(true);
+                controller.getShowLessTilesMenuItem().setDisable(true);
             }
             if (n instanceof TilingCollectionTab) {
                 final TilingCollectionTab tab = (TilingCollectionTab) n;
@@ -203,7 +211,7 @@ public class ControlBindings {
                 final Collection<DSymbol> symbols = tab.getSelectionModel().getSelectedItems();
                 final String prefix = tab.getTilingCollection().getTitle();
                 for (DSymbol dSymbol : symbols) {
-                    final TilingEditorTab editorTab = new TilingEditorTab(new DSymbol(dSymbol), prefix + "-" + (((TilingCollectionTab) selectedTab.get()).incrementSpawnedCount()));
+                    final TilingEditorTab editorTab = new TilingEditorTab(new DSymbol(dSymbol), prefix + "-" + dSymbol.getNr1());
                     window.getMainTabPane().getTabs().add(editorTab);
                 }
             }
@@ -266,7 +274,7 @@ public class ControlBindings {
                     });
             }
         });
-        controller.getShowLessTilesMenuItem().disableProperty().bind(isCollectionTabSelected);
+
         controller.getShowLessTilesMenuItem().setOnAction((e) -> {
             if (selectedTab.get() instanceof TilingEditorTab) {
                 final TilingEditorTab tab = (TilingEditorTab) selectedTab.get();
@@ -284,7 +292,6 @@ public class ControlBindings {
                     });
             }
         });
-        controller.getShowLessTilesMenuItem().disableProperty().bind(isCollectionTabSelected);
 
         controller.getStraightenMenuItem().setOnAction((e) -> {
             if (selectedTab.get() instanceof TilingEditorTab) {

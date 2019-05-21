@@ -20,8 +20,8 @@
 package tegula.tilingcollection;
 
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
 import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -129,7 +129,7 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable, IF
         tilingStyle.setBandColor(Color.BLACK);
         tilingStyle.setBackgroundColor(Color.GHOSTWHITE);
 
-        final InvalidationListener listener = observable -> {
+        final ChangeListener<Number> listener = (d, o, n) -> {
             // todo: need to do a better job of computing the new block size
             final int newBlockSize = (int) Math.max(1, Math.floor((flowView.getWidth() - 2 * flowView.getHgap()) / (flowView.getHgap() + controller.getSizeSlider().getValue())));
             if (newBlockSize != flowView.getBlockSize()) {
@@ -268,6 +268,7 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable, IF
                     });
                 } else {
                     final TilingPane tilingPane = new TilingPane(dSymbol, tilingStyle, true, false);
+                    tilingPane.getTilingStyle().setBendAnEdge(!DSymbolAlgorithms.isMaximalSymmetry(dSymbol));
                     tilingPane.setPrefWidth(0.5 * controller.getSizeSlider().getMax());
                     tilingPane.setPrefHeight(0.5 * controller.getSizeSlider().getMax());
                     new Scene(tilingPane);
