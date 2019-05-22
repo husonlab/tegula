@@ -72,6 +72,7 @@ public class GroupEditingControls {
                             ds.setVij(fi, fj, fa, n.intValue());
                             final boolean changed = ensureNNForSpherical(ds, n.intValue());
                             tilingPane.computTiling(ds);
+                            tilingEditorTab.getTabPane().requestFocus();
                             if (changed) // had to adjust a second value, need to update all values to capture this
                                 Platform.runLater(() -> setup(tilingEditorTab));
 
@@ -81,6 +82,7 @@ public class GroupEditingControls {
                         ds.setVij(fi, fj, fa, n.intValue());
                         final boolean changed = ensureNNForSpherical(ds, n.intValue());
                         tilingPane.computTiling(ds);
+                        tilingEditorTab.getTabPane().requestFocus();
                         if (changed) // had to adjust a second value, need to update all values to capture this
                             Platform.runLater(() -> setup(tilingEditorTab));
                     }
