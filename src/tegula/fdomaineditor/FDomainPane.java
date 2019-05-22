@@ -345,9 +345,9 @@ public class FDomainPane extends StackPane {
 
             if (deltaX != 0 || deltaY != 0) {
                 // Reset shape of fundamental domain
-                final Point2D constraintsAdjustmentTranslationVector = ReshapeUtilities.resetShape(getFDomain(), deltaX, deltaY, type, k, a, factor);
+                final Point2D constraintsAdjustmentTranslationVector = ReshapeUtilities.resetShape(getFDomain(), deltaX/factor*100, deltaY/factor*100, type, k, a, factor);
                 // Move handles along transVector
-                double fac = 0.01*factor;
+                double fac = 1;
                 shape.setLayoutX(shape.getLayoutX() + fac* constraintsAdjustmentTranslationVector.getX());
                 shape.setLayoutY(shape.getLayoutY() + fac* constraintsAdjustmentTranslationVector.getY());
 
