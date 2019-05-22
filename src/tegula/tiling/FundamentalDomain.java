@@ -427,11 +427,31 @@ public class FundamentalDomain {
             dropShadow.setOffsetY(4.0);
             dropShadow.setColor(Color.BLACK);
 
-            Text text = new Text("Hello");
-            text.setFont(Font.font(30));
-            text.setFill(Color.GOLDENROD);
-            text.setEffect(dropShadow);
-            othersGroup.getChildren().add(text);
+            {
+                Text text = new Text("To A &");
+                text.getTransforms().add(new Translate(58, -12, 0));
+                text.setFont(Font.font("Helvetica", 10));
+                text.setFill(Color.DARKRED);
+                text.setEffect(dropShadow);
+                othersGroup.getChildren().add(text);
+            }
+
+            {
+                Text text = new Text("B");
+                text.getTransforms().add(new Translate(60, 0, 0));
+                text.setFont(Font.font("Helvetica", 10));
+                text.setFill(Color.DARKRED);
+                text.setEffect(dropShadow);
+                othersGroup.getChildren().add(text);
+            }
+            {
+                Text text = new Text("from C");
+                text.getTransforms().add(new Translate(58, 12, 0));
+                text.setFont(Font.font("Helvetica", 10));
+                text.setFill(Color.DARKRED);
+                text.setEffect(dropShadow);
+                othersGroup.getChildren().add(text);
+            }
         }
 
 
