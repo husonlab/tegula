@@ -115,7 +115,7 @@ public class GlueTilesAroundVertex {
         b[1] = ds.getS0(b[2]);
 
 
-        int m12a, m12b;
+        final int m12a, m12b;
         if (ds.inSameOrbit(1, 2, a[2], b[2])) {
             m12a = ds.getM12(a[2])
                     - DSymbolUtils.numberOfIncidences(1, 2, 0, 2, a[2], a[3], ds)
@@ -132,7 +132,7 @@ public class GlueTilesAroundVertex {
         ds.setS1(b[2], b[2]);
 
         if (m12b > 0)
-            ds.setM01(b[2], m12b);
+            ds.setM12(b[2], m12b);
         ds.setM01(a[1], m01);
 
         final BitSet unused = new BitSet();
