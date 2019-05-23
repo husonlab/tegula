@@ -64,9 +64,6 @@ public class ControlBindings {
         selectedTab.addListener((c, o, n) -> {
             if (n instanceof TilingEditorTab) {
                 final TilingEditorTab tab = (TilingEditorTab) n;
-                canSave.unbind();
-                canSave.set(tab.isDirty());
-                canSave.bind(tab.dirtyProperty());
                 controller.getUndoMenuItem().disableProperty().unbind();
                 controller.getUndoMenuItem().setDisable(!tab.getUndoManager().canUndoProperty().get());
                 controller.getUndoMenuItem().disableProperty().bind(tab.getUndoManager().canUndoProperty().not());
@@ -82,8 +79,6 @@ public class ControlBindings {
                 controller.getShowLessTilesMenuItem().setDisable(tab.getTiling().getGeometry() != Geometry.Hyperbolic);
 
             } else {
-                canSave.unbind();
-                canSave.set(false);
                 controller.getUndoMenuItem().disableProperty().unbind();
                 controller.getUndoMenuItem().setDisable(true);
                 controller.getUndoMenuItem().textProperty().unbind();
@@ -120,11 +115,6 @@ public class ControlBindings {
         RecentFilesManager.getInstance().setFileOpener(FileOpenManager.getFileOpener());
         RecentFilesManager.getInstance().setupMenu(controller.getOpenRecentMenu());
 
-        controller.getSaveMenuItem().setOnAction((e) -> {
-            System.err.println("Save: not implemented");
-        });
-        controller.getSaveMenuItem().disableProperty().bind(canSave.not());
-
         controller.getPrintMenuItem().setOnAction((e) -> {
             final Tab tab = selectedTab.get();
             if (tab instanceof Printable)
@@ -135,11 +125,11 @@ public class ControlBindings {
         controller.getPageSetupMenuItem().setOnAction((e) -> Print.showPageLayout(window.getStage()));
 
         controller.getCloseMenuItem().setOnAction((e) -> {
-            window.close();
+            MainWindowManager.getInstance().closeMainWindow(window);
         });
 
         window.getStage().setOnCloseRequest((e) -> {
-            window.close();
+            controller.getCloseMenuItem().getOnAction().handle(null);
             e.consume();
         });
 
@@ -147,7 +137,8 @@ public class ControlBindings {
             while (MainWindowManager.getInstance().size() > 0) {
                 final Window aWindow = (Window) MainWindowManager.getInstance().getMainWindow(MainWindowManager.getInstance().size() - 1);
                 // if (!aWindow.clear(true, true)) break;
-                aWindow.close();
+                MainWindowManager.getInstance().closeMainWindow(window);
+
             }
         });
 
@@ -340,6 +331,5 @@ public class ControlBindings {
             }
         });
         controller.getSelectNoneMenuItem().disableProperty().bind(isCollectionTabSelected);
-
     }
 }

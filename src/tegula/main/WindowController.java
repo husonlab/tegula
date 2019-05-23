@@ -61,9 +61,6 @@ public class WindowController {
     private Menu openRecentMenu;
 
     @FXML
-    private MenuItem saveMenuItem;
-
-    @FXML
     private MenuItem pageSetupMenuItem;
 
     @FXML
@@ -177,7 +174,6 @@ public class WindowController {
         assert newMenuItem != null : "fx:id=\"newMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert openMenuItem != null : "fx:id=\"openMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert openRecentMenu != null : "fx:id=\"openRecentMenu\" was not injected: check your FXML file 'Window.fxml'.";
-        assert saveMenuItem != null : "fx:id=\"saveMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert pageSetupMenuItem != null : "fx:id=\"pageSetupMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert printMenuItem != null : "fx:id=\"printMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
         assert closeMenuItem != null : "fx:id=\"closeMenuItem\" was not injected: check your FXML file 'Window.fxml'.";
@@ -260,10 +256,6 @@ public class WindowController {
 
     public Menu getOpenRecentMenu() {
         return openRecentMenu;
-    }
-
-    public MenuItem getSaveMenuItem() {
-        return saveMenuItem;
     }
 
     public MenuItem getPageSetupMenuItem() {

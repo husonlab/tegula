@@ -299,6 +299,19 @@
                                 <Tooltip text="Replace the current tiling by its dual"/>
                             </tooltip>
                         </Button>
+                        <Separator layoutX="20.0" layoutY="140.0" prefWidth="200.0"/>
+                        <Button fx:id="splitTileButton" layoutX="20.0" layoutY="176.0" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" style="-fx-font-size: 12;" text="Split Tile">
+                            <tooltip>
+                                <Tooltip text="Replace the current tiling by its dual"/>
+                            </tooltip>
+                        </Button>
+                        <Button fx:id="glueTilesButton" layoutX="20.0" layoutY="212.0" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" style="-fx-font-size: 12;" text="Glue Tiles">
+                            <tooltip>
+                                <Tooltip text="Replace the current tiling by its dual"/>
+                            </tooltip>
+                        </Button>
                     </children>
                 </VBox>
             </content>

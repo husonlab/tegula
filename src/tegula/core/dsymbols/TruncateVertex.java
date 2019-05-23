@@ -32,14 +32,8 @@ public class TruncateVertex {
         final DSymbol ds = new DSymbol(ds0);
         final int start;
         {
-            int[] a2vertex = ds.computeOrbits(1, 2);
-            int a = 1;
-            while (a <= ds.size()) {
-                if (a2vertex[a] == vertex)
-                    break;
-                a++;
-            }
-            if (a > ds.size())
+            int a = ds.getFlagForOrbit(1, 2, vertex);
+            if (a < 1)
                 return ds;
 
             /* sets 'a' on 1- or 2-fixpoint, if existent */

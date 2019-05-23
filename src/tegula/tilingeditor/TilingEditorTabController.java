@@ -124,6 +124,12 @@ public class TilingEditorTabController {
     @FXML
     private Button truncateVertexButton;
 
+    @FXML
+    private Button glueTilesButton;
+
+    @FXML
+    private Button splitTileButton;
+
 
     @FXML
     void initialize() {
@@ -302,5 +308,13 @@ public class TilingEditorTabController {
 
     public Button getTruncateVertexButton() {
         return truncateVertexButton;
+    }
+
+    public Button getGlueTilesButton() {
+        return glueTilesButton;
+    }
+
+    public Button getSplitTileButton() {
+        return splitTileButton;
     }
 }

@@ -51,13 +51,6 @@
                                         </MenuItem>
                                         <Menu fx:id="openRecentMenu" mnemonicParsing="false" text="Open Recent"/>
                                         <SeparatorMenuItem/>
-                                        <MenuItem fx:id="saveMenuItem" text="Save...">
-                                            <accelerator>
-                                                <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP" shift="UP"
-                                                                    shortcut="DOWN"/>
-                                            </accelerator>
-                                        </MenuItem>
-                                        <SeparatorMenuItem mnemonicParsing="false"/>
                                         <MenuItem fx:id="pageSetupMenuItem" text="Page Setup..."/>
                                         <MenuItem fx:id="printMenuItem" text="Print...">
                                             <accelerator>

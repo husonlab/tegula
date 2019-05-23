@@ -61,7 +61,7 @@ public class FDomainEditor {
         preferredWidthOpen = 2 * preferredWidthClosed;
         preferredHeightOpen = 2 * preferredHeightClosed;
 
-        fDomainPane = new FDomainPane(tilingEditorTab.getTilingPane(), undoManager);
+        fDomainPane = new FDomainPane(tilingEditorTab, undoManager);
 
         tilingEditorTab.getTilingPane().lastWorldUpdateProperty().addListener((e) -> fDomainPane.update());
 

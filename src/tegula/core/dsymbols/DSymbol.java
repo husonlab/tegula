@@ -689,4 +689,45 @@ public class DSymbol {
             result.set(a);
         return result;
     }
+
+    public int getFlagForOrbit(int i, int j, int whichOrbit) {
+        int count = 0;
+        final BitSet visited = new BitSet();
+        for (int a = 1; a <= size(); a = nextOrbit(i, j, a, visited)) {
+            if (++count == whichOrbit)
+                return a;
+        }
+        return -1;
+    }
+
+    /**
+     * determines whether flags 'a' and 'b' are in the same i,j-orbit
+     *
+     * @param i
+     * @param j
+     * @param a
+     * @param b
+     * @return
+     */
+    public boolean inSameOrbit(int i, int j, int a, int b) {
+        if (a == b)
+            return true;
+        else {
+            int c = a;
+            do {
+                c = getSi(i, c);
+                if (c == b)
+                    return true;
+                c = getSi(j, c);
+                if (c == b)
+                    return true;
+            }
+            while (c != a);
+            return false;
+        }
+    }
+
+    public boolean hasTrivialStabilizer(int i, int j, int a) {
+        return !hasFixPoints(i, j, a) && getVij(i, j, a) == 1;
+    }
 }

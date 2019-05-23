@@ -19,7 +19,6 @@
 
 package tegula.main;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import javafx.scene.Parent;
@@ -28,7 +27,6 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import jloda.fx.control.SplittableTabPane;
 import jloda.fx.util.ExtendedFXMLLoader;
 import jloda.fx.util.MemoryUsage;
@@ -123,10 +121,6 @@ public class Window implements IMainWindow {
 
         final MemoryUsage memoryUsage = MemoryUsage.getInstance();
         controller.getMemoryUsageLabel().textProperty().bind(memoryUsage.memoryUsageStringProperty());
-
-        stage.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, (e) -> {
-            Platform.runLater(() -> getMainTabPane().getTabs().clear());
-        });
 
         stage.show();
     }

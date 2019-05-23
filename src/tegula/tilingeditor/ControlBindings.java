@@ -26,10 +26,7 @@ import jloda.fx.undo.UndoManager;
 import jloda.fx.undo.UndoableChangeProperty;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.ColorSchemeManager;
-import tegula.core.dsymbols.ContractEdge;
-import tegula.core.dsymbols.DSymbolAlgorithms;
-import tegula.core.dsymbols.Geometry;
-import tegula.core.dsymbols.TruncateVertex;
+import tegula.core.dsymbols.*;
 import tegula.main.TilingStyle;
 import tegula.tilingpane.TilingPane;
 import tegula.undoable.ChangeDSymbolCommand;
@@ -151,6 +148,24 @@ public class ControlBindings {
 
         });
         controller.getTruncateVertexButton().disableProperty().bind(tilingEditorTab.canTruncateVertexProperty().not());
+
+
+        controller.getGlueTilesButton().setOnAction((e) -> {
+            final Point2D[][] coordinates = tilingPane.getTiling().getfDomain().getCoordinates();
+            if (tilingEditorTab.canGlueTilesAroundEdgeProperty().get()) {
+                final int edge = tilingEditorTab.getEdgeSelection().getSelectedItems().get(0);
+                undoManager.doAndAdd(new ChangeDSymbolCommand("glue", tilingPane.getTiling().getDSymbol(), GlueTilesAroundEdge.apply(edge, tilingPane.getTiling().getDSymbol()),
+                        tilingPane::computTiling, coordinates, tilingPane::changeCoordinates));
+            } else if (tilingEditorTab.canGlueTilesAroundVertexProperty().get()) {
+                final int vertex = tilingEditorTab.getVertexSelection().getSelectedItems().get(0);
+                undoManager.doAndAdd(new ChangeDSymbolCommand("glue", tilingPane.getTiling().getDSymbol(), GlueTilesAroundVertex.apply(vertex, tilingPane.getTiling().getDSymbol()),
+                        tilingPane::computTiling, coordinates, tilingPane::changeCoordinates));
+            }
+        });
+        controller.getGlueTilesButton().disableProperty().bind(tilingEditorTab.canGlueTilesAroundEdgeProperty().not().and(tilingEditorTab.canGlueTilesAroundVertexProperty().not()));
+
+        // implement split here
+        controller.getSplitTileButton().disableProperty().bind(tilingEditorTab.getCanSplitTileProperty().not());
 
         controller.getBandWidthSpinner().setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, tilingStyle.getBandWidth()));
         controller.getBandWidthSpinner().valueProperty().addListener((c, o, n) -> {

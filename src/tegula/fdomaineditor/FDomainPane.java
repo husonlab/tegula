@@ -41,7 +41,7 @@ import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
 import tegula.geometry.Tools;
 import tegula.main.TilingStyle;
-import tegula.tilingpane.TilingPane;
+import tegula.tilingeditor.TilingEditorTab;
 import tegula.undoable.ChangeCoordinatesCommand;
 
 import java.util.Arrays;
@@ -53,9 +53,8 @@ import java.util.BitSet;
 public class FDomainPane extends StackPane {
     private final ObjectProperty<FDomain> fDomain = new SimpleObjectProperty<>();
     private final ObjectProperty<DSymbol> dSymbol = new SimpleObjectProperty<>();
+    private final TilingEditorTab tilingEditorTab;
     private final TilingStyle tilingStyle;
-
-    private final TilingPane tilingPane;
 
     private NGonShape[][] vertexHandles;
     private NGonShape[][] edgeHandles;
@@ -63,23 +62,17 @@ public class FDomainPane extends StackPane {
 
     private final UndoManager undoManager;
 
-
-    /**
-     * constructor
-     *
-     * @param tilingPane
-     */
-    public FDomainPane(TilingPane tilingPane, UndoManager undoManager) {
-        this.tilingPane = tilingPane;
+    public FDomainPane(TilingEditorTab tilingEditorTab, UndoManager undoManager) {
+        this.tilingEditorTab = tilingEditorTab;
         this.undoManager = undoManager;
-        tilingStyle = tilingPane.getTilingStyle();
+        tilingStyle = tilingEditorTab.getTilingStyle();
 
-        setFDomain(tilingPane.getTiling().getfDomain());
-        setDSymbol(tilingPane.getTiling().getDSymbol());
+        setFDomain(tilingEditorTab.getTiling().getfDomain());
+        setDSymbol(tilingEditorTab.getTiling().getDSymbol());
 
-        tilingPane.lastWorldUpdateProperty().addListener((e) -> {
-            setFDomain(tilingPane.getTiling().getfDomain());
-            setDSymbol(tilingPane.getTiling().getDSymbol());
+        tilingEditorTab.getTilingPane().lastWorldUpdateProperty().addListener((e) -> {
+            setFDomain(tilingEditorTab.getTiling().getfDomain());
+            setDSymbol(tilingEditorTab.getTiling().getDSymbol());
         });
 
         widthProperty().addListener((c) -> update());
@@ -360,7 +353,7 @@ public class FDomainPane extends StackPane {
             if (moved) {
                 undoManager.doAndAdd(new ChangeCoordinatesCommand(oldCoordinates, getFDomain().getCoordinates(), (c) -> {
                     getFDomain().setCoordinates(c);
-                    tilingPane.update();
+                    tilingEditorTab.getTilingPane().update();
                     update();
                 }));
                 oldCoordinates = null;

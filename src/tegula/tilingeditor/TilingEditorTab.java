@@ -51,7 +51,6 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
     private final TilingEditorTabController controller;
     private final Node root;
 
-    private final BooleanProperty dirty = new SimpleBooleanProperty(false);
     private final TilingPane tilingPane;
     private final TilingStyle tilingStyle = new TilingStyle();
 
@@ -62,8 +61,12 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
     private final StringProperty groupName = new SimpleStringProperty();
     private final StringProperty infoLine = new SimpleStringProperty("");
 
+    private final BooleanProperty canDualizeTiling = new SimpleBooleanProperty(false);
     private final BooleanProperty canContractEdge = new SimpleBooleanProperty(false);
     private final BooleanProperty canTruncateVertex = new SimpleBooleanProperty(false);
+    private final BooleanProperty canGlueTilesAroundEdge = new SimpleBooleanProperty(false);
+    private final BooleanProperty canGlueTilesAroundVertex = new SimpleBooleanProperty(false);
+    private final BooleanProperty canSplitTile = new SimpleBooleanProperty(false);
 
     private final AnotherMultipleSelectionModel<Integer> vertexSelection = new AnotherMultipleSelectionModel<>();
     private final AnotherMultipleSelectionModel<Integer> edgeSelection = new AnotherMultipleSelectionModel<>();
@@ -159,8 +162,10 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
                     + (DSymbolAlgorithms.isSimpleTiling(getTiling().getDSymbol()) ? " simple" : "")
                     + String.format(" (objects: %,d)", computeSize(tilingPane.getWorld())));
 
+            canDualizeTiling.set(!Isomorphic.isomorphic(dSymbol, DSymbolAlgorithms.dualize(dSymbol)));
             SelectionSupport.setupSelection(getTiling().getDSymbol(), vertexSelection, edgeSelection, tileSelection);
             updateCanContractEdge();
+            updateCanGlueTiles();
         });
 
         tilingPane.lastWorldUpdateProperty().addListener((e) -> {
@@ -176,10 +181,12 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
         vertexSelection.getSelectedItems().addListener((InvalidationListener) (e) -> {
             highlightSelections('v');
             canTruncateVertex.set(vertexSelection.getSelectedItems().size() == 1);
+            updateCanGlueTiles();
         });
         edgeSelection.getSelectedItems().addListener((InvalidationListener) (e) -> {
             highlightSelections('e');
             updateCanContractEdge();
+            updateCanGlueTiles();
         });
         tileSelection.getSelectedItems().addListener((InvalidationListener) (e) -> highlightSelections('t'));
 
@@ -217,19 +224,6 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
     public TilingEditorTab(File file) {
         this(null, file.getPath());
     }
-
-    public boolean isDirty() {
-        return dirty.get();
-    }
-
-    public BooleanProperty dirtyProperty() {
-        return dirty;
-    }
-
-    public void setDirty(boolean dirty) {
-        this.dirty.set(dirty);
-    }
-
 
     public String getFileName() {
         return fileName.get();
@@ -325,7 +319,6 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
         return groupName;
     }
 
-
     public ReadOnlyStringProperty infoLineProperty() {
         return infoLine;
     }
@@ -344,6 +337,35 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
 
     public ReadOnlyBooleanProperty canTruncateVertexProperty() {
         return canTruncateVertex;
+    }
+
+    public BooleanProperty canDualizeTilingProperty() {
+        return canDualizeTiling;
+    }
+
+    public BooleanProperty canGlueTilesAroundEdgeProperty() {
+        return canGlueTilesAroundEdge;
+    }
+
+    public BooleanProperty canGlueTilesAroundVertexProperty() {
+        return canGlueTilesAroundVertex;
+    }
+
+    public void updateCanGlueTiles() {
+        if (edgeSelection.getSelectedItems().size() == 1 && vertexSelection.getSelectedItems().size() == 0) {
+            canGlueTilesAroundEdge.set(GlueTilesAroundEdge.isApplicable(edgeSelection.getSelectedItems().get(0), getTiling().getDSymbol()));
+            canGlueTilesAroundVertex.set(false);
+        } else if (edgeSelection.getSelectedItems().size() == 0 && vertexSelection.getSelectedItems().size() == 1) {
+            canGlueTilesAroundVertex.set(GlueTilesAroundVertex.isApplicable(vertexSelection.getSelectedItems().get(0), getTiling().getDSymbol()));
+            canGlueTilesAroundEdge.set(false);
+        } else {
+            canGlueTilesAroundVertex.set(false);
+            canGlueTilesAroundEdge.set(false);
+        }
+    }
+
+    public BooleanProperty getCanSplitTileProperty() {
+        return canSplitTile;
     }
 
     public void highlightSelections(Character type) {
