@@ -83,10 +83,11 @@ public class ReshapeUtilities {
                 final Translate translate = new Translate(transVector.getX(), transVector.getY());
 
                 // Translate Point of type k in chamber a
-                Point3D pt0 = Tools.map2Dto3D(fDomain.getGeometry(), fDomain.getVertex(k, a));
-                pt0 = translate.transform(pt0);
-                Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt0);
+                Point2D pt2d = fDomain.getVertex(k, a);
+                pt2d = translate.transform(pt2d);
                 fDomain.setVertex(pt2d, k, a);
+                Point3D pt0 = Tools.map2Dto3D(fDomain.getGeometry(), fDomain.getVertex(k, a));
+
 
                 // Consider all points in orbit of a (especially if chamber contains boundary edges)
                 for (int z = 1; z <= length-1; z++) {
@@ -117,10 +118,13 @@ public class ReshapeUtilities {
                 }
                 final Translate translate = new Translate(transVector.getX(), transVector.getY());
 
-                Point3D apt = Tools.map2Dto3D(fDomain.getGeometry(), fDomain.getEdgeCenter(k, a)); //fDomain.getEdgeCenter3D(k, a);
-                apt = translate.transform(apt);
-                Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), apt);
+                //Point3D apt = Tools.map2Dto3D(fDomain.getGeometry(), fDomain.getEdgeCenter(k, a));
+                //apt = translate.transform(apt);
+                Point2D pt2d = fDomain.getEdgeCenter(k, a);
+                pt2d = translate.transform(pt2d);
+                //pt2d = Tools.map3Dto2D(fDomain.getGeometry(), apt);
                 fDomain.setEdgeCenter(pt2d, k, a);
+                Point3D apt = Tools.map2Dto3D(fDomain.getGeometry(), pt2d);
 
                 if (fDomain.isBoundaryEdge(k, a)) {
                     final Transform g = generators.get(k, a);
@@ -134,9 +138,8 @@ public class ReshapeUtilities {
         }
 
         // Straighten 0- and 1-edges
-
         StraightenEdges.straighten01Edges(fDomain);
-        return transVector.multiply(factor*0.01);
+        return transVector.multiply(factor);
     }
 
     /**
@@ -152,9 +155,6 @@ public class ReshapeUtilities {
     private static Point2D addMirrorRestriction(final FDomain fDomain, double deltaX, double deltaY, int orbitLength, int k, int a) {
         final DSymbol ds = fDomain.getDSymbol();
 
-        Point3D r = new Point3D(0, 0, 0);
-        Point3D n = new Point3D(0, 0, 0);
-        Point3D q = new Point3D(0, 0, 0);
         final int m = fDomain.size();
         // Count number of chambers lying in (1-type)-2-orbit containing flag
         final BitSet visited = new BitSet(m);
@@ -166,47 +166,41 @@ public class ReshapeUtilities {
             }
         }
 
-        // Restrict movement if handle lies on exactly one mirror axis:
+
+        // Calculate reflection g:
+        Transform g = new Translate();
         if (2 * orbitLength / numberOfChambers == 2) { // Condition for exactly one mirror axis
             while (a <= m) {
-                if (fDomain.isBoundaryEdge(1 - k, a) && ds.getSi(1 - k, a) == a) { // Mirror axis is always a boundary for fundamental domain
-                    Transform g = fDomain.getGenerators().get(1 - k, a);
-                    n = fDomain.getVertex3D(1 - k, a).subtract(g.transform(fDomain.getVertex3D(1 - k, a))); // Orthogonal direction of mirror axis
-                    r = new Point3D(n.getY(), -n.getX(), 0); // Direction of translation for handle = direction of mirror axis
-                    Point3D transformed = g.transform(fDomain.getVertex3D(1 - k, a));
-                    q = fDomain.getVertex3D(1 - k, a).midpoint(transformed);
-
+                if (fDomain.isBoundaryEdge(1 - k, a) && ds.getSi(1 - k, a) == a) { // Mirror axis = (1-k)-edge
+                    g = fDomain.getGenerators().get(1 - k, a);
                     break;
                 } else {
                     a = ds.getSi(1 - k, a);
                 }
-                if (fDomain.isBoundaryEdge(2, a) && ds.getS2(a) == a) { // Consider 2-edge-boundaries
-                    Transform g = fDomain.getGenerators().get(2, a);
-                    n = fDomain.getVertex3D(2, a).subtract(g.transform(fDomain.getVertex3D(2, a)));
-                    r = new Point3D(n.getY(), -n.getX(), 0);
-                    Point3D transformed = g.transform(fDomain.getVertex3D(2, a));
-                    q = fDomain.getVertex3D(2, a).midpoint(transformed);
+                if (fDomain.isBoundaryEdge(2, a) && ds.getS2(a) == a) { // Mirror axis = 2-edge
+                    g = fDomain.getGenerators().get(2, a);
                     break;
                 } else {
                     a = ds.getSi(2, a);
                 }
             }
-            // Change direction (deltaX, deltaY) to translation along mirror axis
-            Point3D oldPos = fDomain.getVertex3D(k, a);
-            Point3D newPos = oldPos.add(new Point3D(deltaX, deltaY, 0));
-
-            // While loop prevents from rounding errors
-            int counter = 0;
-            while (counter <= 50) {
-                Point3D qp = q.subtract(newPos);
-                double b = (qp.getY() * r.getX() - qp.getX() * r.getY()) / (r.getX() * r.getX() + r.getY() * r.getY());
-                newPos = newPos.add(n.multiply(b));
-                counter++;
-            }
-
-            deltaX = newPos.getX() - oldPos.getX();
-            deltaY = newPos.getY() - oldPos.getY();
         }
+
+
+        // Restrict mouse movement to mirror axis
+        Point2D pt2d = fDomain.getVertex(k, a);
+        pt2d = pt2d.add(deltaX, deltaY);
+        Point3D pt3d = Tools.map2Dto3D(fDomain.getGeometry(), pt2d);
+
+        pt3d = Tools.midpoint3D(fDomain.getGeometry(), pt3d, g.transform(pt3d)); // Position on mirror axis in 3D-model
+
+        Point2D newPos = Tools.map3Dto2D(fDomain.getGeometry(), pt3d); // Position on mirror axis in 2d-model
+        Point2D oldPos = fDomain.getVertex(k, a);
+
+        // Direction of mouse movement
+        deltaX = newPos.getX() - oldPos.getX();
+        deltaY = newPos.getY() - oldPos.getY();
+
         return new Point2D(deltaX, deltaY);
     }
 
@@ -376,7 +370,7 @@ public class ReshapeUtilities {
         int length = N.length;
 
         // Change direction of translation if restrictions are broken
-        Transform t = new Translate(transVec.getX(), transVec.getY()); // Original translation vector coming from mouse movement (in shapeHandler)
+        Transform t = new Translate(transVec.getX()*100, transVec.getY()*100); // Original translation vector coming from mouse movement (in shapeHandler)
         Point3D newPos = t.transform(oldPos); // New position of handle
         boolean[] restrictions = new boolean[length];
         boolean[] checkRest = new boolean[length];
@@ -417,7 +411,7 @@ public class ReshapeUtilities {
             counter++;
         }
         Point3D transVec3d = newPos.subtract(oldPos);
-        return new Point2D(transVec3d.getX(), transVec3d.getY());
+        return new Point2D(transVec3d.getX(), transVec3d.getY()).multiply(0.01);
     }
 
     private static boolean largerOrEqual(double a, double b) {

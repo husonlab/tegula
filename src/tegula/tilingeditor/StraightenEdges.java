@@ -119,25 +119,25 @@ public class StraightenEdges {
      */
     public static void straighten01Edges(final FDomain fDomain) {
 
-        if (fDomain.getGeometry() != Geometry.Euclidean)
-            return; // todo: implement for other two geometries
+        //if (fDomain.getGeometry() != Geometry.Euclidean)
+          //  return; // todo: implement for other two geometries
 
         // Straighten 0- and 1-edges
         for (int a = 1; a <= fDomain.size(); a++) {
             // Midpoint between 1- and 2-vertex = new 0-edge center
-            Point3D pt3d = (fDomain.getVertex3D(1, a).add(fDomain.getVertex3D(2, a))).multiply(0.5);
+            Point3D pt3d = Tools.midpoint3D(fDomain.getGeometry(), fDomain.getVertex3D(1, a), fDomain.getVertex3D(2, a));
             Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt3d);
             // System.err.println("Edge center 0: "+fDomain.getEdgeCenter(0,a)+" -> "+pt2d);
             fDomain.setEdgeCenter(pt2d, 0, a);
             // Midpoint between 0- and 2-vertex = new 1-edge center
-            pt3d = (fDomain.getVertex3D(0, a).add(fDomain.getVertex3D(2, a))).multiply(0.5);
+            pt3d = Tools.midpoint3D(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getVertex3D(2, a));
             pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt3d);
             // System.err.println("Edge center 1: "+fDomain.getEdgeCenter(1,a)+" -> "+pt2d);
             fDomain.setEdgeCenter(pt2d, 1, a);
             // Recompute chamber center
-            Point3D vec = (fDomain.getVertex3D(2, a).subtract(fDomain.getEdgeCenter3D(2, a))).multiply(0.33333);
-            pt3d = fDomain.getEdgeCenter3D(2, a).add(vec);
-            pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt3d);
+            Point2D vec = (fDomain.getVertex(2, a).subtract(fDomain.getEdgeCenter(2, a))).multiply(0.33333);
+            pt2d = fDomain.getEdgeCenter(2, a).add(vec);
+            //pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt3d);
             fDomain.setChamberCenter(pt2d, a);
             // System.err.println("chamber center: "+fDomain.getChamberCenter(a)+" -> "+pt2d);
         }
