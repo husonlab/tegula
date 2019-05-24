@@ -54,6 +54,8 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
     private final TilingPane tilingPane;
     private final TilingStyle tilingStyle = new TilingStyle();
 
+    private final FDomainEditor fDomainEditor;
+
     private final ObjectProperty<Geometry> geometry = new SimpleObjectProperty<>(Geometry.Euclidean);
     private final BooleanProperty maximalTiling = new SimpleBooleanProperty();
     private final BooleanProperty orientableTiling = new SimpleBooleanProperty();
@@ -97,8 +99,6 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
         tilingPane = new TilingPane(dSymbol, tilingStyle);
         tilingPane.prefWidthProperty().bind(controller.getMainPane().widthProperty());
 
-        final FDomainEditor fDomainEditor = new FDomainEditor(this);
-
         tilingPane.prefHeightProperty().bind(controller.getMainPane().prefHeightProperty());
 
         controller.getMainPane().getChildren().add(tilingPane);
@@ -112,7 +112,6 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
                 controller.getBorderPane().prefHeightProperty().unbind();
             }
         });
-
 
         ControlBindings.setup(this);
 
@@ -200,6 +199,8 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
 
         tilingPane.incrementLastDSymbolUpdate();
         tilingPane.incrementLastWorldUpdate();
+
+        fDomainEditor = new FDomainEditor(this);
     }
 
     public static int computeSize(Node node) {
@@ -394,5 +395,9 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
 
     public AnotherMultipleSelectionModel<Integer> getTileSelection() {
         return tileSelection;
+    }
+
+    public FDomainEditor getfDomainEditor() {
+        return fDomainEditor;
     }
 }

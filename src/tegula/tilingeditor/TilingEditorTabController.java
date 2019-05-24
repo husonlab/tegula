@@ -130,6 +130,12 @@ public class TilingEditorTabController {
     @FXML
     private Button splitTileButton;
 
+    @FXML
+    private Button resetButton;
+
+    @FXML
+    private Button updateButton;
+
 
     @FXML
     void initialize() {
@@ -166,6 +172,8 @@ public class TilingEditorTabController {
         assert orientateButton != null : "fx:id=\"orientateButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert maximizeButton != null : "fx:id=\"maximizeButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert stopAnimationButton != null : "fx:id=\"stopAnimationButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert resetButton != null : "fx:id=\"resetButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert updateButton != null : "fx:id=\"updateButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
 
     }
 
@@ -316,5 +324,13 @@ public class TilingEditorTabController {
 
     public Button getSplitTileButton() {
         return splitTileButton;
+    }
+
+    public Button getResetButton() {
+        return resetButton;
+    }
+
+    public Button getUpdateButton() {
+        return updateButton;
     }
 }

@@ -53,7 +53,6 @@ import java.util.BitSet;
  * Daniel Huson and Ruediger Zeller, 2016
  */
 public class FundamentalDomain {
-
     /**
      * Computes a fundamental domain
      *
@@ -476,6 +475,8 @@ public class FundamentalDomain {
             all.add(verticesGroup);
         if (othersGroup.getChildren().size() > 0)
             all.add(othersGroup);
+        if (geom == Geometry.Euclidean && tilingStyle.getDecorations().getChildren().size() > 0)
+            all.add(tilingStyle.getDecorations());
         return all;
     }
 
