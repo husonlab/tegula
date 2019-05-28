@@ -116,6 +116,7 @@ public class ReshapeUtilities {
                 if (fDomain.getGeometry() == Geometry.Euclidean) { // Add restrictions in Euclidean case
                     transVector = add2Restriction(fDomain, deltaX, deltaY, a, factor);
                 }
+                if (ds.getSi(k, a) == a) break;
                 final Translate translate = new Translate(transVector.getX(), transVector.getY());
 
                 //Point3D apt = Tools.map2Dto3D(fDomain.getGeometry(), fDomain.getEdgeCenter(k, a));
@@ -167,39 +168,41 @@ public class ReshapeUtilities {
         }
 
 
-        // Calculate reflection g:
         Transform g = new Translate();
         if (2 * orbitLength / numberOfChambers == 2) { // Condition for exactly one mirror axis
+            // Calculate reflection g:
             while (a <= m) {
                 if (fDomain.isBoundaryEdge(1 - k, a) && ds.getSi(1 - k, a) == a) { // Mirror axis = (1-k)-edge
                     g = fDomain.getGenerators().get(1 - k, a);
+                    System.out.println(1-k + " und " + a);
                     break;
                 } else {
                     a = ds.getSi(1 - k, a);
                 }
                 if (fDomain.isBoundaryEdge(2, a) && ds.getS2(a) == a) { // Mirror axis = 2-edge
                     g = fDomain.getGenerators().get(2, a);
+                    System.out.println(2 + " und " + a);
                     break;
                 } else {
                     a = ds.getSi(2, a);
                 }
             }
+
+
+            // Restrict mouse movement to mirror axis
+            Point2D pt2d = fDomain.getVertex(k, a);
+            pt2d = pt2d.add(deltaX, deltaY);
+            Point3D pt3d = Tools.map2Dto3D(fDomain.getGeometry(), pt2d);
+            pt3d = Tools.midpoint3D(fDomain.getGeometry(), pt3d, g.transform(pt3d)); // Position on mirror axis in 3D-model
+
+            Point2D newPos = Tools.map3Dto2D(fDomain.getGeometry(), pt3d); // Position on mirror axis in 2d-model
+            Point2D oldPos = fDomain.getVertex(k, a);
+
+            // Direction of mouse movement
+            deltaX = newPos.getX() - oldPos.getX();
+            deltaY = newPos.getY() - oldPos.getY();
         }
 
-
-        // Restrict mouse movement to mirror axis
-        Point2D pt2d = fDomain.getVertex(k, a);
-        pt2d = pt2d.add(deltaX, deltaY);
-        Point3D pt3d = Tools.map2Dto3D(fDomain.getGeometry(), pt2d);
-
-        pt3d = Tools.midpoint3D(fDomain.getGeometry(), pt3d, g.transform(pt3d)); // Position on mirror axis in 3D-model
-
-        Point2D newPos = Tools.map3Dto2D(fDomain.getGeometry(), pt3d); // Position on mirror axis in 2d-model
-        Point2D oldPos = fDomain.getVertex(k, a);
-
-        // Direction of mouse movement
-        deltaX = newPos.getX() - oldPos.getX();
-        deltaY = newPos.getY() - oldPos.getY();
 
         return new Point2D(deltaX, deltaY);
     }

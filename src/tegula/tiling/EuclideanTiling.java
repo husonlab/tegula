@@ -43,7 +43,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
 
     private final QuadTree coveredPoints = new QuadTree();
 
-    private Point3D referencePoint = new Point3D(1, 1, 0);
+    private Point3D referencePoint = fDomain.computeReferencePoint(); //new Point3D(1, 1, 0);
 
     private Transform transformRecycled = new Translate();
 
@@ -68,20 +68,6 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
      * update the tiling
      */
     public Group update() {
-        recycler.clear();
-        transformRecycled = new Translate();
-
-        fundPrototype.getChildren().clear();
-        coveredPoints.clear();
-
-        generators = fDomain.getGenerators();
-
-        referencePoint = fDomain.computeReferencePoint();
-        tolerance = computeTolerance(getGeometry(), referencePoint, generators);
-
-        if (!isInWindowEuclidean(referencePoint, windowCorner, width.get(), height.get())) { // Fund. domain is not in visible window
-            fDomain.recenterFDomain(calculateBackShiftEuclidean(windowCorner, width.get(), height.get())); // Shifts back fDomain into valid range for fund. domain
-        }
         final Group tiles = produceTiles(true);
         setNumberOfCopies(tiles.getChildren().size());
         return tiles;
@@ -105,31 +91,30 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
             recycler.clear();
             coveredPoints.clear();
 
-            //Calculation of point of reference:
-            referencePoint = fDomain.computeReferencePoint();
+            //Tolerance for rounding errors in QuadTree
             tolerance = computeTolerance(getGeometry(), referencePoint, generators);
 
+
+            //Prototype of fDomain (for copies)
+            fundPrototype.getChildren().clear();
             fundPrototype.getChildren().setAll(FundamentalDomain.compute(ds, fDomain, tilingStyle));
-
-            fundPrototype.getTransforms().setAll(new Translate()); // Add transform (= identity)
-            fundPrototype.setRotationAxis(referencePoint); // Reference point of fundamental domain
-
-            all.getChildren().add(provideCopy(new Translate(), referencePoint, fundPrototype));
+            all.getChildren().add(provideCopy(new Translate(), fundPrototype)); // Add identity to Prototype
         }
 
         if (!isDrawFundamentalDomainOnly()) {
             final QuadTree seen = new QuadTree(); // Saves reference points of tiles
 
-            seen.insert(referencePoint.getX(), referencePoint.getY(), tolerance); // Insert reference point of fDomain
+            Point3D pt = transformRecycled.transform(referencePoint);
+            seen.insert(pt.getX(), pt.getY(), tolerance); // Insert reference point of fDomain
 
             // Saves transforms for copies
             final Queue<Transform> queue = new LinkedList<>(generators.getTransforms()); // Add generators
 
             for (Transform generator : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
-                Point3D ref = generator.transform(referencePoint); // Reference point for new copy
+                Point3D ref = transformRecycled.createConcatenation(generator).transform(referencePoint); // Reference point for new copy
                 if (isInRangeEuclidean(ref, windowCorner, getWidth(), getHeight()) && seen.insert(ref.getX(), ref.getY(), tolerance)) { // Checks whether reference point is in valid range and if it is in QuadTree "seen". Adds it if not.
                     if (insertCoveredPoint(ref)) { // Checks whether copy fills empty space after translation of tiles
-                        all.getChildren().add(provideCopy(generator, ref, fundPrototype));
+                        all.getChildren().add(provideCopy(generator, fundPrototype));
                     }
                 }
             }
@@ -145,24 +130,24 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
                 for (Transform g : generators.getTransforms()) { // Creates new transforms for copies
                     {
                         final Transform tg = t.createConcatenation(g);
-                        final Point3D ref = tg.transform(referencePoint); // Reference point corresponding to transform tg
+                        final Point3D ref = transformRecycled.createConcatenation(tg).transform(referencePoint); // Reference point corresponding to transform tg
 
                         if (isInRangeEuclidean(ref, windowCorner, getWidth(), getHeight()) && seen.insert(ref.getX(), ref.getY(), tolerance)) {
                             queue.add(tg);
                             if (insertCoveredPoint(ref)) {
-                                all.getChildren().add(provideCopy(tg, ref, fundPrototype));
+                                all.getChildren().add(provideCopy(tg, fundPrototype));
                             }
                         }
                     }
 
                     {
                         final Transform gt = g.createConcatenation(t);
-                        final Point3D ref = gt.transform(referencePoint);
+                        final Point3D ref = transformRecycled.createConcatenation(gt).transform(referencePoint);
 
                         if (isInRangeEuclidean(ref, windowCorner, getWidth(), getHeight()) && seen.insert(ref.getX(), ref.getY(), tolerance)) {
                             queue.add(gt);
                             if (insertCoveredPoint(ref)) {
-                                all.getChildren().add(provideCopy(gt, ref, fundPrototype));
+                                all.getChildren().add(provideCopy(gt, fundPrototype));
                             }
                         }
                     }
@@ -185,18 +170,14 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
 
         Translate translate = new Translate(dx, dy, 0); // Mouse translation (MouseHandler)
 
-        fDomain.translate(dx, dy); // Translates fDomain by vector (dx,dy).
-        transformRecycled = translate.createConcatenation(transformRecycled); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
+        transformRecycled = translate.createConcatenation(transformRecycled); // Translates tiles to right place
 
-        referencePoint = translate.transform(referencePoint);
+        final Point3D refPoint = transformRecycled.transform(referencePoint); // Translates reference point to right place
 
-        final Point3D refPoint = getfDomain().computeReferencePoint(); // Point of reference in Euclidean fundamental domain
-
-        if (!isInWindowEuclidean(refPoint, windowCorner, width.get(), height.get())) { // If fundamental domain is out of visible window
+        //Recompute transformRecycled if necessary
+        if (!isInWindowEuclidean(refPoint, windowCorner, width.get(), height.get())) { // If transformRecycled shifts fDomain out of visible window
             Transform t = calculateBackShiftEuclidean(windowCorner, width.get(), height.get());
-            transformRecycled = t.createConcatenation(transformRecycled); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
-            fDomain.recenterFDomain(t); // Shifts back fDomain into visible window
-            referencePoint = t.transform(referencePoint);
+            transformRecycled = transformRecycled.createConcatenation(t); // new transformRecycled does not shift out of window
         }
 
         //First step: Translate tiles by vector (dx,dy) ------------------------------------------------------------
@@ -205,15 +186,15 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
             Group group = (Group) tiles.getChildren().get(i); // Copy with index i in tile. Each copy is a node of the group "tile".
             if (group.getTransforms().size() > 0) {
                 Transform nodeTransform = group.getTransforms().get(0); // get transform of node
-                Point3D point = group.getRotationAxis().add(dx, dy, 0); // point = reference point of node (saved as rotation axis) + mouse translation
+                Point3D point = translate.createConcatenation(nodeTransform).transform(referencePoint);
 
                 if (isInRangeEuclidean(point, windowCorner, width.get(), height.get())) {  // keep copy if point still is in valid range
                     group.getTransforms().setAll(translate.createConcatenation(nodeTransform)); // new transform = (translate)*(old transform)
-                    group.setRotationAxis(point); // "point" serves as new reference of copy
                     if (!insertCoveredPoint(point)) // Save copy as a kept one
                         System.err.println("Already present");
+
                     i++;
-                } else { // when point is out of valid range
+                } else { // point is out of valid range
                     tiles.getChildren().remove(i);
                     recycler.push(group); // Remove node and add to recycler
                 }
@@ -231,7 +212,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
         } else { // No rounding errors: add new tiles
             tiles.getChildren().addAll(newTiles.getChildren());
             setNumberOfCopies(tiles.getChildren().size());
-            // System.err.println("Number of copies: " + getNumberOfCopies());
+            //System.err.println("Number of copies: " + getNumberOfCopies());
         }
     }
 
@@ -257,7 +238,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
 
         final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
 
-        Point3D refPoint = getfDomain().computeReferencePoint();
+        Point3D refPoint = transformRecycled.transform(referencePoint);
 
         final QuadTree seen = new QuadTree();
         seen.insert(refPoint.getX(), refPoint.getY(), tolerance);
@@ -268,7 +249,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
         double d = point.distance(midpoint);
 
         for (Transform g : generators.getTransforms()) {
-            point = g.transform(refPoint);
+            point = transformRecycled.createConcatenation(g).transform(referencePoint);
             if (seen.insert(point.getX(), point.getY(), tolerance)) { // Creates a tree of points lying in the copies of fDomain
                 if (point.distance(midpoint) < d) { // Optimizes the choice of the transformation copying fDomain back to the valid range
                     d = point.distance(midpoint);
@@ -282,9 +263,8 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
             t = queue.poll(); // remove t from queue
 
             for (Transform g : generators.getTransforms()) {
-
                 Transform tg = t.createConcatenation(g);
-                point = tg.transform(refPoint);
+                point = transformRecycled.createConcatenation(tg).transform(referencePoint);
 
                 if (seen.insert(point.getX(), point.getY(), tolerance)) { // Creates a tree of points lying in the copies of fDomain
                     if (point.distance(midpoint) < d) { // Optimizes the choice of the transformation copying fDomain back to the valid range
@@ -296,7 +276,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
                 }
 
                 Transform gt = g.createConcatenation(t);
-                point = gt.transform(refPoint);
+                point = transformRecycled.createConcatenation(gt).transform(referencePoint);
 
                 if (seen.insert(point.getX(), point.getY(), tolerance)) {
                     if (point.distance(midpoint) < d) {
@@ -388,14 +368,12 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
      * provides a copy of the fundamental domain, using the recycler, if possible
      *
      * @param transform
-     * @param refPoint
      * @param fund
      * @return copy
      */
-    private Group provideCopy(Transform transform, Point3D refPoint, Group fund) {
+    private Group provideCopy(Transform transform, Group fund) {
         final Group copy = (recycler.size() > 0 ? recycler().pop() : CopyTiles.apply(fund));
-        copy.setRotationAxis(refPoint);
-        copy.getTransforms().setAll(transform.createConcatenation(transformRecycled));
+        copy.getTransforms().setAll(transformRecycled.createConcatenation(transform));
         return copy;
     }
 
