@@ -21,6 +21,7 @@ package tegula.tiling;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.image.ImageView;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Polyline;
@@ -55,6 +56,23 @@ public class CopyTiles {
                 target.setId(src.getId());
                 target.setUserData(src.getUserData());
                 result.getChildren().add(target);
+
+                if (node.getOnMouseClicked() != null)
+                    target.setOnMouseClicked(node.getOnMouseClicked());
+
+            } else if (node instanceof ImageView) {
+                ImageView src = (ImageView) node;
+                ImageView target = new ImageView(((ImageView) node).getImage());
+                target.setFitWidth(src.getFitWidth());
+                target.setFitHeight(src.getFitHeight());
+                target.setId(src.getId());
+                target.setUserData(src.getUserData());
+                result.getChildren().add(target);
+                target.setTranslateX(src.getTranslateX());
+                target.setTranslateY(src.getTranslateY());
+                target.setTranslateZ(src.getTranslateZ());
+                target.setRotationAxis(src.getRotationAxis());
+                target.setRotate(src.getRotate());
 
                 if (node.getOnMouseClicked() != null)
                     target.setOnMouseClicked(node.getOnMouseClicked());

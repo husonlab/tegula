@@ -24,16 +24,16 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import jloda.fx.undo.UndoManager;
 import jloda.util.Single;
+import tegula.main.TilingStyle;
 import tegula.tilingeditor.TilingEditorTab;
 import tegula.tilingeditor.TilingEditorTabController;
+import tegula.undoable.ChangeDSymbolCommand;
 
 /**
  * the fundamental domain editor
  * Daniel Huson, 4.2019
  */
 public class FDomainEditor {
-    private final TilingEditorTabController controller;
-
     private final double preferredWidthClosed;
     private double preferredWidthOpen;
 
@@ -45,6 +45,8 @@ public class FDomainEditor {
 
     private final FDomainPane fDomainPane;
 
+    private final TilingStyle tilingStyle;
+
     private final UndoManager undoManager;
 
     /**
@@ -53,7 +55,8 @@ public class FDomainEditor {
      * @param tilingEditorTab
      */
     public FDomainEditor(TilingEditorTab tilingEditorTab) {
-        this.controller = tilingEditorTab.getController();
+        this.tilingStyle = tilingEditorTab.getTilingStyle();
+        final TilingEditorTabController controller = tilingEditorTab.getController();
         this.undoManager = tilingEditorTab.getUndoManager();
         final AnchorPane anchorPane = controller.getFdomainAnchorPane();
         preferredWidthClosed = anchorPane.getPrefWidth();
@@ -65,7 +68,7 @@ public class FDomainEditor {
 
         tilingEditorTab.getTilingPane().lastWorldUpdateProperty().addListener((e) -> fDomainPane.update());
 
-        AnchorPane.setTopAnchor(fDomainPane, 5.0);
+        AnchorPane.setTopAnchor(fDomainPane, 30.0);
         AnchorPane.setLeftAnchor(fDomainPane, 0.0);
         AnchorPane.setBottomAnchor(fDomainPane, 5.0);
         AnchorPane.setRightAnchor(fDomainPane, 0.0);
@@ -102,12 +105,29 @@ public class FDomainEditor {
             mouseDownY = e.getSceneY();
         });
 
+        controller.getResetButton().setOnAction((e) -> {
+            final Point2D[][] coordinates = getfDomainPane().getFDomain().getCoordinates();
+            undoManager.doAndAdd(new ChangeDSymbolCommand("reset", getfDomainPane().getFDomain().getDSymbol(), getfDomainPane().getFDomain().getDSymbol(),
+                    tilingEditorTab.getTilingPane()::computTiling, coordinates, tilingEditorTab.getTilingPane()::changeCoordinates));
+        });
+        controller.getResetButton().disableProperty().bind(undoManager.canUndoProperty().not());
+
+        controller.getUpdateButton().setOnAction((e) -> {
+            if (!undoManager.isPerformingUndoOrRedo())
+                tilingEditorTab.getTilingPane().update();
+        });
+        controller.getUpdateButton().disableProperty().bind(undoManager.canUndoProperty().not());
+
         controller.getFundamentalDomainTitledPane().expandedProperty().addListener((c, o, n) -> {
             if (n) {
+                if (!anchorPane.getChildren().contains(fDomainPane))
+                    anchorPane.getChildren().add(0, fDomainPane);
                 anchorPane.setPrefWidth(Math.min(preferredWidthOpen, controller.getMainPane().getWidth() - 50));
                 anchorPane.setPrefHeight(Math.min(preferredHeightOpen, controller.getMainPane().getHeight() - 50));
                 controller.getResizeButton().setVisible(true);
             } else {
+                anchorPane.getChildren().remove(fDomainPane);
+
                 anchorPane.setPrefWidth(preferredWidthClosed);
                 anchorPane.setPrefHeight(preferredHeightClosed);
                 controller.getResizeButton().setVisible(false);
@@ -125,5 +145,21 @@ public class FDomainEditor {
 
     public UndoManager getUndoManager() {
         return undoManager;
+    }
+
+    public double getPreferredWidthOpen() {
+        return preferredWidthOpen;
+    }
+
+    public double getPreferredHeightOpen() {
+        return preferredHeightOpen;
+    }
+
+    public FDomainPane getfDomainPane() {
+        return fDomainPane;
+    }
+
+    public TilingStyle getTilingStyle() {
+        return tilingStyle;
     }
 }

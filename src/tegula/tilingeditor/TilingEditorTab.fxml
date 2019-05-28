@@ -238,7 +238,19 @@
             <content>
                 <AnchorPane fx:id="fdomainAnchorPane" maxHeight="1.7976931348623157E308"
                             maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity"
-                            prefHeight="130.0" prefWidth="130.0"/>
+                            prefHeight="130.0" prefWidth="130.0">
+                    <children>
+                        <ToolBar minHeight="26.0" prefHeight="26.0" AnchorPane.leftAnchor="-10.0"
+                                 AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="-10.0">
+                            <items>
+                                <Button fx:id="resetButton" focusTraversable="false" minHeight="22.0"
+                                        mnemonicParsing="false" prefHeight="22.0" text="Reset"/>
+                                <Button fx:id="updateButton" focusTraversable="false" layoutX="10.0" layoutY="7.0"
+                                        minHeight="22.0" mnemonicParsing="false" prefHeight="22.0" text="Update"/>
+                            </items>
+                        </ToolBar>
+                    </children>
+                </AnchorPane>
             </content>
             <graphic>
                 <Button fx:id="resizeButton" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity"

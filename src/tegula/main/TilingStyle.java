@@ -22,6 +22,7 @@ package tegula.main;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import jloda.fx.util.ColorSchemeManager;
 import tegula.util.HasHyperbolicModel;
@@ -31,6 +32,8 @@ import tegula.util.HasHyperbolicModel;
  * Daniel Huson, 11.18
  */
 public class TilingStyle {
+    private final Group decorations = new Group();
+
     private final IntegerProperty bandWidth = new SimpleIntegerProperty(4);
     private final IntegerProperty bandCapFineness = new SimpleIntegerProperty(24);
 
@@ -394,5 +397,9 @@ public class TilingStyle {
 
     public void setHyperbolicLimit(int hyperbolicLimit) {
         this.hyperbolicLimit.set(hyperbolicLimit);
+    }
+
+    public Group getDecorations() {
+        return decorations;
     }
 }

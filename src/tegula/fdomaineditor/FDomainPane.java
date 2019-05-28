@@ -19,9 +19,7 @@
 
 package tegula.fdomaineditor;
 
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
@@ -60,6 +58,10 @@ public class FDomainPane extends StackPane {
     private NGonShape[][] edgeHandles;
     private NGonShape[] chamberCenterHandles;
 
+    private final Group decorations = new Group();
+
+    private final DoubleProperty scaleFactor = new SimpleDoubleProperty(1);
+
     private final UndoManager undoManager;
 
     public FDomainPane(TilingEditorTab tilingEditorTab, UndoManager undoManager) {
@@ -85,7 +87,7 @@ public class FDomainPane extends StackPane {
     public void update() {
         final FDomain fDomain = getFDomain();
         final DSymbol ds = getDSymbol();
-        final double factor = Math.min((getWidth() - 30) / (fDomain.getBoundingBox().getMaxX() - fDomain.getBoundingBox().getMinX()), (getHeight() - 30) / (fDomain.getBoundingBox().getMaxY() - fDomain.getBoundingBox().getMinY()));
+        scaleFactor.set(Math.min((getWidth() - 30) / (fDomain.getBoundingBox().getMaxX() - fDomain.getBoundingBox().getMinX()), (getHeight() - 30) / (fDomain.getBoundingBox().getMaxY() - fDomain.getBoundingBox().getMinY())));
 
         getChildren().clear();
 
@@ -106,7 +108,7 @@ public class FDomainPane extends StackPane {
                     final BitSet visited = new BitSet();
                     for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, j, a, visited)) {
                         ds.visitOrbit(i, j, a, b -> {
-                            final NGonShape vertexHandle = new NGonShape(fDomain.getVertex(k, b).multiply(factor));
+                            final NGonShape vertexHandle = new NGonShape(fDomain.getVertex(k, b).multiply(getScaleFactor()));
                             final NGonShape existingVertexHandle = find(vertexHandle, vertices.getChildren());
                             if (existingVertexHandle != null)
                                 vertexHandles[b][k] = existingVertexHandle;
@@ -118,7 +120,7 @@ public class FDomainPane extends StackPane {
                                     vertexHandle.setSize(10, 10);
                                 } else if ((ds.getVij(i, j, b) == 1) && !(i == 0 && j == 2 && b == ds.getS2(b))
                                         && !(k == 2 && !getFDomain().isBoundaryEdge(0, b))) {
-                                    setMouseHandler(undoManager, factor, vertexHandle, ReshapeUtilities.Type.Vertex, k, b);
+                                    setMouseHandler(undoManager, getScaleFactor(), vertexHandle, ReshapeUtilities.Type.Vertex, k, b);
                                     if (ds.isCycle(i, j, b)) // can be freely moved
                                         color = Color.GREEN;
                                     else
@@ -141,14 +143,14 @@ public class FDomainPane extends StackPane {
                     final BitSet visited = new BitSet();
                     for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, j, a, visited)) {
                         ds.visitOrbit(i, j, a, b -> {
-                            final NGonShape edgeHandle = new NGonShape(fDomain.getEdgeCenter(k, b).multiply(factor));
+                            final NGonShape edgeHandle = new NGonShape(fDomain.getEdgeCenter(k, b).multiply(getScaleFactor()));
                             final NGonShape existingEdgeHandle = find(edgeHandle, vertices.getChildren());
                             if (existingEdgeHandle != null)
                                 edgeHandles[b][k] = existingEdgeHandle;
                             else {
                                 Color color;
                                 if (k == 2) { // center of an edge
-                                    setMouseHandler(undoManager, factor, edgeHandle, ReshapeUtilities.Type.EdgeCenter, 2, b);
+                                    setMouseHandler(undoManager, getScaleFactor(), edgeHandle, ReshapeUtilities.Type.EdgeCenter, 2, b);
                                     if (b != ds.getS2(b))
                                         color = Color.GREEN; // freely moveable
                                     else
@@ -171,7 +173,7 @@ public class FDomainPane extends StackPane {
 
             // setup chamber centers:
             for (int a = 1; a <= ds.size(); a++) {
-                final NGonShape c = new NGonShape(fDomain.getChamberCenter(a).multiply(factor));
+                final NGonShape c = new NGonShape(fDomain.getChamberCenter(a).multiply(getScaleFactor()));
                 chamberCenterHandles[a] = c;
                 c.setN(32);
                 c.setFill(Color.LIGHTGRAY);
@@ -267,7 +269,7 @@ public class FDomainPane extends StackPane {
                 }
             }
 
-            final Group all = new Group(polygons, edges, vertices);
+        final Group all = new Group(polygons, edges, vertices, decorations);
 
             getChildren().setAll(all);
     }
@@ -360,5 +362,17 @@ public class FDomainPane extends StackPane {
                 moved = false;
             }
         });
+    }
+
+    public Group getDecorations() {
+        return decorations;
+    }
+
+    public double getScaleFactor() {
+        return scaleFactor.get();
+    }
+
+    public ReadOnlyDoubleProperty scaleFactorProperty() {
+        return scaleFactor;
     }
 }
