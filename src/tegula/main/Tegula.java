@@ -24,6 +24,7 @@ import javafx.stage.Stage;
 import jloda.fx.util.ArgsOptions;
 import jloda.fx.util.ColorSchemeManager;
 import jloda.fx.util.NotificationManager;
+import jloda.fx.util.ResourceManagerFX;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.SplashScreen;
 import jloda.fx.window.WindowGeometry;
@@ -62,6 +63,7 @@ public class Tegula extends Application {
      * @param args
      */
     public static void main(String[] args) throws CanceledException, UsageException {
+        ResourceManagerFX.addResourceRoot(Tegula.class, "tegula.resources");
         ProgramProperties.setProgramName(Version.NAME);
         ProgramProperties.setProgramVersion(Version.SHORT_DESCRIPTION);
         ProgramProperties.setProgramLicence("This is an early (ALPHA) version of Tegula, made available for testing purposes. Source code will be released on publication.");
@@ -131,15 +133,18 @@ public class Tegula extends Application {
             }
 
             // setup about and preferences menu for apple:
-            OSXIntegration.init();
-            OSXIntegration.populateAppleMenu(() -> SplashScreen.getInstance().showSplash(Duration.ofMinutes(1)), () -> System.err.println("Preferences"));
+            if (false) {
+                OSXIntegration.init();
+                OSXIntegration.populateAppleMenu(() -> SplashScreen.getInstance().showSplash(Duration.ofMinutes(1)), () -> System.err.println("Preferences"));
 
-            // open files by double-click under Mac OS: // untested
-            OSXIntegration.setOpenFilesHandler(files -> {
-                for (File file : files) {
-                    System.err.println("Open file " + file + ": not implemented");
-                }
-            });
+                // open files by do uble-click under Mac OS: // untested
+                OSXIntegration.setOpenFilesHandler(files -> {
+                    for (File file : files) {
+                        System.err.println("Open file " + file + ": not implemented");
+                    }
+                });
+            }
+
         } catch (Exception ex) {
             Basic.caught(ex);
             throw ex;

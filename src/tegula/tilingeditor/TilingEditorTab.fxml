@@ -259,7 +259,7 @@
                     <graphic>
                         <ImageView fitHeight="8.0" fitWidth="8.0" pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image url="/resources/icons/Resize16.png"/>
+                                <Image url="/tegula/resources/icons/Resize16.png"/>
                             </image>
                         </ImageView>
                     </graphic>
@@ -333,7 +333,7 @@
             <graphic>
                 <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                     <image>
-                        <Image url="/resources/icons/Close16.gif"/>
+                        <Image url="/tegula/resources/icons/Close16.gif"/>
                     </image>
                 </ImageView>
             </graphic>

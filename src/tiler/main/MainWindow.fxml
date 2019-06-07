@@ -238,7 +238,7 @@
                             <graphic>
                                 <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
-                                        <Image url="/resources/icons/sun/toolbarButtonGraphics/general/Open24.gif"/>
+                                        <Image url="/jloda/resources/icons/sun/Open24.gif"/>
                                     </image>
                                 </ImageView>
                             </graphic>
@@ -247,7 +247,7 @@
                             <graphic>
                                 <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
-                                        <Image url="/resources/icons/sun/toolbarButtonGraphics/general/Print24.gif"/>
+                                        <Image url="/jloda/resources/icons/sun/Print24.gif"/>
                                     </image>
                                 </ImageView>
                             </graphic>
@@ -256,7 +256,7 @@
                             <graphic>
                                 <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
-                                        <Image url="/resources/icons/First16.gif"/>
+                                        <Image url="/tegula/resources/icons/First16.gif"/>
                                     </image>
                                 </ImageView>
                             </graphic>
@@ -266,7 +266,7 @@
                             <graphic>
                                 <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
-                                        <Image url="/resources/icons/sun/toolbarButtonGraphics/navigation/Back16.gif"/>
+                                        <Image url="/jloda/resources/icons/sun/Back16.gif"/>
                                     </image>
                                 </ImageView>
                             </graphic>
@@ -276,7 +276,7 @@
                             <graphic>
                                 <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
-                                        <Image url="/resources/icons/sun/toolbarButtonGraphics/navigation/Forward16.gif"/>
+                                        <Image url="/jloda/resources/icons/sun/Forward16.gif"/>
                                     </image>
                                 </ImageView>
                             </graphic>
@@ -285,7 +285,7 @@
                             <graphic>
                                 <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
-                                        <Image url="/resources/icons/Last16.gif"/>
+                                        <Image url="/tegula/resources/icons/Last16.gif"/>
                                     </image>
                                 </ImageView>
                             </graphic>

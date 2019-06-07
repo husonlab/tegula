@@ -155,6 +155,14 @@ public class FDomainEditor {
         return preferredHeightOpen;
     }
 
+    public double getPreferredWidthClosed() {
+        return preferredWidthClosed;
+    }
+
+    public double getPreferredHeightClosed() {
+        return preferredHeightClosed;
+    }
+
     public FDomainPane getfDomainPane() {
         return fDomainPane;
     }
