@@ -31,6 +31,8 @@ import tegula.core.dsymbols.Geometry;
  * Ruediger Zeller, 2017
  */
 public class Tools {
+
+
     /**
      * Distance of points a,b. In hyperbolic case: Hyperbolic distance between
      * normalized points on z^2=x^2+y^2+1). In spherical and Euclidean case:

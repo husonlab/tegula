@@ -84,7 +84,6 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
         //Add handles
         handles.getChildren().setAll(((new ReshapeManager(this, doc).createHandles())));
 
-
         final Group all = new Group();
 
         if (reset) { // need to recompute fundamental domain
@@ -166,13 +165,14 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
      */
     public void translateTiling(double dx, double dy, Group tiles) {
 
+        // QuadTree is used for saving copies which are kept under translation
         coveredPoints.clear();
 
         Translate translate = new Translate(dx, dy, 0); // Mouse translation (MouseHandler)
 
-        transformRecycled = translate.createConcatenation(transformRecycled); // Translates tiles to right place
+        transformRecycled = translate.createConcatenation(transformRecycled); // Translates tiles to correct place
 
-        final Point3D refPoint = transformRecycled.transform(referencePoint); // Translates reference point to right place
+        final Point3D refPoint = transformRecycled.transform(referencePoint); // Translates reference point to correct place
 
         //Recompute transformRecycled if necessary
         if (!isInWindowEuclidean(refPoint, windowCorner, width.get(), height.get())) { // If transformRecycled shifts fDomain out of visible window

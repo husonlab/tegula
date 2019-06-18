@@ -119,11 +119,9 @@ public class ReshapeUtilities {
                 if (ds.getSi(k, a) == a) break;
                 final Translate translate = new Translate(transVector.getX(), transVector.getY());
 
-                //Point3D apt = Tools.map2Dto3D(fDomain.getGeometry(), fDomain.getEdgeCenter(k, a));
-                //apt = translate.transform(apt);
+
                 Point2D pt2d = fDomain.getEdgeCenter(k, a);
                 pt2d = translate.transform(pt2d);
-                //pt2d = Tools.map3Dto2D(fDomain.getGeometry(), apt);
                 fDomain.setEdgeCenter(pt2d, k, a);
                 Point3D apt = Tools.map2Dto3D(fDomain.getGeometry(), pt2d);
 
