@@ -32,6 +32,4 @@ module tegula {
     opens tegula.main;
     opens tegula.tilingcollection;
     opens tegula.tilingeditor;
-
-
 }
