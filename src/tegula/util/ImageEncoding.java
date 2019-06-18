@@ -21,14 +21,13 @@ package tegula.util;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
-import org.apache.xerces.impl.dv.util.Base64;
 
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
+import java.io.InputStream;
+import java.util.Base64;
 /**
  * string encoding and decoding of images
  * Daniel Huson, 5.2019
@@ -38,15 +37,15 @@ public class ImageEncoding {
     public static String encodeImage(Image image) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ImageIO.write(SwingFXUtils.fromFXImage(image, null), "jpg", out);
-        return Base64.encode(out.toByteArray());
+        return Base64.getEncoder().encodeToString(out.toByteArray());
     }
 
     public static Image decodeImage(String encoding) throws IOException {
-        final byte[] byteArray = Base64.decode(encoding);
-        final BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(byteArray));
-        if (bufferedImage != null)
-            return SwingFXUtils.toFXImage(bufferedImage, null);
-        else
-            throw new IOException("Decode image failed");
+        final byte[] byteArray = Base64.getDecoder().decode(encoding);
+        try (InputStream in = new ByteArrayInputStream(byteArray)) {
+
+            //return SwingFXUtils.toFXImage(ImageIO.read(in),null);
+            return new Image(in);
+        }
     }
 }

@@ -145,32 +145,35 @@ public class MouseHandler {
 
         tilingPane.setOnScroll(me -> {
                     if (me.getDeltaY() != 0) {
-                        double factor = (me.getDeltaY() > 0 ? 1.1 : 0.9);
-                        tilingPane.getWorldScale().setX(factor * tilingPane.getWorldScale().getX());
-                        tilingPane.getWorldScale().setY(factor * tilingPane.getWorldScale().getY());
-                        tilingPane.setEuclideanWidth((tilingPane.getEuclideanWidth()) / factor);
-                        tilingPane.setEuclideanHeight((tilingPane.getEuclideanHeight()) / factor);
-                    }
-                    if (onScrollEnded.get() != null) {
-                        lastScroll = System.currentTimeMillis();
-                        if (thread == null) {
-                            thread = new Thread(() -> {
-                                while (System.currentTimeMillis() - lastScroll < 100) {
-                                    try {
-                                        Thread.sleep(100);
-                                    } catch (InterruptedException e) {
-                                        Basic.caught(e);
-                                    }
+                        final double factor = (me.getDeltaY() > 0 ? 1.1 : 0.9);
+
+                        if (me.isShiftDown() || factor * tilingPane.getWorldScale().getX() > 0.1 && factor * tilingPane.getWorldScale().getY() > 0.1) {
+                            tilingPane.getWorldScale().setX(factor * tilingPane.getWorldScale().getX());
+                            tilingPane.getWorldScale().setY(factor * tilingPane.getWorldScale().getY());
+                            tilingPane.setEuclideanWidth((tilingPane.getEuclideanWidth()) / factor);
+                            tilingPane.setEuclideanHeight((tilingPane.getEuclideanHeight()) / factor);
+                            if (onScrollEnded.get() != null) {
+                                lastScroll = System.currentTimeMillis();
+                                if (thread == null) {
+                                    thread = new Thread(() -> {
+                                        while (System.currentTimeMillis() - lastScroll < 100) {
+                                            try {
+                                                Thread.sleep(100);
+                                            } catch (InterruptedException e) {
+                                                Basic.caught(e);
+                                            }
+                                        }
+                                        Platform.runLater(() ->
+                                        {
+                                            if (onScrollEnded.get() != null)
+                                                onScrollEnded.get().handle(me);
+                                            thread = null;
+                                        });
+                                    });
+                                    thread.setDaemon(true);
+                                    thread.start();
                                 }
-                                Platform.runLater(() ->
-                                {
-                                    if (onScrollEnded.get() != null)
-                                        onScrollEnded.get().handle(me);
-                                    thread = null;
-                                });
-                            });
-                            thread.setDaemon(true);
-                            thread.start();
+                            }
                         }
                     }
                 }
