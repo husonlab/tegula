@@ -4,8 +4,9 @@ module tegula {
     requires transitive javafx.graphics;
     requires transitive javafx.swing;
     requires transitive javafx.fxml;
-    requires fx.platform.utils;
     requires transitive java.sql;
+
+    requires fx.platform.utils;
 
     exports tegula.resources.icons;
     opens tegula.resources.icons;
