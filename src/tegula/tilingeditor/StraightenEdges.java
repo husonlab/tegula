@@ -119,8 +119,8 @@ public class StraightenEdges {
      */
     public static void straighten01Edges(final FDomain fDomain) {
 
-        //if (fDomain.getGeometry() != Geometry.Euclidean)
-          //  return; // todo: implement for other two geometries
+        if (fDomain.getGeometry() != Geometry.Euclidean)
+            return; // todo: implement for other two geometries
 
         // Straighten 0- and 1-edges
         for (int a = 1; a <= fDomain.size(); a++) {

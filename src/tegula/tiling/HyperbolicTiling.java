@@ -22,6 +22,7 @@ package tegula.tiling;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
+import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import tegula.core.dsymbols.DSymbol;
@@ -41,7 +42,7 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
 
     private final OctTree coveredPoints = new OctTree();
 
-    private Point3D referencePoint = new Point3D(0, 0, 1);
+    private Point3D referencePoint = fDomain.computeReferencePoint();
 
     private Transform transformRecycled = new Translate();
 
@@ -63,24 +64,21 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
      * update the tiling
      */
     public Group update() {
-        recycler.clear();
-        transformRecycled = new Translate();
-        fundPrototype.getChildren().clear();
-        coveredPoints.clear();
 
-        generators = fDomain.getGenerators();
 
-        referencePoint = fDomain.computeReferencePoint();
-        tolerance = computeTolerance(getGeometry(), referencePoint, generators);
+        //generators = fDomain.getGenerators();
+
+        //referencePoint = fDomain.computeReferencePoint();
+        //tolerance = computeTolerance(getGeometry(), referencePoint, generators);
 
         double diameterFDomain = fDomain.calculateDiameter();
         if (2.8 * diameterFDomain > tilingStyle.getHyperbolicLimit()) {
             tilingStyle.setHyperbolicLimit((int) Math.round(2.8 * diameterFDomain));
         }
 
-        if (referencePoint.getZ() >= ValidHyperbolicRange) {// Fundamental domain is shifted back
+        /*if (referencePoint.getZ() >= ValidHyperbolicRange) {// Fundamental domain is shifted back
             fDomain.recenterFDomain(calculateBackShiftHyperbolic()); // Shifts back fDomain into valid range (slower algorithm)
-        }
+        }*/
 
         final Group tiles = produceTiles(true);
         setNumberOfCopies(tiles.getChildren().size());
@@ -91,42 +89,43 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
      * produces hyperbolic tiles
      */
     private Group produceTiles(boolean reset) {
+        generators = fDomain.getGenerators();
+
         final double maxDist = Math.cosh(0.5 * tilingStyle.getHyperbolicLimit());
         //System.err.println("Create Hyperbolic Tiling");
 
-        handles.getChildren().clear();
-
-        //Add all generators
-        generators = fDomain.getGenerators();
+        //handles.getChildren().clear();
 
         final Group all = new Group();
 
-
         if (reset) { // need to recompute fundamental domain
-            referencePoint = fDomain.computeReferencePoint();
+            recycler.clear();
+            coveredPoints.clear();
+
+            //Tolerance for rounding errors in OctTree
             tolerance = computeTolerance(getGeometry(), referencePoint, generators);
 
+            //Prototype of fDomain (for copies)
+            fundPrototype.getChildren().clear();
             fundPrototype.getChildren().setAll(FundamentalDomain.compute(ds, fDomain, tilingStyle));
-
-            fundPrototype.setRotationAxis(referencePoint);
-            fundPrototype.getTransforms().setAll(new Translate());
-
-            all.getChildren().add(provideCopy(new Translate(), referencePoint, fundPrototype));
+            all.getChildren().add(provideCopy(new Translate(), fundPrototype));
         }
 
 
         if (!isDrawFundamentalDomainOnly()) {
             final OctTree seen = new OctTree();
-            seen.insert(getGeometry(), referencePoint, tolerance);
+
+            Point3D pt = transformRecycled.transform(referencePoint);
+            seen.insert(getGeometry(), pt, tolerance);
 
             // Make copies of fundamental domain.
             final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
 
             for (Transform g : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
-                final Point3D ref = g.transform(referencePoint);
+                final Point3D ref = transformRecycled.createConcatenation(g).transform(referencePoint);
                 if (seen.insert(getGeometry(), ref, tolerance)) {    // Checks whether point "ref" is in OctTree "seen". Adds it if not.
                     if (insertCoveredPoint(ref)) {
-                        all.getChildren().add(provideCopy(g, ref, fundPrototype));
+                        all.getChildren().add(provideCopy(g, fundPrototype));
                     }
                 }
             }
@@ -144,24 +143,24 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
                 for (Transform g : generators.getTransforms()) {
                     {
                         final Transform tg = t.createConcatenation(g);
-                        final Point3D ref = tg.transform(referencePoint);
+                        final Point3D ref = transformRecycled.createConcatenation(tg).transform(referencePoint);
                         if (seen.insert(getGeometry(), ref, tolerance) && ref.getZ() < maxDist) {
                             countChildren++;
                             queue.add(tg);
                             if (insertCoveredPoint(ref)) {
-                                all.getChildren().add(provideCopy(tg, ref, fundPrototype));
+                                all.getChildren().add(provideCopy(tg, fundPrototype));
 
                             }
                         }
                     }
                     {
                         final Transform gt = g.createConcatenation(t);
-                        final Point3D ref = gt.transform(referencePoint);
+                        final Point3D ref = transformRecycled.createConcatenation(gt).transform(referencePoint);
                         if (seen.insert(getGeometry(), ref, tolerance) && ref.getZ() < maxDist) {
                             countChildren++;
                             queue.add(gt);
                             if (insertCoveredPoint(ref)) {
-                                all.getChildren().add(provideCopy(gt, ref, fundPrototype));
+                                all.getChildren().add(provideCopy(gt, fundPrototype));
                             }
                         }
                     }
@@ -181,36 +180,59 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
     public void translateTiling(double dx, double dy, Group tiles) {
         changeDirection = false;
 
-        dx /= 300;
-        dy /= 300;
-        double maxDist = Math.cosh(0.5 * tilingStyle.getHyperbolicLimit());
-
-        // Calculate hyperbolic translation of group:
-        Transform translate = Tools.hyperbolicTranslation(dx, dy);
-
         // OctTree is used for saving copies which are kept under translation
         coveredPoints.clear();
 
-        // Translates fDomain by vector (dx,dy).
-        fDomain.translate(dx, dy);
-        referencePoint = translate.transform(referencePoint);
-        transformRecycled = translate.createConcatenation(transformRecycled); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
+        dx /= 300;
+        dy /= 300;
 
+        double maxDist = Math.cosh(0.5 * tilingStyle.getHyperbolicLimit());
 
-        // Recenter fDomain if too far away from center
-        final Point3D refPoint = fDomain.computeReferencePoint();
-        //tolerance = computeTolerance(getGeometry(), refPoint, generators);
+        // Calculate hyperbolic translation of tiles:
+        Transform translate = Tools.hyperbolicTranslation(dx, dy);
 
+        transformRecycled = translate.createConcatenation(transformRecycled); // Translates tiles to correct place
+
+        final Point3D refPoint = transformRecycled.transform(referencePoint); // Translates reference point to correct place
+
+        // Recompute transformRecycled if necessary
         if (refPoint.getZ() >= ValidHyperbolicRange) {
             final Transform t = calculateBackShiftHyperbolic();
             if (t instanceof Translate) {
                 System.err.println("calculateBackShiftHyperbolic: failed");
                 calculateBackShiftHyperbolic();
             }
-            fDomain.recenterFDomain(t); // Shifts back fDomain into valid range
-            transformRecycled = t.createConcatenation(transformRecycled); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
-            referencePoint = t.transform(referencePoint);
+            transformRecycled = transformRecycled.createConcatenation(t); // Transforms original fundamental domain (which served as construction for the tile) to reset fundamental domain
         }
+
+
+        //--------------------------------------------------------------------------------------------------------------
+        // Gram-Schmidt prevents from rounding errors in transformRecycled:
+        Point3D[] columns = new Point3D[3];
+        double[] lambda = new double[2];
+
+        columns[0] = new Point3D(transformRecycled.getMxx(), transformRecycled.getMyx(), transformRecycled.getMzx());
+        columns[1] = new Point3D(transformRecycled.getMxy(), transformRecycled.getMyy(), transformRecycled.getMzy());
+        columns[2] = new Point3D(transformRecycled.getMxz(), transformRecycled.getMyz(), transformRecycled.getMzz());
+
+        // Two iterations of Gram-Schmidt
+        for (int i=1; i<=2; i++){
+            for (int j=1; j<=i; j++){
+                lambda[j-1] =  -Tools.minkowskiScalar(columns[i],columns[j-1])/Tools.minkowskiScalar(columns[j-1], columns[j-1]);
+                columns[i] = columns[i].add(columns[j-1].multiply(lambda[j-1]));
+            }
+        }
+
+        // Normalize columns (length 1):
+        for (int i = 0; i <= 2; i++){
+            columns[i] = columns[i].multiply(1/Math.sqrt(Math.abs(Tools.minkowskiScalar(columns[i],columns[i]))));
+        }
+
+        transformRecycled = new Affine(
+                columns[0].getX(), columns[1].getX(), columns[2].getX(), 0,
+                columns[0].getY(), columns[1].getY(), columns[2].getY(), 0,
+                columns[0].getZ(), columns[1].getZ(), columns[2].getZ(), 0);
+        //--------------------------------------------------------------------------------------------------------------
 
         //First step: Translate tiles by vector (dx,dy) ------------------------------------------------------------
         int i = 0;
@@ -222,30 +244,28 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
             }
 
             final Transform nodeTransform = group.getTransforms().get(0);
-            final Point3D point = translate.transform(group.getRotationAxis()); // point = translated reference point of node
+            final Point3D point = translate.createConcatenation(nodeTransform).transform(referencePoint); // point = translated reference point of node
 
             if (point.getZ() > maxDist) {
                 tiles.getChildren().remove(i);
                 recycler.push(group); // Remove node and add to recycler
             } else {
                 group.getTransforms().setAll(translate.createConcatenation(nodeTransform));
-                group.setRotationAxis(point);
                 insertCoveredPoint(point);
-                // if (!insertCoveredPoint(point))
-                //     System.err.println("Already present");
                 i++;
             }
         }
 
         //Second step: Create new tiles ----------------------------------------------------------------------------
         Group newTiles = produceTiles(false);
+
         if (newTiles == FAILED) { // Generates new tiling if too much rounding errors
             reset(); // Reset fundamental domain
             tiles.getChildren().setAll(produceTiles(true)); // Update tiling
         } else { // No rounding errors: add new tiles
             tiles.getChildren().addAll(newTiles.getChildren());
+            setNumberOfCopies(tiles.getChildren().size());
         }
-        setNumberOfCopies(tiles.getChildren().size());
     }
 
     /**
@@ -253,12 +273,14 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
      */
     public void decreaseTiling(Group tiles) {
         tilingStyle.setHyperbolicLimit(tilingStyle.getHyperbolicLimit() - 1);
-
         double maxDist = Math.cosh(0.5 * tilingStyle.getHyperbolicLimit());
         int bound = tiles.getChildren().size();
+        
         for (int i = 1; i <= bound; i++) {
             final Group group = (Group) tiles.getChildren().get(bound - i);
-            if (group.getRotationAxis().getZ() > maxDist) {
+            Transform nodeTransform = group.getTransforms().get(0);
+            Point3D pt = nodeTransform.transform(referencePoint);
+            if (pt.getZ() > maxDist) {
                 tiles.getChildren().remove(bound - i);
                 recycler.add(group);
             }
@@ -272,8 +294,12 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
         tilingStyle.setHyperbolicLimit(tilingStyle.getHyperbolicLimit() + 1);
 
         coveredPoints.clear();
+
         for (int i = 0; i < tiles.getChildren().size(); i++) {
-            insertCoveredPoint(tiles.getChildren().get(i).getRotationAxis()); // Add existing tiles to tree structure
+            final Group group = (Group) tiles.getChildren().get(i);
+            Transform nodeTransform = group.getTransforms().get(0);
+            Point3D pt = nodeTransform.transform(referencePoint);
+            insertCoveredPoint(pt); // Add existing tiles to tree structure
         }
 
         setNumberOfCopies(0);
@@ -295,29 +321,42 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
 
         final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
 
-        Point3D refPoint = getfDomain().computeReferencePoint();
-        tolerance = computeTolerance(getGeometry(), refPoint, generators);
+        Point3D refPoint = transformRecycled.transform(referencePoint);
 
         final OctTree seen = new OctTree();
         seen.insert(getGeometry(), refPoint, tolerance);
 
         Transform backShift = new Translate(), t;
-        Point3D apt = refPoint;
+        Point3D point = refPoint, apt = point;
         double d = apt.getZ();
 
         final double limit = ValidHyperbolicRange - 0.3;
+
+        for (Transform g : generators.getTransforms()) {
+            point = transformRecycled.createConcatenation(g).transform(referencePoint);
+            if (seen.insert(getGeometry(), point, tolerance)) { // Creates a tree of points lying in the copies of fDomain
+                if (point.getZ() < d) { // Optimizes the choice of the transformation copying fDomain back to the valid range
+                    d = point.getZ();
+                    backShift = g;
+                    apt = point;
+                }
+            }
+        }
+
+
         int counter = 0;
-        while (apt.getZ() >= limit) { // The loop works as long as the copy of fDomain lies outside the valid range
+        while (apt.getZ() >= limit) { // Loop works as long as the copy of fDomain lies outside the valid range
             counter++;
             if (counter >= 250) {
-                System.out.println("Loop back shift. BREAK");
                 break;
             }
+
+
             t = queue.poll(); // remove t from queue
             for (Transform g : generators.getTransforms()) {
                 {
                     final Transform tg = t.createConcatenation(g);
-                    final Point3D point = tg.transform(refPoint);
+                    point = transformRecycled.createConcatenation(tg).transform(referencePoint);
 
                 if (seen.insert(getGeometry(), point, tolerance)) { // Creates a tree of points lying in the copies of fDomain
                     if (point.getZ() < d) { // Optimizes the choice of the transformation copying fDomain back to the valid range
@@ -332,7 +371,7 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
 
                 {
                     final Transform gt = g.createConcatenation(t);
-                    final Point3D point = gt.transform(refPoint);
+                    point = transformRecycled.createConcatenation(gt).transform(referencePoint);
 
                     if (seen.insert(getGeometry(), point, tolerance)) {
                         if (point.getZ() < d) {
@@ -352,14 +391,12 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
      * provides a copy of the fundamental domain, using the recycler, if possible
      *
      * @param transform
-     * @param refPoint
      * @param fund
      * @return copy
      */
-    private Group provideCopy(Transform transform, Point3D refPoint, Group fund) {
+    private Group provideCopy(Transform transform, Group fund) {
         final Group copy = (recycler.size() > 0 ? recycler.pop() : CopyTiles.apply(fund));
-        copy.setRotationAxis(refPoint);
-        copy.getTransforms().setAll(transform.createConcatenation(transformRecycled));
+        copy.getTransforms().setAll(transformRecycled.createConcatenation(transform));
         return copy;
     }
 
