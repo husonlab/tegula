@@ -215,17 +215,13 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
         columns[1] = new Point3D(transformRecycled.getMxy(), transformRecycled.getMyy(), transformRecycled.getMzy());
         columns[2] = new Point3D(transformRecycled.getMxz(), transformRecycled.getMyz(), transformRecycled.getMzz());
 
-        // Two iterations of Gram-Schmidt
-        for (int i=1; i<=2; i++){
+        // Three iterations of Gram-Schmidt (for orthogonal columns)
+        for (int i=0; i<=2; i++){
             for (int j=1; j<=i; j++){
                 lambda[j-1] =  -Tools.minkowskiScalar(columns[i],columns[j-1])/Tools.minkowskiScalar(columns[j-1], columns[j-1]);
                 columns[i] = columns[i].add(columns[j-1].multiply(lambda[j-1]));
             }
-        }
-
-        // Normalize columns (length 1):
-        for (int i = 0; i <= 2; i++){
-            columns[i] = columns[i].multiply(1/Math.sqrt(Math.abs(Tools.minkowskiScalar(columns[i],columns[i]))));
+            columns[i] = columns[i].multiply(1/Math.sqrt(Math.abs(Tools.minkowskiScalar(columns[i],columns[i])))); // Normalize length of columns
         }
 
         transformRecycled = new Affine(
@@ -285,6 +281,7 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
                 recycler.add(group);
             }
         }
+        setNumberOfCopies(tiles.getChildren().size());
     }
 
     /**
