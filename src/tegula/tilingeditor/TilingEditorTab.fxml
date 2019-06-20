@@ -274,7 +274,7 @@
                         <Button fx:id="straightenEdgesButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
                                 style="-fx-font-size: 12;" text="Straighten">
                             <tooltip>
-                                <Tooltip text="Straighten edges"/>
+                                <Tooltip text="Straighten edge(s)"/>
                             </tooltip>
                         </Button>
                         <Separator prefWidth="200.0"/>

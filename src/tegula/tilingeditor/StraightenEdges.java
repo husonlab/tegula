@@ -28,6 +28,7 @@ import tegula.core.dsymbols.Geometry;
 import tegula.geometry.Tools;
 import tegula.tiling.Generators;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 
 /**
@@ -44,6 +45,19 @@ public class StraightenEdges {
 
         for (int a = 1; a <= ds.size(); a = ds.nextOrbit(0, 2, a, visited))
             straightenEdge(fDomain, a);
+    }
+
+    /**
+     * straighten all edges
+     */
+    public static void straightenEdges(FDomain fDomain, ArrayList<Integer> edges) {
+        final DSymbol ds = fDomain.getDSymbol();
+
+        for (Integer edge : edges) {
+            final int a = ds.getFlagForOrbit(0, 2, edge);
+            if (a >= 1)
+                straightenEdge(fDomain, a);
+        }
     }
 
     /**

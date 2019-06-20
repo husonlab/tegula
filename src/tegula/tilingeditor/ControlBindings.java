@@ -32,6 +32,8 @@ import tegula.tilingpane.TilingPane;
 import tegula.undoable.ChangeDSymbolCommand;
 import tegula.util.HasHyperbolicModel;
 
+import java.util.ArrayList;
+
 /**
  * setup control bindings
  * Daniel Huson, 4.2019
@@ -89,8 +91,9 @@ public class ControlBindings {
 
         controller.getStraightenEdgesButton().setOnAction((e) -> {
 
-
             final Point2D[][] oldCoordinates = tilingPane.getTiling().getfDomain().getCoordinates();
+            final ArrayList<Integer> edges = new ArrayList<>(tilingEditorTab.getEdgeSelection().getSelectedItems());
+
             undoManager.doAndAdd(new UndoableRedoableCommand("straighten") {
                 public void undo() {
                     tilingPane.changeCoordinates(oldCoordinates);
@@ -98,7 +101,11 @@ public class ControlBindings {
                 }
 
                 public void redo() {
-                    StraightenEdges.straightenAllEdges(tilingPane.getTiling().getfDomain());
+                    if (edges.size() == 0)
+                        StraightenEdges.straightenAllEdges(tilingPane.getTiling().getfDomain());
+                    else
+                        StraightenEdges.straightenEdges(tilingPane.getTiling().getfDomain(), edges);
+
                     tilingPane.update();
                 }
             });

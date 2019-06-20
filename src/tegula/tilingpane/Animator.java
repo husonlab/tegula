@@ -53,7 +53,7 @@ public class Animator {
     public Animator(TilingPane tilingPane) {
         this.tilingPane = tilingPane;
         timeline = new Timeline(Timeline.INDEFINITE);
-        timeline.setCycleCount(10000);
+        timeline.setCycleCount(Integer.MAX_VALUE);
     }
 
     /**

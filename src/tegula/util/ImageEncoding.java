@@ -43,7 +43,6 @@ public class ImageEncoding {
     public static Image decodeImage(String encoding) throws IOException {
         final byte[] byteArray = Base64.getDecoder().decode(encoding);
         try (InputStream in = new ByteArrayInputStream(byteArray)) {
-
             //return SwingFXUtils.toFXImage(ImageIO.read(in),null);
             return new Image(in);
         }
