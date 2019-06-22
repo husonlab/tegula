@@ -28,8 +28,8 @@ import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
 import tegula.core.dsymbols.Geometry;
 import tegula.geometry.Tools;
-import tegula.tilingeditor.StraightenEdges;
 import tegula.tiling.Generators;
+import tegula.tilingeditor.StraightenEdges;
 
 import java.util.Arrays;
 import java.util.BitSet;
@@ -172,14 +172,14 @@ public class ReshapeUtilities {
             while (a <= m) {
                 if (fDomain.isBoundaryEdge(1 - k, a) && ds.getSi(1 - k, a) == a) { // Mirror axis = (1-k)-edge
                     g = fDomain.getGenerators().get(1 - k, a);
-                    System.out.println(1-k + " und " + a);
+                    // System.out.println(1-k + " und " + a);
                     break;
                 } else {
                     a = ds.getSi(1 - k, a);
                 }
                 if (fDomain.isBoundaryEdge(2, a) && ds.getS2(a) == a) { // Mirror axis = 2-edge
                     g = fDomain.getGenerators().get(2, a);
-                    System.out.println(2 + " und " + a);
+                    // System.out.println(2 + " und " + a);
                     break;
                 } else {
                     a = ds.getSi(2, a);

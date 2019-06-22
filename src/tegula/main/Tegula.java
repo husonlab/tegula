@@ -117,8 +117,7 @@ public class Tegula extends Application {
             primaryStage.setTitle(ProgramProperties.getProgramName());
             NotificationManager.setShowNotifications(true);
 
-
-            final Window mainWindow = new Window();
+            final MainWindow mainWindow = new MainWindow();
             MainWindowManager.getInstance().addMainWindow(mainWindow);
 
             // todo: setup file opener

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Window.fxml Copyright (C) 2019. Daniel H. Huson
+  ~ MainWindow.fxml Copyright (C) 2019. Daniel H. Huson
   ~  
   ~  (Some files contain contributions from other authors, who are then mentioned separately.)
   ~  
@@ -24,7 +24,7 @@
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
 <AnchorPane fx:id="anchorPane" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="tegula.main.WindowController">
+            fx:controller="tegula.main.MainWindowController">
     <children>
         <BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
                     minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" AnchorPane.bottomAnchor="0.0"

@@ -1,5 +1,5 @@
 /*
- * Window.java Copyright (C) 2019. Daniel H. Huson
+ * MainWindow.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -42,9 +42,9 @@ import java.util.Collections;
  * the main window
  * Daniel Huson, 4.2019
  */
-public class Window implements IMainWindow {
+public class MainWindow implements IMainWindow {
     private Stage stage;
-    private final WindowController controller;
+    private final MainWindowController controller;
     private final Parent root;
     private final Pane statusPane;
 
@@ -56,10 +56,10 @@ public class Window implements IMainWindow {
 
     private final ObservableMap<File, TilingCollectionTab> file2CollectionTab = FXCollections.observableHashMap();
 
-    public Window() {
+    public MainWindow() {
         document = new Document();
 
-        final ExtendedFXMLLoader<WindowController> extendedFXMLLoader = new ExtendedFXMLLoader<>(this.getClass());
+        final ExtendedFXMLLoader<MainWindowController> extendedFXMLLoader = new ExtendedFXMLLoader<>(this.getClass());
         root = extendedFXMLLoader.getRoot();
         controller = extendedFXMLLoader.getController();
         statusPane = controller.getStatusBar();
@@ -132,10 +132,10 @@ public class Window implements IMainWindow {
 
     @Override
     public IMainWindow createNew() {
-        return new Window();
+        return new MainWindow();
     }
 
-    public WindowController getController() {
+    public MainWindowController getController() {
         return controller;
     }
 

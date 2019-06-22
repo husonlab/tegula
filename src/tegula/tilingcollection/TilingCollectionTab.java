@@ -52,8 +52,8 @@ import jloda.util.ProgramProperties;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.DSymbolAlgorithms;
 import tegula.core.dsymbols.OrbifoldGroupName;
+import tegula.main.MainWindow;
 import tegula.main.TilingStyle;
-import tegula.main.Window;
 import tegula.tilingpane.TilingPane;
 import tegula.util.IFileBased;
 
@@ -94,12 +94,12 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable, IF
 
     public static Font font = new Font("Arial", 12);
 
-    private final Window mainWindow;
+    private final MainWindow mainWindow;
 
     /**
      * constructor
      */
-    public TilingCollectionTab(Window mainWindow, TilingCollection tilingCollection) {
+    public TilingCollectionTab(MainWindow mainWindow, TilingCollection tilingCollection) {
         this.mainWindow = mainWindow;
         this.tilingCollection = tilingCollection;
         final AnotherMultipleSelectionModel<DSymbol> selectionModel = tilingCollection.getSelectionModel();

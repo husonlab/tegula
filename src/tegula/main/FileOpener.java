@@ -40,7 +40,7 @@ public class FileOpener implements Consumer<String> {
             Basic.caught(e);
             return;
         }
-        final Window window = (Window) MainWindowManager.getInstance().getLastFocusedMainWindow();
+        final MainWindow window = (MainWindow) MainWindowManager.getInstance().getLastFocusedMainWindow();
         if (window == null)
             return;
         try {

@@ -49,8 +49,8 @@ public class ControlBindings {
      *
      * @param window
      */
-    public static void setup(final Window window) {
-        final WindowController controller = window.getController();
+    public static void setup(final MainWindow window) {
+        final MainWindowController controller = window.getController();
         final ReadOnlyObjectProperty<Tab> selectedTab = window.getMainTabPane().getSelectionModel().selectedItemProperty();
         final BooleanProperty isCollectionTabSelected = new SimpleBooleanProperty(false);
         selectedTab.addListener((c, o, n) -> {
@@ -64,6 +64,7 @@ public class ControlBindings {
         selectedTab.addListener((c, o, n) -> {
             if (n instanceof TilingEditorTab) {
                 final TilingEditorTab tab = (TilingEditorTab) n;
+                System.err.println("TilingEditorTab: " + tab);
                 controller.getUndoMenuItem().disableProperty().unbind();
                 controller.getUndoMenuItem().setDisable(!tab.getUndoManager().canUndoProperty().get());
                 controller.getUndoMenuItem().disableProperty().bind(tab.getUndoManager().canUndoProperty().not());
@@ -95,6 +96,8 @@ public class ControlBindings {
             }
             if (n instanceof TilingCollectionTab) {
                 final TilingCollectionTab tab = (TilingCollectionTab) n;
+                System.err.println("TilingCollectionTab: " + tab);
+
                 selectionInCollection.unbind();
                 selectionInCollection.set(tab.getSelectionModel().getSelectedItems().size());
                 selectionInCollection.bind(Bindings.size(tab.getSelectionModel().getSelectedItems()));
@@ -105,7 +108,7 @@ public class ControlBindings {
         });
 
         controller.getNewMenuItem().setOnAction((e) -> {
-            final Window newWindow = (Window) MainWindowManager.getInstance().createAndShowWindow(false);
+            final MainWindow newWindow = (MainWindow) MainWindowManager.getInstance().createAndShowWindow(false);
             newWindow.getStage().setTitle(ProgramProperties.getProgramName() + " [" + (++windowsCreated) + "]");
             MainWindowManager.getInstance().setLastFocusedMainWindow(newWindow);
         });
@@ -135,7 +138,7 @@ public class ControlBindings {
 
         controller.getQuitMenuItem().setOnAction((e) -> {
             while (MainWindowManager.getInstance().size() > 0) {
-                final Window aWindow = (Window) MainWindowManager.getInstance().getMainWindow(MainWindowManager.getInstance().size() - 1);
+                final MainWindow aWindow = (MainWindow) MainWindowManager.getInstance().getMainWindow(MainWindowManager.getInstance().size() - 1);
                 // if (!aWindow.clear(true, true)) break;
                 MainWindowManager.getInstance().closeMainWindow(window);
 

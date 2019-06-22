@@ -21,6 +21,7 @@ package tegula.fdomaineditor;
 
 import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import jloda.fx.undo.UndoManager;
 import jloda.util.Single;
@@ -65,6 +66,8 @@ public class FDomainEditor {
         preferredHeightOpen = 2 * preferredHeightClosed;
 
         fDomainPane = new FDomainPane(tilingEditorTab, undoManager);
+
+        fDomainPane.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> tilingEditorTab.getTabPane().requestFocus());
 
         tilingEditorTab.getTilingPane().lastWorldUpdateProperty().addListener((e) -> fDomainPane.update());
 
