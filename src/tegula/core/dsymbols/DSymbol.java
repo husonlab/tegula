@@ -301,11 +301,11 @@ public class DSymbol {
     }
 
     /**
-     * computes the orbit length (number si*sj operations required to get from a to a
+     * computes the orbit length (number si*sj operations required to get from a to a)
      * @param i
      * @param j
      * @param a
-     * @return
+     * @return length
      */
     public int computeOrbitLength(final int i, final int j, final int a) {
         int length = 0;

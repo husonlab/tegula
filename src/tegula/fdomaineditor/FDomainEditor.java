@@ -137,6 +137,22 @@ public class FDomainEditor {
             }
         });
 
+        if (false) {
+            final Button doubleButton = new Button("2x");
+            doubleButton.setOnAction((e) -> {
+                anchorPane.setPrefWidth(2 * anchorPane.getWidth());
+                anchorPane.setPrefHeight(2 * anchorPane.getHeight());
+            });
+            controller.getFdomainToolBar().getItems().add(doubleButton);
+
+            final Button halfButton = new Button("1/2x");
+            halfButton.setOnAction((e) -> {
+                anchorPane.setPrefWidth(0.5 * anchorPane.getWidth());
+                anchorPane.setPrefHeight(0.5 * anchorPane.getHeight());
+            });
+            controller.getFdomainToolBar().getItems().add(halfButton);
+        }
+
         final Single<Double> origWidth = new Single<>(Double.MIN_VALUE);
         controller.getFundamentalDomainTitledPane().widthProperty().addListener((c, o, n) -> {
             if (origWidth.get() == Double.MIN_VALUE)

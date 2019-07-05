@@ -240,7 +240,7 @@
                             maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity"
                             prefHeight="130.0" prefWidth="130.0">
                     <children>
-                        <ToolBar minHeight="26.0" prefHeight="26.0" AnchorPane.leftAnchor="-10.0"
+                        <ToolBar fx:id="fdomainToolBar" minHeight="26.0" prefHeight="26.0" AnchorPane.leftAnchor="-10.0"
                                  AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="-10.0">
                             <items>
                                 <Button fx:id="resetButton" focusTraversable="false" minHeight="22.0"

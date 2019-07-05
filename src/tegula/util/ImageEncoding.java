@@ -23,6 +23,8 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -34,9 +36,17 @@ import java.util.Base64;
  */
 public class ImageEncoding {
 
-    public static String encodeImage(Image image) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ImageIO.write(SwingFXUtils.fromFXImage(image, null), "jpg", out);
+    public static String encodeImage(Image image, String format) throws IOException {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
+
+        if (format.equalsIgnoreCase("jpeg")) { // fix "pink" bug
+            final BufferedImage bufferedImage2 = new BufferedImage((int) image.getWidth(), (int) image.getHeight(), BufferedImage.OPAQUE);
+            Graphics2D graphics = bufferedImage2.createGraphics();
+            graphics.drawImage(bufferedImage, 0, 0, null);
+            bufferedImage = bufferedImage2;
+        }
+        ImageIO.write(bufferedImage, format, out);
         return Base64.getEncoder().encodeToString(out.toByteArray());
     }
 

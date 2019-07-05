@@ -135,11 +135,14 @@ public class GroupEditingControls {
     private static boolean isSphericalNN(DSymbol ds) {
         if (ds.computeCurvature().doubleValue() > 0) {
             final ArrayList<Integer> values = new ArrayList<>();
-            for (int i = 0; i <= 1; i++) {
+            for (int k = 0; k <= 2; k++) {
+                final int i = DSymbol.i(k);
+                final int j = DSymbol.j(k);
+
                 BitSet seen = new BitSet();
                 for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, i + 1, a, seen)) {
-                    if (ds.getVij(i, i + 1, a) > 1) {
-                        values.add(ds.getVij(i, i + 1, a));
+                    if (ds.getVij(i, j, a) > 1) {
+                        values.add(ds.getVij(i, j, a));
                     }
                 }
             }
@@ -157,11 +160,13 @@ public class GroupEditingControls {
     private static boolean ensureNNForSpherical(DSymbol ds, int newValue) {
         if (ds.computeCurvature().doubleValue() > 0) {
             ArrayList<int[]> values = new ArrayList<>();
-            for (int i = 0; i <= 1; i++) {
+            for (int k = 0; k <= 2; k++) {
+                final int i = DSymbol.i(k);
+                final int j = DSymbol.j(k);
                 BitSet seen = new BitSet();
-                for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, i + 1, a, seen)) {
-                    if (ds.getVij(i, i + 1, a) > 1) {
-                        values.add(new int[]{i, i + 1, a, ds.getVij(i, i + 1, a)});
+                for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, j, a, seen)) {
+                    if (ds.getVij(i, j, a) > 1) {
+                        values.add(new int[]{i, j, a, ds.getVij(i, j, a)});
                     }
                 }
             }

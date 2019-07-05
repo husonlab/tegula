@@ -64,7 +64,6 @@ public class ControlBindings {
         selectedTab.addListener((c, o, n) -> {
             if (n instanceof TilingEditorTab) {
                 final TilingEditorTab tab = (TilingEditorTab) n;
-                System.err.println("TilingEditorTab: " + tab);
                 controller.getUndoMenuItem().disableProperty().unbind();
                 controller.getUndoMenuItem().setDisable(!tab.getUndoManager().canUndoProperty().get());
                 controller.getUndoMenuItem().disableProperty().bind(tab.getUndoManager().canUndoProperty().not());

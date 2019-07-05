@@ -100,6 +100,9 @@ public class TilingEditorTabController {
     private AnchorPane fdomainAnchorPane;
 
     @FXML
+    private ToolBar fdomainToolBar;
+
+    @FXML
     private Button resizeButton;
 
     @FXML
@@ -166,6 +169,7 @@ public class TilingEditorTabController {
         assert backgroundColorPicker != null : "fx:id=\"backgroundColorPicker\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert fundamentalDomainTitledPane != null : "fx:id=\"fundamentalDomainTitledPane\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert fdomainAnchorPane != null : "fx:id=\"fdomainAnchorPane\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert fdomainToolBar != null : "fx:id=\"fdomainToolBar\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert resizeButton != null : "fx:id=\"resizeButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert straightenEdgesButton != null : "fx:id=\"straightenEdgesButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert dualizeButton != null : "fx:id=\"dualizeButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
@@ -296,6 +300,10 @@ public class TilingEditorTabController {
 
     public AnchorPane getFdomainAnchorPane() {
         return fdomainAnchorPane;
+    }
+
+    public ToolBar getFdomainToolBar() {
+        return fdomainToolBar;
     }
 
     public Slider getTilesOpacitySlider() {
