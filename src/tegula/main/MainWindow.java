@@ -75,7 +75,7 @@ public class MainWindow implements IMainWindow {
         FileOpenManager.setExtensions(Collections.singletonList(TilingFileFilter.getInstance()));
         FileOpenManager.setFileOpener(new FileOpener());
 
-        FileBrowser.setup(new File("input"), TilingFileFilter.getInstance(), fileTreeView);
+        FileBrowser.setup(new File("../tiling/tilings"), TilingFileFilter.getInstance(), fileTreeView);
         fileTreeView.setOnMouseClicked((e) -> {
             if (e.getClickCount() == 2) {
                 final TreeItem<FileBrowser.FileNode> item = fileTreeView.getSelectionModel().getSelectedItem();
