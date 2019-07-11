@@ -215,6 +215,8 @@ public class TilingPane extends StackPane implements Updateable {
      */
     public void update() {
         // System.err.println("Update");
+        setUseDepthBuffer(this, getGeometry() != Geometry.Euclidean);
+
 
         if (getTiling() == null)
             return;
@@ -256,7 +258,9 @@ public class TilingPane extends StackPane implements Updateable {
                 if (!universe.getChildren().contains(pointLight))
                     universe.getChildren().add(pointLight);
                 universe.getChildren().remove(ambientLight);
-                Platform.runLater(() -> CameraSettings.setupSphericalCamera(perspectiveCamera));
+                Platform.runLater(() -> {
+                    CameraSettings.setupSphericalCamera(perspectiveCamera);
+                });
                 break;
             }
             case Hyperbolic: {
@@ -265,7 +269,10 @@ public class TilingPane extends StackPane implements Updateable {
                     universe.getChildren().add(ambientLight);
 
                 // need to do this later because tilings are built in separate thread when reading file
-                Platform.runLater(() -> CameraSettings.setupHyperbolicCamera(perspectiveCamera, hyperbolicModel.get(), false));
+                Platform.runLater(() -> {
+                            CameraSettings.setupHyperbolicCamera(perspectiveCamera, hyperbolicModel.get(), false);
+                        }
+                );
                 break;
             }
             case Euclidean: {
@@ -340,7 +347,7 @@ public class TilingPane extends StackPane implements Updateable {
      * @param useDepthBuffer
      */
     public void setUseDepthBuffer(final Pane mainPane, boolean useDepthBuffer) {
-        if (useDepthBuffer != subScene.isDepthBuffer()) {
+        if (useDepthBuffer != subScene.isDepthBuffer() || useDepthBuffer && perspectiveCamera == null) {
             mainPane.getChildren().remove(subScene);
             ((Group) subScene.getRoot()).getChildren().remove(universe);
 

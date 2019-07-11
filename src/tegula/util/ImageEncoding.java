@@ -30,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
+
 /**
  * string encoding and decoding of images
  * Daniel Huson, 5.2019
@@ -38,14 +39,13 @@ public class ImageEncoding {
 
     public static String encodeImage(Image image, String format) throws IOException {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
+        ImageIO.write(getBufferedImage(image, image.getWidth(), image.getHeight(), format), format, out);
+        return Base64.getEncoder().encodeToString(out.toByteArray());
+    }
 
-        if (format.equalsIgnoreCase("jpeg")) { // fix "pink" bug
-            final BufferedImage bufferedImage2 = new BufferedImage((int) image.getWidth(), (int) image.getHeight(), BufferedImage.OPAQUE);
-            Graphics2D graphics = bufferedImage2.createGraphics();
-            graphics.drawImage(bufferedImage, 0, 0, null);
-            bufferedImage = bufferedImage2;
-        }
+    public static String encodeImage(Image image, String format, double width, double height) throws IOException {
+        BufferedImage bufferedImage = resizeImage(getBufferedImage(image, image.getWidth(), image.getHeight(), format), width, height);
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
         ImageIO.write(bufferedImage, format, out);
         return Base64.getEncoder().encodeToString(out.toByteArray());
     }
@@ -56,5 +56,35 @@ public class ImageEncoding {
             //return SwingFXUtils.toFXImage(ImageIO.read(in),null);
             return new Image(in);
         }
+    }
+
+    private static BufferedImage getBufferedImage(Image image, double width, double height, String format) {
+        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
+        if (format.equalsIgnoreCase("jpeg")) { // fix "pink" bug
+            final BufferedImage bufferedImage2 = new BufferedImage((int) width, (int) height, BufferedImage.OPAQUE);
+            Graphics2D graphics = bufferedImage2.createGraphics();
+            graphics.drawImage(bufferedImage, 0, 0, null);
+            bufferedImage = bufferedImage2;
+        }
+        return bufferedImage;
+    }
+
+    private static BufferedImage resizeImage(BufferedImage originalImage, double width, double height) {
+        BufferedImage resizedImage = new BufferedImage((int) width, (int) height, originalImage.getType());
+        Graphics2D g = resizedImage.createGraphics();
+        g.drawImage(originalImage, 0, 0, (int) width, (int) height, null);
+        g.dispose();
+        g.setComposite(AlphaComposite.Src);
+
+        if (false) {
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                    RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g.setRenderingHint(RenderingHints.KEY_RENDERING,
+                    RenderingHints.VALUE_RENDER_QUALITY);
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+        }
+
+        return resizedImage;
     }
 }

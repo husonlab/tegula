@@ -23,10 +23,7 @@ import jloda.util.BitSetUtils;
 import jloda.util.Single;
 import tegula.core.fundamental.utils.Wrap;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.*;
 import java.util.BitSet;
 import java.util.Scanner;
 import java.util.function.Consumer;
@@ -53,6 +50,11 @@ public class DSymbol {
 
     public DSymbol(DSymbol src) {
         copy(src);
+    }
+
+    public DSymbol(String string) throws IOException {
+        this(0);
+        read(new StringReader(string));
     }
 
     public void clear() {
@@ -159,6 +161,15 @@ public class DSymbol {
     public void setSi(int i, int a, int b) {
         set[a][i] = b;
         set[b][i] = a;
+    }
+
+    public void unsetSi(int i, int a) {
+        set[a][i] = 0;
+    }
+
+    public void unsetSi(int i, int a, int b) {
+        set[a][i] = 0;
+        set[b][i] = 0;
     }
 
     public int getM01(int a) {

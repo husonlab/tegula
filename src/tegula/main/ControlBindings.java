@@ -95,7 +95,6 @@ public class ControlBindings {
             }
             if (n instanceof TilingCollectionTab) {
                 final TilingCollectionTab tab = (TilingCollectionTab) n;
-                System.err.println("TilingCollectionTab: " + tab);
 
                 selectionInCollection.unbind();
                 selectionInCollection.set(tab.getSelectionModel().getSelectedItems().size());
@@ -120,7 +119,7 @@ public class ControlBindings {
         controller.getPrintMenuItem().setOnAction((e) -> {
             final Tab tab = selectedTab.get();
             if (tab instanceof Printable)
-                Print.print(window.getStage(), ((Printable) tab).getPrintable());
+                Print.printSnapshot(window.getStage(), ((Printable) tab).getPrintable());
         });
         controller.getPrintMenuItem().disableProperty().bind(selectedTab.isNull());
 
