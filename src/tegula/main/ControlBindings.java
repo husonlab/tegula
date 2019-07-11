@@ -65,12 +65,12 @@ public class ControlBindings {
             if (n instanceof TilingEditorTab) {
                 final TilingEditorTab tab = (TilingEditorTab) n;
                 controller.getUndoMenuItem().disableProperty().unbind();
-                controller.getUndoMenuItem().setDisable(!tab.getUndoManager().canUndoProperty().get());
-                controller.getUndoMenuItem().disableProperty().bind(tab.getUndoManager().canUndoProperty().not());
+                controller.getUndoMenuItem().setDisable(!tab.getUndoManager().undoableProperty().get());
+                controller.getUndoMenuItem().disableProperty().bind(tab.getUndoManager().undoableProperty().not());
                 controller.getUndoMenuItem().textProperty().bind(tab.getUndoManager().undoNameProperty());
                 controller.getRedoMenuItem().disableProperty().unbind();
-                controller.getRedoMenuItem().setDisable(!tab.getUndoManager().canRedoProperty().get());
-                controller.getRedoMenuItem().disableProperty().bind(tab.getUndoManager().canRedoProperty().not());
+                controller.getRedoMenuItem().setDisable(!tab.getUndoManager().redoableProperty().get());
+                controller.getRedoMenuItem().disableProperty().bind(tab.getUndoManager().redoableProperty().not());
                 controller.getRedoMenuItem().textProperty().bind(tab.getUndoManager().redoNameProperty());
 
                 controller.getShowChambersMenuItem().setSelected(tab.getTilingStyle().isShowAllChambers());
