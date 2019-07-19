@@ -115,11 +115,6 @@ public class FDomainEditor {
         });
         controller.getResetButton().disableProperty().bind(undoManager.undoableProperty().not());
 
-        controller.getUpdateButton().setOnAction((e) -> {
-            if (!undoManager.isPerformingUndoOrRedo())
-                tilingEditorTab.getTilingPane().update();
-        });
-        controller.getUpdateButton().disableProperty().bind(undoManager.undoableProperty().not());
 
         controller.getFundamentalDomainTitledPane().expandedProperty().addListener((c, o, n) -> {
             if (n) {

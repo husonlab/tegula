@@ -245,8 +245,6 @@
                             <items>
                                 <Button fx:id="resetButton" focusTraversable="false" minHeight="22.0"
                                         mnemonicParsing="false" prefHeight="22.0" text="Reset"/>
-                                <Button fx:id="updateButton" focusTraversable="false" layoutX="10.0" layoutY="7.0"
-                                        minHeight="22.0" mnemonicParsing="false" prefHeight="22.0" text="Update"/>
                             </items>
                         </ToolBar>
                     </children>

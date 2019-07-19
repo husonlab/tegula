@@ -462,6 +462,19 @@ public class Tools {
         }
     }
 
+    public static Point3D moveSlightlyAbove(Geometry geometry, Point3D apt) {
+        switch (geometry) {
+            case Euclidean:
+                return new Point3D(apt.getX(), apt.getY(), apt.getZ() + 0.01);
+            case Spherical:
+                return apt.multiply(1.01);
+            case Hyperbolic:
+                return new Point3D(apt.getX(), apt.getY(), apt.getZ() - 0.6); // - because we view from below
+            default:
+                return apt;
+        }
+    }
+
     /**
      * Euclidean case: Scaling by 0.01 and drop coordinate z = 0. Spherical case:
      * Calculates inverse of stereographic projection. Maps from sphere with radius

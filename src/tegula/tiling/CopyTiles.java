@@ -55,6 +55,7 @@ public class CopyTiles {
                 target.setMaterial(src.getMaterial());
                 target.setId(src.getId());
                 target.setUserData(src.getUserData());
+                target.setDrawMode(src.getDrawMode());
                 result.getChildren().add(target);
 
                 if (node.getOnMouseClicked() != null)

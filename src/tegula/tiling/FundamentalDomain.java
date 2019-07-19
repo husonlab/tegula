@@ -475,8 +475,12 @@ public class FundamentalDomain {
             all.add(verticesGroup);
         if (othersGroup.getChildren().size() > 0)
             all.add(othersGroup);
-        if (geom == Geometry.Euclidean && tilingStyle.getDecorations().getChildren().size() > 0)
-            all.add(tilingStyle.getDecorations());
+        if (tilingStyle.getDecorations().getChildren().size() > 0) {
+            if (geom == Geometry.Euclidean)
+                all.add(tilingStyle.getDecorations());
+            else
+                all.add(MapImageToGeometry.apply(geom, tilingStyle.getDecorations(), 64));
+        }
         return all;
     }
 
