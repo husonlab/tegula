@@ -479,7 +479,7 @@ public class FundamentalDomain {
             if (geom == Geometry.Euclidean)
                 all.add(tilingStyle.getDecorations());
             else
-                all.add(MapImageToGeometry.apply(geom, tilingStyle.getDecorations(), 64));
+                all.add(MapImageToGeometry.apply(geom, tilingStyle.getDecorations()));
         }
         return all;
     }

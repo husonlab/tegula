@@ -245,6 +245,10 @@ public class OrbifoldGroupName {
         else
             return 0;
     }
+
+    public static String clean(String name) {
+        return name.replaceAll("\\*", "s");
+    }
 }
 
 class IntegerCompareDown implements Comparator<Integer> {

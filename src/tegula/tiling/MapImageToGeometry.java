@@ -33,10 +33,12 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
+import jloda.util.Basic;
 import jloda.util.Pair;
 import tegula.core.dsymbols.Geometry;
 import tegula.geometry.Tools;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +52,7 @@ public class MapImageToGeometry {
      * @param items
      * @return mapped items
      */
-    public static Group apply(Geometry geometry, Group items, int maxNumberOfTriangles) {
+    public static Group apply(Geometry geometry, Group items) {
         final Group result = new Group();
 
         for (Node item : items.getChildren()) {
@@ -69,7 +71,21 @@ public class MapImageToGeometry {
                 final Point3D[] points3D = {Tools.map2Dto3D(geometry, points2D[0]), Tools.map2Dto3D(geometry, points2D[1]),
                         Tools.map2Dto3D(geometry, points2D[2]), Tools.map2Dto3D(geometry, points2D[3])};
 
-                final TriangleMesh mesh = computeTriangleMesh(geometry, maxNumberOfTriangles, points3D);
+                final double maxSideLength;
+                switch (geometry) {
+                    case Spherical:
+                        maxSideLength = 20;
+                        break;
+                    case Hyperbolic:
+                        maxSideLength = 25;
+                        break;
+                    default:
+                    case Euclidean:
+                        maxSideLength = 1000; // don't subdivide
+                        break;
+                }
+
+                final TriangleMesh mesh = computeTriangleMesh(geometry, maxSideLength, points3D);
 
                 moveSlightlyAbove(geometry, mesh);
 
@@ -84,7 +100,6 @@ public class MapImageToGeometry {
                     meshView.setDrawMode(DrawMode.LINE);
                 }
 
-
                 result.getChildren().add(meshView);
             }
         }
@@ -95,20 +110,21 @@ public class MapImageToGeometry {
      * compute a triangle mesh for the given four points
      *
      * @param geometry
-     * @param maxNumberOfTriangles
+     * @param maxSideLength
      * @param points3D
      * @return mesh
      */
-    private static TriangleMesh computeTriangleMesh(Geometry geometry, int maxNumberOfTriangles, Point3D[] points3D) {
+    private static TriangleMesh computeTriangleMesh(Geometry geometry, double maxSideLength, Point3D[] points3D) {
         TriangleMesh mesh = computeMeshOnFourPoints(points3D);
 
         int count = 0;
 
-        while (mesh.getFaces().size() / 6 < maxNumberOfTriangles) {
+        while (!sideLengthsBelowThreshold(Geometry.Euclidean, mesh, maxSideLength)) {
             refine(geometry, mesh);
-            if (++count == 4)
+            if (++count == 8)
                 break;
         }
+        System.err.println(String.format("MaxSideLength: %.3f Refinements: %d triangles: %d", maxSideLength, count, mesh.getFaces().size() / 6));
         return mesh;
     }
 
@@ -229,15 +245,18 @@ public class MapImageToGeometry {
 
     public static boolean sideLengthsBelowThreshold(Geometry geometry, TriangleMesh mesh, double maxSideLength) {
         final ObservableFloatArray points = mesh.getPoints();
-        final Point3D[] points3D = new Point3D[points.size()];
-        for (int i = 0; i < points3D.length; i += 3) {
+
+        final Point3D[] points3D = new Point3D[points.size() / 3];
+        for (int i = 0; i < points.size(); i += 3) {
             points3D[i / 3] = new Point3D(points.get(i), points.get(i + 1), points.get(i + 2));
         }
+
         final ObservableIntegerArray faces = mesh.getFaces();
-        for (int i = 0; i < mesh.getFaces().size(); i += 6) {
+        for (int i = 0; i < faces.size(); i += 6) {
             final Point3D a = points3D[faces.get(i)];
             final Point3D b = points3D[faces.get(i + 2)];
             final Point3D c = points3D[faces.get(i + 4)];
+            System.err.println(String.format("LongestSide(%s): %.3f", Basic.toString(Arrays.asList(a, b, c), " "), longestSide(geometry, a, b, c)));
             if (longestSide(geometry, a, b, c) > maxSideLength)
                 return false;
         }

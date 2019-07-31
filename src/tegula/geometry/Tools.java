@@ -465,7 +465,7 @@ public class Tools {
     public static Point3D moveSlightlyAbove(Geometry geometry, Point3D apt) {
         switch (geometry) {
             case Euclidean:
-                return new Point3D(apt.getX(), apt.getY(), apt.getZ() + 0.01);
+                return new Point3D(apt.getX(), apt.getY(), apt.getZ() - 0.01);
             case Spherical:
                 return apt.multiply(1.01);
             case Hyperbolic:

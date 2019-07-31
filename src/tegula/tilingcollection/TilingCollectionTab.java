@@ -44,10 +44,7 @@ import jloda.fx.control.AnotherMultipleSelectionModel;
 import jloda.fx.control.FlowView;
 import jloda.fx.find.FindToolBar;
 import jloda.fx.find.Searcher;
-import jloda.fx.util.ExtendedFXMLLoader;
-import jloda.fx.util.Printable;
-import jloda.fx.util.ProgramExecutorService;
-import jloda.fx.util.SelectionEffect;
+import jloda.fx.util.*;
 import jloda.util.ProgramProperties;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.DSymbolAlgorithms;
@@ -58,6 +55,7 @@ import tegula.tilingpane.TilingPane;
 import tegula.util.IFileBased;
 
 import java.io.Closeable;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.function.Function;
 
@@ -208,6 +206,9 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable, IF
             tilingCollection.getSelectionModel().getSelectedItems().removeListener(selectionListener);
             tilingCollection.getDSymbols().removeListener(dsymbolsListener);
             tilingsComputed.addListener((c, o, n) -> System.err.println("(Total tilings computed: " + tilingsComputed.get() + ")"));
+            if (getFileName() != null && (new File(getFileName()).exists()))
+                RecentFilesManager.getInstance().insertRecentFile(getFileName());
+
             if (getOnClosed() != null)
                 getOnClosed().handle(null);
         }

@@ -29,6 +29,7 @@ import jloda.fx.control.AnotherMultipleSelectionModel;
 import jloda.fx.undo.UndoManager;
 import jloda.fx.util.ExtendedFXMLLoader;
 import jloda.fx.util.Printable;
+import jloda.fx.util.RecentFilesManager;
 import jloda.util.Basic;
 import tegula.core.dsymbols.*;
 import tegula.fdomaineditor.FDomainEditor;
@@ -266,6 +267,10 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
             closing = true;
             if (getTilingPane().getMouseHandler() != null)
                 getTilingPane().getMouseHandler().getAnimator().stop();
+
+            if (getFileName() != null && (new File(getFileName()).exists()))
+                RecentFilesManager.getInstance().insertRecentFile(getFileName());
+
             if (getOnClosed() != null) {
                 getOnClosed().handle(null);
             }

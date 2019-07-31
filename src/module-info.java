@@ -8,9 +8,6 @@ module tegula {
 
     requires fx.platform.utils;
 
-    exports tegula.resources.icons;
-    opens tegula.resources.icons;
-
     exports tegula.color;
     exports tegula.core.dsymbols;
     exports tegula.core.fundamental;
@@ -28,6 +25,7 @@ module tegula {
     exports tegula.undoable;
     exports tegula.util;
 
+    opens tegula.resources.icons;
     opens tegula.color;
     opens tegula.main;
     opens tegula.tilingcollection;
