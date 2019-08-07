@@ -174,8 +174,8 @@
                                         <SeparatorMenuItem mnemonicParsing="false"/>
                                         <MenuItem fx:id="fullScreenMenuItem" text="Enter Fullscreen">
                                             <accelerator>
-                                                <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP"
-                                                                    shift="UP" shortcut="DOWN"/>
+                                                <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="DOWN"
+                                                                    shift="UP" shortcut="UP"/>
                                             </accelerator>
                                         </MenuItem>
                                     </items>
