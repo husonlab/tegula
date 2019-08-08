@@ -23,9 +23,9 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import jloda.fx.util.ArgsOptions;
 import jloda.fx.util.ColorSchemeManager;
-import jloda.fx.window.NotificationManager;
 import jloda.fx.util.ResourceManagerFX;
 import jloda.fx.window.MainWindowManager;
+import jloda.fx.window.NotificationManager;
 import jloda.fx.window.SplashScreen;
 import jloda.fx.window.WindowGeometry;
 import jloda.util.Basic;
@@ -67,6 +67,7 @@ public class Tegula extends Application {
         ProgramProperties.setProgramName(Version.NAME);
         ProgramProperties.setProgramVersion(Version.SHORT_DESCRIPTION);
         ProgramProperties.setProgramLicence("This is an early (ALPHA) version of Tegula, made available for testing purposes. Source code will be released on publication.");
+
         SplashScreen.setVersionString(Version.SHORT_DESCRIPTION);
 
         parseArguments(args);
