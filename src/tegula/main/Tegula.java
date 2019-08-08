@@ -23,7 +23,7 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import jloda.fx.util.ArgsOptions;
 import jloda.fx.util.ColorSchemeManager;
-import jloda.fx.util.NotificationManager;
+import jloda.fx.window.NotificationManager;
 import jloda.fx.util.ResourceManagerFX;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.SplashScreen;

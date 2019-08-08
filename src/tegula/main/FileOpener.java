@@ -19,7 +19,7 @@
 
 package tegula.main;
 
-import jloda.fx.util.NotificationManager;
+import jloda.fx.window.NotificationManager;
 import jloda.fx.util.RecentFilesManager;
 import jloda.fx.window.MainWindowManager;
 import jloda.util.Basic;

@@ -30,7 +30,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import jloda.fx.control.AnotherMultipleSelectionModel;
 import jloda.fx.util.AService;
-import jloda.fx.util.NotificationManager;
+import jloda.fx.window.NotificationManager;
 import jloda.util.Basic;
 import jloda.util.ProgressListener;
 import tegula.core.dsymbols.DSymbol;
