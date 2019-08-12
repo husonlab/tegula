@@ -28,17 +28,17 @@ import tegula.core.fundamental.utils.Maths;
  */
 public class ORB {
     private int crs;
-    int cr[] = {};        // orbit coords
+    int[] cr = {};        // orbit coords
     private int id;                // orb number with respect to gluing
     private int mk;                // splitted flag
     private int sg;                // sign
     private int ti = -1, tj = -1;            // orbit type
     private int nps;
-    private int np[] = {};        // list of related nodes
+    private int[] np = {};        // list of related nodes
     private int eps;
-    private int ep[] = {};        // list of related edges
+    private int[] ep = {};        // list of related edges
     private int ops;
-    private int op[] = {};        // list of related orbits
+    private int[] op = {};        // list of related orbits
     private int m, r, v = 1;            // delaney numbers (m / r = v)
     private int f = 1;                // fixpoint factor (1:loop, 2:chain)
     private int s;                // # of splits in fundamental domain
