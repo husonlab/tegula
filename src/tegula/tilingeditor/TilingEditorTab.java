@@ -159,7 +159,7 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
             infoLine.setValue(String.format("n:%d t:%d e:%d v:%d g:%s", getTiling().getDSymbol().size(), getTiling().getDSymbol().countOrbits(0, 1),
                     getTiling().getDSymbol().countOrbits(0, 2), getTiling().getDSymbol().countOrbits(1, 2),
                     getGroupName() + (isMaximalTiling() ? " max" : "") + (isOrientableTiling() ? " orient." : "") + (isDiskTiling() ? "" : " non-disks"))
-                    + (DSymbolAlgorithms.isSimpleTiling(getTiling().getDSymbol()) ? " simple" : "")
+                    + (DSymbolAlgorithms.isNormal(getTiling().getDSymbol()) ? " normal" : "")
                     + String.format(" (objects: %,d)", computeSize(tilingPane.getWorld())));
 
             canDualizeTiling.set(!Isomorphic.isomorphic(dSymbol, DSymbolAlgorithms.dualize(dSymbol)));

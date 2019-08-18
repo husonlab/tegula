@@ -361,13 +361,13 @@ public class DSymbolAlgorithms {
 
 
     /**
-     * determines whether tiling is "simple", meaning that the intersection of any two tiles is either empty, a
+     * determines whether tiling is "normal", meaning that the intersection of any two tiles is either empty, a
      * single point or a single line segment.
      *
      * @param ds
      * @return true, if simple
      */
-    public static boolean isSimpleTiling(DSymbol ds) {
+    public static boolean isNormal(DSymbol ds) {
         if (ds.computeOrientation() != 2) {
             ds = orientate(ds);
             ds = reorder(ds);
