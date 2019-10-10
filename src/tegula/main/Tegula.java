@@ -79,13 +79,12 @@ public class Tegula extends Application {
         Basic.startCollectionStdErr();
 
         final ArgsOptions options = new ArgsOptions(args, Tegula.class, Version.NAME + " - Interactive periodic tilings");
-        options.setAuthors("Daniel H. Huson, Klaus Westphal and Ruediger Zeller, with contributions from Julius Vetter and Cornelius Wiehl");
+        options.setAuthors("Daniel H. Huson and Rüdiger Zeller, based on code by Klaus Westphal, with contributions from Julius Vetter and Cornelius Wiehl.\n");
         options.setLicense(ProgramProperties.getProgramLicence());
         options.setVersion(ProgramProperties.getProgramVersion());
 
         options.comment("Input:");
         inputFilesAtStartup = options.getOption("-i", "input", "Input file(s)", new String[0]);
-
 
         final String defaultPropertiesFile;
         if (ProgramProperties.isMacOS())
@@ -116,6 +115,7 @@ public class Tegula extends Application {
     public void start(Stage primaryStage) throws Exception {
         try {
             primaryStage.setTitle(ProgramProperties.getProgramName());
+
             NotificationManager.setShowNotifications(true);
 
             final MainWindow mainWindow = new MainWindow();
@@ -125,7 +125,6 @@ public class Tegula extends Application {
             //RecentFilesManager.getInstance().setFileOpener(FileOpenManager.fileOpener());
 
             final WindowGeometry windowGeometry = new WindowGeometry(ProgramProperties.get("WindowGeometry", "50 50 800 800"));
-
 
             mainWindow.show(primaryStage, windowGeometry.getX(), windowGeometry.getY(), windowGeometry.getWidth(), windowGeometry.getHeight());
             for (String fileName : inputFilesAtStartup) {

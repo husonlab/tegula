@@ -7,6 +7,7 @@ module tegula {
     requires transitive java.sql;
 
     requires fx.platform.utils;
+    requires com.install4j.runtime;
 
     exports tegula.color;
     exports tegula.core.dsymbols;

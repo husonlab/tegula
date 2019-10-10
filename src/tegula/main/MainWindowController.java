@@ -148,6 +148,9 @@ public class MainWindowController {
     private MenuItem aboutMenuItem;
 
     @FXML
+    private MenuItem checkForUpdatesMenuItem;
+
+    @FXML
     private ToolBar mainToolBar;
 
     @FXML
@@ -203,6 +206,7 @@ public class MainWindowController {
         assert straightenMenuItem != null : "fx:id=\"straightenMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert windowMenu != null : "fx:id=\"windowMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert aboutMenuItem != null : "fx:id=\"aboutMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert checkForUpdatesMenuItem != null : "fx:id=\"checkForUpdatesMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert mainToolBar != null : "fx:id=\"mainToolBar\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert mainSplitPane != null : "fx:id=\"mainSplitPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert treeView != null : "fx:id=\"treeView\" was not injected: check your FXML file 'MainWindow.fxml'.";
@@ -214,12 +218,10 @@ public class MainWindowController {
         if (ProgramProperties.isMacOS()) {
             getMenuBar().setUseSystemMenuBar(true);
             fileMenu.getItems().remove(getQuitMenuItem());
-            windowMenu.getItems().remove(getAboutMenuItem());
+            // windowMenu.getItems().remove(getAboutMenuItem());
             //editMenu.getItems().remove(getPreferencesMenuItem());
-        } else {
-            getAboutMenuItem().setOnAction((e) -> SplashScreen.getInstance().showSplash(Duration.ofMinutes(1)));
         }
-
+        getAboutMenuItem().setOnAction((e) -> SplashScreen.getInstance().showSplash(Duration.ofMinutes(1)));
     }
 
     public ResourceBundle getResources() {
@@ -372,6 +374,10 @@ public class MainWindowController {
 
     public MenuItem getAboutMenuItem() {
         return aboutMenuItem;
+    }
+
+    public MenuItem getCheckForUpdatesMenuItem() {
+        return checkForUpdatesMenuItem;
     }
 
     public ToolBar getMainToolBar() {

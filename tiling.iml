@@ -12,16 +12,6 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="file://$MODULE_DIR$/jars" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-        <jarDirectory url="file://$MODULE_DIR$/jars" recursive="false" />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="file://$USER_HOME$/lib/javafx-sdk-12/lib" />
         </CLASSES>
         <JAVADOC />
@@ -33,6 +23,16 @@
         </SOURCES>
         <jarDirectory url="file://$USER_HOME$/lib/javafx-sdk-12/lib" recursive="false" />
         <jarDirectory url="file://$USER_HOME$/lib/javafx-sdk-12/lib" recursive="false" type="SOURCES" />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/jars" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/jars" recursive="false" />
       </library>
     </orderEntry>
   </component>

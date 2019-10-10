@@ -31,7 +31,9 @@ import jloda.fx.control.SplittableTabPane;
 import jloda.fx.util.ExtendedFXMLLoader;
 import jloda.fx.util.MemoryUsage;
 import jloda.fx.window.IMainWindow;
+import jloda.fx.window.SetupWindowMenu;
 import jloda.util.FileOpenManager;
+import jloda.util.ProgramProperties;
 import tegula.tilingcollection.TilingCollectionTab;
 import tegula.util.TilingFileFilter;
 
@@ -109,6 +111,7 @@ public class MainWindow implements IMainWindow {
         if (stage == null)
             stage = new Stage();
         this.stage = stage;
+        stage.getIcons().addAll(ProgramProperties.getProgramIconsFX());
 
         final Scene scene = new Scene(root, width, height);
 
@@ -123,6 +126,8 @@ public class MainWindow implements IMainWindow {
         controller.getMemoryUsageLabel().textProperty().bind(memoryUsage.memoryUsageStringProperty());
 
         stage.show();
+
+        SetupWindowMenu.apply(this, controller.getWindowMenu());
     }
 
     @Override

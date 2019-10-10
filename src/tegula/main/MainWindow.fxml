@@ -211,12 +211,10 @@
                                 </Menu>
                                 <Menu fx:id="windowMenu" text="Window">
                                     <items>
-                                        <MenuItem fx:id="aboutMenuItem" text="About">
-                                            <accelerator>
-                                                <KeyCodeCombination alt="UP" code="H" control="UP" meta="UP" shift="UP"
-                                                                    shortcut="DOWN"/>
-                                            </accelerator>
-                                        </MenuItem>
+                                        <MenuItem fx:id="aboutMenuItem" text="About"/>
+                                        <SeparatorMenuItem mnemonicParsing="false"/>
+                                        <MenuItem fx:id="checkForUpdatesMenuItem" text="Check for Updates..."/>
+                                        <SeparatorMenuItem mnemonicParsing="false"/>
                                     </items>
                                 </Menu>
                             </menus>

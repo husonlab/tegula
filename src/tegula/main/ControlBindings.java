@@ -107,7 +107,7 @@ public class ControlBindings {
 
         controller.getNewMenuItem().setOnAction((e) -> {
             final MainWindow newWindow = (MainWindow) MainWindowManager.getInstance().createAndShowWindow(false);
-            newWindow.getStage().setTitle(ProgramProperties.getProgramName() + " [" + (++windowsCreated) + "]");
+            newWindow.getStage().setTitle(ProgramProperties.getProgramName() + " " + (++windowsCreated));
             MainWindowManager.getInstance().setLastFocusedMainWindow(newWindow);
         });
 
@@ -332,5 +332,10 @@ public class ControlBindings {
             }
         });
         controller.getSelectNoneMenuItem().disableProperty().bind(isCollectionTabSelected);
+
+        controller.getCheckForUpdatesMenuItem().setOnAction((e) -> CheckForUpdate.apply("tegula"));
+        MainWindowManager.getInstance().changedProperty().addListener((c, o, n) -> controller.getCheckForUpdatesMenuItem().disableProperty().set(MainWindowManager.getInstance().size() > 1
+                || (MainWindowManager.getInstance().size() == 1 && !MainWindowManager.getInstance().getMainWindow(0).isEmpty())));
+
     }
 }

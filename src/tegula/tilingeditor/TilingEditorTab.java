@@ -77,6 +77,8 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
 
     private final UndoManager undoManager = new UndoManager();
 
+    private BooleanProperty dirty = new SimpleBooleanProperty(false);
+
     /**
      * constructor
      *
@@ -86,6 +88,11 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
     public TilingEditorTab(DSymbol dSymbol, String name) {
         setFileName(name);
         setText(getTitle());
+
+        undoManager.undoStackSizeProperty().addListener((c, o, n) -> {
+            if (n.intValue() > 0)
+                setDirty(true);
+        });
 
         vertexSelection.setSelectionMode(SelectionMode.MULTIPLE);
         edgeSelection.setSelectionMode(SelectionMode.MULTIPLE);
@@ -404,5 +411,17 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
 
     public FDomainEditor getfDomainEditor() {
         return fDomainEditor;
+    }
+
+    public boolean isDirty() {
+        return dirty.get();
+    }
+
+    public BooleanProperty dirtyProperty() {
+        return dirty;
+    }
+
+    public void setDirty(boolean dirty) {
+        this.dirty.set(dirty);
     }
 }
