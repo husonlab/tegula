@@ -32,15 +32,18 @@ import jloda.fx.control.AnotherMultipleSelectionModel;
 import jloda.fx.util.AService;
 import jloda.fx.window.NotificationManager;
 import jloda.util.Basic;
+import jloda.util.FileLineIterator;
 import jloda.util.ProgressListener;
 import tegula.core.dsymbols.DSymbol;
+import tegula.db.DatabaseAccess;
 import tegula.util.IFileBased;
 import tegula.util.ImageEncoding;
 
-import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -88,34 +91,51 @@ public class TilingCollection implements IFileBased {
                     progress.setTasks("Loading", getFileName());
                     progress.setMaximum(Basic.guessUncompressedSizeOfFile(getFileName()));
 
-                    try (BufferedReader br = new BufferedReader(Basic.getReaderPossiblyZIPorGZIP(getFileName()))) {
+            final Iterator<String> iterator;
+            if (getFileName().startsWith("select:"))
+                iterator = DatabaseAccess.getInstance().getDSymbols(getFileName().replaceAll("^select:", "")).iterator();
+            else
+                iterator = new FileLineIterator(getFileName(), true);
+
+            try {
                         final ArrayList<DSymbol> cache = new ArrayList<>(getBlockSize());
-                        String line = br.readLine();
-                        while (line != null) {
-                            line = line.trim();
-                            if (line.startsWith("<") && line.endsWith(">")) {
-                                final DSymbol dSymbol = new DSymbol();
-                                dSymbol.read(new StringReader(line));
-                                cache.add(dSymbol);
-                                line = br.readLine();
-                                if (line != null && line.startsWith("[") && line.endsWith("]")) {
-                                    final Image image = ImageEncoding.decodeImage(line.substring(1, line.length() - 1));
-                                    dSymbolImageMap.put(dSymbol, image);
-                                    line = br.readLine();
-                                }
+                if (iterator.hasNext()) {
+                    String line = iterator.next().trim();
 
-                                if (cache.size() == getBlockSize()) {
-                                    final DSymbol[] array = cache.toArray(new DSymbol[0]);
-                                    cache.clear();
-                                    Platform.runLater(() -> dSymbols.addAll(array));
-                                }
-                                progress.setProgress(progress.getProgress() + getBlockSize()); // wild guess
-                            } else
-                                line = br.readLine();
+                    while (true) {
+                        if (line.startsWith("<") && line.endsWith(">")) {
+                            final DSymbol dSymbol = new DSymbol();
+                            dSymbol.read(new StringReader(line));
+                            cache.add(dSymbol);
+                            if (!iterator.hasNext())
+                                break;
+                            line = iterator.next().trim();
+                            if (line.startsWith("[") && line.endsWith("]")) {
+                                final Image image = ImageEncoding.decodeImage(line.substring(1, line.length() - 1));
+                                dSymbolImageMap.put(dSymbol, image);
+                                if (!iterator.hasNext())
+                                    break;
+                                line = iterator.next().trim();
+                            }
 
+                            if (cache.size() == getBlockSize()) {
+                                final DSymbol[] array = cache.toArray(new DSymbol[0]);
+                                cache.clear();
+                                Platform.runLater(() -> dSymbols.addAll(array));
+                            }
+                            progress.setProgress(progress.getProgress() + getBlockSize()); // wild guess
+                        } else {
+                            if (!iterator.hasNext())
+                                break;
+                            line = iterator.next();
                         }
-                        if (cache.size() > 0)
-                            Platform.runLater(() -> dSymbols.addAll(cache));
+                    }
+                    if (cache.size() > 0)
+                        Platform.runLater(() -> dSymbols.addAll(cache));
+                }
+            } finally {
+                if (iterator instanceof Closeable)
+                    ((Closeable) iterator).close();
                     }
             return true;
                 }
@@ -126,6 +146,7 @@ public class TilingCollection implements IFileBased {
             if (runAfterwards != null)
                 runAfterwards.run();
         });
+        loadingService.setOnFailed((e) -> NotificationManager.showError("Load failed: " + loadingService.getException().getMessage()));
         loadingService.start();
     }
 
@@ -180,7 +201,7 @@ public class TilingCollection implements IFileBased {
     }
 
     public String getTitle() {
-        return Basic.replaceFileSuffix(Basic.getFileNameWithoutPath(fileName.get()), "");
+        return Basic.replaceFileSuffix(Basic.getFileNameWithoutPath(fileName.get()), "").replaceAll("^select:", "");
     }
 
     public Image getPreviewImage(DSymbol ds) {

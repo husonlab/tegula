@@ -169,6 +169,9 @@ public class MainWindowController {
     private Label memoryUsageLabel;
 
     @FXML
+    private Button addButton;
+
+    @FXML
     void initialize() {
         assert anchorPane != null : "fx:id=\"anchorPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert borderPane != null : "fx:id=\"borderPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
@@ -213,6 +216,7 @@ public class MainWindowController {
         assert centerPane != null : "fx:id=\"centerPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert statusBar != null : "fx:id=\"statusBar\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert memoryUsageLabel != null : "fx:id=\"memoryUsageLabel\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert addButton != null : "fx:id=\"addButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
 
         // if we are running on MacOS, put the specific menu items in the right places
         if (ProgramProperties.isMacOS()) {
@@ -402,5 +406,9 @@ public class MainWindowController {
 
     public Label getMemoryUsageLabel() {
         return memoryUsageLabel;
+    }
+
+    public Button getAddButton() {
+        return addButton;
     }
 }

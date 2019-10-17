@@ -19,7 +19,9 @@
 
 package tegula.core.dsymbols;
 
+import jloda.util.Basic;
 import jloda.util.BitSetUtils;
+import jloda.util.Pair;
 import jloda.util.Single;
 
 import java.util.*;
@@ -687,4 +689,90 @@ public class DSymbolAlgorithms {
         }
         return result;
     }
+
+    /**
+     * computes the signature of the corresponding tiling.
+     * This is of the form (a_1 a_2 a_3 ...)(b_1 b_2 b_3 ...)..., where a_1, a_2 etc are the vertex degrees of the first tile etc
+     *
+     * @param dSymbol
+     * @return
+     */
+    public static String computeSignature(DSymbol dSymbol) {
+        final ArrayList<Pair<Integer, String>> cycles = new ArrayList<>();
+        final BitSet visited = new BitSet();
+        for (int t = 1; t <= dSymbol.size(); t = dSymbol.nextOrbit(0, 1, t, visited)) {
+            final ArrayList<Integer> degrees = new ArrayList<>();
+            int a = t;
+            do {
+                degrees.add(dSymbol.getM12(a));
+                a = dSymbol.getS1(dSymbol.getS0(a));
+            }
+            while (a != t);
+            final int v01 = dSymbol.getVij(0, 1, t);
+            if (v01 > 1) {
+                final ArrayList<Integer> orig = new ArrayList<>(degrees);
+                for (int copy = 0; copy < v01; copy++) {
+                    degrees.addAll(orig);
+                }
+            }
+            cycles.add(new Pair<>(degrees.size(), createRotatedString(degrees)));
+        }
+        cycles.sort((a, b) -> {
+            if (a.getFirst() > b.getFirst())
+                return -1;
+            else if (a.getFirst() < b.getFirst())
+                return 1;
+            else return a.getSecond().compareTo(b.getSecond());
+        });
+
+        final StringBuilder buf = new StringBuilder();
+        String prev = null;
+        int prevCount = 0;
+        for (Pair<Integer, String> pair : cycles) {
+            final String str = pair.getSecond();
+            if (prev == null) {
+                prev = str;
+                prevCount = 1;
+            } else if (str.equals(prev)) {
+                prevCount++;
+            } else {
+                if (prevCount > 1)
+                    buf.append(String.format(" %dx", prevCount));
+                buf.append(prev);
+                prev = str;
+                prevCount = 1;
+            }
+        }
+        if (prev != null) {
+            if (prevCount > 1)
+                buf.append(String.format(" %dx", prevCount));
+            buf.append(prev);
+        }
+        return buf.toString();
+    }
+
+    private static String createRotatedString(ArrayList<Integer> degrees) {
+        final Integer[] sorted1 = Basic.maxLexRotation(degrees.toArray(new Integer[0]));
+        final Integer[] sorted2 = Basic.maxLexRotation(Basic.reverse(degrees).toArray(new Integer[0]));
+
+        final Integer[] array;
+        if (Arrays.compare(sorted1, sorted2) <= 0) {
+            array = sorted1;
+        } else
+            array = sorted2;
+
+        final StringBuilder buf = new StringBuilder();
+        for (Integer i : array) {
+            if (buf.length() == 0)
+                buf.append("(");
+            else
+                buf.append(" ");
+            buf.append(i);
+        }
+        buf.append(")");
+
+        return buf.toString();
+    }
+
+
 }

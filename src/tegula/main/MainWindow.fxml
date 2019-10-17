@@ -220,7 +220,11 @@
                             </menus>
                         </MenuBar>
                         <ToolBar fx:id="mainToolBar" maxHeight="-Infinity" maxWidth="1.7976931348623157E308"
-                                 minHeight="-Infinity" prefHeight="36.0"/>
+                                 minHeight="-Infinity" prefHeight="36.0">
+                            <items>
+                                <Button fx:id="addButton" mnemonicParsing="false" text="Add..."/>
+                            </items>
+                        </ToolBar>
                     </children>
                 </VBox>
             </top>

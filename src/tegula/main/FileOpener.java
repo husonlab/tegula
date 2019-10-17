@@ -19,9 +19,9 @@
 
 package tegula.main;
 
-import jloda.fx.window.NotificationManager;
 import jloda.fx.util.RecentFilesManager;
 import jloda.fx.window.MainWindowManager;
+import jloda.fx.window.NotificationManager;
 import jloda.util.Basic;
 import tegula.tilingcollection.TilingCollection;
 import tegula.tilingcollection.TilingCollectionTab;
@@ -33,18 +33,22 @@ import java.util.function.Consumer;
 public class FileOpener implements Consumer<String> {
     public void accept(String fileName) {
         final File file;
-        try {
-            file = (new File(fileName)).getCanonicalFile();
-            System.err.println("File: " + file);
-        } catch (IOException e) {
-            Basic.caught(e);
-            return;
+        if (fileName.startsWith("select:")) {
+            file = new File(fileName);
+        } else {
+            try {
+                file = (new File(fileName)).getCanonicalFile();
+                System.err.println("File: " + file);
+            } catch (IOException e) {
+                Basic.caught(e);
+                return;
+            }
         }
         final MainWindow window = (MainWindow) MainWindowManager.getInstance().getLastFocusedMainWindow();
         if (window == null)
             return;
         try {
-            if (file.isFile()) {
+            if (file.isFile() || file.getPath().startsWith("select:")) {
                 TilingCollection tilingCollection = window.getDocument().getFile2tilingCollection().get(file);
                 if (tilingCollection == null) {
                     tilingCollection = new TilingCollection(file.getPath());

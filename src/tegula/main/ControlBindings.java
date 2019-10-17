@@ -22,20 +22,26 @@ package tegula.main;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TextInputDialog;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.Print;
 import jloda.fx.util.Printable;
 import jloda.fx.util.RecentFilesManager;
 import jloda.fx.window.MainWindowManager;
+import jloda.util.Basic;
 import jloda.util.FileOpenManager;
 import jloda.util.ProgramProperties;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.Geometry;
+import tegula.db.DatabaseAccess;
 import tegula.tiling.HyperbolicTiling;
 import tegula.tilingcollection.TilingCollectionTab;
 import tegula.tilingeditor.TilingEditorTab;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * sets up menu item bindings
@@ -336,6 +342,32 @@ public class ControlBindings {
         controller.getCheckForUpdatesMenuItem().setOnAction((e) -> CheckForUpdate.apply("tegula"));
         MainWindowManager.getInstance().changedProperty().addListener((c, o, n) -> controller.getCheckForUpdatesMenuItem().disableProperty().set(MainWindowManager.getInstance().size() > 1
                 || (MainWindowManager.getInstance().size() == 1 && !MainWindowManager.getInstance().getMainWindow(0).isEmpty())));
+
+
+        controller.getAddButton().setOnAction((e) -> {
+            if (DatabaseAccess.getInstance() == null) {
+                try {
+                    DatabaseAccess.setInstance(new DatabaseAccess("/Users/huson/tmp/tilings.db"));
+                } catch (IOException | SQLException ex) {
+                    Basic.caught(ex);
+                    return;
+                }
+            }
+            final TextInputDialog dialog = new TextInputDialog(ProgramProperties.get("SelectExpression", "tiles==1"));
+            dialog.setResizable(true);
+            dialog.setTitle("Tiling Search Dialog");
+            dialog.setHeaderText("Search for tilings in database");
+            dialog.setContentText("Enter search expression:");
+            dialog.setWidth(800);
+
+            final Optional<String> result = dialog.showAndWait();
+
+            result.ifPresent(expression -> {
+                ProgramProperties.put("SelectExpression", result.get());
+                (new tegula.main.FileOpener()).accept("select:" + result.get());
+            });
+        });
+
 
     }
 }

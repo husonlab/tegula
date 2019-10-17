@@ -5,6 +5,7 @@ module tegula {
     requires transitive javafx.swing;
     requires transitive javafx.fxml;
     requires transitive java.sql;
+    requires sqlite.jdbc;
 
     requires fx.platform.utils;
     requires com.install4j.runtime;
