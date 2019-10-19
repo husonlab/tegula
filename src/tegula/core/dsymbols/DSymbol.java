@@ -25,6 +25,7 @@ import tegula.core.fundamental.utils.Wrap;
 
 import java.io.*;
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.Scanner;
 import java.util.function.Consumer;
 
@@ -55,6 +56,22 @@ public class DSymbol {
     public DSymbol(String string) throws IOException {
         this(0);
         read(new StringReader(string));
+    }
+
+    /**
+     * is D-symbol or D-set isomorphic to one in the given collection
+     *
+     * @param dSymbol
+     * @param collection
+     * @param setOnly    ignore Mij
+     * @return true, if isomorphic to member of collection
+     */
+    public static boolean contained(DSymbol dSymbol, Collection<DSymbol> collection, boolean setOnly) {
+        for (DSymbol other : collection) {
+            if (Isomorphic.isomorphic(dSymbol, other, setOnly))
+                return true;
+        }
+        return false;
     }
 
     public void clear() {

@@ -30,6 +30,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+/**
+ * opens a file or database
+ * Daniel Huson, 2018
+ */
 public class FileOpener implements Consumer<String> {
     public void accept(String fileName) {
         final File file;

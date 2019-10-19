@@ -21,13 +21,17 @@ package tegula.main;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.TreeItem;
+import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.Print;
 import jloda.fx.util.Printable;
 import jloda.fx.util.RecentFilesManager;
 import jloda.fx.window.MainWindowManager;
+import jloda.fx.window.NotificationManager;
 import jloda.util.Basic;
 import jloda.util.FileOpenManager;
 import jloda.util.ProgramProperties;
@@ -38,6 +42,7 @@ import tegula.tiling.HyperbolicTiling;
 import tegula.tilingcollection.TilingCollectionTab;
 import tegula.tilingeditor.TilingEditorTab;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -347,7 +352,7 @@ public class ControlBindings {
         controller.getAddButton().setOnAction((e) -> {
             if (DatabaseAccess.getInstance() == null) {
                 try {
-                    DatabaseAccess.setInstance(new DatabaseAccess("/Users/huson/tmp/tilings.db"));
+                    DatabaseAccess.setInstance(new DatabaseAccess("/Users/huson/tmp/tilings-1-12.db"));
                 } catch (IOException | SQLException ex) {
                     Basic.caught(ex);
                     return;
@@ -364,10 +369,26 @@ public class ControlBindings {
 
             result.ifPresent(expression -> {
                 ProgramProperties.put("SelectExpression", result.get());
-                (new tegula.main.FileOpener()).accept("select:" + result.get());
+                try {
+                    final String select = result.get();
+                    final int count = DatabaseAccess.getInstance().countDSymbols(select.toLowerCase().contains("limit") ? select.substring(0, select.toLowerCase().indexOf("limit")) : select);
+                    if (count > 0) {
+                        (new FileOpener()).accept("select:" + select);
+                        final TreeItem<FileBrowser.FileNode> treeItem = new TreeItem<>(new FileBrowser.FileNode(new File("")));
+                        final Label label = new Label(select);
+                        label.setTextFill(Color.DARKBLUE);
+                        label.setOnMouseClicked((c) -> {
+                            if (c.getClickCount() == 2)
+                                (new FileOpener()).accept("select:" + select);
+                        });
+                        treeItem.setGraphic(label);
+                        window.getFileTreeView().getRoot().getChildren().add(treeItem);
+                    }
+                    NotificationManager.showInformation("Select " + select + ": " + count + " found");
+                } catch (IOException | SQLException ex) {
+                    NotificationManager.showError("Failed: " + ex.getMessage());
+                }
             });
         });
-
-
     }
 }

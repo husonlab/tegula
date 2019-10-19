@@ -161,7 +161,7 @@ public class MainWindow implements IMainWindow {
         return false;
     }
 
-    public TreeView getFileTreeView() {
+    public TreeView<FileBrowser.FileNode> getFileTreeView() {
         return fileTreeView;
     }
 

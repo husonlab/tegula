@@ -112,9 +112,8 @@ public class DatabaseAccess implements Closeable {
         else
             query = "select count(*) from tilings where " + selectExpression + ";";
 
-
-        return executeQueryInt(query, 1).get(0);
-
+        ArrayList<Integer> result = executeQueryInt(query, 1);
+        return result.size() > 0 ? result.get(0) : 0;
     }
 
     /**
