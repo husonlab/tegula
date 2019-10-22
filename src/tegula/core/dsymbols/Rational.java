@@ -102,6 +102,10 @@ public class Rational implements Comparable<Rational> {
         return new Rational(n * other.d - d * other.n, d * other.d);
     }
 
+    public Rational subtract(int n, int d) {
+        return new Rational(this.n * d - this.d * n, this.d * d);
+    }
+
     public Rational multiply(Rational other) {
         final Rational a = new Rational(n, other.d);
         final Rational b = new Rational(other.n, d);

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ DBCollectionTab.fxml Copyright (C) 2019. Daniel H. Huson
+  ~
+  ~  (Some files contain contributions from other authors, who are then mentioned separately.)
+  ~
+  ~  This program is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~  (at your option) any later version.
+  ~
+  ~  This program is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~  GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License
+  ~  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<AnchorPane prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="tegula.dbcollection.DBCollectionTabController">
+    <children>
+        <BorderPane fx:id="borderPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <top>
+                <AnchorPane>
+                    <children>
+                        <VBox fx:id="topVBox" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                              AnchorPane.topAnchor="0.0">
+                            <children>
+
+                                <ToolBar fx:id="mainToolBar" maxHeight="-Infinity" maxWidth="1.7976931348623157E308"
+                                         minHeight="-Infinity" prefHeight="28.0"/>
+                            </children>
+                        </VBox>
+                        <Slider fx:id="sizeSlider" max="1024.0" min="128.0" snapToTicks="true" value="128.0"
+                                AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="6.0"/>
+                        <HBox layoutX="170.0" layoutY="2.0" AnchorPane.leftAnchor="170.0" AnchorPane.topAnchor="2.0">
+                            <children>
+                                <ComboBox fx:id="searchCBox" editable="true" prefWidth="400.0" promptText="Search..."
+                                          style="-fx-font-size: 12;"/>
+                                <Label fx:id="countLabel" text="Count" textFill="GRAY">
+                                    <HBox.margin>
+                                        <Insets left="5.0" top="3.0"/>
+                                    </HBox.margin>
+                                    <font>
+                                        <Font size="12.0"/>
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                    </children>
+                </AnchorPane>
+
+            </top>
+            <center>
+                <Pagination fx:id="pagination" pageCount="10"/>
+            </center>
+        </BorderPane>
+        <TitledPane fx:id="selectTitledPane" text="Select" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <content>
+                <VBox spacing="5.0">
+                    <children>
+                        <ComboBox fx:id="complexityCBox" editable="true" prefWidth="145.0" promptText="Complexity"
+                                  style="-fx-font-size: 12;">
+                            <tooltip>
+                                <Tooltip text="Select complexity of tilings, e.g. 2 , =2, &lt;=2 or &gt;=2"/>
+                            </tooltip>
+                        </ComboBox>
+                        <Separator style="-fx-font-size: 12;"/>
+                        <ComboBox fx:id="numberOfTilesCBox" editable="true" layoutX="20.0" layoutY="20.0"
+                                  prefWidth="145.0" promptText="Number of tiles" style="-fx-font-size: 12;">
+                            <tooltip>
+                                <Tooltip text="Set number of non-equivalent tiles, e.g. 2 , =2, &lt;=2 or &gt;=2"/>
+                            </tooltip>
+                        </ComboBox>
+                        <ComboBox fx:id="numberOfEdgesCBox" editable="true" layoutX="20.0" layoutY="50.0"
+                                  prefWidth="145.0" promptText="Number of edges" style="-fx-font-size: 12;">
+                            <tooltip>
+                                <Tooltip text="Set number of non-equivalent edges, e.g. 2 , =2, &lt;=2 or &gt;=2"/>
+                            </tooltip>
+                        </ComboBox>
+                        <ComboBox fx:id="numberOfVerticesCBox" editable="true" layoutX="20.0" layoutY="77.0"
+                                  prefWidth="145.0" promptText="Number of vertices" style="-fx-font-size: 12;">
+                            <tooltip>
+                                <Tooltip text="Set number of non-equivalent vertices, e.g. 2 , =2, &lt;=2 or &gt;=2"/>
+                            </tooltip>
+                        </ComboBox>
+                        <Separator layoutX="20.0" layoutY="47.0" style="-fx-font-size: 12;"/>
+                        <CheckBox fx:id="planeCheckButton" mnemonicParsing="false" style="-fx-font-size: 12;"
+                                  text="Euclidean"/>
+                        <CheckBox fx:id="sphereCheckButton" layoutX="20.0" layoutY="134.0" mnemonicParsing="false"
+                                  style="-fx-font-size: 12;" text="Sphere"/>
+                        <CheckBox fx:id="hyperbolicCheckButton" layoutX="20.0" layoutY="152.0" mnemonicParsing="false"
+                                  style="-fx-font-size: 12;" text="Hyperbolic"/>
+                        <Separator layoutX="20.0" layoutY="131.0" style="-fx-font-size: 12;"/>
+                        <ComboBox fx:id="symmetryGroupCBox" editable="true" layoutX="20.0" layoutY="20.0"
+                                  prefWidth="145.0" promptText="Symmetry group" style="-fx-font-size: 12;"/>
+                        <Separator layoutX="20.0" layoutY="188.0" style="-fx-font-size: 12;"/>
+                        <CheckBox fx:id="maximalSymmetricCheckButton" layoutX="20.0" layoutY="134.0"
+                                  mnemonicParsing="false" style="-fx-font-size: 12;" text="Maximal symmetric"/>
+                        <CheckBox fx:id="orientableCheckButton" layoutX="20.0" layoutY="221.0" mnemonicParsing="false"
+                                  style="-fx-font-size: 12;" text="Orientable"/>
+                        <CheckBox fx:id="hasReflectionsCheckButton" layoutX="20.0" layoutY="239.0"
+                                  mnemonicParsing="false" style="-fx-font-size: 12;" text="Has reflections"/>
+                        <CheckBox fx:id="noReflectionsCheckButton" layoutX="20.0" layoutY="257.0"
+                                  mnemonicParsing="false" style="-fx-font-size: 12;" text="No reflections"/>
+                        <Separator layoutX="20.0" layoutY="247.0" style="-fx-font-size: 12;"/>
+                    </children>
+                </VBox>
+            </content>
+        </TitledPane>
+    </children>
+</AnchorPane>

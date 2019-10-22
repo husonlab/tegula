@@ -55,7 +55,6 @@ public class DatabaseAccess implements Closeable {
         connection = config.createConnection("jdbc:sqlite:" + dbFile);
 
         System.err.println("Opened: " + dbFile + ": " + computeDBSize());
-
     }
 
     public void close() {
@@ -86,9 +85,9 @@ public class DatabaseAccess implements Closeable {
         if (selectExpression.toLowerCase().startsWith("select"))
             query = selectExpression + ";";
         else
-            query = "select symbol,preview from tilings where " + selectExpression + ";";
+            query = "select symbol from tilings where " + selectExpression + ";";
 
-        return executeQueryString(query, 1, 2);
+        return executeQueryString(query, 1);
 
     }
 
@@ -121,7 +120,7 @@ public class DatabaseAccess implements Closeable {
      *
      * @return size of the database or 0 if an error occurred
      */
-    private int computeDBSize() throws SQLException {
+    public int computeDBSize() throws SQLException {
         return executeQueryInt("SELECT count(*) FROM tilings;", 1).get(0);
     }
 
@@ -151,6 +150,7 @@ public class DatabaseAccess implements Closeable {
      * @throws SQLException if something went wrong with the database
      */
     private ArrayList<String> executeQueryString(String query, int... indices) throws SQLException {
+        System.err.println("Query: " + query);
         final ResultSet rs = connection.createStatement().executeQuery(query);
         final ArrayList<String> result = new ArrayList<>();
         while (rs.next()) {
@@ -160,4 +160,7 @@ public class DatabaseAccess implements Closeable {
         return result;
     }
 
+    public int size() {
+        return 0;
+    }
 }

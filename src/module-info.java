@@ -30,6 +30,7 @@ module tegula {
     opens tegula.resources.icons;
     opens tegula.color;
     opens tegula.main;
+    opens tegula.dbcollection;
     opens tegula.tilingcollection;
     opens tegula.tilingeditor;
 }

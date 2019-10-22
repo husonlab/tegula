@@ -33,12 +33,10 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
-import jloda.util.Basic;
 import jloda.util.Pair;
 import tegula.core.dsymbols.Geometry;
 import tegula.geometry.Tools;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -256,7 +254,7 @@ public class MapImageToGeometry {
             final Point3D a = points3D[faces.get(i)];
             final Point3D b = points3D[faces.get(i + 2)];
             final Point3D c = points3D[faces.get(i + 4)];
-            System.err.println(String.format("LongestSide(%s): %.3f", Basic.toString(Arrays.asList(a, b, c), " "), longestSide(geometry, a, b, c)));
+            // System.err.println(String.format("LongestSide(%s): %.3f", Basic.toString(Arrays.asList(a, b, c), " "), longestSide(geometry, a, b, c)));
             if (longestSide(geometry, a, b, c) > maxSideLength)
                 return false;
         }

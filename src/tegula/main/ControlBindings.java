@@ -26,6 +26,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeItem;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.Print;
 import jloda.fx.util.Printable;
@@ -38,6 +39,8 @@ import jloda.util.ProgramProperties;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.Geometry;
 import tegula.db.DatabaseAccess;
+import tegula.dbcollection.DBCollection;
+import tegula.dbcollection.DBCollectionTab;
 import tegula.tiling.HyperbolicTiling;
 import tegula.tilingcollection.TilingCollectionTab;
 import tegula.tilingeditor.TilingEditorTab;
@@ -350,45 +353,68 @@ public class ControlBindings {
 
 
         controller.getAddButton().setOnAction((e) -> {
-            if (DatabaseAccess.getInstance() == null) {
+            final FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Open Tiling DB File");
+            fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Tiling database", "*.db"));
+            final File previous = new File(ProgramProperties.get("TilingDB", "tilings.db"));
+            if (previous.getParent() != null)
+                fileChooser.setInitialDirectory(previous.getParentFile());
+            fileChooser.setInitialFileName(previous.getName());
+            File selectedFile = fileChooser.showOpenDialog(window.getStage());
+            if (selectedFile != null) {
+                ProgramProperties.put("TilingDB", selectedFile.getPath());
                 try {
-                    DatabaseAccess.setInstance(new DatabaseAccess("/Users/huson/tmp/tilings-1-12.db"));
+                    final DBCollection dbCollection = new DBCollection(selectedFile.getPath());
+                    final DBCollectionTab dbCollectionTab = new DBCollectionTab(window, dbCollection);
+                    window.getMainTabPane().getTabs().add(dbCollectionTab);
                 } catch (IOException | SQLException ex) {
-                    Basic.caught(ex);
-                    return;
+                    NotificationManager.showError(("Open failed: " + ex.getMessage()));
                 }
             }
-            final TextInputDialog dialog = new TextInputDialog(ProgramProperties.get("SelectExpression", "tiles==1"));
-            dialog.setResizable(true);
-            dialog.setTitle("Tiling Search Dialog");
-            dialog.setHeaderText("Search for tilings in database");
-            dialog.setContentText("Enter search expression:");
-            dialog.setWidth(800);
-
-            final Optional<String> result = dialog.showAndWait();
-
-            result.ifPresent(expression -> {
-                ProgramProperties.put("SelectExpression", result.get());
-                try {
-                    final String select = result.get();
-                    final int count = DatabaseAccess.getInstance().countDSymbols(select.toLowerCase().contains("limit") ? select.substring(0, select.toLowerCase().indexOf("limit")) : select);
-                    if (count > 0) {
-                        (new FileOpener()).accept("select:" + select);
-                        final TreeItem<FileBrowser.FileNode> treeItem = new TreeItem<>(new FileBrowser.FileNode(new File("")));
-                        final Label label = new Label(select);
-                        label.setTextFill(Color.DARKBLUE);
-                        label.setOnMouseClicked((c) -> {
-                            if (c.getClickCount() == 2)
-                                (new FileOpener()).accept("select:" + select);
-                        });
-                        treeItem.setGraphic(label);
-                        window.getFileTreeView().getRoot().getChildren().add(treeItem);
-                    }
-                    NotificationManager.showInformation("Select " + select + ": " + count + " found");
-                } catch (IOException | SQLException ex) {
-                    NotificationManager.showError("Failed: " + ex.getMessage());
-                }
-            });
         });
+
+        if (false) {
+            controller.getAddButton().setOnAction((e) -> {
+                if (DatabaseAccess.getInstance() == null) {
+                    try {
+                        DatabaseAccess.setInstance(new DatabaseAccess("/Users/huson/tmp/tilings-1-12.db"));
+                    } catch (IOException | SQLException ex) {
+                        Basic.caught(ex);
+                        return;
+                    }
+                }
+                final TextInputDialog dialog = new TextInputDialog(ProgramProperties.get("SelectExpression", "tiles==1"));
+                dialog.setResizable(true);
+                dialog.setTitle("Tiling Search Dialog");
+                dialog.setHeaderText("Search for tilings in database");
+                dialog.setContentText("Enter search expression:");
+                dialog.setWidth(800);
+
+                final Optional<String> result = dialog.showAndWait();
+
+                result.ifPresent(expression -> {
+                    ProgramProperties.put("SelectExpression", result.get());
+                    try {
+                        final String select = result.get();
+                        final int count = DatabaseAccess.getInstance().countDSymbols(select.toLowerCase().contains("limit") ? select.substring(0, select.toLowerCase().indexOf("limit")) : select);
+                        if (count > 0) {
+                            (new FileOpener()).accept("select:" + select);
+                            final TreeItem<FileBrowser.FileNode> treeItem = new TreeItem<>(new FileBrowser.FileNode(new File("")));
+                            final Label label = new Label(select);
+                            label.setTextFill(Color.DARKBLUE);
+                            label.setOnMouseClicked((c) -> {
+                                if (c.getClickCount() == 2)
+                                    (new FileOpener()).accept("select:" + select);
+                            });
+                            treeItem.setGraphic(label);
+                            window.getFileTreeView().getRoot().getChildren().add(treeItem);
+                        }
+                        NotificationManager.showInformation("Select " + select + ": " + count + " found");
+                    } catch (IOException | SQLException ex) {
+                        NotificationManager.showError("Failed: " + ex.getMessage());
+                    }
+                });
+            });
+        }
     }
 }

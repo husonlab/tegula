@@ -19,6 +19,8 @@
 
 package tegula.core.dsymbols;
 
+import jloda.util.Basic;
+
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Comparator;
@@ -36,6 +38,29 @@ public class OrbifoldGroupName {
      * @return orbifold group name
      */
     public static String getGroupName(DSymbol dSymbol) {
+        return Basic.toString(getGroupNameAsList(dSymbol), "");
+    }
+
+    /**
+     * is the group pq or *pw with p!=q, or *p
+     *
+     * @param dSymbol
+     * @return true, if invalid group
+     */
+    public static boolean isInvalidSphericalGroup(DSymbol dSymbol) {
+        final ArrayList<String> group = getGroupNameAsList(dSymbol);
+        return group.size() == 2 && group.get(0).equals("*") && Basic.isInteger(group.get(1)) ||
+                group.size() == 2 && Basic.isInteger(group.get(0)) && Basic.isInteger(group.get(1)) && Basic.parseInt(group.get(0)) != Basic.parseInt(group.get(1))
+                || group.size() == 3 && group.get(0).equals("*") && Basic.isInteger(group.get(1)) && Basic.isInteger(group.get(2)) && Basic.parseInt(group.get(1)) != Basic.parseInt(group.get(2));
+    }
+
+    /**
+     * computes the orbifold group name
+     *
+     * @param dSymbol
+     * @return orbifold group name
+     */
+    private static ArrayList<String> getGroupNameAsList(DSymbol dSymbol) {
         final ArrayList<Integer> rotations = new ArrayList<>();
         final ArrayList<ArrayList<Integer>> boundary = new ArrayList<>();
         final ArrayList<ArrayList<Integer>> rev_boundary = new ArrayList<>();
@@ -51,13 +76,13 @@ public class OrbifoldGroupName {
             final int i = DSymbol.i(k);
             final int j = DSymbol.j(k);
             for (int a = 1; a <= dSymbol.size(); a = dSymbol.nextOrbit(i, j, a, fl)) {
-                    if (dSymbol.isCycle(i, j, a)) {
-                        int v = dSymbol.getVij(i, j, a);
-                        if (v > 1)
-                            rotations.add(v);
-                        dSymbol.markOrbit(i, j, a, mark[3 - (i + j)]);
-                    }
+                if (dSymbol.isCycle(i, j, a)) {
+                    int v = dSymbol.getVij(i, j, a);
+                    if (v > 1)
+                        rotations.add(v);
+                    dSymbol.markOrbit(i, j, a, mark[3 - (i + j)]);
                 }
+            }
         }
 
         int n_boundary_rotations = 0;
@@ -85,23 +110,23 @@ public class OrbifoldGroupName {
             }
         }
 
-        final StringBuilder name = new StringBuilder();
+        final ArrayList<String> list = new ArrayList<>();
 
         final int n_boundary = boundary.size();
 
         if (orientable > 0) {
             final int genus = (2 - euler - n_boundary) / 2;
             for (int k = 1; k <= genus; k++)
-                name.append('o');
+                list.add("o");
         }
 
         if (rotations.size() > 0) {
             rotations.sort(new IntegerCompareDown());
-            name.append(intsAsString(rotations));
+            addInts(rotations,list);
         }
 
         if (rotations.size() == 0 && n_boundary_rotations == 0)
-            name.append('1');
+            list.add("1");
 
         if (n_boundary > 0) {
             boundary.sort(new IntegerListCompareDown());
@@ -109,18 +134,18 @@ public class OrbifoldGroupName {
 
             final ArrayList<ArrayList<Integer>> boundaryToReport = (compare(boundary, rev_boundary) < 0 ? rev_boundary : boundary);
 
-            for (ArrayList<Integer> it : boundaryToReport) {
-                name.append('*');
-                name.append(intsAsString(it));
+            for (ArrayList<Integer> value : boundaryToReport) {
+                list.add("*");
+                addInts(value,list);
             }
         }
 
         if (orientable == 0) {
             final int genus = 2 - euler - n_boundary;
             for (int k = 1; k <= genus; k++)
-                name.append('x');
+                list.add("x");
         }
-        return name.toString();
+        return list;
     }
 
     /**
@@ -205,16 +230,13 @@ public class OrbifoldGroupName {
      * @param in
      * @return string
      */
-    static private String intsAsString(ArrayList<Integer> in) {
-        final StringBuilder buf = new StringBuilder();
-
+    static private void addInts(ArrayList<Integer> in, ArrayList<String> list) {
         for (Integer n : in) {
             if (n >= 0 && n < 10)
-                buf.append(String.format("%d", n));
+                list.add(String.format("%d", n));
             else
-                buf.append(String.format("(%d)", n));
+                list.add(String.format("(%d)", n));
         }
-        return buf.toString();
     }
 
 
