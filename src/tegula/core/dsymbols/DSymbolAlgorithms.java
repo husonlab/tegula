@@ -774,5 +774,22 @@ public class DSymbolAlgorithms {
         return buf.toString();
     }
 
+    /**
+     * is the tiling colorable, ie, no two equivalent tiles share an edge
+     *
+     * @param ds
+     * @return is colorable
+     */
+    public static boolean isColorable(DSymbol ds) {
+        final int[] orbits = new int[ds.size() + 1];
+        for (int a = 1; a <= ds.size(); a++) {
+            ds.markOrbit(0, 1, a, orbits, a);
+        }
 
+        for (int a = 1; a <= ds.size(); a++) {
+            if (orbits[a] == orbits[ds.getS2(a)])
+                return false;
+        }
+        return true;
+    }
 }

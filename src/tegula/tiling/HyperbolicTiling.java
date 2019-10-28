@@ -64,21 +64,10 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
      * update the tiling
      */
     public Group update() {
-
-
-        //generators = fDomain.getGenerators();
-
-        //referencePoint = fDomain.computeReferencePoint();
-        //tolerance = computeTolerance(getGeometry(), referencePoint, generators);
-
         double diameterFDomain = fDomain.calculateDiameter();
         if (2.8 * diameterFDomain > tilingStyle.getHyperbolicLimit()) {
             tilingStyle.setHyperbolicLimit((int) Math.round(2.8 * diameterFDomain));
         }
-
-        /*if (referencePoint.getZ() >= ValidHyperbolicRange) {// Fundamental domain is shifted back
-            fDomain.recenterFDomain(calculateBackShiftHyperbolic()); // Shifts back fDomain into valid range (slower algorithm)
-        }*/
 
         final Group tiles = produceTiles(true);
         setNumberOfCopies(tiles.getChildren().size());

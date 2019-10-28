@@ -34,6 +34,7 @@ import javafx.scene.shape.Rectangle;
 import jloda.fx.util.ProgramExecutorService;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.DSymbolAlgorithms;
+import tegula.main.TilingStyle;
 import tegula.tilingeditor.TilingEditorTab;
 import tegula.tilingpane.TilingPane;
 
@@ -101,7 +102,9 @@ public class TilingsPane extends FlowPane {
         final VBox vBox = new VBox(rectangle, size < 150 ? shortLabel : label);
 
         ProgramExecutorService.getInstance().submit(() -> {
-            final TilingPane tilingPane = new TilingPane(dSymbol, dbCollectionTab.getTilingStyle(), true, false);
+            final TilingStyle tilingStyle = new TilingStyle(dbCollectionTab.getTilingStyle());
+
+            final TilingPane tilingPane = new TilingPane(dSymbol, tilingStyle, true, false);
             tilingPane.getTilingStyle().setBendAnEdge(!DSymbolAlgorithms.isMaximalSymmetry(dSymbol));
             tilingPane.setPrefWidth(0.5 * controller.getSizeSlider().getMax());
             tilingPane.setPrefHeight(0.5 * controller.getSizeSlider().getMax());

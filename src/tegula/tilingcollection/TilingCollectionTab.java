@@ -190,7 +190,7 @@ public class TilingCollectionTab extends Tab implements Closeable, Printable, IF
 
         labelGetter = (ds) -> String.format("%d. n:%d t:%d e:%d v:%d g:%s%s", ds.getNr1(), ds.size(),
                 ds.countOrbits(0, 1), ds.countOrbits(0, 2), ds.countOrbits(1, 2), OrbifoldGroupName.getGroupName(ds),
-                (DSymbolAlgorithms.isMaximalSymmetry(ds) ? " max" : ""));
+                (DSymbolAlgorithms.isMaximalSymmetry(ds) ? " max" : "") + " normal: " + DSymbolAlgorithms.isNormal(ds));
 
         findToolBar = new FindToolBar(new Searcher<>(selectionModel, labelGetter, null));
         controller.getTopVBox().getChildren().add(findToolBar);
