@@ -23,7 +23,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<AnchorPane prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111"
+<AnchorPane prefHeight="500.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.111"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="tegula.dbcollection.DBCollectionTabController">
     <children>
         <BorderPane fx:id="borderPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
@@ -40,18 +40,29 @@
                             </children>
                         </VBox>
                         <Slider fx:id="sizeSlider" max="1024.0" min="128.0" snapToTicks="true" value="128.0"
-                                AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="6.0"/>
+                                AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="6.0">
+                            <tooltip>
+                                <Tooltip text="Set preview size"/>
+                            </tooltip>
+                        </Slider>
                         <HBox layoutX="170.0" layoutY="2.0" AnchorPane.leftAnchor="170.0" AnchorPane.topAnchor="2.0">
                             <children>
-                                <ComboBox fx:id="searchCBox" editable="true" prefWidth="400.0" promptText="Search..."
-                                          style="-fx-font-size: 12;"/>
+                                <ComboBox fx:id="searchCBox" editable="true" prefWidth="600.0" promptText="Search..."
+                                          style="-fx-font-size: 12;" HBox.hgrow="ALWAYS">
+                                    <tooltip>
+                                        <Tooltip text="SQLITE search expression"/>
+                                    </tooltip>
+                                </ComboBox>
                                 <Label fx:id="countLabel" text="Count" textFill="GRAY">
                                     <HBox.margin>
-                                        <Insets left="5.0" top="3.0"/>
+                                        <Insets left="8.0" top="3.0"/>
                                     </HBox.margin>
                                     <font>
                                         <Font size="12.0"/>
                                     </font>
+                                    <tooltip>
+                                        <Tooltip text="Number of tilings that match current search"/>
+                                    </tooltip>
                                 </Label>
                             </children>
                         </HBox>
@@ -70,47 +81,99 @@
                         <ComboBox fx:id="complexityCBox" editable="true" prefWidth="145.0" promptText="Complexity"
                                   style="-fx-font-size: 12;">
                             <tooltip>
-                                <Tooltip text="Select complexity of tilings, e.g. 2 , =2, &lt;=2 or &gt;=2"/>
+                                <Tooltip text="Select complexity of tilings, e.g. 2 , !=2, &lt;=2 or &gt;=2"/>
                             </tooltip>
                         </ComboBox>
                         <Separator style="-fx-font-size: 12;"/>
                         <ComboBox fx:id="numberOfTilesCBox" editable="true" layoutX="20.0" layoutY="20.0"
                                   prefWidth="145.0" promptText="Number of tiles" style="-fx-font-size: 12;">
                             <tooltip>
-                                <Tooltip text="Set number of non-equivalent tiles, e.g. 2 , =2, &lt;=2 or &gt;=2"/>
+                                <Tooltip text="Set number of non-equivalent tiles, e.g. 2 , !=2, &lt;=2 or &gt;=2"/>
                             </tooltip>
                         </ComboBox>
                         <ComboBox fx:id="numberOfEdgesCBox" editable="true" layoutX="20.0" layoutY="50.0"
                                   prefWidth="145.0" promptText="Number of edges" style="-fx-font-size: 12;">
                             <tooltip>
-                                <Tooltip text="Set number of non-equivalent edges, e.g. 2 , =2, &lt;=2 or &gt;=2"/>
+                                <Tooltip text="Set number of non-equivalent edges, e.g. 2 , !=2, &lt;=2 or &gt;=2"/>
                             </tooltip>
                         </ComboBox>
                         <ComboBox fx:id="numberOfVerticesCBox" editable="true" layoutX="20.0" layoutY="77.0"
                                   prefWidth="145.0" promptText="Number of vertices" style="-fx-font-size: 12;">
                             <tooltip>
-                                <Tooltip text="Set number of non-equivalent vertices, e.g. 2 , =2, &lt;=2 or &gt;=2"/>
+                                <Tooltip text="Set number of non-equivalent vertices, e.g. 2 , !=2, &lt;=2 or &gt;=2"/>
                             </tooltip>
                         </ComboBox>
                         <Separator layoutX="20.0" layoutY="47.0" style="-fx-font-size: 12;"/>
-                        <CheckBox fx:id="planeCheckButton" mnemonicParsing="false" style="-fx-font-size: 12;"
-                                  text="Euclidean"/>
-                        <CheckBox fx:id="sphereCheckButton" layoutX="20.0" layoutY="134.0" mnemonicParsing="false"
-                                  style="-fx-font-size: 12;" text="Sphere"/>
-                        <CheckBox fx:id="hyperbolicCheckButton" layoutX="20.0" layoutY="152.0" mnemonicParsing="false"
-                                  style="-fx-font-size: 12;" text="Hyperbolic"/>
+                        <CheckBox fx:id="euclideanCheckBox" allowIndeterminate="true" indeterminate="true"
+                                  mnemonicParsing="false" style="-fx-font-size: 12;" text="Euclidean">
+                            <tooltip>
+                                <Tooltip text="Show only euclidean tilings, or all but euclidean tilings."/>
+                            </tooltip>
+                        </CheckBox>
+                        <CheckBox fx:id="sphericalCheckBox" allowIndeterminate="true" indeterminate="true"
+                                  layoutX="20.0" layoutY="134.0" mnemonicParsing="false" style="-fx-font-size: 12;"
+                                  text="Spherical">
+                            <tooltip>
+                                <Tooltip text="Show only spherical tilings, or all but spherical tilings."/>
+                            </tooltip>
+                        </CheckBox>
+                        <CheckBox fx:id="hyperbolicCheckBox" allowIndeterminate="true" indeterminate="true"
+                                  layoutX="20.0" layoutY="152.0" mnemonicParsing="false" style="-fx-font-size: 12;"
+                                  text="Hyperbolic">
+                            <tooltip>
+                                <Tooltip text="Show only hyperbolic tilings, or all but hyperbolic tilings."/>
+                            </tooltip>
+                        </CheckBox>
                         <Separator layoutX="20.0" layoutY="131.0" style="-fx-font-size: 12;"/>
-                        <ComboBox fx:id="symmetryGroupCBox" editable="true" layoutX="20.0" layoutY="20.0"
-                                  prefWidth="145.0" promptText="Symmetry group" style="-fx-font-size: 12;"/>
+                        <ComboBox fx:id="orbifoldCBox" editable="true" layoutX="20.0" layoutY="20.0" prefWidth="145.0"
+                                  promptText="Symmetry group" style="-fx-font-size: 12;">
+                            <tooltip>
+                                <Tooltip
+                                        text="Specify orbifold name of symmetry group. use prefix =, != &lt; or &gt; for name comparison, and prefix c for 'contains.'"/>
+                            </tooltip>
+                        </ComboBox>
+                        <ComboBox fx:id="symmetryClassCBox" layoutX="20.0" layoutY="219.0" prefWidth="145.0"
+                                  promptText="Symmetry class" style="-fx-font-size: 12;">
+                            <tooltip>
+                                <Tooltip
+                                        text="Filter for a specific symmetry group class, or use All to turn off filter."/>
+                            </tooltip>
+                        </ComboBox>
                         <Separator layoutX="20.0" layoutY="188.0" style="-fx-font-size: 12;"/>
-                        <CheckBox fx:id="maximalSymmetricCheckButton" layoutX="20.0" layoutY="134.0"
-                                  mnemonicParsing="false" style="-fx-font-size: 12;" text="Maximal symmetric"/>
-                        <CheckBox fx:id="orientableCheckButton" layoutX="20.0" layoutY="221.0" mnemonicParsing="false"
-                                  style="-fx-font-size: 12;" text="Orientable"/>
-                        <CheckBox fx:id="hasReflectionsCheckButton" layoutX="20.0" layoutY="239.0"
-                                  mnemonicParsing="false" style="-fx-font-size: 12;" text="Has reflections"/>
-                        <CheckBox fx:id="noReflectionsCheckButton" layoutX="20.0" layoutY="257.0"
-                                  mnemonicParsing="false" style="-fx-font-size: 12;" text="No reflections"/>
+                        <CheckBox fx:id="normalCheckBox" allowIndeterminate="true" indeterminate="true" layoutX="20.0"
+                                  layoutY="255.0" mnemonicParsing="false" style="-fx-font-size: 12;" text="Normal">
+                            <tooltip>
+                                <Tooltip
+                                        text="Tilings in which all tiles are simply connected and the intersection between any two tiles is simply connected."/>
+                            </tooltip>
+                        </CheckBox>
+                        <CheckBox fx:id="selfDualCheckBox" allowIndeterminate="true" indeterminate="true" layoutX="20.0"
+                                  layoutY="318.0" mnemonicParsing="false" style="-fx-font-size: 12;" text="Self Dual">
+                            <tooltip>
+                                <Tooltip text="Tilings that are isomorphic to their dual."/>
+                            </tooltip>
+                        </CheckBox>
+                        <CheckBox fx:id="maximalSymmetricCheckBox" allowIndeterminate="true" indeterminate="true"
+                                  layoutX="20.0" layoutY="134.0" mnemonicParsing="false" style="-fx-font-size: 12;"
+                                  text="Maximal symmetry">
+                            <tooltip>
+                                <Tooltip text="Tilings whose symmetry group cannot be enlargened."/>
+                            </tooltip>
+                        </CheckBox>
+                        <CheckBox fx:id="orientableCheckBox" allowIndeterminate="true" indeterminate="true"
+                                  layoutX="20.0" layoutY="221.0" mnemonicParsing="false" style="-fx-font-size: 12;"
+                                  text="Orientable">
+                            <tooltip>
+                                <Tooltip text="Tilings that have an orientable symmetry group."/>
+                            </tooltip>
+                        </CheckBox>
+                        <CheckBox fx:id="hasReflectionsCheckBox" allowIndeterminate="true" indeterminate="true"
+                                  layoutX="20.0" layoutY="239.0" mnemonicParsing="false" style="-fx-font-size: 12;"
+                                  text="Has reflections">
+                            <tooltip>
+                                <Tooltip text="Tilings that have a reflection in their symmetry group."/>
+                            </tooltip>
+                        </CheckBox>
                         <Separator layoutX="20.0" layoutY="247.0" style="-fx-font-size: 12;"/>
                     </children>
                 </VBox>

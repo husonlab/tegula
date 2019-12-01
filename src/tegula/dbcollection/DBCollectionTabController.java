@@ -63,28 +63,34 @@ public class DBCollectionTabController {
     private ComboBox<String> numberOfVerticesCBox;
 
     @FXML
-    private CheckBox planeCheckButton;
+    private CheckBox euclideanCheckBox;
 
     @FXML
-    private CheckBox sphereCheckButton;
+    private CheckBox sphericalCheckBox;
 
     @FXML
-    private CheckBox hyperbolicCheckButton;
+    private CheckBox hyperbolicCheckBox;
 
     @FXML
-    private ComboBox<String> symmetryGroupCBox;
+    private ComboBox<String> orbifoldCBox;
 
     @FXML
-    private CheckBox maximalSymmetricCheckButton;
+    private ComboBox<String> symmetryClassCBox;
 
     @FXML
-    private CheckBox orientableCheckButton;
+    private CheckBox maximalSymmetricCheckBox;
 
     @FXML
-    private CheckBox hasReflectionsCheckButton;
+    private CheckBox orientableCheckBox;
 
     @FXML
-    private CheckBox noReflectionsCheckButton;
+    private CheckBox hasReflectionsCheckBox;
+
+    @FXML
+    private CheckBox normalCheckBox;
+
+    @FXML
+    private CheckBox selfDualCheckBox;
 
     @FXML
     private TitledPane selectTitledPane;
@@ -106,18 +112,19 @@ public class DBCollectionTabController {
         assert numberOfTilesCBox != null : "fx:id=\"numberOfTilesCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert numberOfEdgesCBox != null : "fx:id=\"numberOfEdgesCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert numberOfVerticesCBox != null : "fx:id=\"numberOfVerticesCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
-        assert planeCheckButton != null : "fx:id=\"planeCheckButton\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
-        assert sphereCheckButton != null : "fx:id=\"sphereCheckButton\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
-        assert hyperbolicCheckButton != null : "fx:id=\"hyperbolicCheckButton\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
-        assert symmetryGroupCBox != null : "fx:id=\"symmetryGroupCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
-        assert maximalSymmetricCheckButton != null : "fx:id=\"maximalSymmetricCheckButton\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
-        assert orientableCheckButton != null : "fx:id=\"orientableCheckButton\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
-        assert hasReflectionsCheckButton != null : "fx:id=\"hasReflectionsCheckButton\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
-        assert noReflectionsCheckButton != null : "fx:id=\"noReflectionsCheckButton\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
+        assert euclideanCheckBox != null : "fx:id=\"euclideanCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
+        assert sphericalCheckBox != null : "fx:id=\"sphericalCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
+        assert hyperbolicCheckBox != null : "fx:id=\"hyperbolicCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
+        assert orbifoldCBox != null : "fx:id=\"orbifoldCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
+        assert symmetryClassCBox != null : "fx:id=\"symmetryClassCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
+        assert maximalSymmetricCheckBox != null : "fx:id=\"maximalSymmetricCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
+        assert orientableCheckBox != null : "fx:id=\"orientableCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
+        assert hasReflectionsCheckBox != null : "fx:id=\"hasReflectionsCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
+        assert normalCheckBox != null : "fx:id=\"normalCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
+        assert selfDualCheckBox != null : "fx:id=\"selfDualCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert selectTitledPane != null : "fx:id=\"selectTitledPane\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert searchCBox != null : "fx:id=\"searchCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert countLabel != null : "fx:id=\"countLabel\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
-
     }
 
     public BorderPane getBorderPane() {
@@ -157,35 +164,43 @@ public class DBCollectionTabController {
     }
 
     public CheckBox getPlaneCheckButton() {
-        return planeCheckButton;
+        return euclideanCheckBox;
     }
 
     public CheckBox getSphereCheckButton() {
-        return sphereCheckButton;
+        return sphericalCheckBox;
     }
 
     public CheckBox getHyperbolicCheckButton() {
-        return hyperbolicCheckButton;
+        return hyperbolicCheckBox;
     }
 
-    public ComboBox<String> getSymmetryGroupCBox() {
-        return symmetryGroupCBox;
+    public ComboBox<String> getOrbifoldCBox() {
+        return orbifoldCBox;
     }
 
-    public CheckBox getMaximalSymmetricCheckButton() {
-        return maximalSymmetricCheckButton;
+    public ComboBox<String> getSymmetryClassCBox() {
+        return symmetryClassCBox;
     }
 
-    public CheckBox getOrientableCheckButton() {
-        return orientableCheckButton;
+    public CheckBox getMaximalSymmetricCheckBox() {
+        return maximalSymmetricCheckBox;
     }
 
-    public CheckBox getHasReflectionsCheckButton() {
-        return hasReflectionsCheckButton;
+    public CheckBox getOrientableCheckBox() {
+        return orientableCheckBox;
     }
 
-    public CheckBox getNoReflectionsCheckButton() {
-        return noReflectionsCheckButton;
+    public CheckBox getHasReflectionsCheckBox() {
+        return hasReflectionsCheckBox;
+    }
+
+    public CheckBox getNormalCheckBox() {
+        return normalCheckBox;
+    }
+
+    public CheckBox getSelfDualCheckBox() {
+        return selfDualCheckBox;
     }
 
     public TitledPane getSelectTitledPane() {

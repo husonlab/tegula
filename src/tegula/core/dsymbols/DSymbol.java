@@ -53,9 +53,12 @@ public class DSymbol {
         copy(src);
     }
 
-    public DSymbol(String string) throws IOException {
+    public DSymbol(String string) {
         this(0);
-        read(new StringReader(string));
+        try {
+            read(new StringReader(string));
+        } catch (IOException ignored) {
+        }
     }
 
     /**

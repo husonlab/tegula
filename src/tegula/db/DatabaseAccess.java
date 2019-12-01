@@ -108,6 +108,8 @@ public class DatabaseAccess implements Closeable {
         final String query;
         if (selectExpression.toLowerCase().startsWith("select"))
             query = selectExpression + ";";
+        else if (selectExpression.length() == 0)
+            query = "select count(*) from tilings;";
         else
             query = "select count(*) from tilings where " + selectExpression + ";";
 
@@ -158,9 +160,5 @@ public class DatabaseAccess implements Closeable {
                 result.add(rs.getString(i));
         }
         return result;
-    }
-
-    public int size() {
-        return 0;
     }
 }

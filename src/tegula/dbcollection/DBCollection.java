@@ -111,7 +111,11 @@ public class DBCollection implements Closeable, IFileBased {
     public ArrayList<DSymbol> getPageOfDSymbols(int pageNumber) throws IOException, SQLException {
         if (pageNumber < 0 || pageNumber >= getNumberOfPages())
             return new ArrayList<>();
-        final String query = String.format("select symbol from tilings where %s limit %d offset %d;", getDbSelect(), getPageSize(), pageNumber * getPageSize());
+        final String query;
+        if (getDbSelect().length() == 0)
+            query = String.format("select symbol from tilings where cardinality>0 limit %d offset %d;", getPageSize(), pageNumber * getPageSize());
+        else
+            query = String.format("select symbol from tilings where %s limit %d offset %d;", getDbSelect(), getPageSize(), pageNumber * getPageSize());
         final ArrayList<DSymbol> result = new ArrayList<>();
         for (String line : databaseAccess.getDSymbols(query))
             result.add(new DSymbol(line));

@@ -20,6 +20,10 @@
 package tegula.dbcollection;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import jloda.util.Basic;
+import tegula.core.dsymbols.SymmetryClass;
 
 /**
  * presenter
@@ -49,11 +53,51 @@ public class DBCollectionPresenter {
             }
         });
 
-        controller.getComplexityCBox().valueProperty().addListener((c, o, n) -> dbCollectionTab.processDBSelect(setupSearch(), 0));
+        controller.getComplexityCBox().valueProperty().addListener((c, o, n) -> {
+            dbCollectionTab.processDBSelect(setupSearch(), 0);
+            if (n != null)
+                controller.getComplexityCBox().getItems().add(n);
+        });
 
-        controller.getNumberOfTilesCBox().valueProperty().addListener((c, o, n) -> dbCollectionTab.processDBSelect(setupSearch(), 0));
-        controller.getNumberOfEdgesCBox().valueProperty().addListener((c, o, n) -> dbCollectionTab.processDBSelect(setupSearch(), 0));
-        controller.getNumberOfVerticesCBox().valueProperty().addListener((c, o, n) -> dbCollectionTab.processDBSelect(setupSearch(), 0));
+        controller.getNumberOfTilesCBox().valueProperty().addListener((c, o, n) -> {
+            dbCollectionTab.processDBSelect(setupSearch(), 0);
+            if (n != null)
+                controller.getNumberOfTilesCBox().getItems().add(n);
+        });
+        controller.getNumberOfEdgesCBox().valueProperty().addListener((c, o, n) -> {
+            dbCollectionTab.processDBSelect(setupSearch(), 0);
+            if (n != null)
+                controller.getNumberOfEdgesCBox().getItems().add(n);
+        });
+        controller.getNumberOfVerticesCBox().valueProperty().addListener((c, o, n) -> {
+            dbCollectionTab.processDBSelect(setupSearch(), 0);
+            if (n != null)
+                controller.getNumberOfVerticesCBox().getItems().add(n);
+        });
+
+        final EventHandler<ActionEvent> onActionHandler = (e) -> dbCollectionTab.processDBSelect(setupSearch(), 0);
+
+        controller.getPlaneCheckButton().setOnAction(onActionHandler);
+        controller.getSphereCheckButton().setOnAction(onActionHandler);
+        controller.getHyperbolicCheckButton().setOnAction(onActionHandler);
+
+        controller.getNormalCheckBox().setOnAction(onActionHandler);
+        controller.getSelfDualCheckBox().setOnAction(onActionHandler);
+
+        controller.getMaximalSymmetricCheckBox().setOnAction(onActionHandler);
+        controller.getOrientableCheckBox().setOnAction(onActionHandler);
+        controller.getHasReflectionsCheckBox().setOnAction(onActionHandler);
+
+        controller.getOrbifoldCBox().valueProperty().addListener((c, o, n) -> {
+            dbCollectionTab.processDBSelect(setupSearch(), 0);
+            if (n != null && !controller.getOrbifoldCBox().getItems().contains(n))
+                controller.getOrbifoldCBox().getItems().add(n);
+        });
+
+        controller.getSymmetryClassCBox().getItems().add("All");
+
+        controller.getSymmetryClassCBox().getItems().addAll(Basic.toStrings(SymmetryClass.values()));
+        controller.getSymmetryClassCBox().setOnAction(onActionHandler);
 
         controller.getSearchCBox().setOnAction((c) -> {
             dbCollectionTab.processDBSelect(controller.getSearchCBox().getValue(), 0);
@@ -68,7 +112,6 @@ public class DBCollectionPresenter {
                     controller.getSearchCBox().getItems().add(n);
                 }
             }
-
         });
 
         controller.getSizeSlider().setOnMouseReleased((e) -> updatePageSize());
@@ -94,8 +137,8 @@ public class DBCollectionPresenter {
     private String setupSearch() {
         final StringBuilder buf = new StringBuilder();
 
-        if (addIntSelect("size", controller.getComplexityCBox().getValue()) != null) {
-            buf.append(addIntSelect("size", controller.getComplexityCBox().getValue()));
+        if (addIntSelect("complexity", controller.getComplexityCBox().getValue()) != null) {
+            buf.append(addIntSelect("complexity", controller.getComplexityCBox().getValue()));
         }
 
         if (addIntSelect("tiles", controller.getNumberOfTilesCBox().getValue()) != null) {
@@ -116,6 +159,76 @@ public class DBCollectionPresenter {
             buf.append(addIntSelect("vertices", controller.getNumberOfVerticesCBox().getValue()));
         }
 
+
+        if (!controller.getPlaneCheckButton().isIndeterminate()) {
+            if (buf.length() > 0)
+                buf.append(" and ");
+            buf.append(String.format("geometry %s 'Euclidean'", controller.getPlaneCheckButton().isSelected() ? "=" : "!="));
+        }
+
+        if (!controller.getSphereCheckButton().isIndeterminate()) {
+            if (buf.length() > 0)
+                buf.append(" and ");
+            buf.append(String.format("geometry %s 'Spherical'", controller.getSphereCheckButton().isSelected() ? "=" : "!="));
+        }
+
+        if (!controller.getHyperbolicCheckButton().isIndeterminate()) {
+            if (buf.length() > 0)
+                buf.append(" and ");
+            buf.append(String.format("geometry %s 'Hyperbolic'", controller.getHyperbolicCheckButton().isSelected() ? "=" : "!="));
+        }
+
+        final String groupString = controller.getOrbifoldCBox().getSelectionModel().getSelectedItem();
+        if (groupString != null && groupString.length() > 0) {
+            if (buf.length() > 0)
+                buf.append(" and ");
+            final String operator = getOperator(groupString, true);
+            if (operator.equalsIgnoreCase("c"))
+                buf.append(String.format(" instr(orbifold, '%s') > 0", getArgument(groupString, true)));
+            else
+                buf.append(String.format(" orbifold %s '%s'", operator, getArgument(groupString, true)));
+        }
+
+        final String symmetryClass = controller.getSymmetryClassCBox().getSelectionModel().getSelectedItem();
+        if (symmetryClass != null && !symmetryClass.equals("All")) {
+            if (buf.length() > 0)
+                buf.append(" and ");
+            buf.append(String.format(" symmetry_class = '%s'", symmetryClass));
+        }
+
+        if (!controller.getNormalCheckBox().isIndeterminate()) {
+            if (buf.length() > 0)
+                buf.append(" and ");
+            buf.append(" normal = '").append(controller.getNormalCheckBox().isSelected()).append("'");
+        }
+
+        if (!controller.getSelfDualCheckBox().isIndeterminate()) {
+            if (buf.length() > 0)
+                buf.append(" and ");
+            buf.append(" self_dual = '").append(controller.getSelfDualCheckBox().isSelected()).append("'");
+        }
+
+        if (!controller.getMaximalSymmetricCheckBox().isIndeterminate()) {
+            if (buf.length() > 0)
+                buf.append(" and ");
+            buf.append(" maximal = '").append(controller.getMaximalSymmetricCheckBox().isSelected()).append("'");
+
+        }
+
+        if (!controller.getOrientableCheckBox().isIndeterminate()) {
+            if (buf.length() > 0)
+                buf.append(" and ");
+            buf.append(" orientable = '").append(controller.getOrientableCheckBox().isSelected()).append("'");
+
+        }
+
+        if (!controller.getHasReflectionsCheckBox().isIndeterminate()) {
+            if (buf.length() > 0)
+                buf.append(" and ");
+            buf.append(" fixed_point_free = '").append(!controller.getHasReflectionsCheckBox().isSelected()).append("'");
+        }
+
+
         return buf.toString().replaceAll("\\s\\s", " ");
     }
 
@@ -125,9 +238,37 @@ public class DBCollectionPresenter {
         value = value.trim();
         if (value.length() == 0)
             return null;
-        if (!value.contains("="))
-            return label + " == " + value;
-        else
-            return label + value;
+
+        return String.format("%s %s %s", label, getOperator(value, false), getArgument(value, false));
     }
+
+    private static String getOperator(String value, boolean allowC) {
+        final String operatorChars = (allowC ? "c!=<>" : "!=<>");
+        int pos = 0;
+        while (pos < value.length()) {
+            if (operatorChars.indexOf(value.charAt(pos)) == -1)
+                break;
+            pos++;
+        }
+        if (pos == 0)
+            return "=";
+        else
+            return value.substring(0, pos).trim();
+    }
+
+    private static String getArgument(String value, boolean allowC) {
+        final String operatorChars = (allowC ? "c!=<>" : "!=<>");
+        int pos = 0;
+        while (pos < value.length()) {
+            if (operatorChars.indexOf(value.charAt(pos)) == -1)
+                break;
+            pos++;
+        }
+        if (pos == 0)
+            return value.trim();
+        else
+            return value.substring(pos).trim();
+    }
+
+
 }

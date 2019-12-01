@@ -11,6 +11,7 @@ module tegula {
     requires com.install4j.runtime;
 
     exports tegula.color;
+    exports tegula.db;
     exports tegula.core.dsymbols;
     exports tegula.core.fundamental;
     exports tegula.core.fundamental.data;

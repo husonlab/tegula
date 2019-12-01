@@ -28,8 +28,7 @@ import java.util.ArrayList;
  * Daniel Huson, 10.2019
  */
 public enum SymmetryClass {
-    coxeter, stellate, hat, projective, moebius, annular, toroidal, other;
-
+    Coxeter, Stellate, Hat, Projective, Moebius, Annular, Toroidal, Other;
 
     /**
      * computes the symmetry class as defined in doi:10.1107/S205327331400549X
@@ -39,7 +38,6 @@ public enum SymmetryClass {
      */
     public static SymmetryClass valueOf(DSymbol dSymbol) {
         final ArrayList<String> list = OrbifoldGroupName.getGroupNameAsList(dSymbol);
-        final String orbfoldName = OrbifoldGroupName.getGroupName(dSymbol);
 
         int circles = 0;
         int stars = 0;
@@ -68,21 +66,20 @@ public enum SymmetryClass {
         }
 
         if (stars > 0 && circles == 0 && crosses == 0 && leadingCones == 0)
-            return coxeter;
+            return Coxeter;
         else if (leadingCones > 0 && stars == 0 && circles == 0 && crosses == 0)
-            return stellate;
+            return Stellate;
         else if (leadingCones > 0 && stars > 0 && circles == 0 && crosses == 0)
-            return hat;
+            return Hat;
         else if (circles == 0 && stars == 0 && crosses > 0)
-            return projective;
+            return Projective;
         else if (circles == 0 && stars > 0 && crosses > 0)
-            return moebius;
+            return Moebius;
         else if (stars >= 2 && crosses == 0)
-            return annular;
+            return Annular;
         else if (circles > 0 && stars == 0 && crosses == 0)
-            return toroidal;
+            return Toroidal;
         else
-            return other;
+            return Other;
     }
-
 }
