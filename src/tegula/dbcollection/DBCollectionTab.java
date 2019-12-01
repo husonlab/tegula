@@ -19,6 +19,7 @@
 
 package tegula.dbcollection;
 
+import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -29,6 +30,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import jloda.fx.util.ExtendedFXMLLoader;
 import jloda.fx.util.Printable;
+import jloda.fx.util.ProgramExecutorService;
 import jloda.fx.window.NotificationManager;
 import jloda.util.Basic;
 import tegula.core.dsymbols.DSymbol;
@@ -41,6 +43,7 @@ import tegula.util.IFileBased;
 import java.io.Closeable;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -103,6 +106,13 @@ public class DBCollectionTab extends Tab implements Closeable, Printable, IFileB
                 (DSymbolAlgorithms.isMaximalSymmetry(ds) ? " max" : ""));
 
         dbCollectionPresenter = new DBCollectionPresenter(this);
+
+        controller.getPagination().pageCountProperty().bind(dbCollection.countProperty().divide(dbCollection.pageSizeProperty()));
+
+        Platform.runLater(() -> {
+            dbCollection.setDbSelect("complexity >0");
+            updatePageSize();
+        });
     }
 
     /**
@@ -116,20 +126,24 @@ public class DBCollectionTab extends Tab implements Closeable, Printable, IFileB
 
         final Pagination pagination = controller.getPagination();
         pagination.setPageFactory((page) -> {
-            try {
                 Pane pane = pageCache.get(page);
                 if (pane == null || pane.getUserData() instanceof Integer && (Integer) pane.getUserData() != dbCollection.getNumberOfDSymbolsOnPage(page)) {
-                    pane = new TilingsPane(dbCollection.getPageOfDSymbols(page), this);
+                    final TilingsPane paneNew = new TilingsPane();
+                    pane = paneNew;
+                    ProgramExecutorService.getInstance().submit(() -> {
+                        final ArrayList<DSymbol> dsymbols;
+                        try {
+                            dsymbols = dbCollection.getPageOfDSymbols(page);
+                            Platform.runLater(() -> paneNew.addTilings(dsymbols, DBCollectionTab.this));
+                        } catch (IOException | SQLException e) {
+                            NotificationManager.showError("Failed: " + e.getMessage());
+                        }
+                    });
                     pageCache.put(page, pane);
                 }
                 printable.set(pane);
                 return pane;
-            } catch (IOException | SQLException e) {
-                NotificationManager.showError("Failed: " + e.getMessage());
-            }
-            return null;
         });
-        pagination.setPageCount(Math.max(1, dbCollection.getNumberOfPages()));
         pagination.setCurrentPageIndex(currentPageIndex);
     }
 
@@ -210,5 +224,23 @@ public class DBCollectionTab extends Tab implements Closeable, Printable, IFileB
         } else
             return 20;
     }
+
+    public Parent getRoot() {
+        return root;
+    }
+
+    public void updatePageSize() {
+        final int pageSize = calculatePageSize(controller.getSizeSlider().getValue());
+        if (pageSize > 0 && pageSize != dbCollection.getPageSize()) {
+            final int currentSymbol = controller.getPagination().getCurrentPageIndex() * dbCollection.getPageSize();
+
+            //System.err.println("Changing page size: " + dbCollection.getPageSize() + " -> " + pageSize);
+            //System.err.println("Current page: " + controller.getPagination().getCurrentPageIndex() + " -> " + (currentSymbol / pageSize));
+
+            dbCollection.setPageSize(pageSize);
+            processDBSelect(dbCollection.getDbSelect(), currentSymbol / pageSize); // reload
+        }
+    }
+
 }
 

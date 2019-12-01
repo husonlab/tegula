@@ -22,6 +22,7 @@ package tegula.tiling;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
@@ -30,6 +31,7 @@ import tegula.geometry.Tools;
 import tegula.main.TilingStyle;
 import tegula.tiling.parts.OctTree;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -259,17 +261,15 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
     public void decreaseTiling(Group tiles) {
         tilingStyle.setHyperbolicLimit(tilingStyle.getHyperbolicLimit() - 1);
         double maxDist = Math.cosh(0.5 * tilingStyle.getHyperbolicLimit());
-        int bound = tiles.getChildren().size();
-        
-        for (int i = 1; i <= bound; i++) {
-            final Group group = (Group) tiles.getChildren().get(bound - i);
-            Transform nodeTransform = group.getTransforms().get(0);
-            Point3D pt = nodeTransform.transform(referencePoint);
-            if (pt.getZ() > maxDist) {
-                tiles.getChildren().remove(bound - i);
-                recycler.add(group);
-            }
+
+        final ArrayList<Node> toRemove = new ArrayList<>();
+        for (Node node : tiles.getChildren()) {
+            final Point3D pt = node.getTransforms().get(0).transform(referencePoint);
+            if (pt.getZ() > maxDist)
+                toRemove.add(node);
         }
+        tiles.getChildren().removeAll(toRemove);
+        recycler.addAll(toRemove);
         setNumberOfCopies(tiles.getChildren().size());
     }
 
@@ -282,15 +282,14 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
         coveredPoints.clear();
 
         for (int i = 0; i < tiles.getChildren().size(); i++) {
-            final Group group = (Group) tiles.getChildren().get(i);
-            Transform nodeTransform = group.getTransforms().get(0);
-            Point3D pt = nodeTransform.transform(referencePoint);
+            final Node node = tiles.getChildren().get(i);
+            final Point3D pt = node.getTransforms().get(0).transform(referencePoint);
             insertCoveredPoint(pt); // Add existing tiles to tree structure
         }
 
         setNumberOfCopies(0);
         // Add new tiles
-        Group newTiles = produceTiles(false);
+        final Group newTiles = produceTiles(false);
         tiles.getChildren().addAll(newTiles.getChildren());
         setNumberOfCopies(tiles.getChildren().size());
     }
@@ -380,8 +379,8 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
      * @param fund
      * @return copy
      */
-    private Group provideCopy(Transform transform, Group fund) {
-        final Group copy = (recycler.size() > 0 ? recycler.pop() : CopyTiles.apply(fund));
+    private Node provideCopy(Transform transform, Group fund) {
+        final Node copy = (recycler.size() > 0 ? recycler.pop() : CopyTiles.apply(fund));
         copy.getTransforms().setAll(transformRecycled.createConcatenation(transform));
         return copy;
     }

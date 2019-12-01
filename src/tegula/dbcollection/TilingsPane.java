@@ -38,7 +38,7 @@ import tegula.main.TilingStyle;
 import tegula.tilingeditor.TilingEditorTab;
 import tegula.tilingpane.TilingPane;
 
-import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * pane containing all given tilings
@@ -47,23 +47,26 @@ import java.util.ArrayList;
 public class TilingsPane extends FlowPane {
 
     /**
-     * construct pane and populate with tilings
+     * construct pane
+     */
+    public TilingsPane() {
+        setHgap(20);
+        setVgap(20);
+        setPadding(new Insets(20, 20, 20, 20));
+        setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+    }
+
+    /**
+     * populate with tilings
      *
      * @param dSymbols
      * @param dbCollectionTab
      */
-    public TilingsPane(ArrayList<DSymbol> dSymbols, DBCollectionTab dbCollectionTab) {
+    public void addTilings(Collection<DSymbol> dSymbols, DBCollectionTab dbCollectionTab) {
         for (DSymbol dSymbol : dSymbols) {
             getChildren().add(setupTiling(dSymbol, dbCollectionTab));
         }
-
-        setHgap(20);
-        setVgap(20);
-        setPadding(new Insets(20, 20, 20, 20));
-
         setUserData(dSymbols.size());
-
-        setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
     }
 
     /**

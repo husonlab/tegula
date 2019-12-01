@@ -43,11 +43,10 @@ public class DBCollection implements Closeable, IFileBased {
 
     private final StringProperty dbSelect = new SimpleStringProperty("");
     private final IntegerProperty count = new SimpleIntegerProperty(0);
-    private final IntegerProperty pageSize = new SimpleIntegerProperty(20);
+    private final IntegerProperty pageSize = new SimpleIntegerProperty(1);
     private final IntegerProperty totalCount = new SimpleIntegerProperty(0);
 
     private AService<ArrayList<DSymbol>> service = null;
-
 
     /**
      * constructor
@@ -66,7 +65,6 @@ public class DBCollection implements Closeable, IFileBased {
                 count.set(databaseAccess.countDSymbols(getDbSelect()));
             } catch (IOException | SQLException e) {
                 Basic.caught(e);
-                count.set(0);
             }
         });
     }

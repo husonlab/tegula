@@ -39,7 +39,7 @@
                                          minHeight="-Infinity" prefHeight="28.0"/>
                             </children>
                         </VBox>
-                        <Slider fx:id="sizeSlider" max="1024.0" min="128.0" snapToTicks="true" value="128.0"
+                        <Slider fx:id="sizeSlider" max="1024.0" min="128.0" snapToTicks="true" value="200.0"
                                 AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="6.0">
                             <tooltip>
                                 <Tooltip text="Set preview size"/>

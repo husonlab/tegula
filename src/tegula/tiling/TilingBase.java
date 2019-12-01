@@ -23,6 +23,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.transform.Transform;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
@@ -39,7 +40,7 @@ import java.util.Stack;
  */
 abstract public class TilingBase {
     public static final Group FAILED = new Group();
-    protected final Stack<Group> recycler = new Stack<>();
+    protected final Stack<Node> recycler = new Stack<>();
     protected final Group fundPrototype = new Group();
     final DSymbol ds;
     String groupName;
@@ -161,7 +162,7 @@ abstract public class TilingBase {
         return fDomain.getGeometry();
     }
 
-    public Stack<Group> recycler() {
+    public Stack<Node> recycler() {
         return recycler;
     }
 

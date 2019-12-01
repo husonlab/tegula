@@ -19,9 +19,9 @@
 
 package tegula.dbcollection;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Cursor;
 import jloda.util.Basic;
 import tegula.core.dsymbols.SymmetryClass;
 
@@ -46,8 +46,18 @@ public class DBCollectionPresenter {
 
         controller.getSelectTitledPane().setExpanded(false);
 
+        dbCollectionTab.getDbCollection().countProperty().addListener((c, o, n) -> {
+            if (n != null && n.intValue() == -1)
+                dbCollectionTab.getRoot().setCursor(Cursor.WAIT);
+            else
+                dbCollectionTab.getRoot().setCursor(Cursor.DEFAULT);
+        });
+
         dbCollectionTab.tabPaneProperty().addListener((c, o, n) -> {
             if (n != null) {
+                controller.getPagination().setPrefWidth(dbCollectionTab.getTabPane().getWidth());
+                controller.getPagination().setPrefHeight(dbCollectionTab.getTabPane().getHeight());
+
                 controller.getPagination().prefWidthProperty().bind(n.widthProperty());
                 controller.getPagination().prefHeightProperty().bind(n.heightProperty());
             }
@@ -114,27 +124,12 @@ public class DBCollectionPresenter {
             }
         });
 
-        controller.getSizeSlider().setOnMouseReleased((e) -> updatePageSize());
-        dbCollectionTab.getMainWindow().getStage().widthProperty().addListener((c, o, n) -> updatePageSize());
-        dbCollectionTab.getMainWindow().getStage().heightProperty().addListener((c, o, n) -> updatePageSize());
-
-        Platform.runLater(this::updatePageSize);
+        controller.getSizeSlider().setOnMouseReleased((e) -> dbCollectionTab.updatePageSize());
+        dbCollectionTab.getMainWindow().getStage().widthProperty().addListener((c, o, n) -> dbCollectionTab.updatePageSize());
+        dbCollectionTab.getMainWindow().getStage().heightProperty().addListener((c, o, n) -> dbCollectionTab.updatePageSize());
     }
 
-    public void updatePageSize() {
-        final int pageSize = dbCollectionTab.calculatePageSize(controller.getSizeSlider().getValue());
-        if (pageSize > 0 && pageSize != dbCollection.getPageSize()) {
-            final int currentSymbol = controller.getPagination().getCurrentPageIndex() * dbCollection.getPageSize();
-
-            System.err.println("Changing page size: " + dbCollection.getPageSize() + " -> " + pageSize);
-            System.err.println("Current page: " + controller.getPagination().getCurrentPageIndex() + " -> " + (currentSymbol / pageSize));
-
-            dbCollection.setPageSize(pageSize);
-            dbCollectionTab.processDBSelect(dbCollection.getDbSelect(), currentSymbol / pageSize); // reload
-        }
-    }
-
-    private String setupSearch() {
+    public String setupSearch() {
         final StringBuilder buf = new StringBuilder();
 
         if (addIntSelect("complexity", controller.getComplexityCBox().getValue()) != null) {
@@ -158,7 +153,6 @@ public class DBCollectionPresenter {
                 buf.append(" and ");
             buf.append(addIntSelect("vertices", controller.getNumberOfVerticesCBox().getValue()));
         }
-
 
         if (!controller.getPlaneCheckButton().isIndeterminate()) {
             if (buf.length() > 0)
@@ -185,6 +179,8 @@ public class DBCollectionPresenter {
             final String operator = getOperator(groupString, true);
             if (operator.equalsIgnoreCase("c"))
                 buf.append(String.format(" instr(orbifold, '%s') > 0", getArgument(groupString, true)));
+            else if (operator.equalsIgnoreCase("!c"))
+                buf.append(String.format(" instr(orbifold, '%s') = 0", getArgument(groupString, true)));
             else
                 buf.append(String.format(" orbifold %s '%s'", operator, getArgument(groupString, true)));
         }

@@ -31,7 +31,7 @@ public class TilingFileFilter {
 
     public static FileChooser.ExtensionFilter getInstance() {
         if (instance == null)
-            instance = new FileChooser.ExtensionFilter("tilings", "*.tegula", "*.tegula.gz", "*.tdesign", "*.tgs", "*.tgs.gz", "*.2dt");
+            instance = new FileChooser.ExtensionFilter("tilings", "*.tdb", "*.tegula", "*.tegula.gz", "*.tdesign", "*.tgs", "*.tgs.gz", "*.2dt");
         return instance;
     }
 

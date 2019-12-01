@@ -488,8 +488,8 @@ public class TilingPane extends StackPane implements Updateable {
 
         visitAllNodes(tiles, update);
 
-        for (Group group : getTiling().recycler()) {
-            visitAllNodes(group, update);
+        for (Node node : getTiling().recycler()) {
+            visitAllNodes(node, update);
         }
 
         if (getTiling().getFundPrototype() != null) {
@@ -508,8 +508,8 @@ public class TilingPane extends StackPane implements Updateable {
 
         visitAllNodes(tiles, update);
 
-        for (Group group : getTiling().recycler()) {
-            visitAllNodes(group, update);
+        for (Node node : getTiling().recycler()) {
+            visitAllNodes(node, update);
         }
 
         if (getTiling().getFundPrototype() != null) {

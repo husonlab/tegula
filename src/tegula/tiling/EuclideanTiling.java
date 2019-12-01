@@ -23,6 +23,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import tegula.core.dsymbols.DSymbol;
@@ -371,8 +372,8 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
      * @param fund
      * @return copy
      */
-    private Group provideCopy(Transform transform, Group fund) {
-        final Group copy = (recycler.size() > 0 ? recycler().pop() : CopyTiles.apply(fund));
+    private Node provideCopy(Transform transform, Group fund) {
+        final Node copy = (recycler.size() > 0 ? recycler().pop() : CopyTiles.apply(fund));
         copy.getTransforms().setAll(transformRecycled.createConcatenation(transform));
         return copy;
     }
