@@ -24,6 +24,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -31,7 +32,10 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import jloda.fx.control.AMultipleSelectionModel;
 import jloda.fx.util.ProgramExecutorService;
+import jloda.fx.util.SelectionEffect;
+import jloda.util.Basic;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.DSymbolAlgorithms;
 import tegula.main.TilingStyle;
@@ -62,9 +66,9 @@ public class TilingsPane extends FlowPane {
      * @param dSymbols
      * @param dbCollectionTab
      */
-    public void addTilings(Collection<DSymbol> dSymbols, DBCollectionTab dbCollectionTab) {
+    public void addTilings(Collection<DSymbol> dSymbols, ICollectionTab dbCollectionTab, Slider sizeSlider) {
         for (DSymbol dSymbol : dSymbols) {
-            getChildren().add(setupTiling(dSymbol, dbCollectionTab));
+            getChildren().add(setupTiling(dSymbol, dbCollectionTab, sizeSlider));
         }
         setUserData(dSymbols.size());
     }
@@ -74,16 +78,14 @@ public class TilingsPane extends FlowPane {
      *
      * @return node producer
      */
-    private Node setupTiling(DSymbol dSymbol, DBCollectionTab dbCollectionTab) {
-        final Label label = new Label(dbCollectionTab.getLabelGetter().apply(dSymbol));
+    private Node setupTiling(DSymbol dSymbol, ICollectionTab collectionTab, Slider sizeSlider) {
+        final Label label = new Label(collectionTab.getLabelGetter().apply(dSymbol));
         label.setFont(DBCollectionTab.getFont());
 
         final Label shortLabel = new Label("");
         shortLabel.setFont(DBCollectionTab.getFont());
 
-        final DBCollectionTabController controller = dbCollectionTab.getController();
-
-        dbCollectionTab.showLabelsProperty().addListener((c, o, n) -> {
+        collectionTab.showLabelsProperty().addListener((c, o, n) -> {
             if (n) {
                 label.setTextFill(Color.BLACK);
                 shortLabel.setTextFill(Color.BLACK);
@@ -93,24 +95,25 @@ public class TilingsPane extends FlowPane {
             }
         });
 
-        final double size = controller.getSizeSlider().getValue();
+        final double size = sizeSlider.getValue();
 
         final Rectangle rectangle = new Rectangle();
         rectangle.setStroke(Color.LIGHTGRAY);
         rectangle.setFill(Color.TRANSPARENT);
         rectangle.setWidth(size);
         rectangle.setHeight(size);
-        rectangle.widthProperty().bind(controller.getSizeSlider().valueProperty());
-        rectangle.heightProperty().bind(controller.getSizeSlider().valueProperty());
+        rectangle.widthProperty().bind(sizeSlider.valueProperty());
+        rectangle.heightProperty().bind(sizeSlider.valueProperty());
         final VBox vBox = new VBox(rectangle, size < 150 ? shortLabel : label);
+        vBox.setUserData(dSymbol);
 
         ProgramExecutorService.getInstance().submit(() -> {
-            final TilingStyle tilingStyle = new TilingStyle(dbCollectionTab.getTilingStyle());
+            final TilingStyle tilingStyle = new TilingStyle(collectionTab.getTilingStyle());
 
             final TilingPane tilingPane = new TilingPane(dSymbol, tilingStyle, true, false);
             tilingPane.getTilingStyle().setBendAnEdge(!DSymbolAlgorithms.isMaximalSymmetry(dSymbol));
-            tilingPane.setPrefWidth(0.5 * controller.getSizeSlider().getMax());
-            tilingPane.setPrefHeight(0.5 * controller.getSizeSlider().getMax());
+            tilingPane.setPrefWidth(0.5 * sizeSlider.getMax());
+            tilingPane.setPrefHeight(0.5 * sizeSlider.getMax());
             new Scene(tilingPane);
 
             Platform.runLater(() -> {
@@ -119,8 +122,8 @@ public class TilingsPane extends FlowPane {
 
                 final ImageView imageView = new ImageView(tilingPane.snapshot(null, null));
                 imageView.setPreserveRatio(true);
-                imageView.setFitWidth(controller.getSizeSlider().getValue());
-                imageView.fitWidthProperty().bind(controller.getSizeSlider().valueProperty());
+                imageView.setFitWidth(sizeSlider.getValue());
+                imageView.fitWidthProperty().bind(sizeSlider.valueProperty());
                 imageView.fitWidthProperty().addListener((c, o, n) -> {
                     if (n.doubleValue() < 150)
                         vBox.getChildren().set(1, shortLabel);
@@ -131,12 +134,32 @@ public class TilingsPane extends FlowPane {
             });
         });
 
+        final AMultipleSelectionModel<DSymbol> selectionModel = collectionTab.getSelectionModel();
         vBox.setOnMouseClicked((e) -> {
-            if (e.getClickCount() == 2) {
-                final TilingEditorTab editorTab = new TilingEditorTab(new DSymbol(dSymbol), "extracted -" + dSymbol.getNr1());
-                dbCollectionTab.getMainWindow().getMainTabPane().getTabs().add(editorTab);
+            if (e.getClickCount() == 1) {
+                if (!e.isShiftDown())
+                    selectionModel.clearSelection();
+                selectionModel.select((DSymbol) vBox.getUserData());
+            } else if (e.getClickCount() == 2) {
+                final TilingEditorTab editorTab = new TilingEditorTab(new DSymbol(dSymbol), Basic.replaceFileSuffix(Basic.getFileNameWithoutPath(collectionTab.getFileName()), ":" + dSymbol.getNr1()));
+                collectionTab.getMainWindow().getMainTabPane().getTabs().add(editorTab);
             }
         });
         return vBox;
+    }
+
+    public void select(Collection<? extends DSymbol> which, boolean select) {
+        for (Node node : getChildren()) {
+            if (node.getUserData() instanceof DSymbol) {
+                final DSymbol dSymbol = (DSymbol) node.getUserData();
+                if (which.contains(dSymbol)) {
+                    if (select)
+                        node.setEffect(SelectionEffect.getInstance());
+                    else
+                        node.setEffect(null);
+                }
+
+            }
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * DBCollectionTab.java Copyright (C) 2019. Daniel H. Huson
+ * FileCollectionTab.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -17,7 +17,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.dbcollection;
+package tegula.filecollection;
 
 import javafx.application.Platform;
 import javafx.beans.property.*;
@@ -38,29 +38,31 @@ import jloda.util.Basic;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.DSymbolAlgorithms;
 import tegula.core.dsymbols.OrbifoldGroupName;
+import tegula.dbcollection.ICollectionTab;
+import tegula.dbcollection.TilingsPane;
 import tegula.main.MainWindow;
 import tegula.main.TilingStyle;
 import tegula.util.IFileBased;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 /**
  * db collection tab
- * Daniel Huson, 10.2019
+ * Daniel Huson, 12.2019
  */
-public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, Printable, IFileBased {
-    private final DBCollectionTabController controller;
+public class FileCollectionTab extends Tab implements ICollectionTab, Closeable, Printable, IFileBased {
+    private final FileCollectionTabController controller;
     private final Parent root;
 
     private final Map<Integer, Pane> pageCache = new HashMap<>();
 
-    private final DBCollection dbCollection;
+    private final FileCollection fileCollection;
 
     private final TilingStyle tilingStyle;
 
@@ -80,16 +82,16 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
      * setup collection tab
      *
      * @param mainWindow
-     * @param dbCollection
+     * @param fileCollection
      */
-    public DBCollectionTab(MainWindow mainWindow, DBCollection dbCollection) {
+    public FileCollectionTab(MainWindow mainWindow, FileCollection fileCollection) {
         this.mainWindow = mainWindow;
-        this.dbCollection = dbCollection;
+        this.fileCollection = fileCollection;
 
-        setText(Basic.getFileNameWithoutPath(dbCollection.getFileName()));
-        dbCollection.fileNameProperty().addListener((c, o, n) -> setText(Basic.getFileNameWithoutPath(n)));
+        setText(Basic.getFileNameWithoutPath(fileCollection.getFileName()));
+        fileCollection.fileNameProperty().addListener((c, o, n) -> setText(Basic.getFileNameWithoutPath(n)));
 
-        final ExtendedFXMLLoader<DBCollectionTabController> extendedFXMLLoader = new ExtendedFXMLLoader<>(this.getClass());
+        final ExtendedFXMLLoader<FileCollectionTabController> extendedFXMLLoader = new ExtendedFXMLLoader<>(this.getClass());
         root = extendedFXMLLoader.getRoot();
         controller = extendedFXMLLoader.getController();
 
@@ -107,13 +109,44 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
                 ds.countOrbits(0, 1), ds.countOrbits(0, 2), ds.countOrbits(1, 2), OrbifoldGroupName.getGroupName(ds),
                 (DSymbolAlgorithms.isMaximalSymmetry(ds) ? " max" : ""));
 
-        DBCollectionPresenter dbCollectionPresenter = new DBCollectionPresenter(this);
+        FileCollectionPresenter.setup(this);
 
-        controller.getPagination().pageCountProperty().bind(dbCollection.countProperty().divide(dbCollection.pageSizeProperty()));
+        controller.getPagination().pageCountProperty().bind(fileCollection.totalCountProperty().subtract(1).divide(fileCollection.pageSizeProperty()).add(1));
 
-        Platform.runLater(() -> {
-            dbCollection.setDbSelect("complexity >0");
-            updatePageSize();
+        ProgramExecutorService.getInstance().submit(() -> {
+            try {
+                final ArrayList<String> lines = Basic.getLinesFromFile(fileCollection.getFileName());
+
+                Platform.runLater(() -> {
+                    fileCollection.setLines(lines);
+                    pageCache.clear();
+
+                    final Pagination pagination = controller.getPagination();
+                    updatePageSize();
+
+                    pagination.setPageFactory((page) -> {
+                        Pane pane = pageCache.get(page);
+                        if (pane == null || pane.getUserData() instanceof Integer && (Integer) pane.getUserData() != fileCollection.getNumberOfDSymbolsOnPage(page)) {
+                            final TilingsPane paneNew = new TilingsPane();
+                            pane = paneNew;
+                            ProgramExecutorService.getInstance().submit(() -> {
+                                final Collection<DSymbol> dSymbols = fileCollection.getPageOfDSymbols(page);
+                                Platform.runLater(() -> selectionModel.setItems(dSymbols));
+                                Platform.runLater(() -> paneNew.addTilings(dSymbols, FileCollectionTab.this, controller.getSizeSlider()));
+                            });
+                            pageCache.put(page, pane);
+                        }
+                        printable.set(pane);
+                        updatePageSize();
+
+                        return pane;
+                    });
+                    pagination.setCurrentPageIndex(0);
+                });
+            } catch (IOException e) {
+                Basic.caught(e);
+                NotificationManager.showError("Open file '" + fileCollection.getFileName() + "' failed: " + e.getMessage());
+            }
         });
 
         selectionModel.getSelectedItems().addListener((ListChangeListener<DSymbol>) (e) -> {
@@ -131,49 +164,15 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
         });
     }
 
-    /**
-     * process a DB select statement
-     *
-     * @param select
-     */
-    public void processDBSelect(String select, int currentPageIndex) {
-        pageCache.clear();
-        dbCollection.setDbSelect(select);
-
-        updatePageSize();
-
-        final Pagination pagination = controller.getPagination();
-        pagination.setPageFactory((page) -> {
-            Pane pane = pageCache.get(page);
-            if (pane == null || pane.getUserData() instanceof Integer && (Integer) pane.getUserData() != dbCollection.getNumberOfDSymbolsOnPage(page)) {
-                final TilingsPane paneNew = new TilingsPane();
-                pane = paneNew;
-                ProgramExecutorService.getInstance().submit(() -> {
-                    final ArrayList<DSymbol> dSymbols;
-                    try {
-                        dSymbols = dbCollection.getPageOfDSymbols(page);
-                        Platform.runLater(() -> selectionModel.setItems(dSymbols));
-                        Platform.runLater(() -> paneNew.addTilings(dSymbols, DBCollectionTab.this, controller.getSizeSlider()));
-                    } catch (IOException | SQLException e) {
-                        NotificationManager.showError("Failed: " + e.getMessage());
-                    }
-                });
-                pageCache.put(page, pane);
-            }
-            printable.set(pane);
-            return pane;
-        });
-        pagination.setCurrentPageIndex(currentPageIndex);
-    }
-
     public void close() {
         try {
-            dbCollection.close();
+            fileCollection.close();
         } catch (IOException e) {
             Basic.caught(e);
         }
     }
 
+    @Override
     public Node getPrintable() {
         return printable.get();
     }
@@ -184,25 +183,25 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
 
     @Override
     public String getFileName() {
-        return dbCollection.getFileName();
+        return fileCollection.getFileName();
     }
 
     @Override
     public StringProperty fileNameProperty() {
-        return dbCollection.fileNameProperty();
+        return fileCollection.fileNameProperty();
     }
 
     @Override
     public void setFileName(String fileName) {
-        dbCollection.setFileName(fileName);
+        fileCollection.setFileName(fileName);
     }
 
     @Override
     public String getTitle() {
-        return dbCollection.getTitle();
+        return fileCollection.getTitle();
     }
 
-    public DBCollectionTabController getController() {
+    public FileCollectionTabController getController() {
         return controller;
     }
 
@@ -210,14 +209,17 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
         return tilingStyle;
     }
 
+    @Override
     public boolean isShowLabels() {
         return showLabels.get();
     }
 
+    @Override
     public BooleanProperty showLabelsProperty() {
         return showLabels;
     }
 
+    @Override
     public Function<DSymbol, String> getLabelGetter() {
         return labelGetter;
     }
@@ -226,8 +228,8 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
         return mainWindow;
     }
 
-    public DBCollection getDbCollection() {
-        return dbCollection;
+    public FileCollection getFileCollection() {
+        return fileCollection;
     }
 
     @Override
@@ -238,8 +240,8 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
     @Override
     public void setShowLabels(boolean show) {
         showLabels.set(show);
-
     }
+
 
     public Parent getRoot() {
         return root;
@@ -255,11 +257,10 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
 
         final int pageSize = rows * cols;
 
-        if (pageSize > 0 && pageSize != dbCollection.getPageSize()) {
-            dbCollection.setPageSize(pageSize);
+        if (pageSize > 0 && pageSize != fileCollection.getPageSize()) {
+            fileCollection.setPageSize(pageSize);
         }
     }
-
 
     @Override
     public void gotoPage(int page) {
@@ -270,7 +271,7 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
 
     @Override
     public int getNumberOfPages() {
-        return getDbCollection().getNumberOfPages();
+        return getFileCollection().getNumberOfPages();
     }
 }
 

@@ -19,12 +19,8 @@
 
 package tegula.main;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableMap;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import jloda.fx.control.SplittableTabPane;
@@ -34,10 +30,8 @@ import jloda.fx.window.IMainWindow;
 import jloda.fx.window.SetupWindowMenu;
 import jloda.util.FileOpenManager;
 import jloda.util.ProgramProperties;
-import tegula.tilingcollection.TilingCollectionTab;
 import tegula.util.TilingFileFilter;
 
-import java.io.File;
 import java.util.Collections;
 
 /**
@@ -52,20 +46,12 @@ public class MainWindow implements IMainWindow {
 
     private final SplittableTabPane mainTabPane;
 
-    private final Document document;
-
-    private final TreeView<FileBrowser.FileNode> fileTreeView;
-
-    private final ObservableMap<File, TilingCollectionTab> file2CollectionTab = FXCollections.observableHashMap();
 
     public MainWindow() {
-        document = new Document();
-
         final ExtendedFXMLLoader<MainWindowController> extendedFXMLLoader = new ExtendedFXMLLoader<>(this.getClass());
         root = extendedFXMLLoader.getRoot();
         controller = extendedFXMLLoader.getController();
         statusPane = controller.getStatusBar();
-        fileTreeView = controller.getTreeView();
 
         mainTabPane = new SplittableTabPane();
         mainTabPane.prefWidthProperty().bind(controller.getAnchorPane().widthProperty());
@@ -76,32 +62,6 @@ public class MainWindow implements IMainWindow {
 
         FileOpenManager.setExtensions(Collections.singletonList(TilingFileFilter.getInstance()));
         FileOpenManager.setFileOpener(new FileOpener());
-
-        FileBrowser.setup(new File("../tegula/tilings"), TilingFileFilter.getInstance(), fileTreeView);
-        fileTreeView.setOnMouseClicked((e) -> {
-            if (e.getClickCount() == 2) {
-                final TreeItem<FileBrowser.FileNode> item = fileTreeView.getSelectionModel().getSelectedItem();
-                final File file = item.getValue().getFile();
-                if (file.isFile()) {
-                    FileOpenManager.getFileOpener().accept(file.getPath());
-                }
-            }
-        });
-        fileTreeView.getRoot().setExpanded(true);
-
-        mainTabPane.getSelectionModel().selectedItemProperty().addListener((c, o, n) -> {
-            if (o instanceof TilingCollectionTab)
-                ((TilingCollectionTab) o).precomputeSnapshotsProperty().set(false);
-            if (n instanceof TilingCollectionTab)
-                ((TilingCollectionTab) n).precomputeSnapshotsProperty().set(true);
-        });
-
-        controller.getBorderPane().widthProperty().addListener((c, o, n) -> {
-            if (o.doubleValue() > 0 && n.doubleValue() > 0) {
-                controller.getMainSplitPane().setDividerPositions
-                        (controller.getMainSplitPane().getDividerPositions()[0] * o.doubleValue() / n.doubleValue());
-            }
-        });
     }
 
     /**
@@ -144,10 +104,6 @@ public class MainWindow implements IMainWindow {
         return controller;
     }
 
-    public ObservableMap<File, TilingCollectionTab> getFile2CollectionTab() {
-        return file2CollectionTab;
-    }
-
     public Pane getStatusPane() {
         return statusPane;
     }
@@ -159,14 +115,6 @@ public class MainWindow implements IMainWindow {
     @Override
     public boolean isEmpty() {
         return false;
-    }
-
-    public TreeView<FileBrowser.FileNode> getFileTreeView() {
-        return fileTreeView;
-    }
-
-    public Document getDocument() {
-        return document;
     }
 
     @Override

@@ -163,11 +163,11 @@ public class DBCollectionTabController {
         return numberOfVerticesCBox;
     }
 
-    public CheckBox getPlaneCheckButton() {
+    public CheckBox getEuclideanCheckButton() {
         return euclideanCheckBox;
     }
 
-    public CheckBox getSphereCheckButton() {
+    public CheckBox getSphericalCheckButton() {
         return sphericalCheckBox;
     }
 

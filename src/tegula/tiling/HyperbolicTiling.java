@@ -207,12 +207,12 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
         columns[2] = new Point3D(transformRecycled.getMxz(), transformRecycled.getMyz(), transformRecycled.getMzz());
 
         // Three iterations of Gram-Schmidt (for orthogonal columns)
-        for (int i=0; i<=2; i++){
-            for (int j=1; j<=i; j++){
-                lambda[j-1] =  -Tools.minkowskiScalar(columns[i],columns[j-1])/Tools.minkowskiScalar(columns[j-1], columns[j-1]);
-                columns[i] = columns[i].add(columns[j-1].multiply(lambda[j-1]));
+        for (int i = 0; i <= 2; i++) {
+            for (int j = 1; j <= i; j++) {
+                lambda[j - 1] = -Tools.minkowskiScalar(columns[i], columns[j - 1]) / Tools.minkowskiScalar(columns[j - 1], columns[j - 1]);
+                columns[i] = columns[i].add(columns[j - 1].multiply(lambda[j - 1]));
             }
-            columns[i] = columns[i].multiply(1/Math.sqrt(Math.abs(Tools.minkowskiScalar(columns[i],columns[i])))); // Normalize length of columns
+            columns[i] = columns[i].multiply(1 / Math.sqrt(Math.abs(Tools.minkowskiScalar(columns[i], columns[i])))); // Normalize length of columns
         }
 
         transformRecycled = new Affine(
@@ -343,14 +343,14 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
                     final Transform tg = t.createConcatenation(g);
                     point = transformRecycled.createConcatenation(tg).transform(referencePoint);
 
-                if (seen.insert(getGeometry(), point, tolerance)) { // Creates a tree of points lying in the copies of fDomain
-                    if (point.getZ() < d) { // Optimizes the choice of the transformation copying fDomain back to the valid range
-                        d = point.getZ();
-                        backShift = tg;
-                        apt = point;
-                    }
+                    if (seen.insert(getGeometry(), point, tolerance)) { // Creates a tree of points lying in the copies of fDomain
+                        if (point.getZ() < d) { // Optimizes the choice of the transformation copying fDomain back to the valid range
+                            d = point.getZ();
+                            backShift = tg;
+                            apt = point;
+                        }
 
-                }
+                    }
                     queue.add(tg);
                 }
 

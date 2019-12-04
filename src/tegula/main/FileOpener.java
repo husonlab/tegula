@@ -23,11 +23,14 @@ import jloda.fx.util.RecentFilesManager;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.NotificationManager;
 import jloda.util.Basic;
-import tegula.tilingcollection.TilingCollection;
-import tegula.tilingcollection.TilingCollectionTab;
+import tegula.dbcollection.DBCollection;
+import tegula.dbcollection.DBCollectionTab;
+import tegula.filecollection.FileCollection;
+import tegula.filecollection.FileCollectionTab;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.function.Consumer;
 
 /**
@@ -52,30 +55,23 @@ public class FileOpener implements Consumer<String> {
         if (window == null)
             return;
         try {
-            if (file.isFile() || file.getPath().startsWith("select:")) {
-                TilingCollection tilingCollection = window.getDocument().getFile2tilingCollection().get(file);
-                if (tilingCollection == null) {
-                    tilingCollection = new TilingCollection(file.getPath());
-                    window.getDocument().getFile2tilingCollection().put(file, tilingCollection);
-                    tilingCollection.load(window.getStatusPane(), null);
+            if (file.getPath().endsWith(".tdb")) {
+                try {
+                    final DBCollection dbCollection = new DBCollection(file.getPath());
+                    final DBCollectionTab dbCollectionTab = new DBCollectionTab(window, dbCollection);
+                    window.getMainTabPane().getTabs().add(dbCollectionTab);
+                    RecentFilesManager.getInstance().insertRecentFile(file.getPath());
+                } catch (IOException | SQLException ex) {
+                    NotificationManager.showError(("Open failed: " + ex.getMessage()));
                 }
-                if (window.getFile2CollectionTab().get(file) == null) {
-                    final TilingCollectionTab tab = new TilingCollectionTab(window, tilingCollection);
-                    tab.setOnClosed((f) -> {
-                        window.getDocument().getFile2tilingCollection().remove(file);
-                        window.getFile2CollectionTab().remove(file);
-                        tab.close();
-                    });
-                    window.getFile2CollectionTab().put(file, tab);
-                    window.getMainTabPane().getTabs().add(tab);
-                }
-                window.getStage().toFront();
-                window.getMainTabPane().getSelectionModel().select(window.getFile2CollectionTab().get(file));
+            } else if (file.isFile() || file.getPath().startsWith("select:")) {
+                final FileCollection FileCollection = new FileCollection(file.getPath());
+                final FileCollectionTab tab = new FileCollectionTab(window, FileCollection);
+                window.getMainTabPane().getTabs().add(tab);
                 RecentFilesManager.getInstance().insertRecentFile(file.getPath());
-
             }
         } catch (Exception ex) {
-            NotificationManager.showError("Open file failed: " + ex.getMessage());
+            NotificationManager.showError("Open '" + file + "' failed: " + ex.getMessage());
         }
     }
 }

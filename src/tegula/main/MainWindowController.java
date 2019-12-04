@@ -58,6 +58,9 @@ public class MainWindowController {
     private MenuItem openMenuItem;
 
     @FXML
+    private MenuItem saveSelectedMenuItem;
+
+    @FXML
     private Menu openRecentMenu;
 
     @FXML
@@ -94,15 +97,6 @@ public class MainWindowController {
     private MenuItem selectNoneMenuItem;
 
     @FXML
-    private MenuItem findMenuItem;
-
-    @FXML
-    private MenuItem findAgainMenuItem;
-
-    @FXML
-    private MenuItem lineWidthMenuItem;
-
-    @FXML
     private MenuItem openInEditorMenuItem;
 
     @FXML
@@ -128,6 +122,16 @@ public class MainWindowController {
 
     @FXML
     private Menu tilingsMenu;
+
+    @FXML
+    private MenuItem firstPageMenuItem;
+
+    @FXML
+    private MenuItem lastPageMenuItem;
+
+    @FXML
+    private MenuItem choosePageMenuItem;
+
 
     @FXML
     private MenuItem dualizeMenuItem;
@@ -157,9 +161,6 @@ public class MainWindowController {
     private SplitPane mainSplitPane;
 
     @FXML
-    private TreeView<?> treeView;
-
-    @FXML
     private StackPane centerPane;
 
     @FXML
@@ -169,7 +170,16 @@ public class MainWindowController {
     private Label memoryUsageLabel;
 
     @FXML
-    private Button addButton;
+    private Button openButton;
+
+    @FXML
+    private Button printButton;
+
+    @FXML
+    private Button undoButton;
+
+    @FXML
+    private Button redoButton;
 
     @FXML
     void initialize() {
@@ -179,6 +189,7 @@ public class MainWindowController {
         assert fileMenu != null : "fx:id=\"fileMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert newMenuItem != null : "fx:id=\"newMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert openMenuItem != null : "fx:id=\"openMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert saveSelectedMenuItem != null : "fx:id=\"saveSelectedMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert openRecentMenu != null : "fx:id=\"openRecentMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert pageSetupMenuItem != null : "fx:id=\"pageSetupMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert printMenuItem != null : "fx:id=\"printMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
@@ -191,9 +202,6 @@ public class MainWindowController {
         assert pasteMenuItem != null : "fx:id=\"pasteMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert selectAllMenuItem != null : "fx:id=\"selectAllMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert selectNoneMenuItem != null : "fx:id=\"selectNoneMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert findMenuItem != null : "fx:id=\"findMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert findAgainMenuItem != null : "fx:id=\"findAgainMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert lineWidthMenuItem != null : "fx:id=\"lineWidthMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert openInEditorMenuItem != null : "fx:id=\"openInEditorMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert viewMenu != null : "fx:id=\"viewMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert showLabelsMenuItem != null : "fx:id=\"showLabelsMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
@@ -203,6 +211,9 @@ public class MainWindowController {
         assert resetMenuItem != null : "fx:id=\"resetMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert fullScreenMenuItem != null : "fx:id=\"fullScreenMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert tilingsMenu != null : "fx:id=\"tilingsMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert firstPageMenuItem != null : "fx:id=\"firstPageMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert lastPageMenuItem != null : "fx:id=\"lastPageMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert choosePageMenuItem != null : "fx:id=\"choosePageMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert dualizeMenuItem != null : "fx:id=\"dualizeMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert maxSymmetryMenuItem != null : "fx:id=\"maxSymmetryMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert orientateMenuItem != null : "fx:id=\"orientateMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
@@ -212,11 +223,15 @@ public class MainWindowController {
         assert checkForUpdatesMenuItem != null : "fx:id=\"checkForUpdatesMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert mainToolBar != null : "fx:id=\"mainToolBar\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert mainSplitPane != null : "fx:id=\"mainSplitPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert treeView != null : "fx:id=\"treeView\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert centerPane != null : "fx:id=\"centerPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert statusBar != null : "fx:id=\"statusBar\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert memoryUsageLabel != null : "fx:id=\"memoryUsageLabel\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert addButton != null : "fx:id=\"addButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
+
+        assert openButton != null : "fx:id=\"openButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert printButton != null : "fx:id=\"printButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert undoButton != null : "fx:id=\"undoButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert redoButton != null : "fx:id=\"redoButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
+
 
         // if we are running on MacOS, put the specific menu items in the right places
         if (ProgramProperties.isMacOS()) {
@@ -225,7 +240,7 @@ public class MainWindowController {
             // windowMenu.getItems().remove(getAboutMenuItem());
             //editMenu.getItems().remove(getPreferencesMenuItem());
         }
-        getAboutMenuItem().setOnAction((e) -> SplashScreen.getInstance().showSplash(Duration.ofMinutes(1)));
+        getAboutMenuItem().setOnAction((e) -> SplashScreen.showSplash(Duration.ofMinutes(1)));
     }
 
     public ResourceBundle getResources() {
@@ -258,6 +273,10 @@ public class MainWindowController {
 
     public MenuItem getOpenMenuItem() {
         return openMenuItem;
+    }
+
+    public MenuItem getSaveSelectedMenuItem() {
+        return saveSelectedMenuItem;
     }
 
     public Menu getOpenRecentMenu() {
@@ -308,18 +327,6 @@ public class MainWindowController {
         return selectNoneMenuItem;
     }
 
-    public MenuItem getFindMenuItem() {
-        return findMenuItem;
-    }
-
-    public MenuItem getFindAgainMenuItem() {
-        return findAgainMenuItem;
-    }
-
-    public MenuItem getLineWidthMenuItem() {
-        return lineWidthMenuItem;
-    }
-
     public MenuItem getOpenInEditorMenuItem() {
         return openInEditorMenuItem;
     }
@@ -354,6 +361,18 @@ public class MainWindowController {
 
     public Menu getTilingsMenu() {
         return tilingsMenu;
+    }
+
+    public MenuItem getFirstPageMenuItem() {
+        return firstPageMenuItem;
+    }
+
+    public MenuItem getLastPageMenuItem() {
+        return lastPageMenuItem;
+    }
+
+    public MenuItem getChoosePageMenuItem() {
+        return choosePageMenuItem;
     }
 
     public MenuItem getDualizeMenuItem() {
@@ -392,10 +411,6 @@ public class MainWindowController {
         return mainSplitPane;
     }
 
-    public TreeView<FileBrowser.FileNode> getTreeView() {
-        return (TreeView<FileBrowser.FileNode>) treeView;
-    }
-
     public StackPane getCenterPane() {
         return centerPane;
     }
@@ -408,7 +423,19 @@ public class MainWindowController {
         return memoryUsageLabel;
     }
 
-    public Button getAddButton() {
-        return addButton;
+    public Button getOpenButton() {
+        return openButton;
+    }
+
+    public Button getPrintButton() {
+        return printButton;
+    }
+
+    public Button getUndoButton() {
+        return undoButton;
+    }
+
+    public Button getRedoButton() {
+        return redoButton;
     }
 }

@@ -31,7 +31,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 /**
  * opens a collection of tilings from a database
@@ -78,27 +77,6 @@ public class DBCollection implements Closeable, IFileBased {
     }
 
     /**
-     * load page of DSymbols
-     *
-     * @param pageNumber
-     * @param consumeResult
-     */
-    public void loadPageOfDSymbols(int pageNumber, Consumer<ArrayList<DSymbol>> consumeResult) {
-        synchronized (this) {
-            if (service != null && service.isRunning())
-                service.cancel();
-
-            final AService<ArrayList<DSymbol>> service = new AService<>();
-            this.service = service;
-            service.setOnCancelled((e) -> consumeResult.accept(service.getValue()));
-            service.setOnSucceeded((e) -> consumeResult.accept(service.getValue()));
-            service.setOnFailed((e) -> Basic.caught(service.getException()));
-            service.setCallable(() -> getPageOfDSymbols(pageNumber));
-            service.start();
-        }
-    }
-
-    /**
      * get all D-symbols for the given page number
      *
      * @param pageNumber 1-based
@@ -111,7 +89,7 @@ public class DBCollection implements Closeable, IFileBased {
             return new ArrayList<>();
         final String query;
         if (getDbSelect().length() == 0)
-            query = String.format("select symbol from tilings where cardinality>0 limit %d offset %d;", getPageSize(), pageNumber * getPageSize());
+            query = String.format("select symbol from tilings where complexity>0 limit %d offset %d;", getPageSize(), pageNumber * getPageSize());
         else
             query = String.format("select symbol from tilings where %s limit %d offset %d;", getDbSelect(), getPageSize(), pageNumber * getPageSize());
         final ArrayList<DSymbol> result = new ArrayList<>();
@@ -186,4 +164,6 @@ public class DBCollection implements Closeable, IFileBased {
         else
             return String.format("%s (%s) - %s", Basic.getFileNameWithoutPath(getFileName()), getDbSelect(), ProgramProperties.getProgramVersion());
     }
+
+
 }

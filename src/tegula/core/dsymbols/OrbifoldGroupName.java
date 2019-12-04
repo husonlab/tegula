@@ -53,6 +53,7 @@ public class OrbifoldGroupName {
                 group.size() == 2 && Basic.isInteger(group.get(0)) && Basic.isInteger(group.get(1)) && Basic.parseInt(group.get(0)) != Basic.parseInt(group.get(1))
                 || group.size() == 3 && group.get(0).equals("*") && Basic.isInteger(group.get(1)) && Basic.isInteger(group.get(2)) && Basic.parseInt(group.get(1)) != Basic.parseInt(group.get(2));
     }
+
     /**
      * computes the orbifold group name
      *
@@ -121,7 +122,7 @@ public class OrbifoldGroupName {
 
         if (rotations.size() > 0) {
             rotations.sort(new IntegerCompareDown());
-            addInts(rotations,list);
+            addInts(rotations, list);
         }
 
         if (rotations.size() == 0 && n_boundary_rotations == 0)
@@ -135,7 +136,7 @@ public class OrbifoldGroupName {
 
             for (ArrayList<Integer> value : boundaryToReport) {
                 list.add("*");
-                addInts(value,list);
+                addInts(value, list);
             }
         }
 

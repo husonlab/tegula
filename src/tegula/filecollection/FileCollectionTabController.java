@@ -1,5 +1,5 @@
 /*
- * TilingCollectionTabController.java Copyright (C) 2019. Daniel H. Huson
+ * FileCollectionTabController.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -17,19 +17,20 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.tilingcollection;
+package tegula.filecollection;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+import javafx.scene.control.Pagination;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ToolBar;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class TilingCollectionTabController {
+public class FileCollectionTabController {
 
     @FXML
     private ResourceBundle resources;
@@ -38,54 +39,55 @@ public class TilingCollectionTabController {
     private URL location;
 
     @FXML
-    private VBox topVBox;
-
+    private BorderPane borderPane;
 
     @FXML
-    private BorderPane borderPane;
+    private VBox topVBox;
 
     @FXML
     private ToolBar mainToolBar;
 
     @FXML
-    private AnchorPane mainAnchorPane;
-
-    @FXML
     private Slider sizeSlider;
 
     @FXML
+    private Pagination pagination;
+
+
+    @FXML
+    private Label countLabel;
+
+    @FXML
     void initialize() {
-        assert topVBox != null : "fx:id=\"topVBox\" was not injected: check your FXML file 'TilingCollectionTab.fxml'.";
-        assert borderPane != null : "fx:id=\"borderPane\" was not injected: check your FXML file 'TilingCollectionTab.fxml'.";
-        assert mainToolBar != null : "fx:id=\"mainToolBar\" was not injected: check your FXML file 'TilingCollectionTab.fxml'.";
-        assert mainAnchorPane != null : "fx:id=\"mainAnchorPane\" was not injected: check your FXML file 'TilingCollectionTab.fxml'.";
-    }
-
-    public ResourceBundle getResources() {
-        return resources;
-    }
-
-    public URL getLocation() {
-        return location;
-    }
-
-    public VBox getTopVBox() {
-        return topVBox;
+        assert borderPane != null : "fx:id=\"borderPane\" was not injected: check your FXML file 'FileCollectionTab.fxml'.";
+        assert topVBox != null : "fx:id=\"topVBox\" was not injected: check your FXML file 'FileCollectionTab.fxml'.";
+        assert mainToolBar != null : "fx:id=\"mainToolBar\" was not injected: check your FXML file 'FileCollectionTab.fxml'.";
+        assert sizeSlider != null : "fx:id=\"sizeSlider\" was not injected: check your FXML file 'FileCollectionTab.fxml'.";
+        assert pagination != null : "fx:id=\"pagination\" was not injected: check your FXML file 'FileCollectionTab.fxml'.";
+        assert countLabel != null : "fx:id=\"countLabel\" was not injected: check your FXML file 'FileCollectionTab.fxml'.";
     }
 
     public BorderPane getBorderPane() {
         return borderPane;
     }
 
+    public VBox getTopVBox() {
+        return topVBox;
+    }
+
     public ToolBar getMainToolBar() {
         return mainToolBar;
     }
 
-    public AnchorPane getMainAnchorPane() {
-        return mainAnchorPane;
-    }
-
     public Slider getSizeSlider() {
         return sizeSlider;
+    }
+
+    public Pagination getPagination() {
+        return pagination;
+    }
+
+    public Label getCountLabel() {
+        return countLabel;
     }
 }

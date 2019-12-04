@@ -47,7 +47,7 @@ public class Tegula extends Application {
     public void init() throws Exception {
         ProgramProperties.setUseGUI(true);
 
-        ColorSchemeManager.BuiltInColorTables=new String[]{"Alhambra;6;0X4d66cc;0Xb3e6e6;0Xcc9933;0X669966;0X666666;0X994d00;" +
+        ColorSchemeManager.BuiltInColorTables = new String[]{"Alhambra;6;0X4d66cc;0Xb3e6e6;0Xcc9933;0X669966;0X666666;0X994d00;" +
                 "Caspian8;8;0Xf64d1b;0X8633bc;0X41a744;0X747474;0X2746bc;0Xff9301;0Xc03150;0X2198bc;" +
                 "Fews8;8;0X5da6dc;0Xfba53a;0X60be68;0Xf27db0;0Xb39230;0Xb376b2;0Xdfd040;0Xf15954;" +
                 "Pairs12;12;0X267ab2;0Xa8cfe3;0X399f34;0Xb4df8e;0Xe11f27;0Xfa9b9b;0Xfe7f23;0Xfcbf75;0X6a4199;0Xcab3d6;0Xb05a2f;0Xffff9f;" +
@@ -63,12 +63,14 @@ public class Tegula extends Application {
      * @param args
      */
     public static void main(String[] args) throws CanceledException, UsageException {
-        ResourceManagerFX.addResourceRoot(Tegula.class, "tegula.resources");
+        ResourceManagerFX.addResourceRoot(Tegula.class, "tegula/resources");
         ProgramProperties.setProgramName(Version.NAME);
         ProgramProperties.setProgramVersion(Version.SHORT_DESCRIPTION);
         ProgramProperties.setProgramLicence("This is an early (ALPHA) version of Tegula, made available for testing purposes. Source code will be released on publication.");
+        ProgramProperties.getProgramIconsFX().addAll(ResourceManagerFX.getIcons("Tegula16.png", "Tegula32.png", "Tegula64.png", "Tegula128.png"));
 
-        SplashScreen.setVersionString(Version.SHORT_DESCRIPTION);
+        SplashScreen.setVersionString(ProgramProperties.getProgramVersion());
+        SplashScreen.setImageResourceName("splash-tegula.png");
 
         parseArguments(args);
         launch(args);
@@ -113,6 +115,8 @@ public class Tegula extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        SplashScreen.showSplash(Duration.ofSeconds(5));
+
         try {
             primaryStage.setTitle(ProgramProperties.getProgramName());
 
@@ -134,7 +138,7 @@ public class Tegula extends Application {
             // setup about and preferences menu for apple:
             if (false) {
                 OSXIntegration.init();
-                OSXIntegration.populateAppleMenu(() -> SplashScreen.getInstance().showSplash(Duration.ofMinutes(1)), () -> System.err.println("Preferences"));
+                OSXIntegration.populateAppleMenu(() -> SplashScreen.showSplash(Duration.ofMinutes(1)), () -> System.err.println("Preferences"));
 
                 // open files by do uble-click under Mac OS: // untested
                 OSXIntegration.setOpenFilesHandler(files -> {

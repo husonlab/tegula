@@ -21,11 +21,8 @@ package tegula.main;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.TreeItem;
-import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.Print;
@@ -38,16 +35,15 @@ import jloda.util.FileOpenManager;
 import jloda.util.ProgramProperties;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.Geometry;
-import tegula.db.DatabaseAccess;
-import tegula.dbcollection.DBCollection;
-import tegula.dbcollection.DBCollectionTab;
+import tegula.dbcollection.ICollectionTab;
 import tegula.tiling.HyperbolicTiling;
-import tegula.tilingcollection.TilingCollectionTab;
 import tegula.tilingeditor.TilingEditorTab;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -68,11 +64,10 @@ public class ControlBindings {
         final ReadOnlyObjectProperty<Tab> selectedTab = window.getMainTabPane().getSelectionModel().selectedItemProperty();
         final BooleanProperty isCollectionTabSelected = new SimpleBooleanProperty(false);
         selectedTab.addListener((c, o, n) -> {
-            isCollectionTabSelected.set(n instanceof TilingCollectionTab);
-            if (n instanceof TilingCollectionTab)
-                controller.getShowLabelsMenuItem().setSelected(((TilingCollectionTab) n).isShowLabels());
+            isCollectionTabSelected.set(n instanceof ICollectionTab);
+            if (n instanceof ICollectionTab)
+                controller.getShowLabelsMenuItem().setSelected(((ICollectionTab) n).isShowLabels());
         });
-        final BooleanProperty canSave = new SimpleBooleanProperty(false);
         final IntegerProperty selectionInCollection = new SimpleIntegerProperty(0);
 
         selectedTab.addListener((c, o, n) -> {
@@ -89,9 +84,12 @@ public class ControlBindings {
 
                 controller.getShowChambersMenuItem().setSelected(tab.getTilingStyle().isShowAllChambers());
 
+                // todo: this needs to be dynamic
                 controller.getShowMoreTilesMenuItem().setDisable(tab.getTiling().getGeometry() != Geometry.Hyperbolic);
                 controller.getShowLessTilesMenuItem().setDisable(tab.getTiling().getGeometry() != Geometry.Hyperbolic);
 
+                controller.getSaveSelectedMenuItem().disableProperty().unbind();
+                controller.getSaveSelectedMenuItem().setDisable(false);
             } else {
                 controller.getUndoMenuItem().disableProperty().unbind();
                 controller.getUndoMenuItem().setDisable(true);
@@ -106,16 +104,24 @@ public class ControlBindings {
 
                 controller.getShowMoreTilesMenuItem().setDisable(true);
                 controller.getShowLessTilesMenuItem().setDisable(true);
+
+                controller.getSaveSelectedMenuItem().disableProperty().unbind();
+                controller.getSaveSelectedMenuItem().setDisable(true);
             }
-            if (n instanceof TilingCollectionTab) {
-                final TilingCollectionTab tab = (TilingCollectionTab) n;
+
+            if (n instanceof ICollectionTab) {
+                final ICollectionTab tab = (ICollectionTab) n;
 
                 selectionInCollection.unbind();
                 selectionInCollection.set(tab.getSelectionModel().getSelectedItems().size());
                 selectionInCollection.bind(Bindings.size(tab.getSelectionModel().getSelectedItems()));
+                controller.getSaveSelectedMenuItem().disableProperty().bind(selectionInCollection.isEqualTo(0));
+
             } else {
                 selectionInCollection.unbind();
                 selectionInCollection.set(0);
+                controller.getSaveSelectedMenuItem().disableProperty().unbind();
+                controller.getSaveSelectedMenuItem().setDisable(true);
             }
         });
 
@@ -127,8 +133,44 @@ public class ControlBindings {
 
         controller.getOpenMenuItem().setOnAction(FileOpenManager.createOpenFileEventHandler(window.getStage()));
 
+        controller.getOpenButton().setOnAction(controller.getOpenMenuItem().getOnAction());
+        controller.getOpenButton().disableProperty().bind(controller.getOpenMenuItem().disableProperty());
+
         RecentFilesManager.getInstance().setFileOpener(FileOpenManager.getFileOpener());
         RecentFilesManager.getInstance().setupMenu(controller.getOpenRecentMenu());
+
+        controller.getSaveSelectedMenuItem().setOnAction((e) -> {
+            final Tab tab = selectedTab.get();
+            if (tab != null) {
+                final File previousFile = new File(ProgramProperties.get("SaveSelectionFile", "selected.tgs") + "+");
+
+                final FileChooser fileChooser = new FileChooser();
+                fileChooser.setInitialDirectory(previousFile.getParentFile());
+                fileChooser.setInitialFileName(previousFile.getName());
+                fileChooser.setTitle("Append to File - " + ProgramProperties.getProgramVersion());
+                fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Tilings file", "*.tgs+", "*.tgs"));
+                File selectedFile = fileChooser.showSaveDialog(window.getStage());
+
+                if (selectedFile != null) {
+                    if (selectedFile.getPath().endsWith("+"))
+                        selectedFile = new File(selectedFile.getPath().replaceAll("\\+$", ""));
+                    ProgramProperties.put("SaveSelectionFile", selectedFile.getPath());
+                    RecentFilesManager.getInstance().insertRecentFile(selectedFile.getPath());
+                    final ArrayList<DSymbol> list = new ArrayList<>();
+                    if (tab instanceof TilingEditorTab) {
+                        list.add(((TilingEditorTab) tab).getTiling().getDSymbol());
+                    } else if (tab instanceof ICollectionTab) {
+                        list.addAll(((ICollectionTab) tab).getSelectionModel().getSelectedItems());
+                    }
+                    try (final BufferedWriter w = new BufferedWriter(new FileWriter(selectedFile, true))) {
+                        w.write(Basic.toString(list, "\n") + "\n");
+                    } catch (IOException ex) {
+                        Basic.caught(ex);
+                        NotificationManager.showError("Save selection failed: " + ex.getMessage());
+                    }
+                }
+            }
+        });
 
         controller.getPrintMenuItem().setOnAction((e) -> {
             final Tab tab = selectedTab.get();
@@ -136,6 +178,9 @@ public class ControlBindings {
                 Print.printSnapshot(window.getStage(), ((Printable) tab).getPrintable());
         });
         controller.getPrintMenuItem().disableProperty().bind(selectedTab.isNull());
+
+        controller.getPrintButton().setOnAction(controller.getPrintMenuItem().getOnAction());
+        controller.getPrintButton().disableProperty().bind(controller.getPrintMenuItem().disableProperty());
 
         controller.getPageSetupMenuItem().setOnAction((e) -> Print.showPageLayout(window.getStage()));
 
@@ -164,6 +209,9 @@ public class ControlBindings {
             }
         });
 
+        controller.getUndoButton().setOnAction(controller.getUndoMenuItem().getOnAction());
+        controller.getUndoButton().disableProperty().bind(controller.getUndoMenuItem().disableProperty());
+
         controller.getRedoMenuItem().setOnAction((e) -> {
             if (selectedTab.get() instanceof TilingEditorTab) {
                 final TilingEditorTab tab = (TilingEditorTab) selectedTab.get();
@@ -171,53 +219,16 @@ public class ControlBindings {
             }
         });
 
-        controller.getSelectAllMenuItem().setOnAction((c) -> {
-            if (selectedTab.get() instanceof TilingCollectionTab) {
-                final TilingCollectionTab tab = (TilingCollectionTab) selectedTab.get();
-                tab.getSelectionModel().selectAll();
-            }
-        });
-        controller.getSelectAllMenuItem().disableProperty().bind(selectedTab.isNull());
+        controller.getRedoButton().setOnAction(controller.getRedoMenuItem().getOnAction());
+        controller.getRedoButton().disableProperty().bind(controller.getRedoMenuItem().disableProperty());
 
-
-        controller.getSelectNoneMenuItem().setOnAction((c) -> {
-            if (selectedTab.get() instanceof TilingCollectionTab) {
-                final TilingCollectionTab tab = (TilingCollectionTab) selectedTab.get();
-                tab.getSelectionModel().clearSelection();
-            }
-        });
-        controller.getSelectNoneMenuItem().disableProperty().bind(selectedTab.isNull());
-
-        controller.getFindMenuItem().setOnAction((e) -> {
-            if (selectedTab.get() instanceof TilingCollectionTab) {
-                final TilingCollectionTab tab = (TilingCollectionTab) selectedTab.get();
-                tab.getFindToolBar().setShowFindToolBar(true);
-            }
-        });
-
-        controller.getFindAgainMenuItem().setOnAction((e) -> {
-            final TilingCollectionTab tab = (TilingCollectionTab) selectedTab.get();
-            if (tab.getController().getTopVBox().getChildren().contains(tab.getFindToolBar()))
-                tab.getFindToolBar().findAgain();
-        });
-
-        selectedTab.addListener((c, o, n) -> {
-            if (n instanceof TilingCollectionTab) {
-                final TilingCollectionTab tab = (TilingCollectionTab) selectedTab.get();
-                controller.getFindAgainMenuItem().disableProperty().bind(tab.getFindToolBar().canFindAgainProperty());
-            } else {
-                controller.getFindAgainMenuItem().disableProperty().unbind();
-                controller.getFindAgainMenuItem().setDisable(true);
-            }
-        });
 
         controller.getOpenInEditorMenuItem().setOnAction((e) -> {
-            if (selectedTab.get() instanceof TilingCollectionTab) {
-                final TilingCollectionTab tab = (TilingCollectionTab) selectedTab.get();
-                final Collection<DSymbol> symbols = tab.getSelectionModel().getSelectedItems();
-                final String prefix = tab.getTilingCollection().getTitle();
+            if (selectedTab.get() instanceof ICollectionTab) {
+                final ICollectionTab tab = (ICollectionTab) selectedTab.get();
+                final Collection<DSymbol> symbols = Basic.reverse(tab.getSelectionModel().getSelectedItems());
                 for (DSymbol dSymbol : symbols) {
-                    final TilingEditorTab editorTab = new TilingEditorTab(new DSymbol(dSymbol), prefix + "-" + dSymbol.getNr1());
+                    final TilingEditorTab editorTab = new TilingEditorTab(new DSymbol(dSymbol), Basic.replaceFileSuffix(Basic.getFileNameWithoutPath(tab.getFileName()), ":" + dSymbol.getNr1()));
                     window.getMainTabPane().getTabs().add(editorTab);
                 }
             }
@@ -236,8 +247,8 @@ public class ControlBindings {
         });
 
         controller.getShowLabelsMenuItem().setOnAction((e) -> {
-            if (selectedTab.get() instanceof TilingCollectionTab) {
-                ((TilingCollectionTab) selectedTab.get()).setShowLabels(controller.getShowLabelsMenuItem().isSelected());
+            if (selectedTab.get() instanceof ICollectionTab) {
+                ((ICollectionTab) selectedTab.get()).setShowLabels(controller.getShowLabelsMenuItem().isSelected());
             }
         });
         controller.getShowLabelsMenuItem().disableProperty().bind(isCollectionTabSelected.not());
@@ -307,6 +318,38 @@ public class ControlBindings {
         });
         controller.getStraightenMenuItem().disableProperty().bind(isCollectionTabSelected);
 
+
+        controller.getFirstPageMenuItem().setOnAction((e) -> {
+            final ICollectionTab collectionTab = ((ICollectionTab) selectedTab.get());
+            collectionTab.gotoPage(ICollectionTab.FirstPage);
+        });
+        controller.getFirstPageMenuItem().disableProperty().bind(isCollectionTabSelected.not());
+
+        controller.getLastPageMenuItem().setOnAction((e) -> {
+            final ICollectionTab collectionTab = ((ICollectionTab) selectedTab.get());
+            collectionTab.gotoPage(ICollectionTab.LastPage);
+        });
+        controller.getLastPageMenuItem().disableProperty().bind(isCollectionTabSelected.not());
+
+        controller.getChoosePageMenuItem().setOnAction((e) -> {
+            final ICollectionTab collectionTab = ((ICollectionTab) selectedTab.get());
+
+            TextInputDialog dialog = new TextInputDialog("1");
+            dialog.setTitle("Page selection");
+            dialog.setHeaderText("Choose page");
+            dialog.setContentText(String.format("Enter page number (range: 1-%d):", collectionTab.getNumberOfPages()));
+
+// Traditional way to get the response value.
+            Optional<String> result = dialog.showAndWait();
+            result.ifPresent(name -> {
+                if (Basic.isInteger(result.get())) {
+                    collectionTab.gotoPage(Basic.parseInt(result.get()));
+                }
+            });
+        });
+        controller.getLastPageMenuItem().disableProperty().bind(isCollectionTabSelected.not());
+
+
         controller.getDualizeMenuItem().setOnAction((e) -> {
             if (selectedTab.get() instanceof TilingEditorTab) {
                 final TilingEditorTab tab = (TilingEditorTab) selectedTab.get();
@@ -335,86 +378,28 @@ public class ControlBindings {
             if (selectedTab.get() instanceof TilingEditorTab) {
                 final TilingEditorTab tab = (TilingEditorTab) selectedTab.get();
                 tab.selectAll(true);
+            } else if (selectedTab.get() instanceof ICollectionTab) {
+                final ICollectionTab tab = (ICollectionTab) selectedTab.get();
+                tab.getSelectionModel().selectAll();
             }
         });
-        controller.getSelectAllMenuItem().disableProperty().bind(isCollectionTabSelected);
+
+        controller.getSelectAllMenuItem().disableProperty().bind(selectedTab.isNull());
 
         controller.getSelectNoneMenuItem().setOnAction((e) -> {
             if (selectedTab.get() instanceof TilingEditorTab) {
                 final TilingEditorTab tab = (TilingEditorTab) selectedTab.get();
                 tab.selectAll(false);
+            } else if (selectedTab.get() instanceof ICollectionTab) {
+                final ICollectionTab tab = (ICollectionTab) selectedTab.get();
+                tab.getSelectionModel().clearSelection();
             }
         });
-        controller.getSelectNoneMenuItem().disableProperty().bind(isCollectionTabSelected);
+        controller.getSelectNoneMenuItem().disableProperty().bind(selectedTab.isNull());
 
         controller.getCheckForUpdatesMenuItem().setOnAction((e) -> CheckForUpdate.apply("tegula"));
         MainWindowManager.getInstance().changedProperty().addListener((c, o, n) -> controller.getCheckForUpdatesMenuItem().disableProperty().set(MainWindowManager.getInstance().size() > 1
                 || (MainWindowManager.getInstance().size() == 1 && !MainWindowManager.getInstance().getMainWindow(0).isEmpty())));
 
-
-        controller.getAddButton().setOnAction((e) -> {
-            final FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Open Tiling DB File");
-            fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Tiling database", "*.db"));
-            final File previous = new File(ProgramProperties.get("TilingDB", "tilings.db"));
-            if (previous.getParent() != null)
-                fileChooser.setInitialDirectory(previous.getParentFile());
-            fileChooser.setInitialFileName(previous.getName());
-            File selectedFile = fileChooser.showOpenDialog(window.getStage());
-            if (selectedFile != null) {
-                ProgramProperties.put("TilingDB", selectedFile.getPath());
-                try {
-                    final DBCollection dbCollection = new DBCollection(selectedFile.getPath());
-                    final DBCollectionTab dbCollectionTab = new DBCollectionTab(window, dbCollection);
-                    window.getMainTabPane().getTabs().add(dbCollectionTab);
-                } catch (IOException | SQLException ex) {
-                    NotificationManager.showError(("Open failed: " + ex.getMessage()));
-                }
-            }
-        });
-
-        if (false) {
-            controller.getAddButton().setOnAction((e) -> {
-                if (DatabaseAccess.getInstance() == null) {
-                    try {
-                        DatabaseAccess.setInstance(new DatabaseAccess("/Users/huson/tmp/tilings-1-12.db"));
-                    } catch (IOException | SQLException ex) {
-                        Basic.caught(ex);
-                        return;
-                    }
-                }
-                final TextInputDialog dialog = new TextInputDialog(ProgramProperties.get("SelectExpression", "tiles==1"));
-                dialog.setResizable(true);
-                dialog.setTitle("Tiling Search Dialog");
-                dialog.setHeaderText("Search for tilings in database");
-                dialog.setContentText("Enter search expression:");
-                dialog.setWidth(800);
-
-                final Optional<String> result = dialog.showAndWait();
-
-                result.ifPresent(expression -> {
-                    ProgramProperties.put("SelectExpression", result.get());
-                    try {
-                        final String select = result.get();
-                        final int count = DatabaseAccess.getInstance().countDSymbols(select.toLowerCase().contains("limit") ? select.substring(0, select.toLowerCase().indexOf("limit")) : select);
-                        if (count > 0) {
-                            (new FileOpener()).accept("select:" + select);
-                            final TreeItem<FileBrowser.FileNode> treeItem = new TreeItem<>(new FileBrowser.FileNode(new File("")));
-                            final Label label = new Label(select);
-                            label.setTextFill(Color.DARKBLUE);
-                            label.setOnMouseClicked((c) -> {
-                                if (c.getClickCount() == 2)
-                                    (new FileOpener()).accept("select:" + select);
-                            });
-                            treeItem.setGraphic(label);
-                            window.getFileTreeView().getRoot().getChildren().add(treeItem);
-                        }
-                        NotificationManager.showInformation("Select " + select + ": " + count + " found");
-                    } catch (IOException | SQLException ex) {
-                        NotificationManager.showError("Failed: " + ex.getMessage());
-                    }
-                });
-            });
-        }
     }
 }

@@ -297,6 +297,7 @@ public class DSymbol {
 
     /**
      * marks all flags contain in the i,j-orbit of a
+     *
      * @param i
      * @param j
      * @param a
@@ -333,6 +334,7 @@ public class DSymbol {
 
     /**
      * computes the orbit length (number si*sj operations required to get from a to a)
+     *
      * @param i
      * @param j
      * @param a

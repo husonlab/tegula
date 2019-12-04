@@ -33,8 +33,7 @@ import java.util.Set;
 
 /**
  * Copy the tiles in a fundamental domain
- *Daniel Huson 4/2016
- *
+ * Daniel Huson 4/2016
  */
 public class CopyTiles {
     private final static Set<Class> warned = new HashSet<>();

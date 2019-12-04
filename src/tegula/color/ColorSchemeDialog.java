@@ -30,24 +30,22 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import jloda.fx.util.ColorSchemeManager;
-import tegula.main.Document;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 /**
  * dialog for maintaining color schemes
- * todo: complete implmentation
+ * todo: complete implementation
  * Daniel Huson, 12.2018
  */
 public class ColorSchemeDialog {
     /**
      * setup and show the color scheme dialog
      *
-     * @param document
      * @throws IOException
      */
-    public ColorSchemeDialog(Document document, Object mainViewController) throws IOException {
+    public ColorSchemeDialog(Object mainViewController) throws IOException {
         final FXMLLoader fxmlLoader = new FXMLLoader();
         Pane root = fxmlLoader.load(getClass().getResource("ColorSchemeDialog.fxml").openStream());
         final ColorSchemeDialogController controller = fxmlLoader.getController();

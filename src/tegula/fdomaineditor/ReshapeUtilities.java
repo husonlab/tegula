@@ -58,7 +58,6 @@ public class ReshapeUtilities {
         Point2D transVector = new Point2D(deltaX, deltaY);
 
 
-
         switch (type) {
             case Vertex: {
                 if (k == 2)
@@ -90,7 +89,7 @@ public class ReshapeUtilities {
 
 
                 // Consider all points in orbit of a (especially if chamber contains boundary edges)
-                for (int z = 1; z <= length-1; z++) {
+                for (int z = 1; z <= length - 1; z++) {
                     // If i=(1-k) -edge is on boundary
                     if (fDomain.isBoundaryEdge(i, a) && ds.getSi(i, a) != a) {
                         final Transform g = generators.get(i, a);
@@ -371,7 +370,7 @@ public class ReshapeUtilities {
         int length = N.length;
 
         // Change direction of translation if restrictions are broken
-        Transform t = new Translate(transVec.getX()*100, transVec.getY()*100); // Original translation vector coming from mouse movement (in shapeHandler)
+        Transform t = new Translate(transVec.getX() * 100, transVec.getY() * 100); // Original translation vector coming from mouse movement (in shapeHandler)
         Point3D newPos = t.transform(oldPos); // New position of handle
         boolean[] restrictions = new boolean[length];
         boolean[] checkRest = new boolean[length];

@@ -87,8 +87,8 @@ public class DBCollectionPresenter {
 
         final EventHandler<ActionEvent> onActionHandler = (e) -> dbCollectionTab.processDBSelect(setupSearch(), 0);
 
-        controller.getPlaneCheckButton().setOnAction(onActionHandler);
-        controller.getSphereCheckButton().setOnAction(onActionHandler);
+        controller.getEuclideanCheckButton().setOnAction(onActionHandler);
+        controller.getSphericalCheckButton().setOnAction(onActionHandler);
         controller.getHyperbolicCheckButton().setOnAction(onActionHandler);
 
         controller.getNormalCheckBox().setOnAction(onActionHandler);
@@ -154,22 +154,22 @@ public class DBCollectionPresenter {
             buf.append(addIntSelect("vertices", controller.getNumberOfVerticesCBox().getValue()));
         }
 
-        if (!controller.getPlaneCheckButton().isIndeterminate()) {
+        if (!controller.getEuclideanCheckButton().isSelected()) {
             if (buf.length() > 0)
                 buf.append(" and ");
-            buf.append(String.format("geometry %s 'Euclidean'", controller.getPlaneCheckButton().isSelected() ? "=" : "!="));
+            buf.append("geometry != 'Euclidean'");
         }
 
-        if (!controller.getSphereCheckButton().isIndeterminate()) {
+        if (!controller.getSphericalCheckButton().isSelected()) {
             if (buf.length() > 0)
                 buf.append(" and ");
-            buf.append(String.format("geometry %s 'Spherical'", controller.getSphereCheckButton().isSelected() ? "=" : "!="));
+            buf.append("geometry != 'Spherical'");
         }
 
-        if (!controller.getHyperbolicCheckButton().isIndeterminate()) {
+        if (!controller.getHyperbolicCheckButton().isSelected()) {
             if (buf.length() > 0)
                 buf.append(" and ");
-            buf.append(String.format("geometry %s 'Hyperbolic'", controller.getHyperbolicCheckButton().isSelected() ? "=" : "!="));
+            buf.append("geometry != 'Hyperbolic'");
         }
 
         final String groupString = controller.getOrbifoldCBox().getSelectionModel().getSelectedItem();

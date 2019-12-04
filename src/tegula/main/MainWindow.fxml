@@ -21,6 +21,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
 <AnchorPane fx:id="anchorPane" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
@@ -50,6 +51,12 @@
                                             </accelerator>
                                         </MenuItem>
                                         <Menu fx:id="openRecentMenu" mnemonicParsing="false" text="Open Recent"/>
+                                        <MenuItem fx:id="saveSelectedMenuItem" disable="true" text="Save Selected...">
+                                            <accelerator>
+                                                <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP"
+                                                                    shift="DOWN" shortcut="DOWN"/>
+                                            </accelerator>
+                                        </MenuItem>
                                         <SeparatorMenuItem/>
                                         <MenuItem fx:id="pageSetupMenuItem" text="Page Setup..."/>
                                         <MenuItem fx:id="printMenuItem" text="Print...">
@@ -115,19 +122,6 @@
                                             </accelerator>
                                         </MenuItem>
                                         <SeparatorMenuItem mnemonicParsing="false"/>
-                                        <MenuItem fx:id="findMenuItem" text="Find...">
-                                            <accelerator>
-                                                <KeyCodeCombination alt="UP" code="F" control="UP" meta="UP" shift="UP"
-                                                                    shortcut="DOWN"/>
-                                            </accelerator>
-                                        </MenuItem>
-                                        <MenuItem fx:id="findAgainMenuItem" text="Find Again">
-                                            <accelerator>
-                                                <KeyCodeCombination alt="UP" code="G" control="UP" meta="UP" shift="UP"
-                                                                    shortcut="DOWN"/>
-                                            </accelerator>
-                                        </MenuItem>
-                                        <SeparatorMenuItem mnemonicParsing="false"/>
                                         <MenuItem fx:id="openInEditorMenuItem" text="Open in Editor...">
                                             <accelerator>
                                                 <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="UP"
@@ -182,6 +176,25 @@
                                 </Menu>
                                 <Menu fx:id="tilingsMenu" mnemonicParsing="false" text="Tiling">
                                     <items>
+                                        <MenuItem fx:id="firstPageMenuItem" text="First Page">
+                                            <accelerator>
+                                                <KeyCodeCombination alt="UP" code="F" control="UP" meta="DOWN"
+                                                                    shift="UP" shortcut="UP"/>
+                                            </accelerator>
+                                        </MenuItem>
+                                        <MenuItem fx:id="lastPageMenuItem" text="Last Page">
+                                            <accelerator>
+                                                <KeyCodeCombination alt="UP" code="G" control="UP" meta="DOWN"
+                                                                    shift="UP" shortcut="UP"/>
+                                            </accelerator>
+                                        </MenuItem>
+                                        <MenuItem fx:id="choosePageMenuItem" text="Choose Page...">
+                                            <accelerator>
+                                                <KeyCodeCombination alt="UP" code="J" control="UP" meta="UP" shift="UP"
+                                                                    shortcut="DOWN"/>
+                                            </accelerator>
+                                        </MenuItem>
+                                        <SeparatorMenuItem mnemonicParsing="false"/>
                                         <MenuItem fx:id="dualizeMenuItem" text="Dualize">
                                             <accelerator>
                                                 <KeyCodeCombination alt="UP" code="D" control="UP" meta="UP"
@@ -222,19 +235,67 @@
                         <ToolBar fx:id="mainToolBar" maxHeight="-Infinity" maxWidth="1.7976931348623157E308"
                                  minHeight="-Infinity" prefHeight="36.0">
                             <items>
-                                <Button fx:id="addButton" mnemonicParsing="false" text="DB..."/>
+                                <Button fx:id="openButton" mnemonicParsing="false">
+                                    <graphic>
+                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
+                                                   preserveRatio="true">
+                                            <image>
+                                                <Image url="@/jloda/resources/icons/sun/Open16.gif"/>
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                                    <tooltip>
+                                        <Tooltip text="Open"/>
+                                    </tooltip>
+                                </Button>
+                                <Separator orientation="VERTICAL" prefHeight="200.0"/>
+                                <Button fx:id="printButton" layoutX="48.0" layoutY="9.0" mnemonicParsing="false">
+                                    <graphic>
+                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
+                                                   preserveRatio="true">
+                                            <image>
+                                                <Image url="@/jloda/resources/icons/sun/Print16.gif"/>
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                                    <tooltip>
+                                        <Tooltip text="Print"/>
+                                    </tooltip>
+                                </Button>
+                                <Separator layoutX="86.0" layoutY="10.0" orientation="VERTICAL" prefHeight="200.0"/>
+                                <Button fx:id="undoButton" layoutX="96.0" layoutY="9.0" mnemonicParsing="false">
+                                    <graphic>
+                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
+                                                   preserveRatio="true">
+                                            <image>
+                                                <Image url="@/jloda/resources/icons/sun/Undo16.gif"/>
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                                    <tooltip>
+                                        <Tooltip text="Undo"/>
+                                    </tooltip>
+                                </Button>
+                                <Button fx:id="redoButton" layoutX="144.0" layoutY="9.0" mnemonicParsing="false">
+                                    <graphic>
+                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
+                                                   preserveRatio="true">
+                                            <image>
+                                                <Image url="@/jloda/resources/icons/sun/Redo16.gif"/>
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                                    <tooltip>
+                                        <Tooltip text="Redo"/>
+                                    </tooltip>
+                                </Button>
                             </items>
                         </ToolBar>
                     </children>
                 </VBox>
             </top>
             <center>
-                <SplitPane fx:id="mainSplitPane" dividerPositions="0.2" BorderPane.alignment="CENTER">
-                    <items>
-                        <TreeView fx:id="treeView" prefWidth="200.0"/>
-                        <StackPane fx:id="centerPane" prefHeight="150.0" prefWidth="200.0"/>
-                    </items>
-                </SplitPane>
+                <StackPane fx:id="centerPane" prefHeight="150.0" prefWidth="200.0"/>
             </center>
             <bottom>
                 <FlowPane fx:id="statusBar" hgap="5.0" maxWidth="1.7976931348623157E308" minHeight="-Infinity"

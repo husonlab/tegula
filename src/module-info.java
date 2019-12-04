@@ -22,16 +22,18 @@ module tegula {
     exports tegula.main;
     exports tegula.tiling;
     exports tegula.tiling.parts;
-    exports tegula.tilingcollection;
+    exports tegula.filecollection;
+    exports tegula.dbcollection;
     exports tegula.tilingeditor;
     exports tegula.tilingpane;
     exports tegula.undoable;
     exports tegula.util;
 
     opens tegula.resources.icons;
+    opens tegula.resources.images;
     opens tegula.color;
     opens tegula.main;
     opens tegula.dbcollection;
-    opens tegula.tilingcollection;
+    opens tegula.filecollection;
     opens tegula.tilingeditor;
 }

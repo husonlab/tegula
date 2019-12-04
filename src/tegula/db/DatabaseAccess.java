@@ -152,7 +152,7 @@ public class DatabaseAccess implements Closeable {
      * @throws SQLException if something went wrong with the database
      */
     private ArrayList<String> executeQueryString(String query, int... indices) throws SQLException {
-        System.err.println("Query: " + query);
+        //System.err.println("Query: " + query);
         final ResultSet rs = connection.createStatement().executeQuery(query);
         final ArrayList<String> result = new ArrayList<>();
         while (rs.next()) {

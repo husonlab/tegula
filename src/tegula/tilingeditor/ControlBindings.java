@@ -1,5 +1,5 @@
 /*
- * ControlBindings.java Copyright (C) 2019. Daniel H. Huson
+ * FileCollectionPresenter.java Copyright (C) 2019. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -352,7 +352,7 @@ public class ControlBindings {
                 }
             });
 
-            ColorSchemeManager.getInstance().getName2ColorSchemes().addListener((InvalidationListener) (c)->{
+            ColorSchemeManager.getInstance().getName2ColorSchemes().addListener((InvalidationListener) (c) -> {
                 controller.getColorSchemeChoiceBox().getItems().clear();
                 for (String colorSchemeName : ColorSchemeManager.getInstance().getNames()) {
                     controller.getColorSchemeChoiceBox().getItems().add(colorSchemeName);

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ FileCollectionTab.fxml Copyright (C) 2019. Daniel H. Huson
+  ~
+  ~  (Some files contain contributions from other authors, who are then mentioned separately.)
+  ~
+  ~  This program is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~  (at your option) any later version.
+  ~
+  ~  This program is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~  GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License
+  ~  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<AnchorPane prefHeight="500.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.111"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="tegula.filecollection.FileCollectionTabController">
+    <children>
+        <BorderPane fx:id="borderPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <top>
+                <AnchorPane>
+                    <children>
+                        <VBox fx:id="topVBox" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                              AnchorPane.topAnchor="0.0">
+                            <children>
+
+                                <ToolBar fx:id="mainToolBar" maxHeight="-Infinity" maxWidth="1.7976931348623157E308"
+                                         minHeight="-Infinity" prefHeight="28.0">
+                                    <items>
+                                        <Label fx:id="countLabel" text="Count" textFill="GRAY">
+                                            <font>
+                                                <Font size="12.0"/>
+                                            </font>
+                                            <tooltip>
+                                                <Tooltip text="Number of tilings that match current search"/>
+                                            </tooltip>
+                                        </Label>
+                                    </items>
+                                </ToolBar>
+                            </children>
+                        </VBox>
+                        <Slider fx:id="sizeSlider" max="1024.0" min="128.0" snapToTicks="true" value="300.0"
+                                AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="6.0">
+                            <tooltip>
+                                <Tooltip text="Set preview size"/>
+                            </tooltip>
+                        </Slider>
+                    </children>
+                </AnchorPane>
+
+            </top>
+            <center>
+                <Pagination fx:id="pagination" pageCount="10"/>
+            </center>
+        </BorderPane>
+    </children>
+</AnchorPane>

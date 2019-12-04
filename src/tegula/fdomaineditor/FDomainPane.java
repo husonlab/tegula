@@ -91,187 +91,187 @@ public class FDomainPane extends StackPane {
 
         getChildren().clear();
 
-            final Group vertices = new Group();
-            final Group edges = new Group();
-            final Group polygons = new Group();
+        final Group vertices = new Group();
+        final Group edges = new Group();
+        final Group polygons = new Group();
 
-            vertexHandles = new NGonShape[ds.size() + 1][3];
-            edgeHandles = new NGonShape[ds.size() + 1][3];
-            chamberCenterHandles = new NGonShape[ds.size() + 1];
+        vertexHandles = new NGonShape[ds.size() + 1][3];
+        edgeHandles = new NGonShape[ds.size() + 1][3];
+        chamberCenterHandles = new NGonShape[ds.size() + 1];
 
-            /*
-             * setup nodes, one per orbit:
-             */
-            for (int h = 0; h <= 2; h++) {
-                final int i = DSymbol.i(h), j = DSymbol.j(h), k = h;
-                {
-                    final BitSet visited = new BitSet();
-                    for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, j, a, visited)) {
-                        ds.visitOrbit(i, j, a, b -> {
-                            final NGonShape vertexHandle = new NGonShape(fDomain.getVertex(k, b).multiply(getScaleFactor()));
-                            final NGonShape existingVertexHandle = find(vertexHandle, vertices.getChildren());
-                            if (existingVertexHandle != null)
-                                vertexHandles[b][k] = existingVertexHandle;
-                            else {
-                                Color color;
-                                if (ds.getVij(i, j, b) > 1 || (k == 1 && b == ds.getS2(b))) { // is the center of a rotation
-                                    color = Color.RED;
-                                    vertexHandle.setN(ds.getVij(i, j, b));
-                                    vertexHandle.setSize(10, 10);
-                                } else if ((ds.getVij(i, j, b) == 1) && !(i == 0 && j == 2 && b == ds.getS2(b))
-                                        && !(k == 2 && !getFDomain().isBoundaryEdge(0, b))) {
-                                    setMouseHandler(undoManager, getScaleFactor(), vertexHandle, ReshapeUtilities.Type.Vertex, k, b);
-                                    if (ds.isCycle(i, j, b)) // can be freely moved
-                                        color = Color.GREEN;
-                                    else
-                                        color = Color.YELLOW; // we are having problems with these
-                                    vertexHandle.setSize(10, 10);
-                                } else {
-                                    color = Color.GRAY; // not moveable
-                                    vertexHandle.setN(4);
-                                    vertexHandle.setSize(3, 3);
-                                }
-                                vertexHandle.setFill(color);
-                                vertexHandle.setStroke(Color.GRAY);
-                                vertexHandles[b][k] = vertexHandle;
-                                vertices.getChildren().add(vertexHandle);
+        /*
+         * setup nodes, one per orbit:
+         */
+        for (int h = 0; h <= 2; h++) {
+            final int i = DSymbol.i(h), j = DSymbol.j(h), k = h;
+            {
+                final BitSet visited = new BitSet();
+                for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, j, a, visited)) {
+                    ds.visitOrbit(i, j, a, b -> {
+                        final NGonShape vertexHandle = new NGonShape(fDomain.getVertex(k, b).multiply(getScaleFactor()));
+                        final NGonShape existingVertexHandle = find(vertexHandle, vertices.getChildren());
+                        if (existingVertexHandle != null)
+                            vertexHandles[b][k] = existingVertexHandle;
+                        else {
+                            Color color;
+                            if (ds.getVij(i, j, b) > 1 || (k == 1 && b == ds.getS2(b))) { // is the center of a rotation
+                                color = Color.RED;
+                                vertexHandle.setN(ds.getVij(i, j, b));
+                                vertexHandle.setSize(10, 10);
+                            } else if ((ds.getVij(i, j, b) == 1) && !(i == 0 && j == 2 && b == ds.getS2(b))
+                                    && !(k == 2 && !getFDomain().isBoundaryEdge(0, b))) {
+                                setMouseHandler(undoManager, getScaleFactor(), vertexHandle, ReshapeUtilities.Type.Vertex, k, b);
+                                if (ds.isCycle(i, j, b)) // can be freely moved
+                                    color = Color.GREEN;
+                                else
+                                    color = Color.YELLOW; // we are having problems with these
+                                vertexHandle.setSize(10, 10);
+                            } else {
+                                color = Color.GRAY; // not moveable
+                                vertexHandle.setN(4);
+                                vertexHandle.setSize(3, 3);
                             }
-                        });
-                    }
+                            vertexHandle.setFill(color);
+                            vertexHandle.setStroke(Color.GRAY);
+                            vertexHandles[b][k] = vertexHandle;
+                            vertices.getChildren().add(vertexHandle);
+                        }
+                    });
                 }
-                {
-                    final BitSet visited = new BitSet();
-                    for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, j, a, visited)) {
-                        ds.visitOrbit(i, j, a, b -> {
-                            final NGonShape edgeHandle = new NGonShape(fDomain.getEdgeCenter(k, b).multiply(getScaleFactor()));
-                            final NGonShape existingEdgeHandle = find(edgeHandle, vertices.getChildren());
-                            if (existingEdgeHandle != null)
-                                edgeHandles[b][k] = existingEdgeHandle;
-                            else {
-                                Color color;
-                                if (k == 2) { // center of an edge
-                                    setMouseHandler(undoManager, getScaleFactor(), edgeHandle, ReshapeUtilities.Type.EdgeCenter, 2, b);
-                                    if (b != ds.getS2(b))
-                                        color = Color.GREEN; // freely moveable
-                                    else
-                                        color = Color.YELLOW; // restricted to line
-                                    edgeHandle.setSize(10, 10);
-                                } else {
-                                    color = Color.GRAY;
-                                    edgeHandle.setN(4);
-                                    edgeHandle.setSize(3, 3);
-                                }
-                                edgeHandle.setFill(color);
-                                edgeHandle.setStroke(Color.GRAY);
-                                edgeHandles[b][k] = edgeHandle;
-                                vertices.getChildren().add(edgeHandle);
+            }
+            {
+                final BitSet visited = new BitSet();
+                for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, j, a, visited)) {
+                    ds.visitOrbit(i, j, a, b -> {
+                        final NGonShape edgeHandle = new NGonShape(fDomain.getEdgeCenter(k, b).multiply(getScaleFactor()));
+                        final NGonShape existingEdgeHandle = find(edgeHandle, vertices.getChildren());
+                        if (existingEdgeHandle != null)
+                            edgeHandles[b][k] = existingEdgeHandle;
+                        else {
+                            Color color;
+                            if (k == 2) { // center of an edge
+                                setMouseHandler(undoManager, getScaleFactor(), edgeHandle, ReshapeUtilities.Type.EdgeCenter, 2, b);
+                                if (b != ds.getS2(b))
+                                    color = Color.GREEN; // freely moveable
+                                else
+                                    color = Color.YELLOW; // restricted to line
+                                edgeHandle.setSize(10, 10);
+                            } else {
+                                color = Color.GRAY;
+                                edgeHandle.setN(4);
+                                edgeHandle.setSize(3, 3);
                             }
-                        });
-                    }
+                            edgeHandle.setFill(color);
+                            edgeHandle.setStroke(Color.GRAY);
+                            edgeHandles[b][k] = edgeHandle;
+                            vertices.getChildren().add(edgeHandle);
+                        }
+                    });
                 }
             }
+        }
 
-            // setup chamber centers:
-            for (int a = 1; a <= ds.size(); a++) {
-                final NGonShape c = new NGonShape(fDomain.getChamberCenter(a).multiply(getScaleFactor()));
-                chamberCenterHandles[a] = c;
-                c.setN(32);
-                c.setFill(Color.LIGHTGRAY);
-                c.setStroke(Color.LIGHTGRAY);
-                c.setSize(4, 4);
-                vertices.getChildren().add(c);
+        // setup chamber centers:
+        for (int a = 1; a <= ds.size(); a++) {
+            final NGonShape c = new NGonShape(fDomain.getChamberCenter(a).multiply(getScaleFactor()));
+            chamberCenterHandles[a] = c;
+            c.setN(32);
+            c.setFill(Color.LIGHTGRAY);
+            c.setStroke(Color.LIGHTGRAY);
+            c.setSize(4, 4);
+            vertices.getChildren().add(c);
+        }
+
+        // setup flag 2 tile number map
+        final int[] a2tile = ds.computeOrbits(0, 1);
+
+        // setup lines and polygons, and bind to nodes
+        for (int a = 1; a <= ds.size(); a++) {
+            final Shape[] vs = vertexHandles[a];
+            final Shape[] es = edgeHandles[a];
+            final Shape c = chamberCenterHandles[a];
+
+            final Polygon polygon = new Polygon(vs[0].getLayoutX(), vs[0].getLayoutY(), es[2].getLayoutX(), es[2].getLayoutY(), vs[1].getLayoutX(), vs[1].getLayoutY(),
+                    es[0].getLayoutX(), es[0].getLayoutY(), vs[2].getLayoutX(), vs[2].getLayoutY(), es[1].getLayoutX(), es[1].getLayoutY());
+
+            if (tilingStyle.isShowFaces())
+                polygon.setFill(tilingStyle.getTileColorFullOpacity(a2tile[a]));
+            else
+                polygon.setFill(Color.GAINSBORO);
+
+            polygon.setUserData(a);
+            polygons.getChildren().add(polygon);
+
+            final ChangeListener<Number> listener = (d, o, n) -> polygon.getPoints().setAll(vs[0].getLayoutX(), vs[0].getLayoutY(), es[2].getLayoutX(), es[2].getLayoutY(), vs[1].getLayoutX(), vs[1].getLayoutY(),
+                    es[0].getLayoutX(), es[0].getLayoutY(), vs[2].getLayoutX(), vs[2].getLayoutY(), es[1].getLayoutX(), es[1].getLayoutY());
+
+            for (DoubleProperty property : Arrays.asList(vs[0].layoutXProperty(), vs[0].layoutYProperty(), es[2].layoutXProperty(), es[2].layoutYProperty(), vs[1].layoutXProperty(), vs[1].layoutYProperty(),
+                    es[0].layoutXProperty(), es[0].layoutYProperty(), vs[2].layoutXProperty(), vs[2].layoutYProperty(), es[1].layoutXProperty(), es[1].layoutYProperty())) {
+                property.addListener(listener);
             }
 
-            // setup flag 2 tile number map
-            final int[] a2tile = ds.computeOrbits(0, 1);
+            for (int i = 0; i <= 2; i++) {
+                int prev = (i == 0 ? 2 : i - 1);
+                int next = (i == 2 ? 0 : i + 1);
 
-            // setup lines and polygons, and bind to nodes
-            for (int a = 1; a <= ds.size(); a++) {
-                final Shape[] vs = vertexHandles[a];
-                final Shape[] es = edgeHandles[a];
-                final Shape c = chamberCenterHandles[a];
+                final Shape ePrev = es[prev];
+                final Shape v = vs[i];
+                final Shape eNext = es[next];
 
-                final Polygon polygon = new Polygon(vs[0].getLayoutX(), vs[0].getLayoutY(), es[2].getLayoutX(), es[2].getLayoutY(), vs[1].getLayoutX(), vs[1].getLayoutY(),
-                        es[0].getLayoutX(), es[0].getLayoutY(), vs[2].getLayoutX(), vs[2].getLayoutY(), es[1].getLayoutX(), es[1].getLayoutY());
+                final Line vePrev = new Line();
+                vePrev.startXProperty().bind(v.layoutXProperty());
+                vePrev.startYProperty().bind(v.layoutYProperty());
+                vePrev.endXProperty().bind(ePrev.layoutXProperty());
+                vePrev.endYProperty().bind(ePrev.layoutYProperty());
 
-                if (tilingStyle.isShowFaces())
-                    polygon.setFill(tilingStyle.getTileColorFullOpacity(a2tile[a]));
-                else
-                    polygon.setFill(Color.GAINSBORO);
-
-                polygon.setUserData(a);
-                polygons.getChildren().add(polygon);
-
-                final ChangeListener<Number> listener = (d, o, n) -> polygon.getPoints().setAll(vs[0].getLayoutX(), vs[0].getLayoutY(), es[2].getLayoutX(), es[2].getLayoutY(), vs[1].getLayoutX(), vs[1].getLayoutY(),
-                        es[0].getLayoutX(), es[0].getLayoutY(), vs[2].getLayoutX(), vs[2].getLayoutY(), es[1].getLayoutX(), es[1].getLayoutY());
-
-                for (DoubleProperty property : Arrays.asList(vs[0].layoutXProperty(), vs[0].layoutYProperty(), es[2].layoutXProperty(), es[2].layoutYProperty(), vs[1].layoutXProperty(), vs[1].layoutYProperty(),
-                        es[0].layoutXProperty(), es[0].layoutYProperty(), vs[2].layoutXProperty(), vs[2].layoutYProperty(), es[1].layoutXProperty(), es[1].layoutYProperty())) {
-                    property.addListener(listener);
+                if (i == 0) {
+                    vePrev.setStroke(Color.BLACK);
+                    vePrev.setStrokeWidth(3);
+                    if (tilingStyle.isShowFaces() && fDomain.isBoundaryEdge(prev, a))
+                        vePrev.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColorFullOpacity(a2tile[ds.getS2(a)]), 6, 1, 0, 0));
+                } else {
+                    vePrev.setStroke(Color.GRAY);
+                    if (tilingStyle.isShowFaces() && fDomain.isBoundaryEdge(prev, a))
+                        vePrev.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColorFullOpacity(a2tile[a]), 6, 1, 0, 0));
                 }
 
-                for (int i = 0; i <= 2; i++) {
-                    int prev = (i == 0 ? 2 : i - 1);
-                    int next = (i == 2 ? 0 : i + 1);
-
-                    final Shape ePrev = es[prev];
-                    final Shape v = vs[i];
-                    final Shape eNext = es[next];
-
-                    final Line vePrev = new Line();
-                    vePrev.startXProperty().bind(v.layoutXProperty());
-                    vePrev.startYProperty().bind(v.layoutYProperty());
-                    vePrev.endXProperty().bind(ePrev.layoutXProperty());
-                    vePrev.endYProperty().bind(ePrev.layoutYProperty());
-
-                    if (i == 0) {
-                        vePrev.setStroke(Color.BLACK);
-                        vePrev.setStrokeWidth(3);
-                        if (tilingStyle.isShowFaces() && fDomain.isBoundaryEdge(prev, a))
-                            vePrev.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColorFullOpacity(a2tile[ds.getS2(a)]), 6, 1, 0, 0));
-                    } else {
-                        vePrev.setStroke(Color.GRAY);
-                        if (tilingStyle.isShowFaces() && fDomain.isBoundaryEdge(prev, a))
-                            vePrev.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColorFullOpacity(a2tile[a]), 6, 1, 0, 0));
-                    }
-
-                    final Line veNext = new Line();
-                    veNext.startXProperty().bind(v.layoutXProperty());
-                    veNext.startYProperty().bind(v.layoutYProperty());
-                    veNext.endXProperty().bind(eNext.layoutXProperty());
-                    veNext.endYProperty().bind(eNext.layoutYProperty());
-                    if (i == 1) {
-                        veNext.setStroke(Color.BLACK);
-                        veNext.setStrokeWidth(3);
-                        if (tilingStyle.isShowFaces() && fDomain.isBoundaryEdge(next, a))
-                            veNext.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColorFullOpacity(a2tile[ds.getS2(a)]), 6, 1, 0, 0));
-                    } else {
-                        veNext.setStroke(Color.GRAY);
-                        if (tilingStyle.isShowFaces() && fDomain.isBoundaryEdge(next, a))
-                            veNext.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColorFullOpacity(a2tile[a]), 6, 1, 0, 0));
-                    }
-
-                    final Line vc = new Line();
-                    vc.startXProperty().bind(v.layoutXProperty());
-                    vc.startYProperty().bind(v.layoutYProperty());
-                    vc.endXProperty().bind(c.layoutXProperty());
-                    vc.endYProperty().bind(c.layoutYProperty());
-                    vc.setStroke(Color.LIGHTGRAY);
-
-                    final Line ePrevC = new Line();
-                    ePrevC.startXProperty().bind(ePrev.layoutXProperty());
-                    ePrevC.startYProperty().bind(ePrev.layoutYProperty());
-                    ePrevC.endXProperty().bind(c.layoutXProperty());
-                    ePrevC.endYProperty().bind(c.layoutYProperty());
-                    ePrevC.setStroke(Color.LIGHTGRAY);
-
-                    edges.getChildren().addAll(vePrev, veNext, vc, ePrevC);
+                final Line veNext = new Line();
+                veNext.startXProperty().bind(v.layoutXProperty());
+                veNext.startYProperty().bind(v.layoutYProperty());
+                veNext.endXProperty().bind(eNext.layoutXProperty());
+                veNext.endYProperty().bind(eNext.layoutYProperty());
+                if (i == 1) {
+                    veNext.setStroke(Color.BLACK);
+                    veNext.setStrokeWidth(3);
+                    if (tilingStyle.isShowFaces() && fDomain.isBoundaryEdge(next, a))
+                        veNext.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColorFullOpacity(a2tile[ds.getS2(a)]), 6, 1, 0, 0));
+                } else {
+                    veNext.setStroke(Color.GRAY);
+                    if (tilingStyle.isShowFaces() && fDomain.isBoundaryEdge(next, a))
+                        veNext.setEffect(new DropShadow(BlurType.ONE_PASS_BOX, tilingStyle.getTileColorFullOpacity(a2tile[a]), 6, 1, 0, 0));
                 }
+
+                final Line vc = new Line();
+                vc.startXProperty().bind(v.layoutXProperty());
+                vc.startYProperty().bind(v.layoutYProperty());
+                vc.endXProperty().bind(c.layoutXProperty());
+                vc.endYProperty().bind(c.layoutYProperty());
+                vc.setStroke(Color.LIGHTGRAY);
+
+                final Line ePrevC = new Line();
+                ePrevC.startXProperty().bind(ePrev.layoutXProperty());
+                ePrevC.startYProperty().bind(ePrev.layoutYProperty());
+                ePrevC.endXProperty().bind(c.layoutXProperty());
+                ePrevC.endYProperty().bind(c.layoutYProperty());
+                ePrevC.setStroke(Color.LIGHTGRAY);
+
+                edges.getChildren().addAll(vePrev, veNext, vc, ePrevC);
             }
+        }
 
         final Group all = new Group(polygons, edges, vertices, decorations);
 
-            getChildren().setAll(all);
+        getChildren().setAll(all);
     }
 
     /**
@@ -340,13 +340,13 @@ public class FDomainPane extends StackPane {
 
             if (deltaX != 0 || deltaY != 0) {
                 // Reset shape of fundamental domain
-                final Point2D constraintsAdjustmentTranslationVector = ReshapeUtilities.resetShape(getFDomain(), deltaX/factor, deltaY/factor, type, k, a, factor);
+                final Point2D constraintsAdjustmentTranslationVector = ReshapeUtilities.resetShape(getFDomain(), deltaX / factor, deltaY / factor, type, k, a, factor);
                 // Move handles along transVector
                 double fac = 1;
-                shape.setLayoutX(shape.getLayoutX() + fac* constraintsAdjustmentTranslationVector.getX());
-                shape.setLayoutY(shape.getLayoutY() + fac* constraintsAdjustmentTranslationVector.getY());
+                shape.setLayoutX(shape.getLayoutX() + fac * constraintsAdjustmentTranslationVector.getX());
+                shape.setLayoutY(shape.getLayoutY() + fac * constraintsAdjustmentTranslationVector.getY());
 
-                mouseDown.set(new Point2D(e.getSceneX() - deltaX + fac* constraintsAdjustmentTranslationVector.getX(), e.getSceneY() - deltaY +fac* constraintsAdjustmentTranslationVector.getY()));
+                mouseDown.set(new Point2D(e.getSceneX() - deltaX + fac * constraintsAdjustmentTranslationVector.getX(), e.getSceneY() - deltaY + fac * constraintsAdjustmentTranslationVector.getY()));
                 moved = true;
             }
         });
