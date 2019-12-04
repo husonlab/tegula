@@ -40,8 +40,7 @@ public class Band3D extends Group {
      * @param point0
      * @param point1
      * @param bandWidth
-     * @param above
-     * todo: implement use of line cap
+     * @param above     todo: implement use of line cap
      * @return mesh
      */
     public static TriangleMesh connect(Geometry geom, Point3D point0, Point3D point1, double bandWidth, double above, StrokeLineCap lineCap1, StrokeLineCap lineCap2) {

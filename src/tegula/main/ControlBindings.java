@@ -71,6 +71,9 @@ public class ControlBindings {
         final IntegerProperty selectionInCollection = new SimpleIntegerProperty(0);
 
         selectedTab.addListener((c, o, n) -> {
+            controller.getSaveSelectedMenuItem().disableProperty().unbind();
+            controller.getSaveSelectedMenuItem().setDisable(true);
+
             if (n instanceof TilingEditorTab) {
                 final TilingEditorTab tab = (TilingEditorTab) n;
                 controller.getUndoMenuItem().disableProperty().unbind();
@@ -88,7 +91,6 @@ public class ControlBindings {
                 controller.getShowMoreTilesMenuItem().setDisable(tab.getTiling().getGeometry() != Geometry.Hyperbolic);
                 controller.getShowLessTilesMenuItem().setDisable(tab.getTiling().getGeometry() != Geometry.Hyperbolic);
 
-                controller.getSaveSelectedMenuItem().disableProperty().unbind();
                 controller.getSaveSelectedMenuItem().setDisable(false);
             } else {
                 controller.getUndoMenuItem().disableProperty().unbind();
@@ -104,9 +106,6 @@ public class ControlBindings {
 
                 controller.getShowMoreTilesMenuItem().setDisable(true);
                 controller.getShowLessTilesMenuItem().setDisable(true);
-
-                controller.getSaveSelectedMenuItem().disableProperty().unbind();
-                controller.getSaveSelectedMenuItem().setDisable(true);
             }
 
             if (n instanceof ICollectionTab) {
@@ -120,8 +119,6 @@ public class ControlBindings {
             } else {
                 selectionInCollection.unbind();
                 selectionInCollection.set(0);
-                controller.getSaveSelectedMenuItem().disableProperty().unbind();
-                controller.getSaveSelectedMenuItem().setDisable(true);
             }
         });
 
