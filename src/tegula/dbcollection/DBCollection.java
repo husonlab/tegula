@@ -21,6 +21,7 @@ package tegula.dbcollection;
 
 import javafx.beans.property.*;
 import jloda.fx.util.AService;
+import jloda.fx.window.NotificationManager;
 import jloda.util.Basic;
 import jloda.util.ProgramProperties;
 import tegula.core.dsymbols.DSymbol;
@@ -64,6 +65,7 @@ public class DBCollection implements Closeable, IFileBased {
                 count.set(databaseAccess.countDSymbols(getDbSelect()));
             } catch (IOException | SQLException e) {
                 Basic.caught(e);
+                NotificationManager.showError("Error: " + e.getMessage());
             }
         });
     }

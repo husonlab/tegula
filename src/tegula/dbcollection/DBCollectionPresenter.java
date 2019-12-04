@@ -95,6 +95,9 @@ public class DBCollectionPresenter {
         controller.getSelfDualCheckBox().setOnAction(onActionHandler);
 
         controller.getMaximalSymmetricCheckBox().setOnAction(onActionHandler);
+
+        controller.getSignatureCBox().setOnAction(onActionHandler);
+
         controller.getOrientableCheckBox().setOnAction(onActionHandler);
         controller.getHasReflectionsCheckBox().setOnAction(onActionHandler);
 
@@ -190,6 +193,19 @@ public class DBCollectionPresenter {
             if (buf.length() > 0)
                 buf.append(" and ");
             buf.append(String.format(" symmetry_class = '%s'", symmetryClass));
+        }
+
+        final String signatureString = controller.getSignatureCBox().getSelectionModel().getSelectedItem();
+        if (signatureString != null && signatureString.length() > 0) {
+            if (buf.length() > 0)
+                buf.append(" and ");
+            final String operator = getOperator(signatureString, true);
+            if (operator.equalsIgnoreCase("c"))
+                buf.append(String.format(" instr(signature, '%s') > 0", getArgument(signatureString, true)));
+            else if (operator.equalsIgnoreCase("!c"))
+                buf.append(String.format(" instr(signature, '%s') = 0", getArgument(signatureString, true)));
+            else
+                buf.append(String.format(" signature %s '%s'", operator, getArgument(signatureString, true)));
         }
 
         if (!controller.getNormalCheckBox().isIndeterminate()) {

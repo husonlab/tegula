@@ -78,6 +78,9 @@ public class DBCollectionTabController {
     private ComboBox<String> symmetryClassCBox;
 
     @FXML
+    private ComboBox<String> signatureCBox;
+
+    @FXML
     private CheckBox maximalSymmetricCheckBox;
 
     @FXML
@@ -117,6 +120,7 @@ public class DBCollectionTabController {
         assert hyperbolicCheckBox != null : "fx:id=\"hyperbolicCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert orbifoldCBox != null : "fx:id=\"orbifoldCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert symmetryClassCBox != null : "fx:id=\"symmetryClassCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
+        assert signatureCBox != null : "fx:id=\"signatureCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert maximalSymmetricCheckBox != null : "fx:id=\"maximalSymmetricCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert orientableCheckBox != null : "fx:id=\"orientableCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert hasReflectionsCheckBox != null : "fx:id=\"hasReflectionsCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
@@ -181,6 +185,10 @@ public class DBCollectionTabController {
 
     public ComboBox<String> getSymmetryClassCBox() {
         return symmetryClassCBox;
+    }
+
+    public ComboBox<String> getSignatureCBox() {
+        return signatureCBox;
     }
 
     public CheckBox getMaximalSymmetricCheckBox() {

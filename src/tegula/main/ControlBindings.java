@@ -344,7 +344,7 @@ public class ControlBindings {
                 }
             });
         });
-        controller.getLastPageMenuItem().disableProperty().bind(isCollectionTabSelected.not());
+        controller.getChoosePageMenuItem().disableProperty().bind(isCollectionTabSelected.not());
 
 
         controller.getDualizeMenuItem().setOnAction((e) -> {
