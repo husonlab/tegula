@@ -36,16 +36,13 @@ import java.util.ArrayList;
 public class DatabaseAccess implements Closeable {
     private final Connection connection;
 
-    private static DatabaseAccess instance;
-
-    public static DatabaseAccess getInstance() {
-        return instance;
-    }
-
-    public static void setInstance(DatabaseAccess instance) {
-        DatabaseAccess.instance = instance;
-    }
-
+    /**
+     * constructor
+     *
+     * @param dbFile
+     * @throws IOException
+     * @throws SQLException
+     */
     public DatabaseAccess(String dbFile) throws IOException, SQLException {
         if (!Basic.fileExistsAndIsNonEmpty(dbFile))
             throw new IOException("File not found or unreadable: " + dbFile);
@@ -122,8 +119,17 @@ public class DatabaseAccess implements Closeable {
      *
      * @return size of the database or 0 if an error occurred
      */
-    public int computeDBSize() throws SQLException {
-        return executeQueryInt("SELECT count(*) FROM tilings;", 1).get(0);
+    public long computeDBSize() throws SQLException {
+        return executeQueryLong("SELECT count(*) FROM tilings;", 1).get(0);
+    }
+
+    /**
+     * computes the size of the mappings database by querying the mappings table with count(*)
+     *
+     * @return size of the database or 0 if an error occurred
+     */
+    public long getDBDSize() throws SQLException {
+        return Basic.parseLong(executeQueryString("select info_String from info where id='size';", 1).get(0));
     }
 
     /**
@@ -140,6 +146,22 @@ public class DatabaseAccess implements Closeable {
             resultlist.add(rs.getInt(index));
         }
         return resultlist;
+    }
+
+    /**
+     * generic method for executing queries with results of type int/Integer
+     *
+     * @param query the SQL query
+     * @return ArrayList containing all query results of the specified type
+     * @throws SQLException if something went wrong with the database
+     */
+    private ArrayList<Long> executeQueryLong(String query, int index) throws SQLException {
+        final ResultSet rs = connection.createStatement().executeQuery(query);
+        final ArrayList<Long> list = new ArrayList<>();
+        while (rs.next()) {
+            list.add(rs.getLong(index));
+        }
+        return list;
     }
 
 

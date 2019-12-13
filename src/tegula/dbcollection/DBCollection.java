@@ -44,7 +44,7 @@ public class DBCollection implements Closeable, IFileBased {
     private final StringProperty dbSelect = new SimpleStringProperty("");
     private final IntegerProperty count = new SimpleIntegerProperty(0);
     private final IntegerProperty pageSize = new SimpleIntegerProperty(1);
-    private final IntegerProperty totalCount = new SimpleIntegerProperty(0);
+    private final LongProperty totalCount = new SimpleLongProperty(0);
 
     private AService<ArrayList<DSymbol>> service = null;
 
@@ -58,7 +58,7 @@ public class DBCollection implements Closeable, IFileBased {
     public DBCollection(String databaseFile) throws IOException, SQLException {
         fileName.set(databaseFile);
         this.databaseAccess = new DatabaseAccess(databaseFile);
-        totalCount.set(databaseAccess.computeDBSize());
+        totalCount.set(databaseAccess.getDBDSize());
 
         dbSelect.addListener((c, o, n) -> {
             try {
@@ -137,11 +137,11 @@ public class DBCollection implements Closeable, IFileBased {
         databaseAccess.close();
     }
 
-    public int getTotalCount() {
+    public Long getTotalCount() {
         return totalCount.get();
     }
 
-    public ReadOnlyIntegerProperty totalCountProperty() {
+    public ReadOnlyLongProperty totalCountProperty() {
         return totalCount;
     }
 
