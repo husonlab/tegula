@@ -34,7 +34,7 @@ import java.util.function.Consumer;
  * Daniel Huson 3/2016
  */
 public class DSymbol {
-    private int nr1;
+    private long nr1;
     private int nr2;
 
     private int[][] set;
@@ -122,11 +122,11 @@ public class DSymbol {
         return Math.max(set.length - 1, 0);
     }
 
-    public int getNr1() {
+    public long getNr1() {
         return nr1;
     }
 
-    public void setNr1(int nr1) {
+    public void setNr1(long nr1) {
         this.nr1 = nr1;
     }
 
@@ -581,7 +581,7 @@ public class DSymbol {
         if (line.length() > 0 && line.startsWith("<")) {
             final Scanner scanner = new Scanner(line.substring(1)).useDelimiter(fullDelimiters);
 
-            nr1 = scanner.nextInt();
+            nr1 = scanner.nextLong();
             nr2 = scanner.nextInt();
             int size = scanner.nextInt();
             resize(size);
