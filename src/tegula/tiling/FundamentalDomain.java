@@ -396,8 +396,10 @@ public class FundamentalDomain {
                                 verticesGroup.getChildren().add(meshView);
                             }
                         } else { // is edge corner
-                            if (i == 1 && edgeCenter2WithGaps.get(a) || i == 2 && vertex1WithGaps.get(a))
-                                mesh = MeshUtils.combineTriangleMesh(mesh, circleMesh);
+                            if (tilingStyle.isShowVertices()) {
+                                if (i == 1 && edgeCenter2WithGaps.get(a) || i == 2 && vertex1WithGaps.get(a))
+                                    mesh = MeshUtils.combineTriangleMesh(mesh, circleMesh);
+                            }
                         }
                     }
 
