@@ -98,7 +98,7 @@ public class Lines {
      * @return line
      */
     public static Node createLine(Geometry geometry, Point3D a, Point3D b, Point3D c, Color color, float width) {
-        if (geometry == Geometry.Euclidean) {
+        if (geometry == Geometry.Euclidean && false) {
             final Polyline polyLine = new Polyline(a.getX(), a.getY(), b.getX(), b.getY(), c.getX(), c.getY());
             polyLine.setStroke(color);
             polyLine.setStrokeWidth(width);

@@ -58,7 +58,7 @@
                                                 <Tooltip text="Number of tilings that match current search"/>
                                             </tooltip>
                                         </Label>
-                                        <Slider fx:id="sizeSlider" max="1024.0" min="128.0" snapToTicks="true"
+                                        <Slider fx:id="sizeSlider" max="1024.0" min="100.0" snapToTicks="true"
                                                 value="300.0" HBox.hgrow="NEVER">
                                             <tooltip>
                                                 <Tooltip text="Set preview size">

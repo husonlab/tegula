@@ -516,9 +516,8 @@ public class FundamentalDomain {
         final ArrayList<Node> all = new ArrayList<>();
 
         for (int a = 1; a <= fDomain.size(); a++) {
-            all.add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a), Color.BLACK.deriveColor(1, 1, 1, 0.2), 1));
-
-            all.add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a), Color.BLACK.deriveColor(1, 1, 1, 0.1), 1));
+            all.add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a), Color.DARKGRAY, 2));
+            all.add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a), Color.LIGHTGRAY, 2));
 
             //all.getChildren().add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a), Color.LIGHTGRAY, 0.5f));
             //all.getChildren().add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(1, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a), Color.LIGHTGRAY, 0.5f));
@@ -535,7 +534,7 @@ public class FundamentalDomain {
         */
         for (int a = 1; a <= fDomain.getDSymbol().size(); a++) {
             final Text text = new Text("" + a);
-            text.setFont(Font.font("Arial", 7));
+            text.setFont(Font.font("System", 24));
             text.setFill(Color.BLACK);
             DropShadow dropShadow = new DropShadow();
             dropShadow.setRadius(5.0);

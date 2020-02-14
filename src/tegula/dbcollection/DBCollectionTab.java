@@ -109,7 +109,7 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
 
         DBCollectionPresenter dbCollectionPresenter = new DBCollectionPresenter(this);
 
-        controller.getPagination().pageCountProperty().bind(dbCollection.countProperty().divide(dbCollection.pageSizeProperty()));
+        controller.getPagination().pageCountProperty().bind(dbCollection.countProperty().divide(dbCollection.pageSizeProperty()).add(1));
 
         Platform.runLater(() -> {
             dbCollection.setDbSelect("complexity >0");

@@ -130,6 +130,8 @@ public class DBCollectionPresenter {
         controller.getSizeSlider().setOnMouseReleased((e) -> dbCollectionTab.updatePageSize());
         dbCollectionTab.getMainWindow().getStage().widthProperty().addListener((c, o, n) -> dbCollectionTab.updatePageSize());
         dbCollectionTab.getMainWindow().getStage().heightProperty().addListener((c, o, n) -> dbCollectionTab.updatePageSize());
+
+        controller.getSizeSlider().setMin(100);
     }
 
     public String setupSearch() {
