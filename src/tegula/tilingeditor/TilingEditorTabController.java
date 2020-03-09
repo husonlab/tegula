@@ -134,6 +134,9 @@ public class TilingEditorTabController {
     private Button orientateButton;
 
     @FXML
+    private Button removeRotationsButton;
+
+    @FXML
     private Button maximizeButton;
 
     @FXML
@@ -189,6 +192,7 @@ public class TilingEditorTabController {
         assert straightenEdgesButton != null : "fx:id=\"straightenEdgesButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert dualizeButton != null : "fx:id=\"dualizeButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert orientateButton != null : "fx:id=\"orientateButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert removeRotationsButton != null : "fx:id=\"removeRotationsButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert maximizeButton != null : "fx:id=\"maximizeButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert stopAnimationButton != null : "fx:id=\"stopAnimationButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert resetButton != null : "fx:id=\"resetButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
@@ -293,6 +297,10 @@ public class TilingEditorTabController {
 
     public Button getOrientateButton() {
         return orientateButton;
+    }
+
+    public Button getRemoveRotationsButton() {
+        return removeRotationsButton;
     }
 
     public Button getMaximizeButton() {

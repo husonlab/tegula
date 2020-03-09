@@ -133,6 +133,18 @@ public class ControlBindings {
         });
         controller.getOrientateButton().disableProperty().bind(tilingEditorTab.orientableTilingProperty());
 
+        controller.getRemoveRotationsButton().setOnAction((e) -> {
+            final ArrayList<DSymbol> result = BreakSymmetries.removeRotations(tilingPane.getTiling().getDSymbol(), BreakSymmetries.Task.RemoveAll);
+            if (result.size() > 0) {
+                final Point2D[][] coordinates = tilingPane.getTiling().getfDomain().getCoordinates();
+                undoManager.doAndAdd(new ChangeDSymbolCommand("remove rotations", tilingPane.getTiling().getDSymbol(), result.get(0),
+                        tilingPane::computTiling, coordinates, tilingPane::changeCoordinates));
+            }
+
+        });
+        //controller.getOrientateButton().disableProperty().bind();
+
+
         controller.getContractEdgeButton().setOnAction((e) -> {
             final Point2D[][] coordinates = tilingPane.getTiling().getfDomain().getCoordinates();
             if (tilingEditorTab.canContractEdgeProperty().get()) {

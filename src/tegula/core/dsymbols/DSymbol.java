@@ -26,8 +26,11 @@ import tegula.core.fundamental.utils.Wrap;
 import java.io.*;
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Scanner;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Delaney symbol
@@ -50,6 +53,7 @@ public class DSymbol {
     }
 
     public DSymbol(DSymbol src) {
+        this(0);
         copy(src);
     }
 
@@ -80,26 +84,62 @@ public class DSymbol {
     public void clear() {
         nr1 = 0;
         nr2 = 0;
-        set = new int[0][0];
-        matrix = new int[0][0];
+        set = new int[1][3];
+        matrix = new int[1][3];
     }
 
+    /**
+     * copy a Delaney symbol
+     *
+     * @param src
+     */
     public void copy(DSymbol src) {
         nr1 = src.nr1;
         nr2 = src.nr2;
 
-        set = new int[src.set.length][];
+        set = new int[src.set.length][3];
         for (int i = 0; i < src.set.length; i++) {
-            set[i] = new int[src.set[i].length];
             System.arraycopy(src.set[i], 0, set[i], 0, src.set[i].length);
         }
 
-        matrix = new int[src.matrix.length][];
+        matrix = new int[src.matrix.length][3];
         for (int i = 0; i < src.matrix.length; i++) {
-            matrix[i] = new int[src.matrix[i].length];
             System.arraycopy(src.matrix[i], 0, matrix[i], 0, src.matrix[i].length);
         }
     }
+
+    /**
+     * append a Delaney symbol
+     *
+     * @param src
+     */
+    public void append(DSymbol src) {
+        final int offset = set.length;
+
+        final int[][] tmpSet = new int[offset + src.set.length - 1][3];
+        for (int i = 0; i < offset; i++) {
+            System.arraycopy(set[i], 0, tmpSet[i], 0, set[i].length);
+        }
+        set = tmpSet;
+
+        for (int a = 1; a < src.set.length; a++) { // don't copy 0-entry, it is empty
+            for (int i = 0; i <= 2; i++) {
+                set[offset + a - 1][i] = src.set[a][i] + offset - 1;
+            }
+        }
+
+        final int[][] tmpMatrix = new int[offset + src.matrix.length - 1][3];
+        for (int i = 0; i < offset; i++) {
+            System.arraycopy(matrix[i], 0, tmpMatrix[i], 0, matrix[i].length);
+        }
+        matrix = tmpMatrix;
+
+        for (int a = 1; a < src.matrix.length; a++) { // don't copy 0-entry, it is empty
+            System.arraycopy(src.matrix[a], 0, matrix[offset + a - 1], 0, 3);
+        }
+
+    }
+
 
     /**
      * resize, maintaining previous data
@@ -234,6 +274,38 @@ public class DSymbol {
             visited.clear();
         markOrbit(i, j, a, visited);
         return visited.nextClearBit(a + 1);
+    }
+
+    public Iterable<int[]> orbits() {
+        return () -> new Iterator<>() {
+            private int k = 0;
+            final private BitSet fl = new BitSet();
+            private int a = 1;
+
+            @Override
+            public boolean hasNext() {
+                return a <= size();
+            }
+
+            @Override
+            public int[] next() {
+                if (hasNext()) {
+                    final int[] result = {i(k), j(k), a};
+                    a = nextOrbit(i(k), j(k), a, fl);
+                    if (a > size() && k < 2) {
+                        k++;
+                        a = 1;
+                    }
+
+                    return result;
+                } else
+                    return null;
+            }
+        };
+    }
+
+    public final Stream<int[]> orbitStream() {
+        return StreamSupport.stream(orbits().spliterator(), false);
     }
 
 
