@@ -134,16 +134,32 @@ public class ControlBindings {
         controller.getOrientateButton().disableProperty().bind(tilingEditorTab.orientableTilingProperty());
 
         controller.getRemoveRotationsButton().setOnAction((e) -> {
-            final ArrayList<DSymbol> result = BreakSymmetries.removeRotations(tilingPane.getTiling().getDSymbol(), BreakSymmetries.Task.RemoveAll);
-            if (result.size() > 0) {
-                final Point2D[][] coordinates = tilingPane.getTiling().getfDomain().getCoordinates();
-                undoManager.doAndAdd(new ChangeDSymbolCommand("remove rotations", tilingPane.getTiling().getDSymbol(), result.get(0),
-                        tilingPane::computTiling, coordinates, tilingPane::changeCoordinates));
+            final int k;
+            final int which;
+            if (tilingEditorTab.getVertexSelection().getSelectedItems().size() > 0) {
+                k = 0;
+                which = tilingEditorTab.getVertexSelection().getSelectedItems().get(0);
+            } else if (tilingEditorTab.getEdgeSelection().getSelectedItems().size() > 0) {
+                k = 1;
+                which = tilingEditorTab.getEdgeSelection().getSelectedItems().get(0);
+            } else if (tilingEditorTab.getTileSelection().getSelectedItems().size() > 0) {
+                k = 2;
+                which = tilingEditorTab.getTileSelection().getSelectedItems().get(0);
+            } else {
+                k = 0;
+                which = 0;
             }
-
+            if (which > 0) {
+                final DSymbol result = BreakSymmetries.removeRotations(tilingPane.getTiling().getDSymbol(), k, which);
+                if (result != null) {
+                    final Point2D[][] coordinates = tilingPane.getTiling().getfDomain().getCoordinates();
+                    undoManager.doAndAdd(new ChangeDSymbolCommand("remove rotations", tilingPane.getTiling().getDSymbol(), result,
+                            tilingPane::computTiling, coordinates, tilingPane::changeCoordinates));
+                }
+            }
         });
-        //controller.getOrientateButton().disableProperty().bind();
-
+        controller.getRemoveRotationsButton().disableProperty().bind((tilingEditorTab.orientableTilingProperty().not()).or((tilingEditorTab.singleVertexSelectedProperty().not())
+                .and(tilingEditorTab.singleEdgeSelectedProperty().not()).and(tilingEditorTab.singleTileSelectedProperty().not())));
 
         controller.getContractEdgeButton().setOnAction((e) -> {
             final Point2D[][] coordinates = tilingPane.getTiling().getfDomain().getCoordinates();
@@ -159,14 +175,14 @@ public class ControlBindings {
 
         controller.getTruncateVertexButton().setOnAction((e) -> {
             final Point2D[][] coordinates = tilingPane.getTiling().getfDomain().getCoordinates();
-            if (tilingEditorTab.canTruncateVertexProperty().get()) {
+            if (tilingEditorTab.singleVertexSelectedProperty().get()) {
                 final int vertex = tilingEditorTab.getVertexSelection().getSelectedItems().get(0);
                 undoManager.doAndAdd(new ChangeDSymbolCommand("truncate", tilingPane.getTiling().getDSymbol(), TruncateVertex.apply(vertex, tilingPane.getTiling().getDSymbol()),
                         tilingPane::computTiling, coordinates, tilingPane::changeCoordinates));
             }
 
         });
-        controller.getTruncateVertexButton().disableProperty().bind(tilingEditorTab.canTruncateVertexProperty().not());
+        controller.getTruncateVertexButton().disableProperty().bind(tilingEditorTab.singleVertexSelectedProperty().not());
 
 
         controller.getGlueTilesButton().setOnAction((e) -> {

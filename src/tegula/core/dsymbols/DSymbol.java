@@ -24,10 +24,7 @@ import jloda.util.Single;
 import tegula.core.fundamental.utils.Wrap;
 
 import java.io.*;
-import java.util.BitSet;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Scanner;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -343,6 +340,12 @@ public class DSymbol {
             b = getSi(j, b);
         }
         while (b != a);
+    }
+
+    public Set<Integer> orbitMembers(int i, int j, int a) {
+        final Set<Integer> set = new TreeSet<>();
+        visitOrbit(i, j, a, set::add);
+        return set;
     }
 
     /**

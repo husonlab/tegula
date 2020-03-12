@@ -66,7 +66,10 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
 
     private final BooleanProperty canDualizeTiling = new SimpleBooleanProperty(false);
     private final BooleanProperty canContractEdge = new SimpleBooleanProperty(false);
-    private final BooleanProperty canTruncateVertex = new SimpleBooleanProperty(false);
+    private final BooleanProperty singleVertexSelected = new SimpleBooleanProperty(false);
+    private final BooleanProperty singleEdgeSelected = new SimpleBooleanProperty(false);
+    private final BooleanProperty singleTileSelected = new SimpleBooleanProperty(false);
+
     private final BooleanProperty canGlueTilesAroundEdge = new SimpleBooleanProperty(false);
     private final BooleanProperty canGlueTilesAroundVertex = new SimpleBooleanProperty(false);
     private final BooleanProperty canSplitTile = new SimpleBooleanProperty(false);
@@ -189,15 +192,19 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
 
         vertexSelection.getSelectedItems().addListener((InvalidationListener) (e) -> {
             highlightSelections('v');
-            canTruncateVertex.set(vertexSelection.getSelectedItems().size() == 1);
+            singleVertexSelected.set(vertexSelection.getSelectedItems().size() == 1);
             updateCanGlueTiles();
         });
         edgeSelection.getSelectedItems().addListener((InvalidationListener) (e) -> {
             highlightSelections('e');
             updateCanContractEdge();
             updateCanGlueTiles();
+            singleEdgeSelected.set(edgeSelection.getSelectedItems().size() == 1);
         });
-        tileSelection.getSelectedItems().addListener((InvalidationListener) (e) -> highlightSelections('t'));
+        tileSelection.getSelectedItems().addListener((InvalidationListener) (e) -> {
+            highlightSelections('t');
+            singleTileSelected.set(tileSelection.getSelectedItems().size() == 1);
+        });
 
         tilingPane.setOnMouseClicked((e) -> {
             if (!e.isMetaDown() && e.getClickCount() == 2) {
@@ -350,8 +357,16 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
             canContractEdge.set(false);
     }
 
-    public ReadOnlyBooleanProperty canTruncateVertexProperty() {
-        return canTruncateVertex;
+    public ReadOnlyBooleanProperty singleVertexSelectedProperty() {
+        return singleVertexSelected;
+    }
+
+    public BooleanProperty singleEdgeSelectedProperty() {
+        return singleEdgeSelected;
+    }
+
+    public BooleanProperty singleTileSelectedProperty() {
+        return singleTileSelected;
     }
 
     public BooleanProperty canDualizeTilingProperty() {

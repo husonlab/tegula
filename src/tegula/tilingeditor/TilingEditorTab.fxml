@@ -290,9 +290,9 @@
                         </Button>
                         <Button fx:id="removeRotationsButton" layoutX="20.0" layoutY="84.0"
                                 maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-font-size: 12;"
-                                text="Remove Rotations">
+                                text="Try Remove Rotation">
                             <tooltip>
-                                <Tooltip text="Remove rotations"/>
+                                <Tooltip text="Remove rotation"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="maximizeButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
