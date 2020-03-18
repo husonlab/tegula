@@ -25,56 +25,51 @@ import com.install4j.api.update.UpdateChecker;
 import com.install4j.api.update.UpdateDescriptor;
 import com.install4j.api.update.UpdateDescriptorEntry;
 import jloda.fx.window.NotificationManager;
-import jloda.swing.util.InfoMessage;
 import jloda.util.Basic;
 import jloda.util.ProgramProperties;
 
-import javax.swing.*;
+import java.util.concurrent.Executors;
 
 /**
- * check for update and install, if present
+ * check for update
  * Daniel Huson, 5.2018
  */
 public class CheckForUpdate {
     /**
-     * check for update and install, if present
+     * check for update, download and install, if present
      */
-    public static void apply(String projectName) {
-        ApplicationDisplayMode applicationDisplayMode = ProgramProperties.isUseGUI() ? ApplicationDisplayMode.GUI : ApplicationDisplayMode.CONSOLE;
-        UpdateDescriptor updateDescriptor;
+    public static void apply(String programURL) {
         try {
-            updateDescriptor = UpdateChecker.getUpdateDescriptor("http://software-ab.informatik.uni-tuebingen.de/download/tegula/updates.xml", applicationDisplayMode);
+            final ApplicationDisplayMode applicationDisplayMode = ProgramProperties.isUseGUI() ? ApplicationDisplayMode.GUI : ApplicationDisplayMode.CONSOLE;
+            final UpdateDescriptor updateDescriptor = UpdateChecker.getUpdateDescriptor(programURL + "/updates.xml", applicationDisplayMode);
+            final UpdateDescriptorEntry possibleUpdate = updateDescriptor.getPossibleUpdateEntry();
+            if (possibleUpdate == null) {
+                NotificationManager.showInformation("Installed version is up-to-date");
+            } else {
+                if (!ProgramProperties.isUseGUI()) {
+                    NotificationManager.showInformation("New version available: " + possibleUpdate.getNewVersion() + "\nPlease download from: " + programURL);
+                } else {
+                    final Runnable runnable = () -> {
+                        System.err.println("Launching update dialog");
+                        ApplicationLauncher.launchApplicationInProcess("1691242391", null,
+                                new ApplicationLauncher.Callback() {
+                                    public void exited(int exitValue) {
+                                        System.err.println("Exit value: " + exitValue);
+                                    }
+
+                                    public void prepareShutdown() {
+                                        ProgramProperties.store();
+                                    }
+                                },
+                                ApplicationLauncher.WindowMode.FRAME, null);
+                    };
+                    //SwingUtilities.invokeLater(runnable);
+                    Executors.newSingleThreadExecutor().submit(runnable);
+                }
+            }
         } catch (Exception e) {
             Basic.caught(e);
-            // NotificationManager.showInformation("Installed version is up-to-date");
-            new InfoMessage("Installed version is up-to-date");
-            return;
+            NotificationManager.showInformation("Failed to check for updates: " + e);
         }
-        if (updateDescriptor.getEntries().length > 0) {
-            if (!ProgramProperties.isUseGUI()) {
-                UpdateDescriptorEntry entry = updateDescriptor.getEntries()[0];
-                NotificationManager.showInformation("New version available: " + entry.getNewVersion() + "\nPlease download from: http://software-ab.informatik.uni-tuebingen.de/download/tegula");
-                return;
-            }
-        } else {
-            NotificationManager.showInformation("Installed version is up-to-date");
-            return;
-        }
-
-
-        final Runnable runnable = () -> {
-            System.err.println("Launching update dialog");
-            ApplicationLauncher.launchApplicationInProcess("1691242391", null, new ApplicationLauncher.Callback() {
-                public void exited(int exitValue) {
-                    System.err.println("Exit value: " + exitValue);
-                }
-
-                public void prepareShutdown() {
-                    ProgramProperties.store();
-                }
-            }, ApplicationLauncher.WindowMode.FRAME, null);
-        };
-        SwingUtilities.invokeLater(runnable);
-        //Executors.newSingleThreadExecutor().submit(runnable);
     }
 }

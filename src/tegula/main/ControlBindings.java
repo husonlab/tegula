@@ -394,7 +394,7 @@ public class ControlBindings {
         });
         controller.getSelectNoneMenuItem().disableProperty().bind(selectedTab.isNull());
 
-        controller.getCheckForUpdatesMenuItem().setOnAction((e) -> CheckForUpdate.apply("tegula"));
+        controller.getCheckForUpdatesMenuItem().setOnAction((e) -> CheckForUpdate.apply(ProgramProperties.getProgramURL()));
         MainWindowManager.getInstance().changedProperty().addListener((c, o, n) -> controller.getCheckForUpdatesMenuItem().disableProperty().set(MainWindowManager.getInstance().size() > 1
                 || (MainWindowManager.getInstance().size() == 1 && !MainWindowManager.getInstance().getMainWindow(0).isEmpty())));
 
