@@ -35,10 +35,13 @@ import java.util.concurrent.Executors;
  * Daniel Huson, 5.2018
  */
 public class CheckForUpdate {
+    public static String programURL = "http://software-ab.informatik.uni-tuebingen.de/download/tegula";
+    public static String applicationId = "1691242391";
+
     /**
      * check for update, download and install, if present
      */
-    public static void apply(String programURL) {
+    public static void apply() {
         try {
             final ApplicationDisplayMode applicationDisplayMode = ProgramProperties.isUseGUI() ? ApplicationDisplayMode.GUI : ApplicationDisplayMode.CONSOLE;
             final UpdateDescriptor updateDescriptor = UpdateChecker.getUpdateDescriptor(programURL + "/updates.xml", applicationDisplayMode);
@@ -51,7 +54,7 @@ public class CheckForUpdate {
                 } else {
                     final Runnable runnable = () -> {
                         System.err.println("Launching update dialog");
-                        ApplicationLauncher.launchApplicationInProcess("1691242391", null,
+                        ApplicationLauncher.launchApplicationInProcess(applicationId, null,
                                 new ApplicationLauncher.Callback() {
                                     public void exited(int exitValue) {
                                         System.err.println("Exit value: " + exitValue);

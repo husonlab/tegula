@@ -66,9 +66,7 @@ public class Tegula extends Application {
         ResourceManagerFX.addResourceRoot(Tegula.class, "tegula/resources");
         ProgramProperties.setProgramName(Version.NAME);
         ProgramProperties.setProgramVersion(Version.SHORT_DESCRIPTION);
-        ProgramProperties.setProgramURL("http://software-ab.informatik.uni-tuebingen.de/download/tegula/");
-        ProgramProperties.setProgramLicence("This is an early (ALPHA) version of Tegula, made available for testing purposes. Source code will be released on publication."
-                + "Installers available at: " + ProgramProperties.getProgramURL() + "\n");
+        ProgramProperties.setProgramLicence("This is an early (ALPHA) version of Tegula, made available for testing purposes. Source code will be released on publication.\n");
         ProgramProperties.getProgramIconsFX().addAll(ResourceManagerFX.getIcons("Tegula16.png", "Tegula32.png", "Tegula64.png", "Tegula128.png"));
 
         SplashScreen.setVersionString(ProgramProperties.getProgramVersion());
