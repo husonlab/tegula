@@ -52,91 +52,101 @@ public class ReshapeUtilities {
      * @param a
      * @return
      */
-    public static Point2D resetShape(FDomain fDomain, double deltaX, double deltaY, Type type, int k, int a, double factor) {
+    public static Point2D resetShape(FDomain fDomain, double deltaX, double deltaY, Type type, int k, int a, double factor, boolean constrain) {
         final DSymbol ds = fDomain.getDSymbol();
         final Generators generators = fDomain.getGenerators();
         Point2D transVector = new Point2D(deltaX, deltaY);
 
-
-        switch (type) {
-            case Vertex: {
-                if (k == 2)
-                    break; // interaction implemented below for k=2
-
-                final int i = DSymbol.i(k);
-                final int j = 2;
-                final int length = ds.computeOrbitLength(i, j, a);
-
-                // Add restrictions in Euclidean case:
-                if (fDomain.getGeometry() == Geometry.Euclidean) {
-                    if (k == 1) {
-                        transVector = add1Restriction(fDomain, transVector.getX(), transVector.getY(), a); // Restrictions for 1-handles
-                    } else {
-                        transVector = add0Restriction(fDomain, transVector.getX(), transVector.getY(), a, length); // Restrictions for 0-handles
-                    }
+        if (!constrain) {
+            final Translate translate = new Translate(transVector.getX(), transVector.getY());
+            switch (type) {
+                case Vertex: {
+                    fDomain.setVertex(translate.transform(fDomain.getVertex(k, a)), k, a);
+                    break;
                 }
-
-                transVector = addMirrorRestriction(fDomain, transVector.getX(), transVector.getY(), length, k, a); // Mirror axis restriction
-
-
-                final Translate translate = new Translate(transVector.getX(), transVector.getY());
-
-                // Translate Point of type k in chamber a
-                Point2D pt2d = fDomain.getVertex(k, a);
-                pt2d = translate.transform(pt2d);
-                fDomain.setVertex(pt2d, k, a);
-                Point3D pt0 = Tools.map2Dto3D(fDomain.getGeometry(), fDomain.getVertex(k, a));
-
-
-                // Consider all points in orbit of a (especially if chamber contains boundary edges)
-                for (int z = 1; z <= length - 1; z++) {
-                    // If i=(1-k) -edge is on boundary
-                    if (fDomain.isBoundaryEdge(i, a) && ds.getSi(i, a) != a) {
-                        final Transform g = generators.get(i, a);
-                        pt0 = g.transform(pt0);
-                        pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt0);
-                        fDomain.setVertex(pt2d, k, ds.getSi(i, a));
-                    }
-                    a = ds.getSi(i, a);
-
-                    // If 2-edge is on boundary
-                    if (fDomain.isBoundaryEdge(j, a) && ds.getSi(j, a) != a) {
-                        final Transform g = generators.get(j, a);
-                        pt0 = g.transform(pt0);
-                        pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt0);
-                        fDomain.setVertex(pt2d, k, ds.getSi(j, a));
-                    }
-                    a = ds.getSi(j, a);
+                case EdgeCenter: {
+                    fDomain.setEdgeCenter(translate.transform(fDomain.getEdgeCenter(k, a)), k, a);
+                    break;
+                }
+                case ChamberCenter: {
+                    fDomain.setChamberCenter(translate.transform(fDomain.getChamberCenter(a)), a);
+                    break;
                 }
             }
-            case EdgeCenter: {
-                if (k != 2)
-                    break; // only allow reshaping of center of proper tiling edge
-                if (fDomain.getGeometry() == Geometry.Euclidean) { // Add restrictions in Euclidean case
-                    transVector = add2Restriction(fDomain, deltaX, deltaY, a, factor);
+        } else {
+            switch (type) {
+                case Vertex: {
+                    if (k == 2)
+                        break; // interaction implemented below for k=2
+
+                    final int i = DSymbol.i(k);
+                    final int j = DSymbol.j(k);
+                    final int length = ds.computeOrbitLength(i, j, a);
+
+                    // Add restrictions in Euclidean case:
+                    if (fDomain.getGeometry() == Geometry.Euclidean) {
+                        if (k == 1) {
+                            transVector = add1Restriction(fDomain, transVector.getX(), transVector.getY(), a); // Restrictions for 1-handles
+                        } else {
+                            transVector = add0Restriction(fDomain, transVector.getX(), transVector.getY(), a, length); // Restrictions for 0-handles
+                        }
+                    }
+
+                    transVector = addMirrorRestriction(fDomain, transVector.getX(), transVector.getY(), length, k, a); // Mirror axis restriction
+
+                    final Translate translate = new Translate(transVector.getX(), transVector.getY());
+
+                    // Translate Point of type k in chamber a
+                    fDomain.setVertex(translate.transform(fDomain.getVertex(k, a)), k, a);
+
+                    final Point3D pt0 = Tools.map2Dto3D(fDomain.getGeometry(), fDomain.getVertex(k, a));
+
+                    // Consider all points in orbit of a (especially if chamber contains boundary edges)
+                    for (int z = 1; z <= length - 1; z++) {
+                        // If i=(1-k) -edge is on boundary
+                        if (fDomain.isBoundaryEdge(i, a) && ds.getSi(i, a) != a) {
+                            final Transform g = generators.get(i, a);
+                            final Point3D pt1 = g.transform(pt0);
+                            fDomain.setVertex(Tools.map3Dto2D(fDomain.getGeometry(), pt1), k, ds.getSi(i, a));
+                        }
+                        a = ds.getSi(i, a);
+
+                        // If 2-edge is on boundary
+                        if (fDomain.isBoundaryEdge(j, a) && ds.getSi(j, a) != a) {
+                            final Transform g = generators.get(j, a);
+                            final Point3D pt1 = g.transform(pt0);
+                            fDomain.setVertex(Tools.map3Dto2D(fDomain.getGeometry(), pt1), k, ds.getSi(j, a));
+                        }
+                        a = ds.getSi(j, a);
+                    }
                 }
-                if (ds.getSi(k, a) == a) break;
-                final Translate translate = new Translate(transVector.getX(), transVector.getY());
+                case EdgeCenter: {
+                    if (k != 2)
+                        break; // only allow reshaping of center of proper tiling edge
+                    if (fDomain.getGeometry() == Geometry.Euclidean) { // Add restrictions in Euclidean case
+                        transVector = add2Restriction(fDomain, deltaX, deltaY, a, factor);
+                    }
+                    if (ds.getSi(k, a) == a) break;
+                    final Translate translate = new Translate(transVector.getX(), transVector.getY());
 
 
-                Point2D pt2d = fDomain.getEdgeCenter(k, a);
-                pt2d = translate.transform(pt2d);
-                fDomain.setEdgeCenter(pt2d, k, a);
-                Point3D apt = Tools.map2Dto3D(fDomain.getGeometry(), pt2d);
+                    fDomain.setEdgeCenter(translate.transform(fDomain.getEdgeCenter(k, a)), k, a);
+                    final Point3D pt0 = Tools.map2Dto3D(fDomain.getGeometry(), fDomain.getEdgeCenter(k, a));
 
-                if (fDomain.isBoundaryEdge(k, a)) {
-                    final Transform g = generators.get(k, a);
-                    apt = g.transform(apt);
-                    pt2d = Tools.map3Dto2D(fDomain.getGeometry(), apt);
-                    fDomain.setEdgeCenter(pt2d, k, ds.getS2(a));
+                    if (fDomain.isBoundaryEdge(k, a)) {
+                        final Transform g = generators.get(k, a);
+                        final Point3D pt1 = g.transform(pt0);
+                        final Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt1);
+                        fDomain.setEdgeCenter(pt2d, k, ds.getS2(a));
+                    }
+                    break;
                 }
-                break;
+                case ChamberCenter:
             }
-            case ChamberCenter:
+
+            // Straighten 0- and 1-edges
+            StraightenEdges.straighten01Edges(fDomain);
         }
-
-        // Straighten 0- and 1-edges
-        StraightenEdges.straighten01Edges(fDomain);
         return transVector.multiply(factor);
     }
 
@@ -164,7 +174,6 @@ public class ReshapeUtilities {
             }
         }
 
-
         Transform g = new Translate();
         if (2 * orbitLength / numberOfChambers == 2) { // Condition for exactly one mirror axis
             // Calculate reflection g:
@@ -185,7 +194,6 @@ public class ReshapeUtilities {
                 }
             }
 
-
             // Restrict mouse movement to mirror axis
             Point2D pt2d = fDomain.getVertex(k, a);
             pt2d = pt2d.add(deltaX, deltaY);
@@ -199,7 +207,6 @@ public class ReshapeUtilities {
             deltaX = newPos.getX() - oldPos.getX();
             deltaY = newPos.getY() - oldPos.getY();
         }
-
 
         return new Point2D(deltaX, deltaY);
     }
@@ -216,11 +223,12 @@ public class ReshapeUtilities {
         final DSymbol ds = fDomain.getDSymbol();
 
         // Restrict movement for 2-edge-handles
-        Point2D transVec = new Point2D(deltaX, deltaY);
-        Transform invGen = new Translate();
+        final Point2D transVec = new Point2D(deltaX, deltaY);
+        final Transform invGen;
         if (fDomain.isBoundaryEdge(2, a)) {
             invGen = fDomain.getGenerators().get(2, ds.getS2(a));
-        }
+        } else
+            invGen = new Translate();
 
         // There exist 4 restrictions. Each restricting line / plane is of the form <x,n> = c.
         // R - directions of line, N - normal vector, c - coordinate
@@ -366,7 +374,6 @@ public class ReshapeUtilities {
      * @return new direction
      */
     private static Point2D checkRestriction(Point2D transVec, Point3D[] R, Point3D[] N, Point3D[] Q, double[] c, Point3D firstPos, Point3D oldPos) {
-
         int length = N.length;
 
         // Change direction of translation if restrictions are broken

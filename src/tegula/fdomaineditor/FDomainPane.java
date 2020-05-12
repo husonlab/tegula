@@ -117,19 +117,21 @@ public class FDomainPane extends StackPane {
                             if (ds.getVij(i, j, b) > 1 || (k == 1 && b == ds.getS2(b))) { // is the center of a rotation
                                 color = Color.RED;
                                 vertexHandle.setN(ds.getVij(i, j, b));
-                                vertexHandle.setSize(10, 10);
+                                vertexHandle.setSize(12, 12);
                             } else if ((ds.getVij(i, j, b) == 1) && !(i == 0 && j == 2 && b == ds.getS2(b))
                                     && !(k == 2 && !getFDomain().isBoundaryEdge(0, b))) {
-                                setMouseHandler(undoManager, getScaleFactor(), vertexHandle, ReshapeUtilities.Type.Vertex, k, b);
+                                setMouseHandler(undoManager, getScaleFactor(), vertexHandle, ReshapeUtilities.Type.Vertex, k, b, false);
                                 if (ds.isCycle(i, j, b)) // can be freely moved
                                     color = Color.GREEN;
                                 else
                                     color = Color.YELLOW; // we are having problems with these
-                                vertexHandle.setSize(10, 10);
+                                vertexHandle.setSize(12, 12);
                             } else {
                                 color = Color.GRAY; // not moveable
                                 vertexHandle.setN(4);
-                                vertexHandle.setSize(3, 3);
+                                vertexHandle.setSize(5, 5);
+                                setMouseHandler(undoManager, getScaleFactor(), vertexHandle, ReshapeUtilities.Type.Vertex, k, b, true);
+
                             }
                             vertexHandle.setFill(color);
                             vertexHandle.setStroke(Color.GRAY);
@@ -150,16 +152,17 @@ public class FDomainPane extends StackPane {
                         else {
                             Color color;
                             if (k == 2) { // center of an edge
-                                setMouseHandler(undoManager, getScaleFactor(), edgeHandle, ReshapeUtilities.Type.EdgeCenter, 2, b);
+                                setMouseHandler(undoManager, getScaleFactor(), edgeHandle, ReshapeUtilities.Type.EdgeCenter, k, b, false);
                                 if (b != ds.getS2(b))
                                     color = Color.GREEN; // freely moveable
                                 else
                                     color = Color.YELLOW; // restricted to line
-                                edgeHandle.setSize(10, 10);
+                                edgeHandle.setSize(12, 12);
                             } else {
+                                setMouseHandler(undoManager, getScaleFactor(), edgeHandle, ReshapeUtilities.Type.EdgeCenter, k, b, true);
                                 color = Color.GRAY;
                                 edgeHandle.setN(4);
-                                edgeHandle.setSize(3, 3);
+                                edgeHandle.setSize(5, 5);
                             }
                             edgeHandle.setFill(color);
                             edgeHandle.setStroke(Color.GRAY);
@@ -173,13 +176,14 @@ public class FDomainPane extends StackPane {
 
         // setup chamber centers:
         for (int a = 1; a <= ds.size(); a++) {
-            final NGonShape c = new NGonShape(fDomain.getChamberCenter(a).multiply(getScaleFactor()));
-            chamberCenterHandles[a] = c;
-            c.setN(32);
-            c.setFill(Color.LIGHTGRAY);
-            c.setStroke(Color.LIGHTGRAY);
-            c.setSize(4, 4);
-            vertices.getChildren().add(c);
+            final NGonShape chambeHandle = new NGonShape(fDomain.getChamberCenter(a).multiply(getScaleFactor()));
+            chamberCenterHandles[a] = chambeHandle;
+            chambeHandle.setN(32);
+            chambeHandle.setFill(Color.LIGHTGRAY);
+            chambeHandle.setStroke(Color.LIGHTGRAY);
+            chambeHandle.setSize(5, 5);
+            vertices.getChildren().add(chambeHandle);
+            setMouseHandler(undoManager, getScaleFactor(), chambeHandle, ReshapeUtilities.Type.ChamberCenter, 2, a, true);
         }
 
         // setup flag 2 tile number map
@@ -325,7 +329,7 @@ public class FDomainPane extends StackPane {
     /**
      * set the mouse handler
      */
-    private void setMouseHandler(UndoManager undoManager, double factor, Shape shape, ReshapeUtilities.Type type, int k, int a) {
+    private void setMouseHandler(UndoManager undoManager, double factor, Shape shape, ReshapeUtilities.Type type, int k, int a, boolean allowMoveOnlyWithShift) {
         final ObjectProperty<Point2D> mouseDown = new SimpleObjectProperty<>(new Point2D(0, 0));
 
         shape.setOnMousePressed((e) -> {
@@ -334,29 +338,32 @@ public class FDomainPane extends StackPane {
             moved = false;
         });
 
-        shape.setOnMouseDragged((e) -> {
-            final double deltaX = e.getSceneX() - mouseDown.get().getX();
-            final double deltaY = e.getSceneY() - mouseDown.get().getY();
+        shape.setOnMouseDragged(e -> {
+            if (!allowMoveOnlyWithShift || e.isShiftDown()) {
+                final double deltaX = e.getSceneX() - mouseDown.get().getX();
+                final double deltaY = e.getSceneY() - mouseDown.get().getY();
 
-            if (deltaX != 0 || deltaY != 0) {
-                // Reset shape of fundamental domain
-                final Point2D constraintsAdjustmentTranslationVector = ReshapeUtilities.resetShape(getFDomain(), deltaX / factor, deltaY / factor, type, k, a, factor);
-                // Move handles along transVector
-                double fac = 1;
-                shape.setLayoutX(shape.getLayoutX() + fac * constraintsAdjustmentTranslationVector.getX());
-                shape.setLayoutY(shape.getLayoutY() + fac * constraintsAdjustmentTranslationVector.getY());
+                if (deltaX != 0 || deltaY != 0) {
+                    // Reset shape of fundamental domain
+                    final Point2D constraintsAdjustmentTranslationVector = ReshapeUtilities.resetShape(getFDomain(), deltaX / factor, deltaY / factor, type, k, a, factor, !e.isShiftDown());
 
-                mouseDown.set(new Point2D(e.getSceneX() - deltaX + fac * constraintsAdjustmentTranslationVector.getX(), e.getSceneY() - deltaY + fac * constraintsAdjustmentTranslationVector.getY()));
-                moved = true;
+                    // Move handles along transVector
+                    double fac = 1;
+                    shape.setLayoutX(shape.getLayoutX() + fac * constraintsAdjustmentTranslationVector.getX());
+                    shape.setLayoutY(shape.getLayoutY() + fac * constraintsAdjustmentTranslationVector.getY());
+
+                    mouseDown.set(new Point2D(e.getSceneX() - deltaX + fac * constraintsAdjustmentTranslationVector.getX(), e.getSceneY() - deltaY + fac * constraintsAdjustmentTranslationVector.getY()));
+                    moved = true;
+                }
             }
         });
 
         shape.setOnMouseReleased((e) -> {
             if (moved) {
-                undoManager.doAndAdd(new ChangeCoordinatesCommand(oldCoordinates, getFDomain().getCoordinates(), (c) -> {
+                undoManager.doAndAdd(new ChangeCoordinatesCommand(oldCoordinates, getFDomain().getCoordinates(), c -> {
                     getFDomain().setCoordinates(c);
                     tilingEditorTab.getTilingPane().update();
-                    update();
+                    //update();
                 }));
                 oldCoordinates = null;
                 moved = false;

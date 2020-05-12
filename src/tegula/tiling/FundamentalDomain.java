@@ -217,14 +217,18 @@ public class FundamentalDomain {
                 case Euclidean: {
                     /// Original mesh structure
                     trianglePoints3D = new Point3D[7];
-                    int p = 0;
-                    for (int k = 0; k <= 2; k++) {
-                        trianglePoints3D[p++] = fDomain.getVertex3D(k, a);
-                    }
-                    for (int k = 0; k <= 2; k++) {
-                        trianglePoints3D[p++] = fDomain.getEdgeCenter3D(k, a);
-                    }
-                    trianglePoints3D[p++] = fDomain.getChamberCenter3D(a);
+
+                    trianglePoints3D[0] = fDomain.getVertex3D(0, a);
+                    trianglePoints3D[1] = fDomain.getVertex3D(1, a);
+                    trianglePoints3D[2] = fDomain.getVertex3D(2, a);
+
+                    trianglePoints3D[3] = fDomain.getEdgeCenter3D(0, a);
+                    trianglePoints3D[4] = fDomain.getEdgeCenter3D(1, a);
+                    trianglePoints3D[5] = fDomain.getEdgeCenter3D(2, a);
+
+                    trianglePoints3D[6] = fDomain.getChamberCenter3D(a);
+
+
                     faces = new int[]{0, 0, 6, 1, 5, 2, // v0 cc e2
                             1, 0, 5, 1, 6, 2, // v1 e2 cc
                             1, 0, 6, 1, 3, 2, // v1 cc e0
@@ -258,22 +262,22 @@ public class FundamentalDomain {
                 case Hyperbolic: {
                     trianglePoints3D = new Point3D[13];
 
-                    int p = 0;
+                    trianglePoints3D[0] = fDomain.getVertex3D(0, a);
+                    trianglePoints3D[1] = fDomain.getVertex3D(1, a);
+                    trianglePoints3D[2] = fDomain.getVertex3D(2, a);
 
-                    for (int i = 0; i <= 2; i++) {
-                        trianglePoints3D[p++] = fDomain.getVertex3D(i, a);
-                    }
-                    for (int i = 0; i <= 2; i++) {
-                        trianglePoints3D[p++] = fDomain.getEdgeCenter3D(i, a);
-                    }
-                    trianglePoints3D[p++] = fDomain.getChamberCenter3D(a);
+                    trianglePoints3D[3] = fDomain.getEdgeCenter3D(0, a);
+                    trianglePoints3D[4] = fDomain.getEdgeCenter3D(1, a);
+                    trianglePoints3D[5] = fDomain.getEdgeCenter3D(2, a);
 
-                    trianglePoints3D[p++] = Tools.midpoint3D(geom, trianglePoints3D[0], trianglePoints3D[5]);
-                    trianglePoints3D[p++] = Tools.midpoint3D(geom, trianglePoints3D[5], trianglePoints3D[1]);
-                    trianglePoints3D[p++] = Tools.midpoint3D(geom, trianglePoints3D[0], trianglePoints3D[7]);
-                    trianglePoints3D[p++] = Tools.midpoint3D(geom, trianglePoints3D[7], trianglePoints3D[5]);
-                    trianglePoints3D[p++] = Tools.midpoint3D(geom, trianglePoints3D[5], trianglePoints3D[8]);
-                    trianglePoints3D[p++] = Tools.midpoint3D(geom, trianglePoints3D[8], trianglePoints3D[1]);
+                    trianglePoints3D[6] = fDomain.getChamberCenter3D(a);
+
+                    trianglePoints3D[7] = Tools.midpoint3D(geom, trianglePoints3D[0], trianglePoints3D[5]);
+                    trianglePoints3D[8] = Tools.midpoint3D(geom, trianglePoints3D[5], trianglePoints3D[1]);
+                    trianglePoints3D[9] = Tools.midpoint3D(geom, trianglePoints3D[0], trianglePoints3D[7]);
+                    trianglePoints3D[10] = Tools.midpoint3D(geom, trianglePoints3D[7], trianglePoints3D[5]);
+                    trianglePoints3D[11] = Tools.midpoint3D(geom, trianglePoints3D[5], trianglePoints3D[8]);
+                    trianglePoints3D[12] = Tools.midpoint3D(geom, trianglePoints3D[8], trianglePoints3D[1]);
 
                     faces = new int[]{0, 0, 6, 1, 9, 2, //
                             9, 0, 6, 1, 7, 2, //
@@ -296,7 +300,6 @@ public class FundamentalDomain {
                     }
 
                     cornerPoints3D = new Point3D[]{trianglePoints3D[0], trianglePoints3D[5], trianglePoints3D[1]};
-
 
                     // scales points to reduce rendering problems
                     for (int i = 0; i < trianglePoints3D.length; i++) {
