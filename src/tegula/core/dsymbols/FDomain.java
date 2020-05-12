@@ -469,28 +469,43 @@ public class FDomain {
     }
 
     public Point3D computeReferencePoint() {
-        double dMax = 0, dMin = 100000, dist;
-        int index = 1;
-        for (int i = 1; i <= size(); i++) {
-            Point3D a = getChamberCenter3D(i).multiply(0.01);
-            for (int j = 1; j <= size(); j++) {
-                if (j != i) {
-                    dist = Tools.distance(getGeometry(), a, getChamberCenter3D(j).multiply(0.01));
-                    if (dist > dMax) {
-                        dMax = dist;
+        if (true) {
+            Point3D average = new Point3D(0, 0, 0);
+            if (size() > 0) {
+                for (int a = 1; a <= size(); a++) {
+                    final Point3D chamberCenter = getChamberCenter3D(a);
+                    if (geometry.equals(Geometry.Hyperbolic))
+                        average = average.add(chamberCenter.multiply(0.01));
+                    else
+                        average = average.add(chamberCenter);
+                }
+                average = average.multiply(1.0 / size());
+            }
+            return average;
+        } else { // this leads to tilings with holes sometimes
+            double dMax = 0, dMin = 100000, dist;
+            int index = 1;
+            for (int i = 1; i <= size(); i++) {
+                Point3D a = getChamberCenter3D(i).multiply(0.01);
+                for (int j = 1; j <= size(); j++) {
+                    if (j != i) {
+                        dist = Tools.distance(getGeometry(), a, getChamberCenter3D(j).multiply(0.01));
+                        if (dist > dMax) {
+                            dMax = dist;
+                        }
                     }
                 }
+                if (dMax < dMin) {
+                    dMin = dMax;
+                    index = i;
+                }
+                dMax = 0;
             }
-            if (dMax < dMin) {
-                dMin = dMax;
-                index = i;
-            }
-            dMax = 0;
+            if (geometry.equals(Geometry.Hyperbolic))
+                return getChamberCenter3D(index).multiply(0.01);
+            else
+                return getChamberCenter3D(index);
         }
-        if (geometry.equals(Geometry.Hyperbolic))
-            return getChamberCenter3D(index).multiply(0.01);
-        else
-            return getChamberCenter3D(index);
     }
 
     /**

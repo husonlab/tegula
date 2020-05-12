@@ -21,6 +21,7 @@ package tegula.main;
 
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Tab;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import jloda.fx.control.SplittableTabPane;
@@ -30,6 +31,8 @@ import jloda.fx.window.IMainWindow;
 import jloda.fx.window.SetupWindowMenu;
 import jloda.util.FileOpenManager;
 import jloda.util.ProgramProperties;
+import tegula.dbcollection.DBCollectionTab;
+import tegula.filecollection.FileCollectionTab;
 import tegula.util.TilingFileFilter;
 
 import java.util.Collections;
@@ -120,5 +123,13 @@ public class MainWindow implements IMainWindow {
     @Override
     public void close() {
         stage.hide();
+    }
+
+    public boolean hasCollection() {
+        for (Tab tab : mainTabPane.getTabs()) {
+            if (tab instanceof DBCollectionTab || tab instanceof FileCollectionTab)
+                return true;
+        }
+        return false;
     }
 }
