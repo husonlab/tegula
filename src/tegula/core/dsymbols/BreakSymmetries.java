@@ -48,7 +48,7 @@ public class BreakSymmetries {
 
             final Set<Integer> vijs = OrbifoldGroupName.getGroupNameAsList(ds).stream().filter(Basic::isInteger).map(Basic::parseInt).collect(Collectors.toSet());
 
-            for (int[] ija : ds.orbitStream().filter(o -> ds.getVij(o[0], o[1], o[2]) > 1).sorted(Comparator.comparingInt(o -> ds.getVij(o[0], o[1], o[2]))).collect(Collectors.toList())) {
+            for (int[] ija : ds.orbitLabelsStream().filter(o -> ds.getVij(o[0], o[1], o[2]) > 1).sorted(Comparator.comparingInt(o -> ds.getVij(o[0], o[1], o[2]))).collect(Collectors.toList())) {
                 final int v = ds.getVij(ija[0], ija[1], ija[2]);
 
                 final Set<Integer> orbit = ds.orbitMembers(ija[0], ija[1], ija[2]);
@@ -95,7 +95,7 @@ public class BreakSymmetries {
                         }
 
                         if (ok) {
-                            final boolean hasMore = ds1.orbitStream().anyMatch(o -> ds1.getVij(o[0], o[1], o[2]) > 1);
+                            final boolean hasMore = ds1.orbitLabelsStream().anyMatch(o -> ds1.getVij(o[0], o[1], o[2]) > 1);
 
                             switch (task) {
                                 case RemoveOne: {

@@ -33,7 +33,7 @@ public class EDG {
     private int ty = -1;                // edge type
     private int npa = -1, npb = -1;            // related nodes
     private int epax = -1, epay = -1, epbx = -1, epby = -1;    // related edges
-    private int opx = -1, opy = -1;            // related orbits
+    private int opx = -1, opy = -1;            // related orbitLabels
 
     public int getCa() {
         return ca;

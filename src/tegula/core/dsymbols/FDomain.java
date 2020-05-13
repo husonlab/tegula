@@ -473,13 +473,9 @@ public class FDomain {
             Point3D average = new Point3D(0, 0, 0);
             if (size() > 0) {
                 for (int a = 1; a <= size(); a++) {
-                    final Point3D chamberCenter = getChamberCenter3D(a);
-                    if (geometry.equals(Geometry.Hyperbolic))
-                        average = average.add(chamberCenter.multiply(0.01));
-                    else
-                        average = average.add(chamberCenter);
+                    average = average.add(getChamberCenter3D(a));
                 }
-                average = average.multiply(1.0 / size());
+                average = average.multiply((geometry.equals(Geometry.Hyperbolic) ? 0.01 : 1.0) / size());
             }
             return average;
         } else { // this leads to tilings with holes sometimes

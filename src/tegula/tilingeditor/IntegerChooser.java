@@ -39,20 +39,24 @@ public class IntegerChooser extends HBox {
     /**
      * constructor
      */
-    public IntegerChooser() {
+    public IntegerChooser(boolean disabled) {
         setPrefWidth(130);
 
         setSpacing(3);
 
         final TextField textField = new TextField();
+        textField.setDisable(disabled);
         textField.setPrefWidth(40);
-
         textField.setMinWidth(TextField.USE_PREF_SIZE);
         textField.setMaxWidth(TextField.USE_PREF_SIZE);
         textField.setStyle("-fx-font-size: 12;");
+
         final Button downButton = new Button("--");
+        downButton.setDisable(disabled);
         downButton.setStyle("-fx-font-size: 12;");
+
         final Button upButton = new Button("++");
+        upButton.setDisable(disabled);
         upButton.setStyle("-fx-font-size: 12;");
         getChildren().addAll(textField, downButton, upButton);
 

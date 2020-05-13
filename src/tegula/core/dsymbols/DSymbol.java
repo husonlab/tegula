@@ -273,7 +273,50 @@ public class DSymbol {
         return visited.nextClearBit(a + 1);
     }
 
-    public Iterable<int[]> orbits() {
+    /**
+     * marks the i,j-orbit containing a and returns the next flag not contained in that orbit
+     *
+     * @param i
+     * @param j
+     * @param a
+     * @param array we set array[b]=mark for all b contained in the same i,j-orbit as a
+     * @param mark
+     * @return smallest node in next orbit
+     */
+    public int nextOrbit(final int i, final int j, int a, final int[] array, int mark) {
+        markOrbit(i, j, a, array, mark);
+        while (a < array.length && array[a] != 0)
+            a++;
+        return a;
+    }
+
+    /**
+     * iterates over smallest node in each i,j orbit
+     *
+     * @param i
+     * @param j
+     * @return all orbits
+     */
+    public Iterable<Integer> orbits(int i, int j) {
+        return () -> new Iterator<>() {
+            private final BitSet seen = new BitSet();
+            private int a = 1;
+
+            @Override
+            public boolean hasNext() {
+                return a <= size();
+            }
+
+            @Override
+            public Integer next() {
+                int result = a;
+                a = nextOrbit(i, j, a, seen);
+                return result;
+            }
+        };
+    }
+
+    public Iterable<int[]> orbitLabels() {
         return () -> new Iterator<>() {
             private int k = 0;
             final private BitSet fl = new BitSet();
@@ -301,27 +344,10 @@ public class DSymbol {
         };
     }
 
-    public final Stream<int[]> orbitStream() {
-        return StreamSupport.stream(orbits().spliterator(), false);
+    public final Stream<int[]> orbitLabelsStream() {
+        return StreamSupport.stream(orbitLabels().spliterator(), false);
     }
 
-
-    /**
-     * marks the i,j-orbit containing a and returns the next flag not contained in that orbit
-     *
-     * @param i
-     * @param j
-     * @param a
-     * @param array we set array[b]=mark for all b contained in the same i,j-orbit as a
-     * @param mark
-     * @return smallest node in next orbit
-     */
-    public int nextOrbit(final int i, final int j, int a, final int[] array, int mark) {
-        markOrbit(i, j, a, array, mark);
-        while (a < array.length && array[a] != 0)
-            a++;
-        return a;
-    }
 
     /**
      * visit all flags contained in the i,j-orbit containing flag a

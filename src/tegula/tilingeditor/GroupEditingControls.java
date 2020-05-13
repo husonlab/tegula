@@ -22,6 +22,7 @@ package tegula.tilingeditor;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Point2D;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
 import jloda.fx.undo.UndoManager;
 import tegula.core.dsymbols.DSymbol;
@@ -52,24 +53,26 @@ public class GroupEditingControls {
 
         // setup the rotation controls:
         int count = 0;
-        for (int i = 0; i <= 1; i++) {
-            final BitSet seen = new BitSet();
-            for (int a = 1; a <= ds.size(); a = ds.nextOrbit(i, i + 1, a, seen)) {
-                final int fi = i;
-                final int fj = i + 1;
-                final int fa = a;
-                final IntegerChooser vChooser = new IntegerChooser();
+        for (int k = 0; k <= 2; k++) {
+            final int i = DSymbol.i(k);
+            final int j = DSymbol.j(k);
+
+            for (final int a : ds.orbits(i, j)) {
+                if (k == 1 && ds.getVij(i, j, a) != 2)
+                    continue; // is an edge without a rotation
+
+                final IntegerChooser vChooser = new IntegerChooser(k == 1);
                 vbox.getChildren().add(vChooser);
 
-                vChooser.setValue(ds.getVij(i, i + 1, a));
+                vChooser.setValue(ds.getVij(i, j, a));
 
                 final ChangeListener<Number> listener = ((c, o, n) -> {
                     final DSymbol dsOld = new DSymbol(ds);
                     final Point2D[][] oldCoordinates = tilingPane.getTiling().getfDomain().getCoordinates();
 
                     if (n.intValue() < o.intValue()) {
-                        if (isOkDecreaseVij(ds, fa, fi, fj, ds.getVij(fi, fj, fa))) {
-                            ds.setVij(fi, fj, fa, n.intValue());
+                        if (isOkDecreaseVij(ds, a, i, j, ds.getVij(i, j, a))) {
+                            ds.setVij(i, j, a, n.intValue());
                             final boolean changed = ensureNNForSpherical(ds, n.intValue());
                             tilingPane.computTiling(ds);
                             tilingEditorTab.getTabPane().requestFocus();
@@ -79,7 +82,7 @@ public class GroupEditingControls {
                         } else // set the value back
                             Platform.runLater(() -> vChooser.setValue(o.intValue()));
                     } else if (n.intValue() > o.intValue()) {
-                        ds.setVij(fi, fj, fa, n.intValue());
+                        ds.setVij(i, j, a, n.intValue());
                         final boolean changed = ensureNNForSpherical(ds, n.intValue());
                         tilingPane.computTiling(ds);
                         tilingEditorTab.getTabPane().requestFocus();
@@ -91,6 +94,12 @@ public class GroupEditingControls {
                 });
                 vChooser.valueProperty().addListener(listener);
                 vChooser.setUserData(listener);
+                Tooltip.install(vChooser, new Tooltip(switch (k) {
+                    case 0 -> "Vertex";
+                    case 1 -> "Edge";
+                    case 2 -> "Tile";
+                    default -> "?";
+                }));
 
                 vChooser.setVisible(true);
             }
@@ -119,10 +128,9 @@ public class GroupEditingControls {
                 return false;
         }
         if (i == 1 && j == 2) { // don't want a resulting node of degree 2
-            if (ds.getMij(i, j, a) / ds.getVij(i, j, a) * (currentValue - 1) < 3)
-                return false;
-        }
-        return true;
+            return ds.getMij(i, j, a) / ds.getVij(i, j, a) * (currentValue - 1) >= 3;
+        } else
+            return true;
     }
 
 
