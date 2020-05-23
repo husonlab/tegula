@@ -165,7 +165,7 @@ public class Tools {
         // rotates start point on to the x-Axis
         double rotAngle = xAxis.angle(start.getX(), start.getY(), 0);
 
-        Point3D rotAxis = null;
+        Point3D rotAxis;
         if (start.getY() >= 0)
             rotAxis = new Point3D(0, 0, -1);
         else
@@ -186,7 +186,7 @@ public class Tools {
         Point3D endmoved = translate1.transform(rotateToX.transform(end));
 
         // rotate moved end point to x axis
-        Point3D rotAxis2 = null;
+        Point3D rotAxis2;
         double rotAngle2 = xAxis.angle(endmoved.getX(), endmoved.getY(), 0);
 
         if (endmoved.getY() >= 0)
@@ -199,10 +199,9 @@ public class Tools {
 
         // creates points on of equal distance to urpsrung that are perpendicular to the
         // moved end point
-        Point3D returnpoint1 = new Point3D(0, arcsinh(-distance * 0.01),
-                Math.sqrt(Math.pow(Math.sinh(distance) * 0.01, 2) + 1));
-        Point3D returnpoint2 = new Point3D(0, arcsinh(distance * 0.01),
-                Math.sqrt(Math.pow(Math.sinh(distance) * 0.01, 2) + 1));
+        final double z = Math.sqrt(Math.pow(Math.sinh(distance) * 0.01, 2) + 1);
+        Point3D returnpoint1 = new Point3D(0, arcsinh(-distance * 0.01), z);
+        Point3D returnpoint2 = new Point3D(0, arcsinh(distance * 0.01), z);
 
         // uses same rotations and translations that were used on end point
         returnpoints[0] = rotateToXInv.transform(translate1Inv.transform(rotat2Inv.transform(returnpoint1)))
@@ -234,7 +233,7 @@ public class Tools {
         // rotates center point to x axis
         double rotAngle = xAxis.angle(center.getX(), center.getY(), 0);
 
-        Point3D rotAxis = null;
+        Point3D rotAxis;
         if (center.getY() >= 0)
             rotAxis = new Point3D(0, 0, -1);
         else
@@ -254,7 +253,7 @@ public class Tools {
         Point3D endmoved = translate1.transform(rotateToX.transform(end));
 
         // rotates moved end point to x axis
-        Point3D rotAxis2 = null;
+        Point3D rotAxis2;
         double rotAngle2 = xAxis.angle(endmoved.getX(), endmoved.getY(), 0);
 
         if (endmoved.getY() >= 0)
@@ -429,15 +428,15 @@ public class Tools {
     public static Point3D map2Dto3D(Geometry geometry, Point2D apt) {
 
         switch (geometry) {
-            default:
-            case Euclidean: {
+            default //case  Euclidean
+                    -> {
                 return new Point3D(100 * apt.getX(), 100 * apt.getY(), 0);
             }
-            case Spherical: {
+            case Spherical -> {
                 final double d = apt.getX() * apt.getX() + apt.getY() * apt.getY();
                 return new Point3D(100 * (2 * apt.getX() / (1 + d)), 100 * (2 * apt.getY() / (1 + d)), 100 * ((d - 1) / (d + 1)));
             }
-            case Hyperbolic: {
+            case Hyperbolic -> {
                 final double d = apt.getX() * apt.getX() + apt.getY() * apt.getY();
                 if (d == 0)
                     apt = new Point2D(0.000000001, 0.000000001); // zero causes problems
@@ -450,16 +449,13 @@ public class Tools {
     }
 
     public static Point3D moveSlightlyAbove(Geometry geometry, Point3D apt) {
-        switch (geometry) {
-            case Euclidean:
-                return new Point3D(apt.getX(), apt.getY(), apt.getZ() - 0.01);
-            case Spherical:
-                return apt.multiply(1.01);
-            case Hyperbolic:
-                return new Point3D(apt.getX(), apt.getY(), apt.getZ() - 0.6); // - because we view from below
-            default:
-                return apt;
-        }
+        return switch (geometry) {
+            case Euclidean -> new Point3D(apt.getX(), apt.getY(), apt.getZ() - 0.01);
+            case Spherical -> apt.multiply(1.01);
+// - because we view from below
+            case Hyperbolic -> new Point3D(apt.getX(), apt.getY(), apt.getZ() - 0.6);
+            default -> apt;
+        };
     }
 
     /**
@@ -476,15 +472,15 @@ public class Tools {
     public static Point2D map3Dto2D(Geometry geometry, Point3D bpt) {
         bpt = bpt.multiply(0.01); // scale by 0.01
         switch (geometry) {
-            default:
-            case Euclidean: {
+            default // case Euclidean
+                    -> {
                 return new Point2D(bpt.getX(), bpt.getY());
             }
-            case Spherical: { // Inverse of stereographic projection
+            case Spherical -> { // Inverse of stereographic projection
                 double d = (1 + bpt.getZ()) / (1 - bpt.getZ());
                 return new Point2D((bpt.getX() * (d + 1) / 2), (bpt.getY() * (d + 1) / 2));
             }
-            case Hyperbolic: { // Transforms hyperboloid model to Poincare disk
+            case Hyperbolic -> { // Transforms hyperboloid model to Poincare disk
                 // model
                 return new Point2D(bpt.getX() / (1 + bpt.getZ()), bpt.getY() / (1 + bpt.getZ()));
             }
@@ -515,13 +511,11 @@ public class Tools {
     }
 
     public static Point3D getSphericalNormal(Point3D point) {
-        Point3D p = new Point3D(2 * point.getX(), 2 * point.getY(), 2 * point.getZ()).normalize();
-        return p;
+        return new Point3D(2 * point.getX(), 2 * point.getY(), 2 * point.getZ()).normalize();
     }
 
     public static Point3D getHyperbolicNormal(Point3D point) {
-        Point3D p = new Point3D(2 * point.getX(), 2 * point.getY(), -2 * point.getZ()).normalize();
-        return p;
+        return new Point3D(2 * point.getX(), 2 * point.getY(), -2 * point.getZ()).normalize();
     }
     /////////////////////////////////////////////////
 }

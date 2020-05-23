@@ -25,7 +25,7 @@ import javafx.scene.Cursor;
  * presenter
  * Daniel Huson, 10.2019
  */
-public class FileCollectionPresenter {
+public class FileCollectionControlBindings {
 
     /**
      * constructor

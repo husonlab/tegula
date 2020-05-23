@@ -17,14 +17,13 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.core.fundamental.data;
+package tegula.core.funtiles.data;
 
 /**
  * Edge
- * Created by huson on 3/27/16.
  * Based on del_data.h by Klaus Westphal, 1990
  */
-public class EDG {
+public class Edge {
     private int ca = -1;
     private int cb = -1;    // edge  coords
     private int id;    // edge number with respect to gluing

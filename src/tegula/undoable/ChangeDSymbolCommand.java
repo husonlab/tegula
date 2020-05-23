@@ -43,9 +43,7 @@ public class ChangeDSymbolCommand extends UndoableRedoableCommand {
             Platform.runLater(() -> coordinatesSetter.accept(oldCoordinates));
         };
 
-        redo = () -> {
-            replaceDSymbol.accept(newDsCopy);
-        };
+        redo = () -> replaceDSymbol.accept(newDsCopy);
 
     }
 

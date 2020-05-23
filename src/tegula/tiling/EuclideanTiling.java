@@ -44,7 +44,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
 
     private final QuadTree coveredPoints = new QuadTree();
 
-    private Point3D referencePoint = fDomain.computeReferencePoint(); //new Point3D(1, 1, 0);
+    private Point3D referencePoint = getfDomain().computeReferencePoint(); //new Point3D(1, 1, 0);
 
     private Transform transformRecycled = new Translate();
 
@@ -80,7 +80,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
      * @return group
      */
     private Group produceTiles(boolean reset) {
-        generators = fDomain.getGenerators();
+        generators = getfDomain().getGenerators();
 
         //Add handles
         handles.getChildren().setAll(((new ReshapeManager(this, doc).createHandles())));
@@ -97,7 +97,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
 
             //Prototype of fDomain (for copies)
             fundPrototype.getChildren().clear();
-            fundPrototype.getChildren().setAll(FundamentalDomain.compute(ds, fDomain, tilingStyle));
+            fundPrototype.getChildren().setAll(FundamentalDomain.compute(ds, getfDomain(), tilingStyle));
             all.getChildren().add(provideCopy(new Translate(), fundPrototype)); // Add identity to Prototype
         }
 
@@ -235,7 +235,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
         }
 
         //Add all generators
-        generators = fDomain.getGenerators();
+        generators = getfDomain().getGenerators();
 
         final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
 

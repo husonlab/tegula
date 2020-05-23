@@ -175,7 +175,6 @@ public class OrbifoldGroupName {
 
             int[] result = dSymbol.computeOtherChainEnd(i, j, b);
             i1 = result[0];
-            j1 = result[1];
             b1 = result[2];
 
             b = b1;

@@ -33,30 +33,22 @@ public class Constraints {
         FIXED, SYMMETRIC_BOUNDARY, FREE, LINE;
 
         public int code() {
-            switch (this) {
-                case FIXED:
-                    return -3;
-                case SYMMETRIC_BOUNDARY:
-                    return -1;
-                case LINE:
-                    return Integer.MAX_VALUE;
-                default:
-                case FREE:
-                    return 0;
-            }
+            return switch (this) {
+                case FIXED -> -3;
+                case SYMMETRIC_BOUNDARY -> -1;
+                case LINE -> Integer.MAX_VALUE;
+                case FREE -> 0;
+            };
         }
 
         public static ConstraintType decode(int i) {
             if (i > 0)
                 return LINE;
-            switch (i) {
-                case -3:
-                    return FIXED;
-                case -1:
-                    return SYMMETRIC_BOUNDARY;
-                default:
-                    return FREE;
-            }
+            return switch (i) {
+                case -3 -> FIXED;
+                case -1 -> SYMMETRIC_BOUNDARY;
+                default -> FREE;
+            };
         }
     }
 

@@ -70,9 +70,6 @@ public class Generators {
     public void setAgain(int k, int a) {
         if (transforms.size() > 0)
             map[k][a] = transforms.size(); // save transform index as 1, 2
-        else {
-            // throw new RuntimeException("No transform defined");
-        }
     }
 
     /**

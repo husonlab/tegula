@@ -36,7 +36,7 @@ import javafx.scene.transform.Translate;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
 import tegula.core.dsymbols.Geometry;
-import tegula.core.fundamental.utils.WrapInt;
+import tegula.core.funtiles.utils.WrapInt;
 import tegula.geometry.Tools;
 import tegula.main.TilingStyle;
 import tegula.tiling.parts.Band3D;
@@ -124,7 +124,7 @@ public class FundamentalDomain {
             final int[] faces;
 
             switch (geom) {
-                case Spherical: {
+                case Spherical -> {
 
                     final int depth = tilingStyle.isSmoothEdges() ? 4 : 0; // 4^5 = 1024
 
@@ -143,18 +143,11 @@ public class FundamentalDomain {
 
                     // Iterative Triangle mesh generator
                     class Triangle {
-                        private boolean orientationUp;
-                        private int pointA, pointB, pointC;
-                        private int depth;
 
                         private Triangle(boolean orientationUp, int pointA, int pointB, int pointC, int depth) {
-                            this.orientationUp = orientationUp;
-                            this.pointA = pointA;
-                            this.pointB = pointB;
-                            this.pointC = pointC;
-                            this.depth = depth;
+                            int depth1 = depth;
 
-                            if (this.depth > 0) {
+                            if (depth1 > 0) {
                                 int midAB = p.incrementInt();
                                 trianglePoints3D[midAB] = Tools.sphericalMidpoint(trianglePoints3D[pointA], trianglePoints3D[pointB]); // Tools.midpoint3D(geom,
                                 int midAC = p.incrementInt();
@@ -162,14 +155,14 @@ public class FundamentalDomain {
                                 int midBC = p.incrementInt();
                                 trianglePoints3D[midBC] = Tools.sphericalMidpoint(trianglePoints3D[pointB], trianglePoints3D[pointC]);// Tools.midpoint3D(geom,
 
-                                new Triangle(this.orientationUp, this.pointA, midAB, midAC, --this.depth);
-                                new Triangle(this.orientationUp, midAB, this.pointB, midBC, this.depth);
-                                new Triangle(this.orientationUp, midAC, midBC, this.pointC, this.depth);
+                                new Triangle(orientationUp, pointA, midAB, midAC, --depth1);
+                                new Triangle(orientationUp, midAB, pointB, midBC, depth1);
+                                new Triangle(orientationUp, midAC, midBC, pointC, depth1);
 
-                                if (this.orientationUp) {
-                                    new Triangle(!this.orientationUp, midAB, midBC, midAC, this.depth);
+                                if (orientationUp) {
+                                    new Triangle(!orientationUp, midAB, midBC, midAC, depth1);
                                 } else {
-                                    new Triangle(!this.orientationUp, midAC, midAB, midBC, this.depth);
+                                    new Triangle(!orientationUp, midAC, midAB, midBC, depth1);
                                 }
                             } else {
                                 int facPos = 6 * f.incrementInt();
@@ -214,7 +207,7 @@ public class FundamentalDomain {
 
                     break;
                 }
-                case Euclidean: {
+                case Euclidean -> {
                     /// Original mesh structure
                     trianglePoints3D = new Point3D[7];
 
@@ -258,8 +251,7 @@ public class FundamentalDomain {
                     cornerPoints3D = edgePoints3D;
                     break;
                 }
-                default:
-                case Hyperbolic: {
+                case Hyperbolic -> {
                     trianglePoints3D = new Point3D[13];
 
                     trianglePoints3D[0] = fDomain.getVertex3D(0, a);
@@ -306,6 +298,7 @@ public class FundamentalDomain {
                         trianglePoints3D[i] = trianglePoints3D[i].multiply(1.0125);
                     }
                 }
+                default -> throw new RuntimeException("Invalid case");
             } // end of geometric cases
 
             trianglePointsCoordinates = new float[3 * trianglePoints3D.length];
@@ -519,8 +512,8 @@ public class FundamentalDomain {
         final ArrayList<Node> all = new ArrayList<>();
 
         for (int a = 1; a <= fDomain.size(); a++) {
-            all.add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a), Color.DARKGRAY, 2));
-            all.add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a), Color.LIGHTGRAY, 2));
+            all.add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getEdgeCenter3D(1, a), fDomain.getVertex3D(2, a), Color.DARKGRAY, 1));
+            all.add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(2, a), fDomain.getEdgeCenter3D(0, a), fDomain.getVertex3D(1, a), Color.LIGHTGRAY, 1));
 
             //all.getChildren().add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(0, a), Color.LIGHTGRAY, 0.5f));
             //all.getChildren().add(Lines.createLine(fDomain.getGeometry(), fDomain.getVertex3D(1, a), fDomain.getChamberCenter3D(a), fDomain.getEdgeCenter3D(1, a), Color.LIGHTGRAY, 0.5f));
@@ -537,7 +530,7 @@ public class FundamentalDomain {
         */
         for (int a = 1; a <= fDomain.getDSymbol().size(); a++) {
             final Text text = new Text("" + a);
-            text.setFont(Font.font("System", 24));
+            text.setFont(Font.font("System", 12));
             text.setFill(Color.BLACK);
             DropShadow dropShadow = new DropShadow();
             dropShadow.setRadius(5.0);

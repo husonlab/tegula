@@ -87,7 +87,7 @@ public class DBCollectionTabController {
     private CheckBox orientableCheckBox;
 
     @FXML
-    private CheckBox hasReflectionsCheckBox;
+    private CheckBox colorableCheckBox;
 
     @FXML
     private CheckBox normalCheckBox;
@@ -123,7 +123,7 @@ public class DBCollectionTabController {
         assert signatureCBox != null : "fx:id=\"signatureCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert maximalSymmetricCheckBox != null : "fx:id=\"maximalSymmetricCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert orientableCheckBox != null : "fx:id=\"orientableCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
-        assert hasReflectionsCheckBox != null : "fx:id=\"hasReflectionsCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
+        assert colorableCheckBox != null : "fx:id=\"colorableCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert normalCheckBox != null : "fx:id=\"normalCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert selfDualCheckBox != null : "fx:id=\"selfDualCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert selectTitledPane != null : "fx:id=\"selectTitledPane\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
@@ -199,8 +199,8 @@ public class DBCollectionTabController {
         return orientableCheckBox;
     }
 
-    public CheckBox getHasReflectionsCheckBox() {
-        return hasReflectionsCheckBox;
+    public CheckBox getColorableCheckBox() {
+        return colorableCheckBox;
     }
 
     public CheckBox getNormalCheckBox() {

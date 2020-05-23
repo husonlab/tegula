@@ -50,7 +50,6 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
     private final StringProperty fileName = new SimpleStringProperty("Untitled");
 
     private final TilingEditorTabController controller;
-    private final Node root;
 
     private final TilingPane tilingPane;
     private final TilingStyle tilingStyle = new TilingStyle();
@@ -80,7 +79,7 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
 
     private final UndoManager undoManager = new UndoManager();
 
-    private BooleanProperty dirty = new SimpleBooleanProperty(false);
+    private final BooleanProperty dirty = new SimpleBooleanProperty(false);
 
     /**
      * constructor
@@ -102,7 +101,7 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
         tileSelection.setSelectionMode(SelectionMode.MULTIPLE);
 
         final ExtendedFXMLLoader<TilingEditorTabController> extendedFXMLLoader = new ExtendedFXMLLoader<>(this.getClass());
-        root = extendedFXMLLoader.getRoot();
+        Node root = extendedFXMLLoader.getRoot();
         controller = extendedFXMLLoader.getController();
 
         setContent(root);

@@ -17,27 +17,22 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.core.fundamental.data;
+package tegula.core.funtiles.data;
 
-import tegula.core.fundamental.utils.Maths;
+import tegula.core.funtiles.utils.Maths;
 
 /**
  * orbit
- * Created by huson on 3/27/16.
  * Based on del_data.h by Klaus Westphal, 1990
  */
-public class ORB {
-    private int crs;
+public class Orbit {
     int[] cr = {};        // orbit coords
     private int id;                // orb number with respect to gluing
     private int mk;                // splitted flag
     private int sg;                // sign
     private int ti = -1, tj = -1;            // orbit type
-    private int nps;
     private int[] np = {};        // list of related nodes
-    private int eps;
     private int[] ep = {};        // list of related edges
-    private int ops;
     private int[] op = {};        // list of related orbitLabels
     private int m, r, v = 1;            // delaney numbers (m / r = v)
     private int f = 1;                // fixpoint factor (1:loop, 2:chain)
@@ -49,21 +44,25 @@ public class ORB {
     private double beta = -Maths.M_PI_2;            // center angle
     private double dist = 1.0;            // center distance
 
-    public int getCrs() {
-        return crs;
+    public int getNumberOfCoordinates() {
+        return cr.length;
     }
 
     public int[] getCr() {
         return cr;
     }
 
-    public void setCr(int[] cr, int length) {
-        this.cr = new int[length];
-        System.arraycopy(cr, 0, this.cr, 0, length);
+    public void setCr(int n, int value) {
+        if (n >= cr.length) {
+            final int[] old = cr;
+            cr = new int[n + 1];
+            System.arraycopy(old, 0, cr, 0, Math.min(old.length, cr.length));
+        }
+        cr[n] = value;
     }
 
-    public void setCr(int i, int value) {
-        cr[i] = value;
+    public void clearCr() {
+        cr = new int[0];
     }
 
     public int getId() {
@@ -107,7 +106,7 @@ public class ORB {
     }
 
     public int getNps() {
-        return nps;
+        return np.length;
     }
 
     public int[] getNp() {
@@ -119,17 +118,16 @@ public class ORB {
     }
 
     public void setNp(int i, int value) {
+        if (i >= np.length) {
+            final int[] old = np;
+            np = new int[i + 1];
+            System.arraycopy(old, 0, np, 0, Math.min(old.length, np.length));
+        }
         np[i] = value;
     }
 
-    public void setNp(int[] np, int length) {
-        nps = length;
-        this.np = new int[length];
-        System.arraycopy(np, 0, this.np, 0, length);
-    }
-
     public int getEps() {
-        return eps;
+        return ep.length;
     }
 
     public int[] getEp() {
@@ -140,31 +138,28 @@ public class ORB {
         return ep[i];
     }
 
-    public void setEp(int[] ep, int length) {
-        eps = length;
-        this.ep = new int[length];
-        System.arraycopy(ep, 0, this.ep, 0, length);
-    }
-
     public void setEp(int i, int value) {
+        if (i >= ep.length) {
+            final int[] old = ep;
+            ep = new int[i + 1];
+            System.arraycopy(old, 0, ep, 0, Math.min(old.length, ep.length));
+        }
         ep[i] = value;
     }
 
     public int getOps() {
-        return ops;
+        return op.length;
     }
 
     public int[] getOp() {
         return op;
     }
-
-    public void setOp(int[] op, int length) {
-        ops = length;
-        this.op = new int[length];
-        System.arraycopy(op, 0, this.op, 0, length);
-    }
-
     public void setOp(int i, int value) {
+        if (i >= op.length) {
+            final int[] old = op;
+            op = new int[i + 1];
+            System.arraycopy(old, 0, op, 0, Math.min(old.length, op.length));
+        }
         op[i] = value;
     }
 

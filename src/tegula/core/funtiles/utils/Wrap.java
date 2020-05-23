@@ -1,5 +1,5 @@
 /*
- * WrapInt.java Copyright (C) 2020. Daniel H. Huson
+ * Wrap.java Copyright (C) 2020. Daniel H. Huson
  *
  *  (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -17,26 +17,30 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.core.fundamental.utils;
+package tegula.core.funtiles.utils;
 
-public class WrapInt {
+/**
+ * wrap a object to be passed by reference
+ * Created by huson on 3/28/16.
+ */
 
-    private int integer;
+/**
+ * wrap a object to be passed by reference
+ *
+ * @param <T>
+ */
+public class Wrap<T> {
+    private T value;
 
-    public WrapInt(int integer) {
-        this.integer = integer;
+    public Wrap(T value) {
+        this.value = value;
     }
 
-    public int incrementInt() {
-        return integer++;
+    public T get() {
+        return value;
     }
 
-    public int getInt() {
-        return integer;
+    public void set(T value) {
+        this.value = value;
     }
-
-    public void setInt(int integer) {
-        this.integer = integer;
-    }
-
 }

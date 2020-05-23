@@ -17,18 +17,17 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.core.fundamental.data;
+package tegula.core.funtiles.data;
 
 /**
  * node coordinates
- * Created by huson on 3/27/16.
  * Based on del_data.h by Klaus Westphal, 1990
  */
-public class NCR {
+public class NodeCoordinates {
     private int np;                // node number
-    private int[] nc = new int[]{-1, -1, -1};            // related node  coords [type]
-    private int[] ec = new int[]{-1, -1, -1};            // related edge  coords [type]
-    private int[] oc = new int[]{-1, -1, -1};            // related orbit coords [type]
+    private final int[] nc = new int[]{-1, -1, -1};            // related node  coords [type]
+    private final int[] ec = new int[]{-1, -1, -1};            // related edge  coords [type]
+    private final int[] oc = new int[]{-1, -1, -1};            // related orbit coords [type]
     private double dist;            // center distance
     private double beta = Math.PI;            // center angle
     private double posx;            // x-Coordinate

@@ -69,19 +69,12 @@ public class MapImageToGeometry {
                 final Point3D[] points3D = {Tools.map2Dto3D(geometry, points2D[0]), Tools.map2Dto3D(geometry, points2D[1]),
                         Tools.map2Dto3D(geometry, points2D[2]), Tools.map2Dto3D(geometry, points2D[3])};
 
-                final double maxSideLength;
-                switch (geometry) {
-                    case Spherical:
-                        maxSideLength = 20;
-                        break;
-                    case Hyperbolic:
-                        maxSideLength = 25;
-                        break;
-                    default:
-                    case Euclidean:
-                        maxSideLength = 1000; // don't subdivide
-                        break;
-                }
+                final double maxSideLength = switch (geometry) {
+                    case Spherical -> 20;
+                    case Hyperbolic -> 25;
+// don't subdivide
+                    case Euclidean -> 1000;
+                };
 
                 final TriangleMesh mesh = computeTriangleMesh(geometry, maxSideLength, points3D);
 

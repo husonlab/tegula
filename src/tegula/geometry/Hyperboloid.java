@@ -45,7 +45,7 @@ public class Hyperboloid extends TriangleMesh {
 
         getPoints().addAll(0, 0, 100);
 
-        float zDelta = height / levels;
+        float zDelta = (float) height / (float) levels;
 
         for (int l = 1; l <= levels; l++) {
             double radius = 100 * Math.sqrt((zDelta * (l) / 100 + 1) * (zDelta * (l) / 100 + 1) - 1);

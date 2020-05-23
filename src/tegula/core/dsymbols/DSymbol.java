@@ -19,9 +19,9 @@
 
 package tegula.core.dsymbols;
 
+import jloda.util.Basic;
 import jloda.util.BitSetUtils;
 import jloda.util.Single;
-import tegula.core.fundamental.utils.Wrap;
 
 import java.io.*;
 import java.util.*;
@@ -58,7 +58,8 @@ public class DSymbol {
         this(0);
         try {
             read(new StringReader(string));
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            Basic.caught(e);
         }
     }
 
@@ -368,8 +369,8 @@ public class DSymbol {
         while (b != a);
     }
 
-    public Set<Integer> orbitMembers(int i, int j, int a) {
-        final Set<Integer> set = new TreeSet<>();
+    public ArrayList<Integer> orbitMembers(int i, int j, int a) {
+        final ArrayList<Integer> set = new ArrayList<>();
         visitOrbit(i, j, a, set::add);
         return set;
     }
@@ -428,8 +429,7 @@ public class DSymbol {
      * @param mark
      */
     public void markOrbitX(final int i, final int j, final int a, final int[] visited, final int mark) {
-        for (int b = 0; b < visited.length; b++)
-            visited[b] = 0;
+        Arrays.fill(visited, 0);
         markOrbit(i, j, a, visited, mark);
     }
 
@@ -456,7 +456,7 @@ public class DSymbol {
     /*
      ** computes the cardinality of an i,j-orbit
      */
-    int computeOrbitCardinality(int i, int j, int a) {
+    public int computeOrbitCardinality(int i, int j, int a) {
         return (hasFixPoints(i, j, a) ? 1 : 2) * computeOrbitLength(i, j, a);
     }
 
@@ -517,8 +517,16 @@ public class DSymbol {
         setMij(i, j, a, r * v);
     }
 
-    public int getPij(int i, int j, int a) {
-        return hasFixPoints(i, j, a) ? 2 : 0;
+    /**
+     * gets the type of the i,j-orbit that contains a
+     *
+     * @param i
+     * @param j
+     * @param a
+     * @return 2 for chain and 1 for cycle
+     */
+    public int getOrbitType(int i, int j, int a) {
+        return hasFixPoints(i, j, a) ? 2 : 1;
     }
 
     public boolean hasFixPoints(int i, int j, int a) {
@@ -576,10 +584,10 @@ public class DSymbol {
      * @return 2 if orientable and fixpoint-free, 1 if orientable with fixpoints, 0 if not orientable
      */
     public int computeOrientation(int[] ori) {
-        return orientate(new Wrap<>(2), 1, 1, ori);
+        return orientate(new Single<>(2), 1, 1, ori);
     }
 
-    private int orientate(Wrap<Integer> result, int value, int a, int[] ori) {
+    private int orientate(Single<Integer> result, int value, int a, int[] ori) {
         int b;
 
         ori[a] = value;
@@ -667,8 +675,9 @@ public class DSymbol {
      * @throws IOException
      */
     public boolean read(final Reader r0) throws IOException {
-        final String fullDelimiters = "[\\s:\\.,>]";
-        final String reducedDelimiters = "[\\s\\.,>]";
+        boolean debug = false;
+        final String fullDelimiters = "[\\s:.,>]";
+        final String reducedDelimiters = "[\\s.,>]";
 
         final StringBuilder buf = new StringBuilder();
         while (r0.ready()) {
@@ -707,7 +716,6 @@ public class DSymbol {
 
             for (int i = 0; i < 3; i++) {
                 final BitSet seen = new BitSet();
-
                 for (int a = 1; a <= size; a = seen.nextClearBit(a + 1)) {
                     int b;
                     if (first != null) {
@@ -717,20 +725,30 @@ public class DSymbol {
                         b = scanner.nextInt();
                     seen.set(b);
                     setSi(i, a, b);
-                    //System.err.println("setS"+i+"("+a+")="+b);
+                    if (debug)
+                        System.err.println("setS" + i + "(" + a + ")=" + b);
                 }
             }
             for (int i = 0; i < 2; i++) {
                 final BitSet seen = new BitSet();
-                for (int a = 1; a <= size; a = nextOrbit(i, i + 1, a, seen)) {
+                for (int a : orbits(i, i + 1)) {
                     int m = scanner.nextInt();
                     setMij(i, i + 1, a, m);
-                    //System.err.println("setM"+i+""+(i+1)+"("+a+")="+m);
+                    if (debug) {
+                        System.err.println("setM" + i + "" + (i + 1) + "(" + a + ")=" + m);
+                        System.err.println("orbit(" + i + "," + (i + 1) + "," + a + "): " + Basic.toString(orbitMembers(i, i + 1, a), " "));
+                    }
                 }
             }
             for (int a = 1; a <= size; a++) {
                 setM02(a, 2);
             }
+            if (debug) {
+                for (int a : orbits(0, 2)) {
+                    System.err.println("orbit(0,2," + a + "): " + Basic.toString(orbitMembers(0, 2, a), " "));
+                }
+            }
+
             if (scanner.hasNext())
                 throw new IOException("End of symbol: not found");
             return true;
@@ -793,9 +811,10 @@ public class DSymbol {
                 return Geometry.Hyperbolic;
             case 1:
                 return Geometry.Spherical;
-            default:
             case 0:
                 return Geometry.Euclidean;
+            default:
+                throw new IllegalArgumentException();
         }
     }
 

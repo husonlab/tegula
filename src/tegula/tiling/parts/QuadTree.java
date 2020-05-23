@@ -119,8 +119,8 @@ public class QuadTree {
 
     }
 
-    private class QNode {
-        Point2D p;
+    private static class QNode {
+        final Point2D p;
         QNode NE, SE, SW, NW; // Four nodes for each direction in plane
 
         QNode(Point2D p) {

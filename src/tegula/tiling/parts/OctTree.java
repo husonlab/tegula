@@ -31,8 +31,8 @@ public class OctTree {
     private Node root; //Root node of the tree.
     private int size;
 
-    private class Node {
-        Point3D a;
+    private static class Node {
+        final Point3D a;
         Node ppp, mpp, pmp, ppm, mmp, mpm, pmm, mmm; // Eight nodes for each direction in space
 
         Node(Point3D a) {

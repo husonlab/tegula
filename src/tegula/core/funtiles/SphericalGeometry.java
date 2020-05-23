@@ -17,10 +17,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.core.fundamental;
+package tegula.core.funtiles;
 
-import tegula.core.fundamental.utils.Maths;
-import tegula.core.fundamental.utils.Wrap;
+import tegula.core.funtiles.utils.Maths;
+import tegula.core.funtiles.utils.Wrap;
 
 /**
  * spherical geometry

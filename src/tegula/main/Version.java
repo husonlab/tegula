@@ -24,6 +24,6 @@ package tegula.main;
  * Daniel Huson, 12.2018
  */
 public class Version {
-    static public String NAME = "Tegula";
-    static public String SHORT_DESCRIPTION = "Tegula 0.0.0alpha";
+    static public final String NAME = "Tegula";
+    static public final String SHORT_DESCRIPTION = "Tegula 0.0.0alpha";
 }

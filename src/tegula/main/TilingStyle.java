@@ -79,13 +79,9 @@ public class TilingStyle {
         this();
         copy(src);
 
-        showEdges.addListener((c, o, n) -> {
-            System.err.println("Show edges: " + n);
-        });
+        showEdges.addListener((c, o, n) -> System.err.println("Show edges: " + n));
 
-        showVertices.addListener((c, o, n) -> {
-            System.err.println("Show vertices: " + n);
-        });
+        showVertices.addListener((c, o, n) -> System.err.println("Show vertices: " + n));
     }
 
     public void copy(TilingStyle src) {

@@ -68,9 +68,11 @@ public class FileCollectionTab extends Tab implements ICollectionTab, Closeable,
 
     private final BooleanProperty showLabels = new SimpleBooleanProperty(true);
 
+    private final BooleanProperty colorPreview = new SimpleBooleanProperty(false);
+
     private final Function<DSymbol, String> labelGetter;
 
-    public static Font font = new Font("Arial", 12);
+    public static final Font font = new Font("Arial", 12);
 
     private final MainWindow mainWindow;
 
@@ -101,53 +103,26 @@ public class FileCollectionTab extends Tab implements ICollectionTab, Closeable,
         tilingStyle.setShowEdges(true);
         tilingStyle.setBandWidth(4);
         tilingStyle.setShowFaces(false);
+        tilingStyle.setTileOpacity(0.8);
         tilingStyle.setShowVertices(false);
         tilingStyle.setBandColor(Color.BLACK);
         tilingStyle.setBackgroundColor(Color.GHOSTWHITE);
+        tilingStyle.setTileColorsScheme("Retro29");
+
+        colorPreview.addListener((c, o, n) -> {
+            tilingStyle.setShowFaces(n);
+            processOpenFile(controller.getPagination().getCurrentPageIndex());
+        });
 
         labelGetter = (ds) -> String.format("%d. n:%d t:%d e:%d v:%d g:%s%s", ds.getNr1(), ds.size(),
                 ds.countOrbits(0, 1), ds.countOrbits(0, 2), ds.countOrbits(1, 2), OrbifoldGroupName.getGroupName(ds),
                 (DSymbolAlgorithms.isMaximalSymmetry(ds) ? " max" : ""));
 
-        FileCollectionPresenter.setup(this);
+        FileCollectionControlBindings.setup(this);
 
         controller.getPagination().pageCountProperty().bind(fileCollection.totalCountProperty().subtract(1).divide(fileCollection.pageSizeProperty()).add(1));
 
-        ProgramExecutorService.getInstance().submit(() -> {
-            try {
-                final ArrayList<String> lines = Basic.getLinesFromFile(fileCollection.getFileName());
-
-                Platform.runLater(() -> {
-                    fileCollection.setLines(lines);
-                    pageCache.clear();
-
-                    final Pagination pagination = controller.getPagination();
-                    updatePageSize();
-
-                    pagination.setPageFactory((page) -> {
-                        Pane pane = pageCache.get(page);
-                        if (pane == null || pane.getUserData() instanceof Integer && (Integer) pane.getUserData() != fileCollection.getNumberOfDSymbolsOnPage(page)) {
-                            final TilingsPane paneNew = new TilingsPane();
-                            pane = paneNew;
-                            ProgramExecutorService.getInstance().submit(() -> {
-                                final Collection<DSymbol> dSymbols = fileCollection.getPageOfDSymbols(page);
-                                Platform.runLater(() -> selectionModel.setItems(dSymbols));
-                                Platform.runLater(() -> paneNew.addTilings(dSymbols, FileCollectionTab.this, controller.getSizeSlider()));
-                            });
-                            pageCache.put(page, pane);
-                        }
-                        printable.set(pane);
-                        updatePageSize();
-
-                        return pane;
-                    });
-                    pagination.setCurrentPageIndex(0);
-                });
-            } catch (IOException e) {
-                Basic.caught(e);
-                NotificationManager.showError("Open file '" + fileCollection.getFileName() + "' failed: " + e.getMessage());
-            }
-        });
+        ProgramExecutorService.getInstance().submit(() -> processOpenFile(0));
 
         selectionModel.getSelectedItems().addListener((ListChangeListener<DSymbol>) (e) -> {
             final TilingsPane tilingsPane = (TilingsPane) getPrintable();
@@ -164,12 +139,44 @@ public class FileCollectionTab extends Tab implements ICollectionTab, Closeable,
         });
     }
 
-    public void close() {
+    private void processOpenFile(int pageNumber) {
         try {
-            fileCollection.close();
+            final ArrayList<String> lines = Basic.getLinesFromFile(fileCollection.getFileName());
+
+            Platform.runLater(() -> {
+                fileCollection.setLines(lines);
+                pageCache.clear();
+
+                final Pagination pagination = controller.getPagination();
+                updatePageSize();
+
+                pagination.setPageFactory((page) -> {
+                    Pane pane = pageCache.get(page);
+                    if (pane == null || pane.getUserData() instanceof Integer && (Integer) pane.getUserData() != fileCollection.getNumberOfDSymbolsOnPage(page)) {
+                        final TilingsPane paneNew = new TilingsPane();
+                        pane = paneNew;
+                        ProgramExecutorService.getInstance().submit(() -> {
+                            final Collection<DSymbol> dSymbols = fileCollection.getPageOfDSymbols(page);
+                            Platform.runLater(() -> selectionModel.setItems(dSymbols));
+                            Platform.runLater(() -> paneNew.addTilings(dSymbols, FileCollectionTab.this, controller.getSizeSlider()));
+                        });
+                        pageCache.put(page, pane);
+                    }
+                    printable.set(pane);
+                    updatePageSize();
+
+                    return pane;
+                });
+                pagination.setCurrentPageIndex(pageNumber);
+            });
         } catch (IOException e) {
             Basic.caught(e);
+            NotificationManager.showError("Open file '" + fileCollection.getFileName() + "' failed: " + e.getMessage());
         }
+    }
+
+    public void close() {
+        fileCollection.close();
     }
 
     @Override
@@ -217,6 +224,19 @@ public class FileCollectionTab extends Tab implements ICollectionTab, Closeable,
     @Override
     public BooleanProperty showLabelsProperty() {
         return showLabels;
+    }
+
+    public boolean isColorPreview() {
+        return colorPreview.get();
+    }
+
+    @Override
+    public BooleanProperty colorPreviewProperty() {
+        return colorPreview;
+    }
+
+    public void setColorPreview(boolean colorPreview) {
+        this.colorPreview.set(colorPreview);
     }
 
     @Override
@@ -272,6 +292,20 @@ public class FileCollectionTab extends Tab implements ICollectionTab, Closeable,
     @Override
     public int getNumberOfPages() {
         return getFileCollection().getNumberOfPages();
+    }
+
+    public void changePreviewSize(boolean larger) {
+        if (larger) {
+            if (1.1 * getController().getSizeSlider().getValue() < getController().getSizeSlider().getMax()) {
+                getController().getSizeSlider().setValue(1.1 * getController().getSizeSlider().getValue());
+                updatePageSize();
+            }
+        } else {
+            if (1 / 1.1 * getController().getSizeSlider().getValue() >= getController().getSizeSlider().getMin()) {
+                getController().getSizeSlider().setValue(1 / 1.1 * getController().getSizeSlider().getValue());
+                updatePageSize();
+            }
+        }
     }
 }
 

@@ -68,7 +68,6 @@ public class MouseHandler {
             if (me.isPrimaryButtonDown()) {
                 if (tilingPane.getTiling() instanceof SphericalTiling) {
                     final Point2D delta = new Point2D(me.getSceneX() - mouseDownX, me.getSceneY() - mouseDownY);
-                    //noinspection SuspiciousNameCombination
                     final Point3D dragOrthogonalAxis = new Point3D(delta.getY(), -delta.getX(), 0);
                     final Rotate rotate = new Rotate(0.25 * delta.magnitude(), dragOrthogonalAxis);
                     tilingPane.setWorldRotate(rotate.createConcatenation(tilingPane.getWorldRotate()));
@@ -144,7 +143,7 @@ public class MouseHandler {
         });
 
         tilingPane.setOnScroll(me -> {
-                    if (me.getDeltaY() != 0) {
+                    if (me.isMetaDown() && me.getDeltaY() != 0) {
                         final double factor = (me.getDeltaY() > 0 ? 1.1 : 0.9);
 
                         if (me.isShiftDown() || factor * tilingPane.getWorldScale().getX() > 0.1 && factor * tilingPane.getWorldScale().getY() > 0.1) {
@@ -180,7 +179,7 @@ public class MouseHandler {
         );
 
         onScrollEnded.set(me -> {
-            if (tilingPane.getGeometry() == Geometry.Euclidean)
+            if (me.isMetaDown() && tilingPane.getGeometry() == Geometry.Euclidean)
                 tilingPane.update();
         });
 
@@ -209,7 +208,6 @@ public class MouseHandler {
                 }
                 case EQUALS:
                 case PLUS:
-                    break;
                 case UNDERSCORE:
                 case MINUS:
                     break;

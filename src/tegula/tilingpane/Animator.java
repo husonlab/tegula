@@ -34,8 +34,8 @@ import javafx.util.Duration;
  */
 public class Animator {
     private final Timeline timeline;
-    private BooleanProperty playing = new SimpleBooleanProperty(false);
-    private BooleanProperty paused = new SimpleBooleanProperty(false);
+    private final BooleanProperty playing = new SimpleBooleanProperty(false);
+    private final BooleanProperty paused = new SimpleBooleanProperty(false);
 
     private double dx;
     private double dy;
@@ -90,9 +90,7 @@ public class Animator {
         this.dx = factor * dx0;
         this.dy = factor * dy0;
         timeline.stop();
-        final KeyFrame keyFrame = new KeyFrame(Duration.millis(10), (e) -> {
-            tilingPane.translateTiling(dx, dy);
-        });
+        final KeyFrame keyFrame = new KeyFrame(Duration.millis(10), (e) -> tilingPane.translateTiling(dx, dy));
         timeline.getKeyFrames().setAll(keyFrame);
         timeline.playFromStart();
     }

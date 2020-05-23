@@ -32,7 +32,7 @@ import javafx.util.Duration;
  */
 public class TranslateAnimation {
     private final Timeline timeline;
-    private BooleanProperty playing = new SimpleBooleanProperty(false);
+    private final BooleanProperty playing = new SimpleBooleanProperty(false);
     private double dx;
     private double dy;
 
@@ -55,9 +55,7 @@ public class TranslateAnimation {
         this.dy = factor * dy0;
         timeline.stop();
         timeline.getKeyFrames().clear();
-        final KeyFrame keyFrame = new KeyFrame(Duration.millis(10), (e) -> {
-            tilingPane.translateTiling(dx, dy);
-        });
+        final KeyFrame keyFrame = new KeyFrame(Duration.millis(10), (e) -> tilingPane.translateTiling(dx, dy));
         timeline.getKeyFrames().add(keyFrame);
         timeline.playFromStart();
     }

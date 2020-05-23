@@ -49,7 +49,7 @@
                                 </ToolBar>
                             </children>
                         </VBox>
-                        <Slider fx:id="sizeSlider" max="1024.0" min="128.0" snapToTicks="true" value="300.0"
+                        <Slider fx:id="sizeSlider" max="1024.0" min="64.0" snapToTicks="true" value="300.0"
                                 AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="6.0">
                             <tooltip>
                                 <Tooltip text="Set preview size"/>

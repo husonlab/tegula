@@ -13,9 +13,9 @@ module tegula {
     exports tegula.color;
     exports tegula.db;
     exports tegula.core.dsymbols;
-    exports tegula.core.fundamental;
-    exports tegula.core.fundamental.data;
-    exports tegula.core.fundamental.utils;
+    exports tegula.core.funtiles;
+    exports tegula.core.funtiles.data;
+    exports tegula.core.funtiles.utils;
     exports tegula.core.reshape;
     exports tegula.fdomaineditor;
     exports tegula.geometry;

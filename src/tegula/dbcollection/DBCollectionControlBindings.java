@@ -29,20 +29,15 @@ import tegula.core.dsymbols.SymmetryClass;
  * presenter
  * Daniel Huson, 10.2019
  */
-public class DBCollectionPresenter {
-    private final DBCollectionTab dbCollectionTab;
-    private final DBCollection dbCollection;
-    private final DBCollectionTabController controller;
-
+public class DBCollectionControlBindings {
     /**
      * constructor
      *
      * @param dbCollectionTab
      */
-    public DBCollectionPresenter(DBCollectionTab dbCollectionTab) {
-        this.dbCollectionTab = dbCollectionTab;
-        this.dbCollection = dbCollectionTab.getDbCollection();
-        this.controller = dbCollectionTab.getController();
+    public static void setup(DBCollectionTab dbCollectionTab) {
+        final DBCollection dbCollection = dbCollectionTab.getDbCollection();
+        final DBCollectionTabController controller = dbCollectionTab.getController();
 
         controller.getSelectTitledPane().setExpanded(false);
 
@@ -55,6 +50,9 @@ public class DBCollectionPresenter {
 
         dbCollectionTab.tabPaneProperty().addListener((c, o, n) -> {
             if (n != null) {
+                controller.getPagination().prefWidthProperty().unbind();
+                controller.getPagination().prefHeightProperty().unbind();
+
                 controller.getPagination().setPrefWidth(dbCollectionTab.getTabPane().getWidth());
                 controller.getPagination().setPrefHeight(dbCollectionTab.getTabPane().getHeight());
 
@@ -64,28 +62,28 @@ public class DBCollectionPresenter {
         });
 
         controller.getComplexityCBox().valueProperty().addListener((c, o, n) -> {
-            dbCollectionTab.processDBSelect(setupSearch(), 0);
+            dbCollectionTab.processDBSelect(setupSearch(controller), 0);
             if (n != null)
                 controller.getComplexityCBox().getItems().add(n);
         });
 
         controller.getNumberOfTilesCBox().valueProperty().addListener((c, o, n) -> {
-            dbCollectionTab.processDBSelect(setupSearch(), 0);
+            dbCollectionTab.processDBSelect(setupSearch(controller), 0);
             if (n != null)
                 controller.getNumberOfTilesCBox().getItems().add(n);
         });
         controller.getNumberOfEdgesCBox().valueProperty().addListener((c, o, n) -> {
-            dbCollectionTab.processDBSelect(setupSearch(), 0);
+            dbCollectionTab.processDBSelect(setupSearch(controller), 0);
             if (n != null)
                 controller.getNumberOfEdgesCBox().getItems().add(n);
         });
         controller.getNumberOfVerticesCBox().valueProperty().addListener((c, o, n) -> {
-            dbCollectionTab.processDBSelect(setupSearch(), 0);
+            dbCollectionTab.processDBSelect(setupSearch(controller), 0);
             if (n != null)
                 controller.getNumberOfVerticesCBox().getItems().add(n);
         });
 
-        final EventHandler<ActionEvent> onActionHandler = (e) -> dbCollectionTab.processDBSelect(setupSearch(), 0);
+        final EventHandler<ActionEvent> onActionHandler = (e) -> dbCollectionTab.processDBSelect(setupSearch(controller), 0);
 
         controller.getEuclideanCheckButton().setOnAction(onActionHandler);
         controller.getSphericalCheckButton().setOnAction(onActionHandler);
@@ -99,10 +97,10 @@ public class DBCollectionPresenter {
         controller.getSignatureCBox().setOnAction(onActionHandler);
 
         controller.getOrientableCheckBox().setOnAction(onActionHandler);
-        controller.getHasReflectionsCheckBox().setOnAction(onActionHandler);
+        controller.getColorableCheckBox().setOnAction(onActionHandler);
 
         controller.getOrbifoldCBox().valueProperty().addListener((c, o, n) -> {
-            dbCollectionTab.processDBSelect(setupSearch(), 0);
+            dbCollectionTab.processDBSelect(setupSearch(controller), 0);
             if (n != null && !controller.getOrbifoldCBox().getItems().contains(n))
                 controller.getOrbifoldCBox().getItems().add(n);
         });
@@ -112,9 +110,7 @@ public class DBCollectionPresenter {
         controller.getSymmetryClassCBox().getItems().addAll(Basic.toStrings(SymmetryClass.values()));
         controller.getSymmetryClassCBox().setOnAction(onActionHandler);
 
-        controller.getSearchCBox().setOnAction((c) -> {
-            dbCollectionTab.processDBSelect(controller.getSearchCBox().getValue(), 0);
-        });
+        controller.getSearchCBox().setOnAction((c) -> dbCollectionTab.processDBSelect(controller.getSearchCBox().getValue(), 0));
 
         dbCollection.countProperty().addListener((c, o, n) -> controller.getCountLabel().setText(n == null ? "?" : String.format("Found: %,d", n.intValue())));
 
@@ -130,11 +126,9 @@ public class DBCollectionPresenter {
         controller.getSizeSlider().setOnMouseReleased((e) -> dbCollectionTab.updatePageSize());
         dbCollectionTab.getMainWindow().getStage().widthProperty().addListener((c, o, n) -> dbCollectionTab.updatePageSize());
         dbCollectionTab.getMainWindow().getStage().heightProperty().addListener((c, o, n) -> dbCollectionTab.updatePageSize());
-
-        controller.getSizeSlider().setMin(100);
     }
 
-    public String setupSearch() {
+    private static String setupSearch(DBCollectionTabController controller) {
         final StringBuilder buf = new StringBuilder();
 
         if (addIntSelect("complexity", controller.getComplexityCBox().getValue()) != null) {
@@ -236,12 +230,11 @@ public class DBCollectionPresenter {
 
         }
 
-        if (!controller.getHasReflectionsCheckBox().isIndeterminate()) {
+        if (!controller.getColorableCheckBox().isIndeterminate()) {
             if (buf.length() > 0)
                 buf.append(" and ");
-            buf.append(" fixed_point_free = '").append(!controller.getHasReflectionsCheckBox().isSelected()).append("'");
+            buf.append(" colorable = '").append(controller.getColorableCheckBox().isSelected()).append("'");
         }
-
 
         return buf.toString().replaceAll("\\s\\s", " ");
     }

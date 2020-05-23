@@ -50,9 +50,7 @@ public class ControlBindings {
                 final HasHyperbolicModel.HyperbolicModel oldModel = tilingPane.getHyperbolicModel();
                 final HasHyperbolicModel.HyperbolicModel newModel = HasHyperbolicModel.HyperbolicModel.valueOf(controller.getModelChoiceBox().getSelectionModel().getSelectedItem());
                 undoManager.doAndAdd(new UndoableChangeProperty<>("hyperbolic model", tilingPane.hyperbolicModelProperty(), oldModel, newModel,
-                        (v) -> {
-                            controller.getModelChoiceBox().getSelectionModel().select(v.toString());
-                        }));
+                        (v) -> controller.getModelChoiceBox().getSelectionModel().select(v.toString())));
             }
         });
         controller.getModelChoiceBox().disableProperty().bind(tilingPane.geometryProperty().isNotEqualTo(Geometry.Hyperbolic));
@@ -246,9 +244,7 @@ public class ControlBindings {
             if (!undoManager.isPerformingUndoOrRedo())
                 undoManager.doAndAdd(new UndoableChangeProperty<>("tile opacity",
                         tilingStyle.tileOpacityProperty(), o, n,
-                        (v) -> {
-                            tilingPane.updateTileColors();
-                        })
+                        (v) -> tilingPane.updateTileColors())
                 );
         });
         controller.getTilesOpacitySlider().setValue(tilingStyle.getTileOpacity());
@@ -325,9 +321,7 @@ public class ControlBindings {
                         tilingStyle.bandColorProperty(), tilingStyle.getBandColorFullOpacity(), controller.getBandsColorPicker().getValue(),
                         (v) -> tilingPane.updateBandColors()));
         });
-        tilingStyle.bandColorProperty().addListener((c, o, n) -> {
-            controller.getBandsColorPicker().setValue(n);
-        });
+        tilingStyle.bandColorProperty().addListener((c, o, n) -> controller.getBandsColorPicker().setValue(n));
 
         controller.getBandsColorPicker().setOnShowing((e) -> {
             controller.getBandsColorPicker().getCustomColors().setAll(ColorSchemeManager.getInstance().getColorScheme(tilingStyle.getTileColorsScheme()));
@@ -340,9 +334,7 @@ public class ControlBindings {
                 undoManager.doAndAdd(new UndoableChangeProperty<>("band opacity",
                         tilingStyle.bandOpacityProperty(), o,
                         n,
-                        (v) -> {
-                            tilingPane.updateBandColors();
-                        }));
+                        (v) -> tilingPane.updateBandColors()));
         });
 
         controller.getBackgroundColorPicker().setOnAction((e) -> {
@@ -387,9 +379,7 @@ public class ControlBindings {
                 }
             });
         }
-        tilingStyle.tileColorsSchemeProperty().addListener((c, o, n) -> {
-            controller.getColorSchemeChoiceBox().getSelectionModel().select(n);
-        });
+        tilingStyle.tileColorsSchemeProperty().addListener((c, o, n) -> controller.getColorSchemeChoiceBox().getSelectionModel().select(n));
 
 
         controller.getStopAnimationButton().setVisible(false);

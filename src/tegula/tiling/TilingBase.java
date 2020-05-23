@@ -19,8 +19,7 @@
 
 package tegula.tiling;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.*;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -42,19 +41,19 @@ abstract public class TilingBase {
     public static final Group FAILED = new Group();
     protected final Stack<Node> recycler = new Stack<>();
     protected final Group fundPrototype = new Group();
-    final DSymbol ds;
-    String groupName;
-    FDomain fDomain;
+    protected final DSymbol ds;
+    protected String groupName;
+    protected final ObjectProperty<FDomain> fDomain = new SimpleObjectProperty<>();
 
-    final TilingStyle tilingStyle;
+    protected final TilingStyle tilingStyle;
 
-    Generators generators;
-    Constraints constraints;
+    protected Generators generators;
+    protected Constraints constraints;
 
-    Group handles = new Group();
+    protected final Group handles = new Group();
 
-    double tolerance = 0.0;
-    Point3D referencePoint;
+    protected double tolerance = 0.0;
+    protected Point3D referencePoint;
 
     private final BooleanProperty drawFundamentalDomainOnly = new SimpleBooleanProperty(false);
     private int numberOfCopies = 0;
@@ -67,9 +66,9 @@ abstract public class TilingBase {
     public TilingBase(DSymbol ds, TilingStyle tilingStyle) {
         this.ds = ds;
         this.groupName = OrbifoldGroupName.getGroupName(ds);
-        this.fDomain = new FDomain(ds, tilingStyle.isBendAnEdge());
-        this.constraints = fDomain.getConstraints();
-        this.generators = fDomain.getGenerators();
+        this.fDomain.set(new FDomain(ds, tilingStyle.isBendAnEdge()));
+        this.constraints = getfDomain().getConstraints();
+        this.generators = getfDomain().getGenerators();
 
         this.tilingStyle = tilingStyle;
     }
@@ -82,9 +81,9 @@ abstract public class TilingBase {
      */
     public void reset() {
         this.groupName = OrbifoldGroupName.getGroupName(ds);
-        this.fDomain = new FDomain(ds, tilingStyle.isBendAnEdge());
-        this.constraints = fDomain.getConstraints();
-        this.generators = fDomain.getGenerators();
+        this.fDomain.set(new FDomain(ds, tilingStyle.isBendAnEdge()));
+        this.constraints = getfDomain().getConstraints();
+        this.generators = getfDomain().getGenerators();
     }
 
 
@@ -96,7 +95,6 @@ abstract public class TilingBase {
     public String getGroupName() {
         return groupName;
     }
-
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -122,6 +120,10 @@ abstract public class TilingBase {
     }
 
     public FDomain getfDomain() {
+        return fDomain.get();
+    }
+
+    public ReadOnlyObjectProperty<FDomain> fDomainObjectProperty() {
         return fDomain;
     }
 
@@ -159,7 +161,7 @@ abstract public class TilingBase {
     }
 
     public Geometry getGeometry() {
-        return fDomain.getGeometry();
+        return getfDomain().getGeometry();
     }
 
     public Stack<Node> recycler() {

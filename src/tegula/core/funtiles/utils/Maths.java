@@ -17,7 +17,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.core.fundamental.utils;
+package tegula.core.funtiles.utils;
 
 /**
  * math

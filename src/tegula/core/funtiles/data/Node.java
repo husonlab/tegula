@@ -17,14 +17,13 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.core.fundamental.data;
+package tegula.core.funtiles.data;
 
 /**
  * node
- * Created by huson on 3/27/16.
  * Based on del_data.h by Klaus Westphal, 1990
  */
-public class NOD {
+public class Node {
     private int cr = -1; // node  coords
     private int id; // node number with respect to gluing
     private int mk; // # of glued edges

@@ -36,7 +36,15 @@ public interface ICollectionTab extends Closeable, Printable, IFileBased {
 
     boolean isShowLabels();
 
+    void setShowLabels(boolean show);
+
     BooleanProperty showLabelsProperty();
+
+    boolean isColorPreview();
+
+    void setColorPreview(boolean show);
+
+    BooleanProperty colorPreviewProperty();
 
     Function<DSymbol, String> getLabelGetter();
 
@@ -48,9 +56,9 @@ public interface ICollectionTab extends Closeable, Printable, IFileBased {
 
     AMultipleSelectionModel<DSymbol> getSelectionModel();
 
-    void setShowLabels(boolean show);
-
     void gotoPage(int page);
 
     int getNumberOfPages();
+
+    void changePreviewSize(boolean larger);
 }

@@ -46,7 +46,7 @@ public class DBCollection implements Closeable, IFileBased {
     private final IntegerProperty pageSize = new SimpleIntegerProperty(1);
     private final LongProperty totalCount = new SimpleLongProperty(0);
 
-    private AService<ArrayList<DSymbol>> service = null;
+    private final AService<ArrayList<DSymbol>> service = null;
 
     /**
      * constructor
@@ -133,7 +133,7 @@ public class DBCollection implements Closeable, IFileBased {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         databaseAccess.close();
     }
 

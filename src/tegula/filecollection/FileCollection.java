@@ -97,7 +97,7 @@ public class FileCollection implements Closeable, IFileBased {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
     }
 
     public int getTotalCount() {

@@ -19,6 +19,7 @@
 
 package tegula.main;
 
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.scene.control.Tab;
@@ -38,6 +39,7 @@ import tegula.core.dsymbols.Geometry;
 import tegula.dbcollection.ICollectionTab;
 import tegula.tiling.HyperbolicTiling;
 import tegula.tilingeditor.TilingEditorTab;
+import tegula.tilingpane.TilingPane;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -65,10 +67,25 @@ public class ControlBindings {
         final BooleanProperty isCollectionTabSelected = new SimpleBooleanProperty(false);
         selectedTab.addListener((c, o, n) -> {
             isCollectionTabSelected.set(n instanceof ICollectionTab);
-            if (n instanceof ICollectionTab)
+            if (n instanceof ICollectionTab) {
                 controller.getShowLabelsMenuItem().setSelected(((ICollectionTab) n).isShowLabels());
+                controller.getColorPreviewMenuItem().setSelected(((ICollectionTab) n).isColorPreview());
+            }
         });
         final IntegerProperty selectionInCollection = new SimpleIntegerProperty(0);
+
+        controller.getShowLessTilesMenuItem().setDisable(true);
+        controller.getShowMoreTilesMenuItem().setDisable(true);
+        controller.getUndoMenuItem().setDisable(true);
+        controller.getRedoMenuItem().setDisable(true);
+
+        final InvalidationListener listener = e -> {
+            if (selectedTab.get() instanceof TilingEditorTab) {
+                final TilingEditorTab tab = (TilingEditorTab) selectedTab.get();
+                controller.getShowMoreTilesMenuItem().setDisable(tab.getTiling().getGeometry() != Geometry.Hyperbolic);
+                controller.getShowLessTilesMenuItem().setDisable(tab.getTiling().getGeometry() != Geometry.Hyperbolic);
+            }
+        };
 
         selectedTab.addListener((c, o, n) -> {
             controller.getSaveSelectedMenuItem().disableProperty().unbind();
@@ -86,12 +103,11 @@ public class ControlBindings {
                 controller.getRedoMenuItem().textProperty().bind(tab.getUndoManager().redoNameProperty());
 
                 controller.getShowChambersMenuItem().setSelected(tab.getTilingStyle().isShowAllChambers());
+                controller.getSaveSelectedMenuItem().setDisable(false);
 
-                // todo: this needs to be dynamic
                 controller.getShowMoreTilesMenuItem().setDisable(tab.getTiling().getGeometry() != Geometry.Hyperbolic);
                 controller.getShowLessTilesMenuItem().setDisable(tab.getTiling().getGeometry() != Geometry.Hyperbolic);
-
-                controller.getSaveSelectedMenuItem().setDisable(false);
+                tab.getTiling().fDomainObjectProperty().addListener(listener);
             } else {
                 controller.getUndoMenuItem().disableProperty().unbind();
                 controller.getUndoMenuItem().setDisable(true);
@@ -106,6 +122,9 @@ public class ControlBindings {
 
                 controller.getShowMoreTilesMenuItem().setDisable(true);
                 controller.getShowLessTilesMenuItem().setDisable(true);
+                if (o instanceof TilingEditorTab)
+                    ((TilingEditorTab) o).getTiling().fDomainObjectProperty().removeListener(listener);
+
             }
 
             if (n instanceof ICollectionTab) {
@@ -181,9 +200,7 @@ public class ControlBindings {
 
         controller.getPageSetupMenuItem().setOnAction((e) -> Print.showPageLayout(window.getStage()));
 
-        controller.getCloseMenuItem().setOnAction((e) -> {
-            MainWindowManager.getInstance().closeMainWindow(window);
-        });
+        controller.getCloseMenuItem().setOnAction((e) -> MainWindowManager.getInstance().closeMainWindow(window));
 
         window.getStage().setOnCloseRequest((e) -> {
             controller.getCloseMenuItem().getOnAction().handle(null);
@@ -225,23 +242,18 @@ public class ControlBindings {
                 final ICollectionTab tab = (ICollectionTab) selectedTab.get();
                 final Collection<DSymbol> symbols = Basic.reverse(tab.getSelectionModel().getSelectedItems());
                 for (DSymbol dSymbol : symbols) {
-                    final TilingEditorTab editorTab = new TilingEditorTab(new DSymbol(dSymbol), Basic.replaceFileSuffix(Basic.getFileNameWithoutPath(tab.getFileName()), ":" + dSymbol.getNr1()));
+                    final TilingEditorTab editorTab = new TilingEditorTab(new DSymbol(dSymbol), Basic.replaceFileSuffix(Basic.getFileNameWithoutPath(tab.getFileName()), "-" + dSymbol.getNr1()));
                     window.getMainTabPane().getTabs().add(editorTab);
+                    window.getMainTabPane().getSelectionModel().select(editorTab);
                 }
             }
         });
         controller.getOpenInEditorMenuItem().disableProperty().bind(selectionInCollection.isEqualTo(0));
 
         controller.getFullScreenMenuItem().setOnAction((e) -> {
-            if (window.getStage().isFullScreen()) {
-                window.getStage().setFullScreen(false);
-            } else {
-                window.getStage().setFullScreen(true);
-            }
+            window.getStage().setFullScreen(!window.getStage().isFullScreen());
         });
-        window.getStage().fullScreenProperty().addListener((c, o, n) -> {
-            controller.getFullScreenMenuItem().setText(n ? "Exit Fullscreen" : "Enter Fullscreen");
-        });
+        window.getStage().fullScreenProperty().addListener((c, o, n) -> controller.getFullScreenMenuItem().setText(n ? "Exit Fullscreen" : "Enter Fullscreen"));
 
         controller.getShowLabelsMenuItem().setOnAction((e) -> {
             if (selectedTab.get() instanceof ICollectionTab) {
@@ -249,6 +261,14 @@ public class ControlBindings {
             }
         });
         controller.getShowLabelsMenuItem().disableProperty().bind(isCollectionTabSelected.not());
+
+        controller.getColorPreviewMenuItem().setOnAction((e) -> {
+            if (selectedTab.get() instanceof ICollectionTab) {
+                ((ICollectionTab) selectedTab.get()).setColorPreview(controller.getColorPreviewMenuItem().isSelected());
+            }
+        });
+        controller.getColorPreviewMenuItem().disableProperty().bind(isCollectionTabSelected.not());
+
 
         controller.getShowChambersMenuItem().setOnAction((e) -> {
             final boolean selected = controller.getShowChambersMenuItem().isSelected();
@@ -306,6 +326,59 @@ public class ControlBindings {
                     });
             }
         });
+
+        controller.getZoomInMenuItem().setOnAction((e) -> {
+            if (selectedTab.get() instanceof TilingEditorTab) {
+                final TilingPane tilingPane = ((TilingEditorTab) selectedTab.get()).getTilingPane();
+                ((TilingEditorTab) selectedTab.get()).getUndoManager().doAndAdd(new UndoableRedoableCommand("zoom in") {
+                    @Override
+                    public void undo() {
+                        tilingPane.getWorldScale().setX(1.0 / 1.05 * tilingPane.getWorldScale().getX());
+                        tilingPane.getWorldScale().setY(1.0 / 1.05 * tilingPane.getWorldScale().getY());
+                        if (tilingPane.getGeometry() == Geometry.Euclidean)
+                            tilingPane.update();
+                    }
+
+                    @Override
+                    public void redo() {
+                        tilingPane.getWorldScale().setX(1.05 * tilingPane.getWorldScale().getX());
+                        tilingPane.getWorldScale().setY(1.05 * tilingPane.getWorldScale().getY());
+                    }
+                });
+            } else if (selectedTab.get() instanceof ICollectionTab) {
+                ((ICollectionTab) selectedTab.get()).changePreviewSize(true);
+            }
+        });
+        controller.getZoomInMenuItem().disableProperty().bind(selectedTab.isNull());
+        controller.getZoomInButton().setOnAction(controller.getZoomInMenuItem().getOnAction());
+        controller.getZoomInButton().disableProperty().bind(selectedTab.isNull());
+
+        controller.getZoomOutMenuItem().setOnAction((e) -> {
+            if (selectedTab.get() instanceof TilingEditorTab) {
+                final TilingPane tilingPane = ((TilingEditorTab) selectedTab.get()).getTilingPane();
+                ((TilingEditorTab) selectedTab.get()).getUndoManager().doAndAdd(new UndoableRedoableCommand("zoom out") {
+                    @Override
+                    public void undo() {
+                        tilingPane.getWorldScale().setX(1.05 * tilingPane.getWorldScale().getX());
+                        tilingPane.getWorldScale().setY(1.05 * tilingPane.getWorldScale().getY());
+                    }
+
+                    @Override
+                    public void redo() {
+                        tilingPane.getWorldScale().setX(1.0 / 1.05 * tilingPane.getWorldScale().getX());
+                        tilingPane.getWorldScale().setY(1.0 / 1.05 * tilingPane.getWorldScale().getY());
+                        if (tilingPane.getGeometry() == Geometry.Euclidean)
+                            tilingPane.update();
+                    }
+                });
+            }
+            if (selectedTab.get() instanceof ICollectionTab) {
+                ((ICollectionTab) selectedTab.get()).changePreviewSize(false);
+            }
+        });
+        controller.getZoomOutMenuItem().disableProperty().bind(selectedTab.isNull());
+        controller.getZoomOutButton().setOnAction(controller.getZoomOutMenuItem().getOnAction());
+        controller.getZoomOutButton().disableProperty().bind(selectedTab.isNull());
 
         controller.getStraightenMenuItem().setOnAction((e) -> {
             if (selectedTab.get() instanceof TilingEditorTab) {

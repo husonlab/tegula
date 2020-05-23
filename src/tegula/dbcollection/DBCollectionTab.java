@@ -36,7 +36,6 @@ import jloda.fx.util.ProgramExecutorService;
 import jloda.fx.window.NotificationManager;
 import jloda.util.Basic;
 import tegula.core.dsymbols.DSymbol;
-import tegula.core.dsymbols.DSymbolAlgorithms;
 import tegula.core.dsymbols.OrbifoldGroupName;
 import tegula.main.MainWindow;
 import tegula.main.TilingStyle;
@@ -65,10 +64,13 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
     private final TilingStyle tilingStyle;
 
     private final BooleanProperty showLabels = new SimpleBooleanProperty(true);
+    private final BooleanProperty colorPreview = new SimpleBooleanProperty(false);
+
+    private final StringProperty previousQuery = new SimpleStringProperty("");
 
     private final Function<DSymbol, String> labelGetter;
 
-    public static Font font = new Font("Arial", 12);
+    public static final Font font = new Font("Arial", 12);
 
     private final MainWindow mainWindow;
 
@@ -99,15 +101,22 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
         tilingStyle.setShowEdges(true);
         tilingStyle.setBandWidth(4);
         tilingStyle.setShowFaces(false);
+        tilingStyle.setTileOpacity(0.8);
         tilingStyle.setShowVertices(false);
         tilingStyle.setBandColor(Color.BLACK);
         tilingStyle.setBackgroundColor(Color.GHOSTWHITE);
+        tilingStyle.setTileColorsScheme("Retro29");
 
-        labelGetter = (ds) -> String.format("%d. n:%d t:%d e:%d v:%d g:%s%s", ds.getNr1(), ds.size(),
-                ds.countOrbits(0, 1), ds.countOrbits(0, 2), ds.countOrbits(1, 2), OrbifoldGroupName.getGroupName(ds),
-                (DSymbolAlgorithms.isMaximalSymmetry(ds) ? " max" : ""));
+        colorPreview.addListener((c, o, n) -> {
+            tilingStyle.setShowFaces(n);
+            pageCache.clear();
+            processDBSelect(previousQuery.get(), controller.getPagination().getCurrentPageIndex());
+        });
 
-        DBCollectionPresenter dbCollectionPresenter = new DBCollectionPresenter(this);
+        labelGetter = (ds) -> String.format("%d. n:%d t:%d e:%d v:%d g:%s", ds.getNr1(), ds.size(),
+                ds.countOrbits(0, 1), ds.countOrbits(0, 2), ds.countOrbits(1, 2), OrbifoldGroupName.getGroupName(ds));
+
+        DBCollectionControlBindings.setup(this);
 
         controller.getPagination().pageCountProperty().bind(dbCollection.countProperty().divide(dbCollection.pageSizeProperty()).add(1));
 
@@ -137,13 +146,15 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
      * @param select
      */
     public void processDBSelect(String select, int currentPageIndex) {
+        previousQuery.set(select);
+
         pageCache.clear();
         dbCollection.setDbSelect(select);
 
         updatePageSize();
 
         final Pagination pagination = controller.getPagination();
-        pagination.setPageFactory((page) -> {
+        pagination.setPageFactory(page -> {
             Pane pane = pageCache.get(page);
             if (pane == null || pane.getUserData() instanceof Integer && (Integer) pane.getUserData() != dbCollection.getNumberOfDSymbolsOnPage(page)) {
                 final TilingsPane paneNew = new TilingsPane();
@@ -167,11 +178,7 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
     }
 
     public void close() {
-        try {
-            dbCollection.close();
-        } catch (IOException e) {
-            Basic.caught(e);
-        }
+        dbCollection.close();
     }
 
     public Node getPrintable() {
@@ -216,6 +223,19 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
 
     public BooleanProperty showLabelsProperty() {
         return showLabels;
+    }
+
+    public boolean isColorPreview() {
+        return colorPreview.get();
+    }
+
+    @Override
+    public BooleanProperty colorPreviewProperty() {
+        return colorPreview;
+    }
+
+    public void setColorPreview(boolean colorPreview) {
+        this.colorPreview.set(colorPreview);
     }
 
     public Function<DSymbol, String> getLabelGetter() {
@@ -271,6 +291,20 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
     @Override
     public int getNumberOfPages() {
         return getDbCollection().getNumberOfPages();
+    }
+
+    public void changePreviewSize(boolean larger) {
+        if (larger) {
+            if (1.1 * getController().getSizeSlider().getValue() < getController().getSizeSlider().getMax()) {
+                getController().getSizeSlider().setValue(1.1 * getController().getSizeSlider().getValue());
+                updatePageSize();
+            }
+        } else {
+            if (1 / 1.1 * getController().getSizeSlider().getValue() >= getController().getSizeSlider().getMin()) {
+                getController().getSizeSlider().setValue(1 / 1.1 * getController().getSizeSlider().getValue());
+                updatePageSize();
+            }
+        }
     }
 }
 

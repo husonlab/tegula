@@ -44,7 +44,7 @@ public class Tegula extends Application {
     private static String[] inputFilesAtStartup;
 
     @Override
-    public void init() throws Exception {
+    public void init() {
         ProgramProperties.setUseGUI(true);
 
         ColorSchemeManager.BuiltInColorTables = new String[]{"Alhambra;6;0X4d66cc;0Xb3e6e6;0Xcc9933;0X669966;0X666666;0X994d00;" +

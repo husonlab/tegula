@@ -51,7 +51,7 @@ public class BreakSymmetries {
             for (int[] ija : ds.orbitLabelsStream().filter(o -> ds.getVij(o[0], o[1], o[2]) > 1).sorted(Comparator.comparingInt(o -> ds.getVij(o[0], o[1], o[2]))).collect(Collectors.toList())) {
                 final int v = ds.getVij(ija[0], ija[1], ija[2]);
 
-                final Set<Integer> orbit = ds.orbitMembers(ija[0], ija[1], ija[2]);
+                final ArrayList<Integer> orbit = ds.orbitMembers(ija[0], ija[1], ija[2]);
                 for (int a : orbit) {
                     for (int z = 0; z <= 1; z++) {
                         final int i = ija[z];
@@ -98,20 +98,20 @@ public class BreakSymmetries {
                             final boolean hasMore = ds1.orbitLabelsStream().anyMatch(o -> ds1.getVij(o[0], o[1], o[2]) > 1);
 
                             switch (task) {
-                                case RemoveOne: {
+                                case RemoveOne -> {
                                     ds1.setNr1(ds.getNr1());
                                     ds1.setNr2(ds.getNr2() + 1);
                                     result.add(ds1);
                                     return result;
                                 }
-                                case RemoveSome: {
+                                case RemoveSome -> {
                                     result.add(ds1);
                                     if (hasMore)
                                         stack.push(ds1);
                                     break;
 
                                 }
-                                case RemoveAll: {
+                                case RemoveAll -> {
                                     if (hasMore)
                                         stack.push(ds1);
                                     else {
@@ -152,7 +152,7 @@ public class BreakSymmetries {
         final int a0 = ds0.getFlagForOrbit(i0, j0, which);
         final int v = ds0.getVij(i0, j0, a0);
 
-        final Set<Integer> orbit = ds0.orbitMembers(i0, j0, a0);
+        final ArrayList<Integer> orbit = ds0.orbitMembers(i0, j0, a0);
         for (int a : orbit) {
             for (int z = 0; z <= 1; z++) {
                 final int i = (z == 0 ? i0 : j0);

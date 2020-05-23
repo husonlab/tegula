@@ -33,24 +33,23 @@ public class ChangeTilingStyleCommand extends UndoableRedoableCommand {
 
         this.oldTilingStyle = new TilingStyle(tilingStyle);
 
-        undo = () -> {
-            tilingStyle.copy(oldTilingStyle);
-            updater.run();
-        };
+       undo = () -> {
+           tilingStyle.copy(oldTilingStyle);
+           updater.run();
+       };
 
-        redo = () -> {
-            change.run();
-        };
+        redo = change;
 
     }
 
     @Override
     public void undo() {
+        undo.run();
 
     }
 
     @Override
     public void redo() {
-
+        redo.run();
     }
 }

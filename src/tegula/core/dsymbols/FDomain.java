@@ -25,9 +25,9 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
-import tegula.core.fundamental.Approximate;
-import tegula.core.fundamental.Glue;
-import tegula.core.fundamental.data.*;
+import tegula.core.funtiles.Approximate;
+import tegula.core.funtiles.Glue;
+import tegula.core.funtiles.data.*;
 import tegula.geometry.Tools;
 import tegula.tiling.Constraints;
 import tegula.tiling.Generators;
@@ -42,11 +42,10 @@ import java.util.LinkedList;
  * by huson on 3/28/16.
  */
 public class FDomain {
-    private Geometry geometry;
-    private String groupName;
+    private final Geometry geometry;
 
     private final DSymbol dSymbol;
-    private final DELANEY d;
+    private final DelaneySymbolWithGeometry d;
 
     private final Generators generators = new Generators();
     private final Constraints constraints = new Constraints();
@@ -60,13 +59,11 @@ public class FDomain {
      */
     public FDomain(DSymbol dSymbol, boolean addBendToAnEdge) {
         this.dSymbol = dSymbol;
-        this.d = new DELANEY();
-
-        Base.init_delaney(d);
+        this.d = new DelaneySymbolWithGeometry();
 
         symbol2delaney(dSymbol, d);
-        final Glue glue = new Glue(d);
-        glue.glue_delaney();
+        Glue.apply(d);
+
         Approximate.compute_radius(d);
         Approximate.compute_coords(d);
         boolean changed;
@@ -116,32 +113,32 @@ public class FDomain {
     }
 
     /**
-     * copy DSymbol to DELANEY
+     * copy DSymbol to DelaneySymbol
      *
      * @param ds
      * @param d
      */
-    private static void symbol2delaney(DSymbol ds, DELANEY d) {
+    private static void symbol2delaney(DSymbol ds, DelaneySymbolWithGeometry d) {
         for (int i = 0; i <= 2; i++)
             for (int a = 1; a <= ds.size(); a++)
                 if (ds.getSi(i, a) >= a)
-                    Util.define_edg(d, i, a - 1, ds.getSi(i, a) - 1);
+                    Utils.define_edg(d, i, a - 1, ds.getSi(i, a) - 1);
 
-        Util.finish_graph(d);
+        Utils.finish_graph(d);
 
-        Util.prepare_m(d);
+        Utils.prepare_m(d);
 
         for (int i = 0; i <= 1; i++)
             for (int j = i + 1; j <= 2; j++)
                 for (int a = 1; a <= ds.size(); a++)
-                    Util.define_m(d, a - 1, i, j, ds.getMij(i, j, a));
+                    Utils.define_m(d, a - 1, i, j, ds.getMij(i, j, a));
 
         /*
         for(int i= 0;i<=1;i++) {
             for (int j = i + 1; j <= 2; j++) {
                 for (int a = 0; a < ds.size(); a++) {
-                    System.err.println(String.format("%d -> %d",a,d.getNod(a).getOp(3-i-j)));
-                    int	op = d.getNod(a).getOp(3-i-j);
+                    System.err.println(String.format("%d -> %d",a,d.getNode(a).getOp(3-i-j)));
+                    int	op = d.getNode(a).getOp(3-i-j);
                     System.err.println(String.format("m%d%d(%d)=%d", i, j, a, d.getOrb(op).getM()));
                 }
             }
@@ -150,8 +147,8 @@ public class FDomain {
     }
 
     public Point2D getVertex(int k, int a) {
-        int vertex = d.getNcr(a - 1).getOc(k);
-        return new Point2D(d.getOcr()[vertex].getPosx(), d.getOcr()[vertex].getPosy());
+        int vertex = d.getNodeCoordinates(a - 1).getOc(k);
+        return new Point2D(d.getOrbitCoordinates()[vertex].getPosx(), d.getOrbitCoordinates()[vertex].getPosy());
     }
 
     public Point3D getVertex3D(int k, int a) {
@@ -159,14 +156,14 @@ public class FDomain {
     }
 
     public void setVertex(Point2D apt, int k, int a) {
-        int vertex = d.getNcr(a - 1).getOc(k);
-        d.getOcr()[vertex].setPosx(apt.getX());
-        d.getOcr()[vertex].setPosy(apt.getY());
+        int vertex = d.getNodeCoordinates(a - 1).getOc(k);
+        d.getOrbitCoordinates()[vertex].setPosx(apt.getX());
+        d.getOrbitCoordinates()[vertex].setPosy(apt.getY());
     }
 
     public Point2D getEdgeCenter(int i, int a) {
-        int edge = d.getNcr(a - 1).getEc()[i];
-        return new Point2D(d.getEcr()[edge].getPosx(), d.getEcr()[edge].getPosy());
+        int edge = d.getNodeCoordinates(a - 1).getEc()[i];
+        return new Point2D(d.getEdgeCoordinates()[edge].getPosx(), d.getEdgeCoordinates()[edge].getPosy());
     }
 
     public Point3D getEdgeCenter3D(int k, int a) {
@@ -174,13 +171,13 @@ public class FDomain {
     }
 
     public void setEdgeCenter(Point2D apt, int k, int a) {
-        int edge = d.getNcr(a - 1).getEc()[k];
-        d.getEcr()[edge].setPosx(apt.getX());
-        d.getEcr()[edge].setPosy(apt.getY());
+        int edge = d.getNodeCoordinates(a - 1).getEc()[k];
+        d.getEdgeCoordinates()[edge].setPosx(apt.getX());
+        d.getEdgeCoordinates()[edge].setPosy(apt.getY());
     }
 
     public Point2D getChamberCenter(int a) {
-        return new Point2D(d.getNcr()[a - 1].getPosx(), d.getNcr()[a - 1].getPosy());
+        return new Point2D(d.getNodeCoordinates()[a - 1].getPosx(), d.getNodeCoordinates()[a - 1].getPosy());
     }
 
     public Point3D getChamberCenter3D(int a) {
@@ -188,8 +185,8 @@ public class FDomain {
     }
 
     public void setChamberCenter(Point2D apt, int a) {
-        d.getNcr()[a - 1].setPosx(apt.getX());
-        d.getNcr()[a - 1].setPosy(apt.getY());
+        d.getNodeCoordinates()[a - 1].setPosx(apt.getX());
+        d.getNodeCoordinates()[a - 1].setPosy(apt.getY());
     }
 
     /**
@@ -199,8 +196,8 @@ public class FDomain {
      */
     public void recenterFDomain(Transform t) {
         if (geometry == Geometry.Euclidean) {
-            for (int z = 0; z < d.getNcrs(); z++) {
-                final NCR ncr = d.getNcr(z);
+            for (int z = 0; z < d.getNumberOfNodeCoordinates(); z++) {
+                final NodeCoordinates ncr = d.getNodeCoordinates(z);
                 Point3D position = new Point3D(100 * ncr.getPosx(), 100 * ncr.getPosy(), 0);
                 position = t.transform(position);
                 position = new Point3D(position.getX(), position.getY(), 0);
@@ -209,8 +206,8 @@ public class FDomain {
                 ncr.setPosy(position.getY());
             }
 
-            for (int z = 0; z < d.getEcrs(); z++) {
-                final ECR ecr = d.getEcr(z);
+            for (int z = 0; z < d.getNumberOfEdgeCoordinates(); z++) {
+                final EdgeCoordinates ecr = d.getEdgeCoordinates(z);
                 Point3D position = new Point3D(100 * ecr.getPosx(), 100 * ecr.getPosy(), 0);
                 position = t.transform(position);
                 position = new Point3D(position.getX(), position.getY(), 0);
@@ -219,8 +216,8 @@ public class FDomain {
                 ecr.setPosy(position.getY());
             }
 
-            for (int z = 0; z < d.getOcrs(); z++) {
-                final OCR ocr = d.getOcr(z);
+            for (int z = 0; z < d.getNumberOfOrbitCoordinates(); z++) {
+                final OrbitCoordinates ocr = d.getOrbitCoordinates(z);
                 Point3D position = new Point3D(100 * ocr.getPosx(), 100 * ocr.getPosy(), 0);
                 position = t.transform(position);
                 position = new Point3D(position.getX(), position.getY(), 0);
@@ -229,24 +226,24 @@ public class FDomain {
                 ocr.setPosy(position.getY());
             }
         } else if (geometry == Geometry.Hyperbolic) {
-            for (int z = 0; z < d.getNcrs(); z++) {
-                final NCR ncr = d.getNcr(z);
+            for (int z = 0; z < d.getNumberOfNodeCoordinates(); z++) {
+                final NodeCoordinates ncr = d.getNodeCoordinates(z);
                 Point2D position = new Point2D(ncr.getPosx(), ncr.getPosy());
                 position = Tools.map3Dto2D(geometry, t.transform(Tools.map2Dto3D(geometry, position)));
                 ncr.setPosx(position.getX());
                 ncr.setPosy(position.getY());
             }
 
-            for (int z = 0; z < d.getEcrs(); z++) {
-                final ECR ecr = d.getEcr(z);
+            for (int z = 0; z < d.getNumberOfEdgeCoordinates(); z++) {
+                final EdgeCoordinates ecr = d.getEdgeCoordinates(z);
                 Point2D position = new Point2D(ecr.getPosx(), ecr.getPosy());
                 position = Tools.map3Dto2D(geometry, t.transform(Tools.map2Dto3D(geometry, position)));
                 ecr.setPosx(position.getX());
                 ecr.setPosy(position.getY());
             }
 
-            for (int z = 0; z < d.getOcrs(); z++) {
-                final OCR ocr = d.getOcr(z);
+            for (int z = 0; z < d.getNumberOfOrbitCoordinates(); z++) {
+                final OrbitCoordinates ocr = d.getOrbitCoordinates(z);
                 Point2D position = new Point2D(ocr.getPosx(), ocr.getPosy());
                 position = Tools.map3Dto2D(geometry, t.transform(Tools.map2Dto3D(geometry, position)));
                 ocr.setPosx(position.getX());
@@ -266,39 +263,39 @@ public class FDomain {
             dx /= 100;
             dy /= 100;
 
-            for (int z = 0; z < d.getNcrs(); z++) {
-                final NCR ncr = d.getNcr(z);
+            for (int z = 0; z < d.getNumberOfNodeCoordinates(); z++) {
+                final NodeCoordinates ncr = d.getNodeCoordinates(z);
                 ncr.setPosx(ncr.getPosx() + dx);
                 ncr.setPosy(ncr.getPosy() + dy);
             }
-            for (int z = 0; z < d.getEcrs(); z++) {
-                final ECR ecr = d.getEcr(z);
+            for (int z = 0; z < d.getNumberOfEdgeCoordinates(); z++) {
+                final EdgeCoordinates ecr = d.getEdgeCoordinates(z);
                 ecr.setPosx(ecr.getPosx() + dx);
                 ecr.setPosy(ecr.getPosy() + dy);
             }
-            for (int z = 0; z < d.getOcrs(); z++) {
-                final OCR ocr = d.getOcr(z);
+            for (int z = 0; z < d.getNumberOfOrbitCoordinates(); z++) {
+                final OrbitCoordinates ocr = d.getOrbitCoordinates(z);
                 ocr.setPosx(ocr.getPosx() + dx);
                 ocr.setPosy(ocr.getPosy() + dy);
             }
         } else if (geometry == Geometry.Hyperbolic) {
             //dx /= 300;
             //dy /= 300;
-            for (int z = 0; z < d.getNcrs(); z++) {
-                final NCR ncr = d.getNcr(z);
+            for (int z = 0; z < d.getNumberOfNodeCoordinates(); z++) {
+                final NodeCoordinates ncr = d.getNodeCoordinates(z);
                 Point2D translated = HyperbolicTranslation(dx, dy, ncr.getPosx(), ncr.getPosy());
                 ncr.setPosx(translated.getX());
                 ncr.setPosy(translated.getY());
             }
-            for (int z = 0; z < d.getEcrs(); z++) {
-                final ECR ecr = d.getEcr(z);
+            for (int z = 0; z < d.getNumberOfEdgeCoordinates(); z++) {
+                final EdgeCoordinates ecr = d.getEdgeCoordinates(z);
                 Point2D translated = HyperbolicTranslation(dx, dy, ecr.getPosx(), ecr.getPosy());
                 ecr.setPosx(translated.getX());
                 ecr.setPosy(translated.getY());
             }
 
-            for (int z = 0; z < d.getOcrs(); z++) {
-                final OCR ocr = d.getOcr(z);
+            for (int z = 0; z < d.getNumberOfOrbitCoordinates(); z++) {
+                final OrbitCoordinates ocr = d.getOrbitCoordinates(z);
                 Point2D translated = HyperbolicTranslation(dx, dy, ocr.getPosx(), ocr.getPosy());
                 ocr.setPosx(translated.getX());
                 ocr.setPosy(translated.getY());
@@ -307,20 +304,20 @@ public class FDomain {
     }
 
     public boolean isBoundaryEdge(int k, int a) {
-        int edge = d.getNcr(a - 1).getEc()[k];
-        edge = d.getEcr()[edge].getEp();
-        return d.getEdg()[edge].getId() == 0;
+        int edge = d.getNodeCoordinates(a - 1).getEc()[k];
+        edge = d.getEdgeCoordinates()[edge].getEp();
+        return d.getEdges()[edge].getId() == 0;
     }
 
     public int getOrientation(int a) {
-        int node = d.getNcr(a - 1).getNp();
-        return d.getNod()[node].getSg();
+        int node = d.getNodeCoordinates(a - 1).getNp();
+        return d.getNodes()[node].getSg();
     }
 
     public boolean isUnsplitRotation(int k, int a) {
-        final int vertex = d.getNcr(a - 1).getOc(k);
-        final ORB orb = d.getOrb(d.getOcr(vertex).getOp());
-        return orb.getS() == 1;
+        final int vertex = d.getNodeCoordinates(a - 1).getOc(k);
+        final Orbit orbit = d.getOrb(d.getOrbitCoordinates(vertex).getOp());
+        return orbit.getS() == 1;
     }
 
     public String toString() {
@@ -365,10 +362,6 @@ public class FDomain {
 
     public Geometry getGeometry() {
         return geometry;
-    }
-
-    public String getGroupName() {
-        return groupName;
     }
 
     /**
@@ -469,13 +462,13 @@ public class FDomain {
     }
 
     public Point3D computeReferencePoint() {
-        if (true) {
+        if (geometry.equals(Geometry.Euclidean)) {
             Point3D average = new Point3D(0, 0, 0);
             if (size() > 0) {
                 for (int a = 1; a <= size(); a++) {
                     average = average.add(getChamberCenter3D(a));
                 }
-                average = average.multiply((geometry.equals(Geometry.Hyperbolic) ? 0.01 : 1.0) / size());
+                average = average.multiply(1.0 / size());
             }
             return average;
         } else { // this leads to tilings with holes sometimes

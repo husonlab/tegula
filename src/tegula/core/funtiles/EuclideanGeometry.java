@@ -17,10 +17,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.core.fundamental;
+package tegula.core.funtiles;
 
-import tegula.core.fundamental.utils.Maths;
-import tegula.core.fundamental.utils.Wrap;
+import tegula.core.funtiles.utils.Maths;
+import tegula.core.funtiles.utils.Wrap;
 
 /**
  * Euclidean geometry
@@ -29,11 +29,11 @@ import tegula.core.fundamental.utils.Wrap;
  */
 public class EuclideanGeometry {
 
-    static double cut_circle_circle(Wrap<Double> CutMX, Wrap<Double> CutMY,
-                                    Wrap<Double> CutLX, Wrap<Double> CutLY,
-                                    Wrap<Double> CutRX, Wrap<Double> CutRY,
-                                    double CenAX, double CenAY, double RadA,
-                                    double CenBX, double CenBY, double RadB) {
+    static void cut_circle_circle(Wrap<Double> CutMX, Wrap<Double> CutMY,
+                                  Wrap<Double> CutLX, Wrap<Double> CutLY,
+                                  Wrap<Double> CutRX, Wrap<Double> CutRY,
+                                  double CenAX, double CenAY, double RadA,
+                                  double CenBX, double CenBY, double RadB) {
         double DisX, DisY;
         double Dis2, RadA2, RadB2;
         double Fact;
@@ -60,7 +60,6 @@ public class EuclideanGeometry {
         CutRX.set(CutMX.get() + CenAY * Dis);
         CutRY.set(CutMY.get() - CenAX * Dis);
         Dis *= (Maths.sqr(CenAX) + Maths.sqr(CenAY));
-        return (Dis);
     }
 
     static double cut_circle_line(Wrap<Double> CutMX, Wrap<Double> CutMY, Wrap<Double> CutM,
@@ -107,9 +106,9 @@ public class EuclideanGeometry {
         return (Math.sqrt(Dis2));
     }
 
-    static double cut_line_line(Wrap<Double> CutX, Wrap<Double> CutY, Wrap<Double> Cut1, Wrap<Double> Cut2,
-                                double Beg1X, double Beg1Y, double End1X, double End1Y,
-                                double Beg2X, double Beg2Y, double End2X, double End2Y) {
+    static void cut_line_line(Wrap<Double> CutX, Wrap<Double> CutY, Wrap<Double> Cut1, Wrap<Double> Cut2,
+                              double Beg1X, double Beg1Y, double End1X, double End1Y,
+                              double Beg2X, double Beg2Y, double End2X, double End2Y) {
         double Del1X, Del1Y, Del2X, Del2Y;
         double Mid1X, Mid1Y, Mid2X, Mid2Y;
         double Dis, Fac0, Fac1, Fac2;
@@ -124,7 +123,7 @@ public class EuclideanGeometry {
         Dis = 0.0;
         Fac0 = Del1X * Del2Y - Del2X * Del1Y;
         if (Fac0 == 0.0) {
-            return (Dis);
+            return;
         }
         Fac1 = (Del1Y * Mid1X - Del1X * Mid1Y) / Fac0;
         Fac2 = (Del2Y * Mid2X - Del2X * Mid2Y) / Fac0;
@@ -136,6 +135,5 @@ public class EuclideanGeometry {
         if (Cut2 != null) {
             Cut2.set((CutX.get() * Del2X + CutY.get() * Del2Y) / (Del2X * Del2X + Del2Y * Del2Y));
         }
-        return (Dis);
     }
 }

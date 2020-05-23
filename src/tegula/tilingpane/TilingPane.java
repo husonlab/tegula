@@ -165,9 +165,7 @@ public class TilingPane extends StackPane implements Updateable {
         setBackground(new Background(new BackgroundFill(tilingStyle.getBackgroundColor(), null, null)));
 
         setBackground(new Background(new BackgroundFill(tilingStyle.getBackgroundColor(), null, null)));
-        tilingStyle.backgroundColorProperty().addListener((c, o, n) -> {
-            setBackground(new Background(new BackgroundFill(n, null, null)));
-        });
+        tilingStyle.backgroundColorProperty().addListener((c, o, n) -> setBackground(new Background(new BackgroundFill(n, null, null))));
 
         // need to call this otherwise euclidean dimensions won't be correct
         setUseDepthBuffer(this, true);
@@ -232,12 +230,8 @@ public class TilingPane extends StackPane implements Updateable {
                 disk = new Circle(100);
                 final double factor = (getTiling().getGeometry() == Geometry.Spherical ? 0.45 : 0.5);
                 if (true) {
-                    subScene.heightProperty().addListener((e) -> {
-                        disk.setRadius(factor * Math.min(getWidth(), getHeight()));
-                    });
-                    subScene.widthProperty().addListener((e) -> {
-                        disk.setRadius(factor * Math.min(getWidth(), getHeight()));
-                    });
+                    subScene.heightProperty().addListener((e) -> disk.setRadius(factor * Math.min(getWidth(), getHeight())));
+                    subScene.widthProperty().addListener((e) -> disk.setRadius(factor * Math.min(getWidth(), getHeight())));
                 }
                 StackPane.setAlignment(disk, Pos.CENTER);
                 getChildren().add(0, disk);
@@ -254,7 +248,7 @@ public class TilingPane extends StackPane implements Updateable {
         }
 
         switch (getGeometry()) {
-            case Spherical: {
+            case Spherical -> {
                 if (!universe.getChildren().contains(pointLight))
                     universe.getChildren().add(pointLight);
                 universe.getChildren().remove(ambientLight);
@@ -263,7 +257,7 @@ public class TilingPane extends StackPane implements Updateable {
                 });
                 break;
             }
-            case Hyperbolic: {
+            case Hyperbolic -> {
                 universe.getChildren().remove(pointLight);
                 if (!universe.getChildren().contains(ambientLight))
                     universe.getChildren().add(ambientLight);
@@ -275,7 +269,7 @@ public class TilingPane extends StackPane implements Updateable {
                 );
                 break;
             }
-            case Euclidean: {
+            case Euclidean -> {
                 universe.getChildren().remove(pointLight);
                 if (!universe.getChildren().contains(ambientLight))
                     universe.getChildren().add(ambientLight);

@@ -53,8 +53,7 @@ public class Band3D extends Group {
         // |3|----------|5|
 
         switch (geom) {
-            default:
-            case Euclidean: {
+            case Euclidean -> {
                 final Point3D zAxis = new Point3D(0, 0, 1);
                 final Point3D diff = point1.subtract(point0).normalize();
                 final Point3D normal = diff.crossProduct(zAxis).normalize();
@@ -84,9 +83,8 @@ public class Band3D extends Group {
                 }
 
                 faces = new int[]{2, 0, 1, 1, 4, 2, 2, 0, 0, 1, 1, 2, 0, 0, 5, 1, 1, 2, 0, 0, 3, 1, 5, 2};
-                break;
             }
-            case Spherical: {
+            case Spherical -> {
                 final Point3D diff = point1.subtract(point0).normalize();
                 final Point3D normalToSphere0 = Tools.getNormalVector(point0, geom);
                 final Point3D normalToSphere1 = Tools.getNormalVector(point1, geom);
@@ -101,9 +99,8 @@ public class Band3D extends Group {
                 points3d[5] = point1.subtract(normal.multiply(bandWidth)).add(normalToSphere1.normalize().multiply(above));
 
                 faces = new int[]{2, 0, 4, 1, 1, 2, 2, 0, 1, 1, 0, 2, 0, 0, 1, 1, 5, 2, 0, 0, 5, 1, 3, 2};
-                break;
             }
-            case Hyperbolic: {
+            case Hyperbolic -> {
                 final Point3D diff = point0.subtract(point1);
                 final Point3D normalToSphere0 = Tools.getNormalVector(point0, geom); // normal vector for point 0 of points3d
                 // array
@@ -153,8 +150,8 @@ public class Band3D extends Group {
                 // point1.subtract(normal.multiply(size)).add(normalToSphere1.normalize().multiply(above));
 
                 faces = new int[]{2, 0, 4, 1, 1, 2, 2, 0, 1, 1, 0, 2, 0, 0, 1, 1, 5, 2, 0, 0, 5, 1, 3, 2};
-                break;
             }
+            default -> throw new RuntimeException("Invalid case");
         }
 
         // creates mesh

@@ -17,14 +17,13 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.core.fundamental.data;
+package tegula.core.funtiles.data;
 
 /**
  * edge coordinates
- * Created by huson on 3/27/16.
  * Based on del_data.h by Klaus Westphal, 1990
  */
-public class ECR {
+public class EdgeCoordinates {
     private int ep;                // edge number
     private int nca = -1, ncb = -1;            // related  node coords
     private int ecax = -1, ecay = -1, ecbx = -1, ecby = -1;    // related  edge coords

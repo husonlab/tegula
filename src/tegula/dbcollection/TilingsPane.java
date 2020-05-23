@@ -141,7 +141,7 @@ public class TilingsPane extends FlowPane {
                     selectionModel.clearSelection();
                 selectionModel.select((DSymbol) vBox.getUserData());
             } else if (e.getClickCount() == 2) {
-                final TilingEditorTab editorTab = new TilingEditorTab(new DSymbol(dSymbol), Basic.replaceFileSuffix(Basic.getFileNameWithoutPath(collectionTab.getFileName()), ":" + dSymbol.getNr1()));
+                final TilingEditorTab editorTab = new TilingEditorTab(new DSymbol(dSymbol), Basic.replaceFileSuffix(Basic.getFileNameWithoutPath(collectionTab.getFileName()), "-" + dSymbol.getNr1()));
                 collectionTab.getMainWindow().getMainTabPane().getTabs().add(editorTab);
             }
         });

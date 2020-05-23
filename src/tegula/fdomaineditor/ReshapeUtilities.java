@@ -60,15 +60,15 @@ public class ReshapeUtilities {
         if (!constrain) {
             final Translate translate = new Translate(transVector.getX(), transVector.getY());
             switch (type) {
-                case Vertex: {
+                case Vertex -> {
                     fDomain.setVertex(translate.transform(fDomain.getVertex(k, a)), k, a);
                     break;
                 }
-                case EdgeCenter: {
+                case EdgeCenter -> {
                     fDomain.setEdgeCenter(translate.transform(fDomain.getEdgeCenter(k, a)), k, a);
                     break;
                 }
-                case ChamberCenter: {
+                case ChamberCenter -> {
                     fDomain.setChamberCenter(translate.transform(fDomain.getChamberCenter(a)), a);
                     break;
                 }

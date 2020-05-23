@@ -17,23 +17,19 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.core.fundamental.data;
+package tegula.core.funtiles.data;
 
-import tegula.core.fundamental.utils.Wrap;
+import tegula.core.funtiles.utils.Wrap;
 
 /**
  * orbit coordinates
- * Created by huson on 3/27/16.
  * Based on del_data.h by Klaus Westphal, 1990
  */
-public class OCR {
+public class OrbitCoordinates {
     private int op;                // orbit number
-    private int ncs;
-    int[] nc;        // list of orbit coords
-    private int ecs;
-    int[] ec;        // list of orbit coords
-    private int ocs;
-    int[] oc;        // list of orbit coords
+    int[] nc = {};        // list of orbit coords
+    int[] ec = {};        // list of orbit coords
+    int[] oc = {};        // list of orbit coords
     private double dist;            // center distance
     private double beta = Math.PI;            // center angle
     private double posx;            // x-Coordinate
@@ -48,29 +44,24 @@ public class OCR {
     }
 
     public int getNcs() {
-        return ncs;
-    }
-
-    public int[] getNc() {
-        return nc;
+        return nc.length;
     }
 
     public int getNc(int i) {
         return nc[i];
     }
 
-    public void setNc(int[] nc, int length) {
-        this.ncs = length;
-        this.nc = new int[length];
-        System.arraycopy(nc, 0, this.nc, 0, length);
-    }
-
     public void setNc(int i, int value) {
+        if (i >= nc.length) {
+            final int[] old = nc;
+            nc = new int[i + 1];
+            System.arraycopy(old, 0, nc, 0, Math.min(old.length, nc.length));
+        }
         nc[i] = value;
     }
 
     public int getEcs() {
-        return ecs;
+        return ec.length;
     }
 
     public int[] getEc() {
@@ -81,18 +72,17 @@ public class OCR {
         return ec[i];
     }
 
-    public void setEc(int[] ec, int length) {
-        this.ecs = length;
-        this.ec = new int[length];
-        System.arraycopy(ec, 0, this.ec, 0, length);
-    }
-
     public void setEc(int i, int value) {
+        if (i >= ec.length) {
+            final int[] old = ec;
+            ec = new int[i + 1];
+            System.arraycopy(old, 0, ec, 0, Math.min(old.length, ec.length));
+        }
         ec[i] = value;
     }
 
     public int getOcs() {
-        return ocs;
+        return oc.length;
     }
 
     public int[] getOc() {
@@ -103,13 +93,12 @@ public class OCR {
         return oc[i];
     }
 
-    public void setOc(int[] oc, int length) {
-        this.ocs = length;
-        this.oc = new int[length];
-        System.arraycopy(oc, 0, this.oc, 0, length);
-    }
-
     public void setOc(int i, int value) {
+        if (i >= oc.length) {
+            final int[] old = oc;
+            oc = new int[i + 1];
+            System.arraycopy(old, 0, oc, 0, Math.min(old.length, oc.length));
+        }
         oc[i] = value;
     }
 
@@ -142,7 +131,7 @@ public class OCR {
     }
 
     public Wrap<Double> accessPosx() {
-        return new Wrap<Double>(0.0) {
+        return new Wrap<>(0.0) {
             @Override
             public Double get() {
                 return posx;
@@ -160,7 +149,7 @@ public class OCR {
     }
 
     public Wrap<Double> accessPosy() {
-        return new Wrap<Double>(0.0) {
+        return new Wrap<>(0.0) {
             @Override
             public Double get() {
                 return posy;

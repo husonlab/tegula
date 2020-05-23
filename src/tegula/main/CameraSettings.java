@@ -47,7 +47,7 @@ public class CameraSettings {
      * @param model
      * @param animate if true, animate transition to model
      */
-    public static HasHyperbolicModel.HyperbolicModel setupHyperbolicCamera(PerspectiveCamera camera, HasHyperbolicModel.HyperbolicModel model, boolean animate) {
+    public static void setupHyperbolicCamera(PerspectiveCamera camera, HasHyperbolicModel.HyperbolicModel model, boolean animate) {
 
         camera.setFieldOfView(90);
 
@@ -94,11 +94,8 @@ public class CameraSettings {
         translateTransition.setDuration(duration);
 
         final ParallelTransition parallelTransition = new ParallelTransition(rotateTransition, translateTransition);
-        parallelTransition.setOnFinished((e) -> {
-            camera.setFarClip(10000);
-        });
+        parallelTransition.setOnFinished((e) -> camera.setFarClip(10000));
         parallelTransition.play();
 
-        return model;
     }
 }

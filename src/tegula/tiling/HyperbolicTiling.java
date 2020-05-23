@@ -44,13 +44,13 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
 
     private final OctTree coveredPoints = new OctTree();
 
-    private Point3D referencePoint = fDomain.computeReferencePoint();
+    private Point3D referencePoint = getfDomain().computeReferencePoint();
 
     private Transform transformRecycled = new Translate();
 
-    private Group handles = new Group();
+    private final Group handles = new Group();
 
-    private Point2D transVector = new Point2D(0, 0);
+    private final Point2D transVector = new Point2D(0, 0);
     private boolean changeDirection;
 
     /**
@@ -66,7 +66,7 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
      * update the tiling
      */
     public Group update() {
-        double diameterFDomain = fDomain.calculateDiameter();
+        double diameterFDomain = getfDomain().calculateDiameter();
         if (2.8 * diameterFDomain > tilingStyle.getHyperbolicLimit()) {
             tilingStyle.setHyperbolicLimit((int) Math.round(2.8 * diameterFDomain));
         }
@@ -80,8 +80,6 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
      * produces hyperbolic tiles
      */
     private Group produceTiles(boolean reset) {
-        generators = fDomain.getGenerators();
-
         final double maxDist = Math.cosh(0.5 * tilingStyle.getHyperbolicLimit());
         //System.err.println("Create Hyperbolic Tiling");
 
@@ -98,7 +96,7 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
 
             //Prototype of fDomain (for copies)
             fundPrototype.getChildren().clear();
-            fundPrototype.getChildren().setAll(FundamentalDomain.compute(ds, fDomain, tilingStyle));
+            fundPrototype.getChildren().setAll(FundamentalDomain.compute(ds, getfDomain(), tilingStyle));
             all.getChildren().add(provideCopy(new Translate(), fundPrototype));
         }
 
@@ -302,7 +300,6 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
     public Transform calculateBackShiftHyperbolic() {
 
         //Add all generators
-        generators = fDomain.getGenerators();
 
         final Queue<Transform> queue = new LinkedList<>(generators.getTransforms());
 

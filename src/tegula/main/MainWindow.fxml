@@ -138,6 +138,12 @@
                                                                     shift="DOWN" shortcut="DOWN"/>
                                             </accelerator>
                                         </CheckMenuItem>
+                                        <CheckMenuItem fx:id="colorPreviewMenuItem" text="Color Preview">
+                                            <accelerator>
+                                                <KeyCodeCombination alt="UP" code="C" control="UP" meta="UP"
+                                                                    shift="DOWN" shortcut="DOWN"/>
+                                            </accelerator>
+                                        </CheckMenuItem>
                                         <SeparatorMenuItem mnemonicParsing="false"/>
                                         <CheckMenuItem fx:id="showChambersMenuItem" text="Show Chambers">
                                             <accelerator>
@@ -163,6 +169,19 @@
                                             <accelerator>
                                                 <KeyCodeCombination alt="UP" code="EQUALS" control="UP" meta="UP"
                                                                     shift="UP" shortcut="DOWN"/>
+                                            </accelerator>
+                                        </MenuItem>
+                                        <SeparatorMenuItem mnemonicParsing="false"/>
+                                        <MenuItem fx:id="zoomInMenuItem" text="Zoom In">
+                                            <accelerator>
+                                                <KeyCodeCombination alt="UP" code="UP" control="UP" meta="DOWN"
+                                                                    shift="UP" shortcut="UP"/>
+                                            </accelerator>
+                                        </MenuItem>
+                                        <MenuItem fx:id="zoomOutMenuItem" text="Zoom Out">
+                                            <accelerator>
+                                                <KeyCodeCombination alt="UP" code="DOWN" control="UP" meta="DOWN"
+                                                                    shift="UP" shortcut="UP"/>
                                             </accelerator>
                                         </MenuItem>
                                         <SeparatorMenuItem mnemonicParsing="false"/>
@@ -235,7 +254,8 @@
                         <ToolBar fx:id="mainToolBar" maxHeight="-Infinity" maxWidth="1.7976931348623157E308"
                                  minHeight="-Infinity" prefHeight="36.0">
                             <items>
-                                <Button fx:id="openButton" mnemonicParsing="false">
+                                <Button fx:id="openButton" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false"
+                                        text="Open">
                                     <graphic>
                                         <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
                                                    preserveRatio="true">
@@ -248,8 +268,9 @@
                                         <Tooltip text="Open"/>
                                     </tooltip>
                                 </Button>
-                                <Separator orientation="VERTICAL" prefHeight="200.0"/>
-                                <Button fx:id="printButton" layoutX="48.0" layoutY="9.0" mnemonicParsing="false">
+                                <Separator layoutX="86.0" layoutY="10.0" orientation="VERTICAL" prefHeight="200.0"/>
+                                <Button fx:id="printButton" contentDisplay="GRAPHIC_ONLY" layoutX="48.0" layoutY="9.0"
+                                        mnemonicParsing="false" text="Print">
                                     <graphic>
                                         <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
                                                    preserveRatio="true">
@@ -262,8 +283,32 @@
                                         <Tooltip text="Print"/>
                                     </tooltip>
                                 </Button>
-                                <Separator layoutX="86.0" layoutY="10.0" orientation="VERTICAL" prefHeight="200.0"/>
-                                <Button fx:id="undoButton" layoutX="96.0" layoutY="9.0" mnemonicParsing="false">
+                                <Separator orientation="VERTICAL" prefHeight="200.0"/>
+                                <Button fx:id="zoomInButton" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false"
+                                        text="Zoom in">
+                                    <graphic>
+                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
+                                                   preserveRatio="true">
+                                            <image>
+                                                <Image url="@/jloda/resources/icons/sun/ZoomIn16.gif"/>
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                                </Button>
+                                <Button fx:id="zoomOutButton" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false"
+                                        text="Zoom out">
+                                    <graphic>
+                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
+                                                   preserveRatio="true">
+                                            <image>
+                                                <Image url="@/jloda/resources/icons/sun/ZoomOut16.gif"/>
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                                </Button>
+                                <Separator orientation="VERTICAL" prefHeight="200.0"/>
+                                <Button fx:id="undoButton" contentDisplay="GRAPHIC_ONLY" layoutX="96.0" layoutY="9.0"
+                                        mnemonicParsing="false" text="Undo">
                                     <graphic>
                                         <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
                                                    preserveRatio="true">
@@ -276,7 +321,8 @@
                                         <Tooltip text="Undo"/>
                                     </tooltip>
                                 </Button>
-                                <Button fx:id="redoButton" layoutX="144.0" layoutY="9.0" mnemonicParsing="false">
+                                <Button fx:id="redoButton" contentDisplay="GRAPHIC_ONLY" layoutX="144.0" layoutY="9.0"
+                                        mnemonicParsing="false" text="Redo">
                                     <graphic>
                                         <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
                                                    preserveRatio="true">

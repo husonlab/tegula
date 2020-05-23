@@ -59,7 +59,7 @@ public class TilingEditorTabController {
     private TitledPane hyperbolicModelTitledPane;
 
     @FXML
-    private ChoiceBox<?> modelChoiceBox;
+    private ChoiceBox<String> modelChoiceBox;
 
     @FXML
     private Button showLessTilesButton;
@@ -71,7 +71,7 @@ public class TilingEditorTabController {
     private VBox appearanceVBox;
 
     @FXML
-    private ChoiceBox<?> colorSchemeChoiceBox;
+    private ChoiceBox<String> colorSchemeChoiceBox;
 
     @FXML
     private ToggleButton showFacesToggleButton;
@@ -98,7 +98,7 @@ public class TilingEditorTabController {
     private ToggleButton showBackVerticesToggleButton;
 
     @FXML
-    private Spinner<?> bandWidthSpinner;
+    private Spinner<Integer> bandWidthSpinner;
 
     @FXML
     private ColorPicker bandsColorPicker;
@@ -224,7 +224,7 @@ public class TilingEditorTabController {
     }
 
     public ChoiceBox<String> getModelChoiceBox() {
-        return (ChoiceBox<String>) modelChoiceBox;
+        return modelChoiceBox;
     }
 
     public Button getShowLessTilesButton() {
@@ -240,7 +240,7 @@ public class TilingEditorTabController {
     }
 
     public ChoiceBox<String> getColorSchemeChoiceBox() {
-        return (ChoiceBox<String>) colorSchemeChoiceBox;
+        return colorSchemeChoiceBox;
     }
 
     public ToggleButton getShowFacesToggleButton() {
@@ -276,7 +276,7 @@ public class TilingEditorTabController {
     }
 
     public Spinner<Integer> getBandWidthSpinner() {
-        return (Spinner<Integer>) bandWidthSpinner;
+        return bandWidthSpinner;
     }
 
     public ColorPicker getBandsColorPicker() {

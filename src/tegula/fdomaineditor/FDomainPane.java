@@ -56,7 +56,6 @@ public class FDomainPane extends StackPane {
 
     private NGonShape[][] vertexHandles;
     private NGonShape[][] edgeHandles;
-    private NGonShape[] chamberCenterHandles;
 
     private final Group decorations = new Group();
 
@@ -97,7 +96,7 @@ public class FDomainPane extends StackPane {
 
         vertexHandles = new NGonShape[ds.size() + 1][3];
         edgeHandles = new NGonShape[ds.size() + 1][3];
-        chamberCenterHandles = new NGonShape[ds.size() + 1];
+        NGonShape[] chamberCenterHandles = new NGonShape[ds.size() + 1];
 
         /*
          * setup nodes, one per orbit:

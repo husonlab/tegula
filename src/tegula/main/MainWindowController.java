@@ -106,6 +106,9 @@ public class MainWindowController {
     private CheckMenuItem showLabelsMenuItem;
 
     @FXML
+    private CheckMenuItem colorPreviewMenuItem;
+
+    @FXML
     private CheckMenuItem showChambersMenuItem;
 
     @FXML
@@ -116,6 +119,13 @@ public class MainWindowController {
 
     @FXML
     private MenuItem resetMenuItem;
+
+    @FXML
+    private MenuItem zoomInMenuItem;
+
+    @FXML
+    private MenuItem zoomOutMenuItem;
+
 
     @FXML
     private MenuItem fullScreenMenuItem;
@@ -131,7 +141,6 @@ public class MainWindowController {
 
     @FXML
     private MenuItem choosePageMenuItem;
-
 
     @FXML
     private MenuItem dualizeMenuItem;
@@ -176,6 +185,12 @@ public class MainWindowController {
     private Button printButton;
 
     @FXML
+    private Button zoomInButton;
+
+    @FXML
+    private Button zoomOutButton;
+
+    @FXML
     private Button undoButton;
 
     @FXML
@@ -205,9 +220,12 @@ public class MainWindowController {
         assert openInEditorMenuItem != null : "fx:id=\"openInEditorMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert viewMenu != null : "fx:id=\"viewMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert showLabelsMenuItem != null : "fx:id=\"showLabelsMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert colorPreviewMenuItem != null : "fx:id=\"colorPreviewMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert showChambersMenuItem != null : "fx:id=\"showChambersMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert showMoreTilesMenuItem != null : "fx:id=\"showMoreTilesMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert showLessTilesMenuItem != null : "fx:id=\"showLessTilesMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert zoomInMenuItem != null : "fx:id=\"zoomInMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert zoomOutMenuItem != null : "fx:id=\"zoomOutMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert resetMenuItem != null : "fx:id=\"resetMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert fullScreenMenuItem != null : "fx:id=\"fullScreenMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert tilingsMenu != null : "fx:id=\"tilingsMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
@@ -229,6 +247,8 @@ public class MainWindowController {
 
         assert openButton != null : "fx:id=\"openButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert printButton != null : "fx:id=\"printButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert zoomInButton != null : "fx:id=\"zoomInButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert zoomOutButton != null : "fx:id=\"zoomOutButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert undoButton != null : "fx:id=\"undoButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert redoButton != null : "fx:id=\"redoButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
 
@@ -339,6 +359,10 @@ public class MainWindowController {
         return showLabelsMenuItem;
     }
 
+    public CheckMenuItem getColorPreviewMenuItem() {
+        return colorPreviewMenuItem;
+    }
+
     public CheckMenuItem getShowChambersMenuItem() {
         return showChambersMenuItem;
     }
@@ -353,6 +377,14 @@ public class MainWindowController {
 
     public MenuItem getResetMenuItem() {
         return resetMenuItem;
+    }
+
+    public MenuItem getZoomInMenuItem() {
+        return zoomInMenuItem;
+    }
+
+    public MenuItem getZoomOutMenuItem() {
+        return zoomOutMenuItem;
     }
 
     public MenuItem getFullScreenMenuItem() {
@@ -429,6 +461,14 @@ public class MainWindowController {
 
     public Button getPrintButton() {
         return printButton;
+    }
+
+    public Button getZoomInButton() {
+        return zoomInButton;
+    }
+
+    public Button getZoomOutButton() {
+        return zoomOutButton;
     }
 
     public Button getUndoButton() {

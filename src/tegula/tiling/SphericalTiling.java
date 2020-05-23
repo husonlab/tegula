@@ -24,7 +24,6 @@ import javafx.scene.Group;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import tegula.core.dsymbols.DSymbol;
-import tegula.core.dsymbols.FDomain;
 import tegula.main.TilingStyle;
 import tegula.tiling.parts.OctTree;
 
@@ -50,8 +49,8 @@ public class SphericalTiling extends TilingBase implements TilingCreator {
      * update the tiling
      */
     public Group update() {
-        generators = fDomain.getGenerators();
-        referencePoint = fDomain.computeReferencePoint();
+        generators = getGenerators();
+        referencePoint = getfDomain().computeReferencePoint();
         tolerance = computeTolerance(getGeometry(), referencePoint, generators);
 
         final Group tiles = produceTiles();
@@ -68,7 +67,7 @@ public class SphericalTiling extends TilingBase implements TilingCreator {
         handles.getChildren().clear();
 
         final Group all = new Group();
-        fundPrototype.getChildren().setAll(FundamentalDomain.compute(ds, fDomain, tilingStyle));
+        fundPrototype.getChildren().setAll(FundamentalDomain.compute(ds, getfDomain(), tilingStyle));
 
         {
             final Group group = CopyTiles.apply(fundPrototype);
@@ -119,17 +118,5 @@ public class SphericalTiling extends TilingBase implements TilingCreator {
             }
         }
         return all;
-    }
-
-    public DSymbol getDSymbol() {
-        return ds;
-    }
-
-    public FDomain getfDomain() {
-        return fDomain;
-    }
-
-    public Group getHandles() {
-        return handles;
     }
 }
