@@ -370,9 +370,15 @@ public class DSymbol {
     }
 
     public ArrayList<Integer> orbitMembers(int i, int j, int a) {
-        final ArrayList<Integer> set = new ArrayList<>();
-        visitOrbit(i, j, a, set::add);
-        return set;
+        final BitSet seen = new BitSet();
+        final ArrayList<Integer> list = new ArrayList<>();
+        visitOrbit(i, j, a, b -> {
+            if (!seen.get((b))) {
+                seen.set(b);
+                list.add(b);
+            }
+        });
+        return list;
     }
 
     /**

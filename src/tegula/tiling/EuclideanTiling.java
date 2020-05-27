@@ -127,27 +127,29 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
 
                 final Transform t = queue.poll(); // remove t from queue
 
-                for (Transform g : generators.getTransforms()) { // Creates new transforms for copies
-                    {
-                        final Transform tg = t.createConcatenation(g);
-                        final Point3D ref = transformRecycled.createConcatenation(tg).transform(referencePoint); // Reference point corresponding to transform tg
+                if (t != null) {
+                    for (Transform g : generators.getTransforms()) { // Creates new transforms for copies
+                        {
+                            final Transform tg = t.createConcatenation(g);
+                            final Point3D ref = transformRecycled.createConcatenation(tg).transform(referencePoint); // Reference point corresponding to transform tg
 
-                        if (isInRangeEuclidean(ref, windowCorner, getWidth(), getHeight()) && seen.insert(ref.getX(), ref.getY(), tolerance)) {
-                            queue.add(tg);
-                            if (insertCoveredPoint(ref)) {
-                                all.getChildren().add(provideCopy(tg, fundPrototype));
+                            if (isInRangeEuclidean(ref, windowCorner, getWidth(), getHeight()) && seen.insert(ref.getX(), ref.getY(), tolerance)) {
+                                queue.add(tg);
+                                if (insertCoveredPoint(ref)) {
+                                    all.getChildren().add(provideCopy(tg, fundPrototype));
+                                }
                             }
                         }
-                    }
 
-                    {
-                        final Transform gt = g.createConcatenation(t);
-                        final Point3D ref = transformRecycled.createConcatenation(gt).transform(referencePoint);
+                        {
+                            final Transform gt = g.createConcatenation(t);
+                            final Point3D ref = transformRecycled.createConcatenation(gt).transform(referencePoint);
 
-                        if (isInRangeEuclidean(ref, windowCorner, getWidth(), getHeight()) && seen.insert(ref.getX(), ref.getY(), tolerance)) {
-                            queue.add(gt);
-                            if (insertCoveredPoint(ref)) {
-                                all.getChildren().add(provideCopy(gt, fundPrototype));
+                            if (isInRangeEuclidean(ref, windowCorner, getWidth(), getHeight()) && seen.insert(ref.getX(), ref.getY(), tolerance)) {
+                                queue.add(gt);
+                                if (insertCoveredPoint(ref)) {
+                                    all.getChildren().add(provideCopy(gt, fundPrototype));
+                                }
                             }
                         }
                     }
@@ -263,29 +265,31 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
         while (!isInRangeForFDomainEuclidean(apt, windowCorner, width, height)) { // The loop works as long as the copy of fDomain lies outside the valid range for FDomain
             t = queue.poll(); // remove t from queue
 
-            for (Transform g : generators.getTransforms()) {
-                Transform tg = t.createConcatenation(g);
-                point = transformRecycled.createConcatenation(tg).transform(referencePoint);
+            if (t != null) {
+                for (Transform g : generators.getTransforms()) {
+                    Transform tg = t.createConcatenation(g);
+                    point = transformRecycled.createConcatenation(tg).transform(referencePoint);
 
-                if (seen.insert(point.getX(), point.getY(), tolerance)) { // Creates a tree of points lying in the copies of fDomain
-                    if (point.distance(midpoint) < d) { // Optimizes the choice of the transformation copying fDomain back to the valid range
-                        d = point.distance(midpoint);
-                        backShift = tg;
-                        apt = point;
+                    if (seen.insert(point.getX(), point.getY(), tolerance)) { // Creates a tree of points lying in the copies of fDomain
+                        if (point.distance(midpoint) < d) { // Optimizes the choice of the transformation copying fDomain back to the valid range
+                            d = point.distance(midpoint);
+                            backShift = tg;
+                            apt = point;
+                        }
+                        queue.add(tg);
                     }
-                    queue.add(tg);
-                }
 
-                Transform gt = g.createConcatenation(t);
-                point = transformRecycled.createConcatenation(gt).transform(referencePoint);
+                    Transform gt = g.createConcatenation(t);
+                    point = transformRecycled.createConcatenation(gt).transform(referencePoint);
 
-                if (seen.insert(point.getX(), point.getY(), tolerance)) {
-                    if (point.distance(midpoint) < d) {
-                        d = point.distance(midpoint);
-                        backShift = gt;
-                        apt = point;
+                    if (seen.insert(point.getX(), point.getY(), tolerance)) {
+                        if (point.distance(midpoint) < d) {
+                            d = point.distance(midpoint);
+                            backShift = gt;
+                            apt = point;
+                        }
+                        queue.add(gt);
                     }
-                    queue.add(gt);
                 }
             }
         }

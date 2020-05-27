@@ -25,7 +25,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import jloda.fx.util.ColorSchemeManager;
-import tegula.util.HasHyperbolicModel;
 
 /**
  * class representing styling choices for tiling
@@ -66,7 +65,7 @@ public class TilingStyle {
     private final BooleanProperty showSymmetryIcons = new SimpleBooleanProperty(false);
     private final BooleanProperty showDecorations = new SimpleBooleanProperty(false);
 
-    private final ObjectProperty<HasHyperbolicModel.HyperbolicModel> hyperbolicModel = new SimpleObjectProperty<>(HasHyperbolicModel.HyperbolicModel.Poincare);
+    private final ObjectProperty<CameraSettings.HyperbolicModel> hyperbolicModel = new SimpleObjectProperty<>(CameraSettings.HyperbolicModel.Poincare);
     public static final int minLimitHyperbolicGroup = 5;
     private final IntegerProperty hyperbolicLimit = new SimpleIntegerProperty(minLimitHyperbolicGroup);
 
@@ -371,15 +370,15 @@ public class TilingStyle {
         this.bandOpacity.set(bandOpacity);
     }
 
-    public HasHyperbolicModel.HyperbolicModel getHyperbolicModel() {
+    public CameraSettings.HyperbolicModel getHyperbolicModel() {
         return hyperbolicModel.get();
     }
 
-    public ObjectProperty<HasHyperbolicModel.HyperbolicModel> hyperbolicModelProperty() {
+    public ObjectProperty<CameraSettings.HyperbolicModel> hyperbolicModelProperty() {
         return hyperbolicModel;
     }
 
-    public void setHyperbolicModel(HasHyperbolicModel.HyperbolicModel hyperbolicModel) {
+    public void setHyperbolicModel(CameraSettings.HyperbolicModel hyperbolicModel) {
         this.hyperbolicModel.set(hyperbolicModel);
     }
 

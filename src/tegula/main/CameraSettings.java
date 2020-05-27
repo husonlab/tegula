@@ -25,13 +25,14 @@ import javafx.animation.TranslateTransition;
 import javafx.geometry.Point3D;
 import javafx.scene.PerspectiveCamera;
 import javafx.util.Duration;
-import tegula.util.HasHyperbolicModel;
 
 /**
  * set the camera based on geometry and model
  * Daniel Huson, 4.2019
  */
 public class CameraSettings {
+    public enum HyperbolicModel {Poincare, Klein, Hyperboloid}
+
     public static void setupSphericalCamera(PerspectiveCamera camera) {
         camera.setRotate(0);
         camera.setTranslateX(0);
@@ -47,7 +48,7 @@ public class CameraSettings {
      * @param model
      * @param animate if true, animate transition to model
      */
-    public static void setupHyperbolicCamera(PerspectiveCamera camera, HasHyperbolicModel.HyperbolicModel model, boolean animate) {
+    public static void setupHyperbolicCamera(PerspectiveCamera camera, HyperbolicModel model, boolean animate) {
 
         camera.setFieldOfView(90);
 

@@ -48,8 +48,6 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
 
     private Transform transformRecycled = new Translate();
 
-    private final Group handles = new Group();
-
     private final Point2D transVector = new Point2D(0, 0);
     private boolean changeDirection;
 
@@ -129,27 +127,29 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
 
                 final Transform t = queue.poll(); // remove t from queue
 
-                for (Transform g : generators.getTransforms()) {
-                    {
-                        final Transform tg = t.createConcatenation(g);
-                        final Point3D ref = transformRecycled.createConcatenation(tg).transform(referencePoint);
-                        if (seen.insert(getGeometry(), ref, tolerance) && ref.getZ() < maxDist) {
-                            countChildren++;
-                            queue.add(tg);
-                            if (insertCoveredPoint(ref)) {
-                                all.getChildren().add(provideCopy(tg, fundPrototype));
+                if (t != null) {
+                    for (Transform g : generators.getTransforms()) {
+                        {
+                            final Transform tg = t.createConcatenation(g);
+                            final Point3D ref = transformRecycled.createConcatenation(tg).transform(referencePoint);
+                            if (seen.insert(getGeometry(), ref, tolerance) && ref.getZ() < maxDist) {
+                                countChildren++;
+                                queue.add(tg);
+                                if (insertCoveredPoint(ref)) {
+                                    all.getChildren().add(provideCopy(tg, fundPrototype));
 
+                                }
                             }
                         }
-                    }
-                    {
-                        final Transform gt = g.createConcatenation(t);
-                        final Point3D ref = transformRecycled.createConcatenation(gt).transform(referencePoint);
-                        if (seen.insert(getGeometry(), ref, tolerance) && ref.getZ() < maxDist) {
-                            countChildren++;
-                            queue.add(gt);
-                            if (insertCoveredPoint(ref)) {
-                                all.getChildren().add(provideCopy(gt, fundPrototype));
+                        {
+                            final Transform gt = g.createConcatenation(t);
+                            final Point3D ref = transformRecycled.createConcatenation(gt).transform(referencePoint);
+                            if (seen.insert(getGeometry(), ref, tolerance) && ref.getZ() < maxDist) {
+                                countChildren++;
+                                queue.add(gt);
+                                if (insertCoveredPoint(ref)) {
+                                    all.getChildren().add(provideCopy(gt, fundPrototype));
+                                }
                             }
                         }
                     }
@@ -223,10 +223,8 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
         int i = 0;
         while (i < tiles.getChildren().size()) {
             final Group group = (Group) tiles.getChildren().get(i);
-            if (group instanceof Group) {
-                if (group.getChildren().size() == 0)
-                    throw new RuntimeException("Fund copy empty");
-            }
+            if (group == null || group.getChildren().size() == 0)
+                throw new RuntimeException("Fund copy empty");
 
             final Transform nodeTransform = group.getTransforms().get(0);
             final Point3D point = translate.createConcatenation(nodeTransform).transform(referencePoint); // point = translated reference point of node
@@ -335,33 +333,35 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
 
 
             t = queue.poll(); // remove t from queue
-            for (Transform g : generators.getTransforms()) {
-                {
-                    final Transform tg = t.createConcatenation(g);
-                    point = transformRecycled.createConcatenation(tg).transform(referencePoint);
+            if (t != null) {
+                for (Transform g : generators.getTransforms()) {
+                    {
+                        final Transform tg = t.createConcatenation(g);
+                        point = transformRecycled.createConcatenation(tg).transform(referencePoint);
 
-                    if (seen.insert(getGeometry(), point, tolerance)) { // Creates a tree of points lying in the copies of fDomain
-                        if (point.getZ() < d) { // Optimizes the choice of the transformation copying fDomain back to the valid range
-                            d = point.getZ();
-                            backShift = tg;
-                            apt = point;
+                        if (seen.insert(getGeometry(), point, tolerance)) { // Creates a tree of points lying in the copies of fDomain
+                            if (point.getZ() < d) { // Optimizes the choice of the transformation copying fDomain back to the valid range
+                                d = point.getZ();
+                                backShift = tg;
+                                apt = point;
+                            }
+
                         }
-
+                        queue.add(tg);
                     }
-                    queue.add(tg);
-                }
 
-                {
-                    final Transform gt = g.createConcatenation(t);
-                    point = transformRecycled.createConcatenation(gt).transform(referencePoint);
+                    {
+                        final Transform gt = g.createConcatenation(t);
+                        point = transformRecycled.createConcatenation(gt).transform(referencePoint);
 
-                    if (seen.insert(getGeometry(), point, tolerance)) {
-                        if (point.getZ() < d) {
-                            d = point.getZ();
-                            backShift = gt;
-                            apt = point;
+                        if (seen.insert(getGeometry(), point, tolerance)) {
+                            if (point.getZ() < d) {
+                                d = point.getZ();
+                                backShift = gt;
+                                apt = point;
+                            }
+                            queue.add(gt);
                         }
-                        queue.add(gt);
                     }
                 }
             }

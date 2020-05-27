@@ -48,7 +48,6 @@ import tegula.tiling.HyperbolicTiling;
 import tegula.tiling.TilingBase;
 import tegula.tiling.TilingCreator;
 import tegula.tilingeditor.SelectionSupport;
-import tegula.util.HasHyperbolicModel;
 import tegula.util.Updateable;
 
 import java.util.function.Consumer;
@@ -58,7 +57,7 @@ import java.util.function.Consumer;
  * Daniel Huson and Ruediger Zeller, 4.2019
  */
 public class TilingPane extends StackPane implements Updateable {
-    private final SimpleObjectProperty<HasHyperbolicModel.HyperbolicModel> hyperbolicModel = new SimpleObjectProperty<>(HasHyperbolicModel.HyperbolicModel.Poincare);
+    private final SimpleObjectProperty<CameraSettings.HyperbolicModel> hyperbolicModel = new SimpleObjectProperty<>(CameraSettings.HyperbolicModel.Poincare);
     private final ObjectProperty<TilingBase> tiling = new SimpleObjectProperty<>();
     private final SimpleObjectProperty<Geometry> geometry = new SimpleObjectProperty<>();
     private final TilingStyle tilingStyle;
@@ -455,18 +454,21 @@ public class TilingPane extends StackPane implements Updateable {
         return worldScale;
     }
 
-    public HasHyperbolicModel.HyperbolicModel getHyperbolicModel() {
+    public CameraSettings.HyperbolicModel getHyperbolicModel() {
         return hyperbolicModel.get();
     }
 
-    public void setHyperbolicModel(HasHyperbolicModel.HyperbolicModel hyperbolicModel) {
+    public void setHyperbolicModel(CameraSettings.HyperbolicModel hyperbolicModel) {
         this.hyperbolicModel.set(hyperbolicModel);
     }
 
-    public ObjectProperty<HasHyperbolicModel.HyperbolicModel> hyperbolicModelProperty() {
+    public ObjectProperty<CameraSettings.HyperbolicModel> hyperbolicModelProperty() {
         return hyperbolicModel;
     }
 
+    public PerspectiveCamera getPerspectiveCamera() {
+        return perspectiveCamera;
+    }
 
     public MouseHandler getMouseHandler() {
         return mouseHandler;

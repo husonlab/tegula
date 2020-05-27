@@ -29,20 +29,23 @@ import java.util.Arrays;
 
 /**
  * represents a band
- * Cornelius Wiehl, 11.2018
+ * Daniel Huson, 5.2020
  */
-public class Band3D extends Group {
+public class HalfBand3D extends Group {
     /**
      * connects two points by a band of the given width
      *
      * @param geom
-     * @param point0
-     * @param point1
+     * @param prev      point before
+     * @param point0    start
+     * @param point1    end
+     * @param next      point after
+     * @param side      point on the side on which the half band should be placed
      * @param bandWidth
      * @param above
      * @return mesh
      */
-    public static TriangleMesh connect(Geometry geom, Point3D point0, Point3D point1, double bandWidth, double above) {
+    public static TriangleMesh connect(Geometry geom, Point3D prev, Point3D point0, Point3D point1, Point3D next, Point3D side, double bandWidth, double above) {
         final Point3D[] points3d = new Point3D[6];
         final int[] faces;
 

@@ -37,18 +37,18 @@ public class BandCap3D {
      * calculates coordinates for circle by Cornelius 21.11.18
      *
      * @param center
-     * @param orientation
+     * @param tangent
      * @param radius
      * @param N
      * @param geom
      * @return
      */
-    public static Point3D[] circle(Point3D center, Point3D orientation, double radius, int N, Geometry geom) {
+    public static Point3D[] circle(Point3D center, Point3D tangent, double radius, int N, Geometry geom) {
 
         final Point3D[] coordinates;
 
         if (geom == Geometry.Hyperbolic) {
-            coordinates = Tools.hyperbolicCircleCoordinates(center, orientation, radius, N);
+            coordinates = Tools.hyperbolicCircleCoordinates(center, tangent, radius, N);
         } else {
             coordinates = new Point3D[N];
             // finds coordinates of a regular n-sided polygon in the x y plane with center
@@ -60,22 +60,21 @@ public class BandCap3D {
 
             // Finds normal vector
             final Point3D normal = Tools.getNormalVector(center, geom); // new z Axis
-            orientation = orientation.normalize(); // new x Axis
-            final Point3D newYAxis = normal.crossProduct(orientation).normalize(); // new y Axis
+            tangent = tangent.normalize(); // new x Axis
+            final Point3D newYAxis = normal.crossProduct(tangent).normalize(); // new y Axis
             // Transform points with Matrix multiplication. Affine Transformation to the
             // plane of the center point on the surface
             for (int n = 0; n < N; n++) {
-                double newX = orientation.getX() * coordinates[n].getX() + newYAxis.getX() * coordinates[n].getY()
+                double newX = tangent.getX() * coordinates[n].getX() + newYAxis.getX() * coordinates[n].getY()
                         + normal.getX() * coordinates[n].getZ();
-                double newY = orientation.getY() * coordinates[n].getX() + newYAxis.getY() * coordinates[n].getY()
+                double newY = tangent.getY() * coordinates[n].getX() + newYAxis.getY() * coordinates[n].getY()
                         + normal.getY() * coordinates[n].getZ();
-                double newZ = orientation.getZ() * coordinates[n].getX() + newYAxis.getZ() * coordinates[n].getY()
+                double newZ = tangent.getZ() * coordinates[n].getX() + newYAxis.getZ() * coordinates[n].getY()
                         + normal.getZ() * coordinates[n].getZ();
                 coordinates[n] = new Point3D(newX, newY, newZ).add(center);
             }
         }
         return coordinates;
-
     }
 
     /**
@@ -95,22 +94,22 @@ public class BandCap3D {
         int N = coordinates.length;
         final int[] faces = new int[6 * N];
         int counter = 2;
-        for (int i = 0; i < 6 * N; i = i + 6) {
+        for (int i = 0; i < 6 * N; ) {
             if (counter != N + 1) {
-                faces[i] = 0;
-                faces[i + 1] = 0;
-                faces[i + 2] = counter - 1;
-                faces[i + 3] = 1;
-                faces[i + 4] = counter;
-                faces[i + 5] = 2;
+                faces[i++] = 0;
+                faces[i++] = 0;
+                faces[i++] = counter - 1;
+                faces[i++] = 1;
+                faces[i++] = counter;
+                faces[i++] = 2;
                 counter++;
             } else {
-                faces[i] = 0;
-                faces[i + 1] = 0;
-                faces[i + 2] = counter - 1;
-                faces[i + 3] = 1;
-                faces[i + 4] = 1;
-                faces[i + 5] = 2;
+                faces[i++] = 0;
+                faces[i++] = 0;
+                faces[i++] = counter - 1;
+                faces[i++] = 1;
+                faces[i++] = 1;
+                faces[i++] = 2;
 
             }
         }
@@ -134,18 +133,16 @@ public class BandCap3D {
             points[3 * i + 2] = (float) points3d[i].getZ();
         }
 
-        final float[] texCoords = {0.5f, 0, 0, 0, 1, 1};
         int[] smoothing = new int[faces.length / 6];
         Arrays.fill(smoothing, 1);
 
         final TriangleMesh mesh = new TriangleMesh();
         mesh.getPoints().addAll(points);
-        mesh.getTexCoords().addAll(texCoords);
+        mesh.getTexCoords().addAll(0.5f, 0, 0, 0, 1, 1);
         mesh.getFaces().addAll(faces);
         mesh.getFaceSmoothingGroups().addAll(smoothing);
 
         return mesh;
-
     }
 
     // overloading CircleMesh method with default value

@@ -27,10 +27,10 @@ import jloda.fx.undo.UndoableChangeProperty;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.ColorSchemeManager;
 import tegula.core.dsymbols.*;
+import tegula.main.CameraSettings;
 import tegula.main.TilingStyle;
 import tegula.tilingpane.TilingPane;
 import tegula.undoable.ChangeDSymbolCommand;
-import tegula.util.HasHyperbolicModel;
 
 import java.util.ArrayList;
 
@@ -47,8 +47,8 @@ public class ControlBindings {
 
         controller.getModelChoiceBox().setOnAction((e) -> {
             if (!undoManager.isPerformingUndoOrRedo()) {
-                final HasHyperbolicModel.HyperbolicModel oldModel = tilingPane.getHyperbolicModel();
-                final HasHyperbolicModel.HyperbolicModel newModel = HasHyperbolicModel.HyperbolicModel.valueOf(controller.getModelChoiceBox().getSelectionModel().getSelectedItem());
+                final CameraSettings.HyperbolicModel oldModel = tilingPane.getHyperbolicModel();
+                final CameraSettings.HyperbolicModel newModel = CameraSettings.HyperbolicModel.valueOf(controller.getModelChoiceBox().getSelectionModel().getSelectedItem());
                 undoManager.doAndAdd(new UndoableChangeProperty<>("hyperbolic model", tilingPane.hyperbolicModelProperty(), oldModel, newModel,
                         (v) -> controller.getModelChoiceBox().getSelectionModel().select(v.toString())));
             }

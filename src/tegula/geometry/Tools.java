@@ -228,7 +228,6 @@ public class Tools {
         Point3D center = point0.multiply(0.01);
         Point3D end = center.add(orientation.normalize());
         Point3D xAxis = new Point3D(1, 0, 0);
-        Point3D ursprung = new Point3D(0, 0, 1);
 
         // rotates center point to x axis
         double rotAngle = xAxis.angle(center.getX(), center.getY(), 0);
