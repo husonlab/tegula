@@ -11,5 +11,5 @@ We have computed 2.4 billion tilings in total, but that file is too big to put o
 A paper describing the underlying math, algorithms and the software is in preparation.
 
 
-<img src="https://github.com/husonlab/tegula/blob/master/images/greens-2.png" width="300"><img src="https://github.com/husonlab/tegula/blob/master/images/greens-3.png" width="300"><img src="https://github.com/husonlab/tegula/blob/master/images/greens-1.png" width="300">
+<img src="https://github.com/husonlab/tegula/blob/master/images/greens-2.png" width="250"><img src="https://github.com/husonlab/tegula/blob/master/images/greens-3.png" width="250"><img src="https://github.com/husonlab/tegula/blob/master/images/greens-1.png" width="250">
 
