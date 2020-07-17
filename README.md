@@ -12,4 +12,5 @@ A paper describing the underlying math, algorithms and the software is in prepar
 
 
 <img src="https://github.com/husonlab/tegula/blob/master/images/greens-2.png" width="250"><img src="https://github.com/husonlab/tegula/blob/master/images/greens-3.png" width="250"><img src="https://github.com/husonlab/tegula/blob/master/images/greens-1.png" width="250">
+Image credits: Daniel Huson
 
