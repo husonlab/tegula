@@ -94,13 +94,17 @@ public class GroupEditingControls {
                 });
                 vChooser.valueProperty().addListener(listener);
                 vChooser.setUserData(listener);
-                Tooltip.install(vChooser, new Tooltip(switch (k) {
-                    case 0 -> "Vertex";
-                    case 1 -> "Edge";
-                    case 2 -> "Tile";
-                    default -> "?";
-                }));
-
+                switch (k) {
+                    case 0:
+                        Tooltip.install(vChooser, new Tooltip("Vertex"));
+                        break;
+                    case 1:
+                        Tooltip.install(vChooser, new Tooltip("Edge"));
+                        break;
+                    case 2:
+                        Tooltip.install(vChooser, new Tooltip("Tile"));
+                        break;
+                }
                 vChooser.setVisible(true);
             }
         }

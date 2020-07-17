@@ -98,20 +98,17 @@ public class BreakSymmetries {
                             final boolean hasMore = ds1.orbitLabelsStream().anyMatch(o -> ds1.getVij(o[0], o[1], o[2]) > 1);
 
                             switch (task) {
-                                case RemoveOne -> {
+                                case RemoveOne:
                                     ds1.setNr1(ds.getNr1());
                                     ds1.setNr2(ds.getNr2() + 1);
                                     result.add(ds1);
                                     return result;
-                                }
-                                case RemoveSome -> {
+                                case RemoveSome:
                                     result.add(ds1);
                                     if (hasMore)
                                         stack.push(ds1);
                                     break;
-
-                                }
-                                case RemoveAll -> {
+                                case RemoveAll:
                                     if (hasMore)
                                         stack.push(ds1);
                                     else {
@@ -121,7 +118,6 @@ public class BreakSymmetries {
                                         return result;
                                     }
                                     break;
-                                }
                             }
                         }
                     }

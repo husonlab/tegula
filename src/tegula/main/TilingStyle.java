@@ -45,7 +45,7 @@ public class TilingStyle {
     private final BooleanProperty showEdges = new SimpleBooleanProperty(true);
     private final BooleanProperty showBackEdges = new SimpleBooleanProperty(false);
 
-    private final BooleanProperty showVertices = new SimpleBooleanProperty(true);
+    private final BooleanProperty showVertices = new SimpleBooleanProperty(false);
     private final BooleanProperty showBackVertices = new SimpleBooleanProperty(false);
 
     private final BooleanProperty smoothEdges = new SimpleBooleanProperty(true);

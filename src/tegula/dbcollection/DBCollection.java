@@ -46,6 +46,8 @@ public class DBCollection implements Closeable, IFileBased {
     private final IntegerProperty pageSize = new SimpleIntegerProperty(1);
     private final LongProperty totalCount = new SimpleLongProperty(0);
 
+    private final FloatProperty dbVersion = new SimpleFloatProperty(0.0f);
+
     private final AService<ArrayList<DSymbol>> service = null;
 
     /**
@@ -59,6 +61,7 @@ public class DBCollection implements Closeable, IFileBased {
         fileName.set(databaseFile);
         this.databaseAccess = new DatabaseAccess(databaseFile);
         totalCount.set(databaseAccess.getDBDSize());
+        dbVersion.set(databaseAccess.getVersion());
 
         dbSelect.addListener((c, o, n) -> {
             try {
@@ -165,5 +168,13 @@ public class DBCollection implements Closeable, IFileBased {
             return String.format("%s - %s", Basic.getFileNameWithoutPath(getFileName()), ProgramProperties.getProgramVersion());
         else
             return String.format("%s (%s) - %s", Basic.getFileNameWithoutPath(getFileName()), getDbSelect(), ProgramProperties.getProgramVersion());
+    }
+
+    public float getDbVersion() {
+        return dbVersion.get();
+    }
+
+    public FloatProperty dbVersionProperty() {
+        return dbVersion;
     }
 }

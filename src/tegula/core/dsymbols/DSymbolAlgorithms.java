@@ -774,6 +774,22 @@ public class DSymbolAlgorithms {
         return buf.toString();
     }
 
+    public static String computeTileDegrees(DSymbol ds) {
+        final ArrayList<Integer> list = new ArrayList<>();
+        for (int a : ds.orbits(0, 1))
+            list.add(ds.getM01(a));
+        list.sort(Integer::compare);
+        return Basic.toString(list, " ");
+    }
+
+    public static String computeVertexDegrees(DSymbol ds) {
+        final ArrayList<Integer> list = new ArrayList<>();
+        for (int a : ds.orbits(1, 2))
+            list.add(ds.getM12(a));
+        list.sort(Integer::compare);
+        return Basic.toString(list, " ");
+    }
+
     /**
      * is the tiling colorable, ie, no two equivalent tiles share an edge
      *

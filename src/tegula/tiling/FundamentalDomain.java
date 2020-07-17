@@ -28,6 +28,7 @@ import javafx.scene.paint.Material;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Sphere;
+import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -38,13 +39,9 @@ import tegula.core.dsymbols.Geometry;
 import tegula.core.funtiles.utils.WrapInt;
 import tegula.geometry.Tools;
 import tegula.main.TilingStyle;
-import tegula.tiling.parts.Band3D;
-import tegula.tiling.parts.BandCap3D;
-import tegula.tiling.parts.Lines;
-import tegula.tiling.parts.MeshUtils;
+import tegula.tiling.parts.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.BitSet;
 
 /**
@@ -114,14 +111,13 @@ public class FundamentalDomain {
 
         final float[][] a2ChamberCoordinates = new float[dsymbol.size() + 1][];
         final Point3D[][] a2edgePoints = new Point3D[dsymbol.size() + 1][];
-        final Point3D[][] a2CornerPoints = new Point3D[dsymbol.size() + 1][];
+        final Point3D[] a2VertexPoints3D = new Point3D[dsymbol.size() + 1];
         final int[][] a2ChamberFaces = new int[dsymbol.size() + 1][];
 
         // compute all coordinates for each chamber:
         for (int a = 1; a <= dsymbol.size(); a++) {
             final Point3D[] chamberPoints; // points that create the triangles
             final Point3D[] edgePoints3D;
-            final Point3D[] cornerPoints3D;
             final int[] chamberFaces;
 
             // end of geometric cases
@@ -192,7 +188,7 @@ public class FundamentalDomain {
                     } else {
                         edgePoints3D = new Point3D[]{chamberPoints[0], chamberPoints[5], chamberPoints[5], chamberPoints[1]};
                     }
-                    cornerPoints3D = new Point3D[]{chamberPoints[0], chamberPoints[5], chamberPoints[1]};
+                    a2VertexPoints3D[a] = chamberPoints[0];
                     for (int i = 0; i < chamberPoints.length; i++) {
                         chamberPoints[i] = chamberPoints[i].multiply(0.995);
                     }
@@ -217,7 +213,7 @@ public class FundamentalDomain {
                     edgePoints3D[0] = chamberPoints[0];
                     edgePoints3D[1] = chamberPoints[5];
                     edgePoints3D[2] = chamberPoints[1];
-                    cornerPoints3D = edgePoints3D;
+                    a2VertexPoints3D[a] = chamberPoints[0];
                     break;
 // scales points to reduce rendering problems
                 case Hyperbolic:
@@ -253,7 +249,6 @@ public class FundamentalDomain {
                     for (int i = 0; i < 9; i++) {
                         edgePoints3D[i] = chamberPoints[pointsOf2EdgeSorted[i]];
                     }
-                    cornerPoints3D = new Point3D[]{chamberPoints[0], chamberPoints[5], chamberPoints[1]};
                     for (int i = 0; i < chamberPoints.length; i++) {
                         chamberPoints[i] = chamberPoints[i].multiply(1.0125);
                     }
@@ -272,7 +267,6 @@ public class FundamentalDomain {
 
             a2ChamberCoordinates[a] = chamberCoordinates;
             a2edgePoints[a] = edgePoints3D;
-            a2CornerPoints[a] = cornerPoints3D;
             a2ChamberFaces[a] = chamberFaces;
         }
 
@@ -284,8 +278,9 @@ public class FundamentalDomain {
                     final float[] chamberCoordinates = a2ChamberCoordinates[a]; // points that support triangles
                     final int[] chamberFaces = a2ChamberFaces[a];
 
-                    if (fDomain.getOrientation(a) != orientation)
+                    if (fDomain.getOrientation(a) != orientation) {
                         invertOrientationOfFaces(chamberFaces);
+                    }
 
                     {
                         final TriangleMesh mesh = new TriangleMesh();
@@ -297,9 +292,8 @@ public class FundamentalDomain {
                 final TriangleMesh mesh = MeshUtils.combineTriangleMeshes(meshes.toArray(new TriangleMesh[0]));
                 mesh.getTexCoords().setAll(0.5f, 0, 0, 0, 1, 1);
                 {
-                    final int[] smoothing = new int[mesh.getFaces().size() / 6];
-                    Arrays.fill(smoothing, 1);
-                    mesh.getFaceSmoothingGroups().addAll(smoothing);
+                    for (int i = 0; i < mesh.getFaces().size() / 6; i++)
+                        mesh.getFaceSmoothingGroups().addAll(i);
                 }
 
                 if (tilingStyle.isShowFaces()) {
@@ -329,33 +323,20 @@ public class FundamentalDomain {
 
                 for (int a : dsymbol.orbitMembers(0, 2, a0)) {
                     final Point3D[] edgePoints = a2edgePoints[a];
-                    final Point3D[] cornerPoints = a2CornerPoints[a];
-                    if (dsymbol.getS2(a) >= a || fDomain.isBoundaryEdge(2, a)) {
-                        for (int i = 0; i < edgePoints.length - 1; i++) {
-                            meshes.add(Band3D.connect(geom, edgePoints[i], edgePoints[i + 1], edgeWidth[a2edge[a]], linesAbove));
+
+                    if (false && geom == Geometry.Euclidean) {
+                        if (fDomain.getOrientation(a) != orientation) {
+                            reverseOrderOfPoints(edgePoints);
                         }
+                        meshes.add(HalfBand3D.createEuclidean(edgePoints, edgeWidth[a2edge[a]], StrokeLineCap.ROUND, null));
 
-                        // corner points:
-                        for (int i = 1; i < cornerPoints.length; i++) {
-                            if (i == 1 && edgeCenter2WithGaps.get(a) || i == 2 && vertex1WithGaps.get(a)) {
-                                final Point3D center = cornerPoints[i];
-                                // todo: need better tangent computation
-
-                                final Point3D tangent;
-                                if (geom == Geometry.Spherical) {
-                                    tangent = cornerPoints[i].crossProduct(new Point3D(1, 0, 0));
-                                } else {
-                                    if (i == cornerPoints.length - 1)
-                                        tangent = cornerPoints[i].subtract(cornerPoints[i - 1]);
-                                    else
-                                        tangent = cornerPoints[i].subtract(cornerPoints[i + 1]);
-                                }
-                                final Point3D[] coordinates = BandCap3D.circle(center, tangent, vertexDiameter[a2vertex[a]], bandCapFineness, geom);
-
-                                caps.add(BandCap3D.CircleMesh(center, coordinates, geom, linesAbove, false));
-                            }
+                    } else if (dsymbol.getS2(a) > a || fDomain.isBoundaryEdge(2, a)) {
+                        if (fDomain.getOrientation(a) != orientation) {
+                            reverseOrderOfPoints(edgePoints);
                         }
+                        meshes.add(Band3D.connect(geom, edgePoints, edgeWidth[a2edge[a]], linesAbove, StrokeLineCap.ROUND));
                     }
+                }
                     if (tilingStyle.isShowEdges()) {
                         final ArrayList<TriangleMesh> list = new ArrayList<>(meshes);
                         if (tilingStyle.isShowVertices())
@@ -369,6 +350,9 @@ public class FundamentalDomain {
                         meshView.setMaterial(edge2material[a2edge[a0]]);
                         meshes.add(mesh);
                         edgesGroup.getChildren().add(meshView);
+
+                        // test createFan:
+                        //meshes.add(MeshUtils.createFan(cornerPoints[0],cornerPoints[0].add(50,0,0),cornerPoints[0].add(0,50,0),cornerPoints[0].add(50,50,0)));
                     }
                     if (tilingStyle.isShowBackEdges()) {
                         final ArrayList<TriangleMesh> list = new ArrayList<>(meshes);
@@ -385,24 +369,15 @@ public class FundamentalDomain {
                         meshes.add(mesh);
                         edgesGroup.getChildren().add(meshView);
                     }
-                }
             }
         }
         if (tilingStyle.isShowVertices() || tilingStyle.isShowBackVertices()) {
             final double linesAbove = (geom == Geometry.Euclidean ? 1 : 0);
 
             for (int a : dsymbol.orbits(1, 2)) {
-                final Point3D[] cornerPoints = a2CornerPoints[a];
-                if (cornerPoints.length >= 2) {
-                    final Point3D center = cornerPoints[0];
+                final Point3D center = a2VertexPoints3D[a];
                     // todo: need better tangent computation
-                    final Point3D tangent;
-                    if (geom == Geometry.Euclidean)
-                        tangent = cornerPoints[0].subtract(cornerPoints[1]);
-                    else if (geom == Geometry.Hyperbolic)
-                        tangent = cornerPoints[0].subtract(cornerPoints[1]);
-                    else
-                        tangent = cornerPoints[0].crossProduct(new Point3D(1, 0, 0));
+                final Point3D tangent = center.crossProduct(new Point3D(1, 0, 0));
 
                     final Point3D[] coordinates = BandCap3D.circle(center, tangent, bandWidth, bandCapFineness, geom);
                     final TriangleMesh mesh = BandCap3D.CircleMesh(center, coordinates, geom, linesAbove, false);
@@ -422,7 +397,6 @@ public class FundamentalDomain {
                         meshView.setMaterial(vertex2material[a2edge[a]]);
                         verticesGroup.getChildren().add(meshView);
                     }
-                }
             }
         }
 
@@ -509,6 +483,20 @@ public class FundamentalDomain {
             faces[i + 5] = tmp;
         }
     }
+
+    /**
+     * reverse the order of points
+     *
+     * @param list
+     */
+    private static void reverseOrderOfPoints(Point3D[] list) {
+        for (int i = 0; i < list.length / 2; i++) {
+            Point3D tmp = list[i];
+            list[i] = list[list.length - i - 1];
+            list[list.length - i - 1] = tmp;
+        }
+    }
+
 
     /**
      * computes the representation of chambers

@@ -426,16 +426,15 @@ public class Tools {
      */
     public static Point3D map2Dto3D(Geometry geometry, Point2D apt) {
 
-        switch (geometry) {
-            default //case  Euclidean
-                    -> {
+        switch (geometry) {//case  Euclidean
+            default: {
                 return new Point3D(100 * apt.getX(), 100 * apt.getY(), 0);
             }
-            case Spherical -> {
+            case Spherical: {
                 final double d = apt.getX() * apt.getX() + apt.getY() * apt.getY();
                 return new Point3D(100 * (2 * apt.getX() / (1 + d)), 100 * (2 * apt.getY() / (1 + d)), 100 * ((d - 1) / (d + 1)));
             }
-            case Hyperbolic -> {
+            case Hyperbolic: {
                 final double d = apt.getX() * apt.getX() + apt.getY() * apt.getY();
                 if (d == 0)
                     apt = new Point2D(0.000000001, 0.000000001); // zero causes problems
@@ -448,13 +447,17 @@ public class Tools {
     }
 
     public static Point3D moveSlightlyAbove(Geometry geometry, Point3D apt) {
-        return switch (geometry) {
-            case Euclidean -> new Point3D(apt.getX(), apt.getY(), apt.getZ() - 0.01);
-            case Spherical -> apt.multiply(1.01);
-// - because we view from below
-            case Hyperbolic -> new Point3D(apt.getX(), apt.getY(), apt.getZ() - 0.6);
-            default -> apt;
-        };
+        // - because we view from below
+        switch (geometry) {
+            case Euclidean:
+                return new Point3D(apt.getX(), apt.getY(), apt.getZ() - 0.01);
+            case Spherical:
+                return apt.multiply(1.01);
+            case Hyperbolic:
+                return new Point3D(apt.getX(), apt.getY(), apt.getZ() - 0.6);
+            default:
+                return apt;
+        }
     }
 
     /**
@@ -470,19 +473,17 @@ public class Tools {
 
     public static Point2D map3Dto2D(Geometry geometry, Point3D bpt) {
         bpt = bpt.multiply(0.01); // scale by 0.01
-        switch (geometry) {
-            default // case Euclidean
-                    -> {
+        switch (geometry) {// case Euclidean
+            default:
                 return new Point2D(bpt.getX(), bpt.getY());
-            }
-            case Spherical -> { // Inverse of stereographic projection
+// Inverse of stereographic projection
+            case Spherical:
                 double d = (1 + bpt.getZ()) / (1 - bpt.getZ());
                 return new Point2D((bpt.getX() * (d + 1) / 2), (bpt.getY() * (d + 1) / 2));
-            }
-            case Hyperbolic -> { // Transforms hyperboloid model to Poincare disk
-                // model
+// Transforms hyperboloid model to Poincare disk
+// model
+            case Hyperbolic:
                 return new Point2D(bpt.getX() / (1 + bpt.getZ()), bpt.getY() / (1 + bpt.getZ()));
-            }
         }
     }
 

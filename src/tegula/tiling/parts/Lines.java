@@ -60,7 +60,7 @@ public class Lines {
         final double angle = Math.acos(diff.normalize().dotProduct(yAxis));
         final Rotate rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRotation);
 
-        final Cylinder line = new Cylinder(width, height, 1);
+        final Cylinder line = new Cylinder(width, height, 3);
         line.setCullFace(CullFace.BACK);
         line.setDrawMode(DrawMode.FILL);
         line.setMaterial(new PhongMaterial(color));

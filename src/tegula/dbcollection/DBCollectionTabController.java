@@ -81,6 +81,13 @@ public class DBCollectionTabController {
     private ComboBox<String> signatureCBox;
 
     @FXML
+    private ComboBox<String> tileDegreesCBox;
+
+    @FXML
+    private ComboBox<String> vertexDegreesCBox;
+
+
+    @FXML
     private CheckBox maximalSymmetricCheckBox;
 
     @FXML
@@ -121,6 +128,8 @@ public class DBCollectionTabController {
         assert orbifoldCBox != null : "fx:id=\"orbifoldCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert symmetryClassCBox != null : "fx:id=\"symmetryClassCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert signatureCBox != null : "fx:id=\"signatureCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
+        assert tileDegreesCBox != null : "fx:id=\"tileDegreesCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
+        assert vertexDegreesCBox != null : "fx:id=\"vertexDegreesCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert maximalSymmetricCheckBox != null : "fx:id=\"maximalSymmetricCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert orientableCheckBox != null : "fx:id=\"orientableCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert colorableCheckBox != null : "fx:id=\"colorableCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
@@ -189,6 +198,14 @@ public class DBCollectionTabController {
 
     public ComboBox<String> getSignatureCBox() {
         return signatureCBox;
+    }
+
+    public ComboBox<String> getTileDegreesCBox() {
+        return tileDegreesCBox;
+    }
+
+    public ComboBox<String> getVertexDegreesCBox() {
+        return vertexDegreesCBox;
     }
 
     public CheckBox getMaximalSymmetricCheckBox() {

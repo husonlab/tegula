@@ -66,65 +66,67 @@ public class StraightenEdges {
      * @param edgeFlag
      */
     public static void straightenEdge(FDomain fDomain, int edgeFlag) {
-        final DSymbol ds = fDomain.getDSymbol();
         final Generators generators = fDomain.getGenerators();
-
-        int i;
-        int[] a = new int[5];
+        final DSymbol ds = fDomain.getDSymbol();
 
         if (edgeFlag < 1 || edgeFlag > ds.size())
             throw new RuntimeException(String.format("straighten_edge(flag=%d): edge not in 1..%d", edgeFlag, ds.size()));
 
-        a[0] = edgeFlag;
+        final int[] orbit02 = new int[4]; // four flags around edge
 
-        if (ds.getSi(0, a[0]) != a[0])
-            a[1] = ds.getSi(0, a[0]);
-        else
-            a[1] = 0;
-        if (ds.getSi(2, a[0]) != a[0] && ds.getSi(2, a[0]) != a[1])
-            a[2] = ds.getSi(2, a[0]);
-        else
-            a[2] = 0;
-        if (a[2] != 0 && ds.getSi(0, a[2]) != a[0] && ds.getSi(0, a[2]) != a[1] && ds.getSi(0, a[2]) != a[2])
-            a[3] = ds.getSi(0, a[2]);
-        else
-            a[3] = 0;
+        orbit02[0] = edgeFlag;
 
-        for (i = 0; i < 4; i++) {
-            if (a[i] != 0) {
-                Point2D aPt = fDomain.getVertex(0, a[i]);
-                Point2D bPt = fDomain.getVertex(0, ds.getSi(0, a[i]));
-                Point3D aPt3d = Tools.map2Dto3D(fDomain.getGeometry(), aPt);
+        if (ds.getS0(orbit02[0]) != orbit02[0])
+            orbit02[1] = ds.getS0(orbit02[0]);
+        else
+            orbit02[1] = 0;
+
+        if (ds.getS2(orbit02[0]) != orbit02[0] && ds.getS2(orbit02[0]) != orbit02[1])
+            orbit02[2] = ds.getS2(orbit02[0]);
+        else
+            orbit02[2] = 0;
+
+        if (orbit02[2] != 0 && ds.getS0(orbit02[2]) != orbit02[0] && ds.getS0(orbit02[2]) != orbit02[1] && ds.getS0(orbit02[2]) != orbit02[2])
+            orbit02[3] = ds.getS0(orbit02[2]);
+        else
+            orbit02[3] = 0;
+
+        for (int a : orbit02) {
+            if (a != 0) {
+                final Point2D aPt = fDomain.getVertex(0, a);
+                final Point2D bPt = fDomain.getVertex(0, ds.getS0(a));
+                final Point3D aPt3d = Tools.map2Dto3D(fDomain.getGeometry(), aPt);
                 Point3D bPt3d = Tools.map2Dto3D(fDomain.getGeometry(), bPt);
-                if (fDomain.isBoundaryEdge(0, a[i])) {
-                    Transform gen = generators.get(0, ds.getSi(0, a[i]));
+                if (fDomain.isBoundaryEdge(0, a)) {
+                    Transform gen = generators.get(0, ds.getS0(a));
                     bPt3d = gen.transform(bPt3d);
                 }
 
-                Point3D cPt3d = Tools.midpoint3D(fDomain.getGeometry(), aPt3d, bPt3d);
-                Point2D cPt = Tools.map3Dto2D(fDomain.getGeometry(), cPt3d);
-                fDomain.setVertex(cPt, 1, a[i]);
+                final Point3D cPt3d1 = Tools.midpoint3D(fDomain.getGeometry(), aPt3d, bPt3d);
+                final Point2D cPt1 = Tools.map3Dto2D(fDomain.getGeometry(), cPt3d1);
+                fDomain.setVertex(cPt1, 1, a);
 
-                cPt3d = Tools.midpoint3D(fDomain.getGeometry(), aPt3d, cPt3d);
-                cPt = Tools.map3Dto2D(fDomain.getGeometry(), cPt3d);
-                fDomain.setEdgeCenter(cPt, 2, a[i]);
+                final Point3D cPt3d2 = Tools.midpoint3D(fDomain.getGeometry(), aPt3d, cPt3d1);
+                final Point2D cPt2 = Tools.map3Dto2D(fDomain.getGeometry(), cPt3d2);
+                fDomain.setEdgeCenter(cPt2, 2, a);
             }
         }
+
         // Straighten all edges of chambers and recompute chamber centers (= mass point of chamber):
-        for (int j = 1; j <= fDomain.size(); j++) {
-            Point3D A = fDomain.getVertex3D(0, j);
-            Point3D B = fDomain.getVertex3D(1, j);
-            Point3D C = fDomain.getVertex3D(2, j);
-            Point2D AB = Tools.map3Dto2D(fDomain.getGeometry(), Tools.midpoint3D(fDomain.getGeometry(), A, B));
-            Point2D AC = Tools.map3Dto2D(fDomain.getGeometry(), Tools.midpoint3D(fDomain.getGeometry(), A, C));
-            Point2D BC = Tools.map3Dto2D(fDomain.getGeometry(), Tools.midpoint3D(fDomain.getGeometry(), B, C));
+        for (int a = 1; a <= ds.size(); a++) {
+            final Point3D A = fDomain.getVertex3D(0, a);
+            final Point3D B = fDomain.getVertex3D(1, a);
+            final Point3D C = fDomain.getVertex3D(2, a);
+            final Point2D AB = Tools.map3Dto2D(fDomain.getGeometry(), Tools.midpoint3D(fDomain.getGeometry(), A, B));
+            final Point2D AC = Tools.map3Dto2D(fDomain.getGeometry(), Tools.midpoint3D(fDomain.getGeometry(), A, C));
+            final Point2D BC = Tools.map3Dto2D(fDomain.getGeometry(), Tools.midpoint3D(fDomain.getGeometry(), B, C));
 
-            fDomain.setEdgeCenter(BC, 0, j);
-            fDomain.setEdgeCenter(AC, 1, j);
-            fDomain.setEdgeCenter(AB, 2, j);
+            fDomain.setEdgeCenter(BC, 0, a);
+            fDomain.setEdgeCenter(AC, 1, a);
+            fDomain.setEdgeCenter(AB, 2, a);
 
-            Point2D vec = (fDomain.getVertex(2, j).subtract(AB)).multiply(0.33333);
-            fDomain.setChamberCenter(AB.add(vec), j);
+            final Point2D vec = (fDomain.getVertex(2, a).subtract(AB)).multiply(0.33333);
+            fDomain.setChamberCenter(AB.add(vec), a);
         }
     }
 
@@ -139,22 +141,24 @@ public class StraightenEdges {
         // Straighten 0- and 1-edges
         for (int a = 1; a <= fDomain.size(); a++) {
             // Midpoint between 1- and 2-vertex = new 0-edge center
-            Point3D pt3d = Tools.midpoint3D(fDomain.getGeometry(), fDomain.getVertex3D(1, a), fDomain.getVertex3D(2, a));
-            Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt3d);
-            // System.err.println("Edge center 0: "+fDomain.getEdgeCenter(0,a)+" -> "+pt2d);
-            fDomain.setEdgeCenter(pt2d, 0, a);
+            {
+                final Point3D pt3d = (fDomain.getVertex3D(1, a).add(fDomain.getVertex3D(2, a))).multiply(0.5);
+                final Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt3d);
+                fDomain.setEdgeCenter(pt2d, 0, a);
+            }
             // Midpoint between 0- and 2-vertex = new 1-edge center
-            pt3d = Tools.midpoint3D(fDomain.getGeometry(), fDomain.getVertex3D(0, a), fDomain.getVertex3D(2, a));
-            pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt3d);
-            // System.err.println("Edge center 1: "+fDomain.getEdgeCenter(1,a)+" -> "+pt2d);
-            fDomain.setEdgeCenter(pt2d, 1, a);
+            {
+                final Point3D pt3d = (fDomain.getVertex3D(0, a).add(fDomain.getVertex3D(2, a))).multiply(0.5);
+                final Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt3d);
+                fDomain.setEdgeCenter(pt2d, 1, a);
+            }
             // Recompute chamber center
-            Point2D vec = (fDomain.getVertex(2, a).subtract(fDomain.getEdgeCenter(2, a))).multiply(0.33333);
-            pt2d = fDomain.getEdgeCenter(2, a).add(vec);
-            //pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt3d);
-            fDomain.setChamberCenter(pt2d, a);
-            // System.err.println("chamber center: "+fDomain.getChamberCenter(a)+" -> "+pt2d);
+            {
+                final Point3D vec = (fDomain.getVertex3D(2, a).subtract(fDomain.getEdgeCenter3D(2, a))).multiply(0.33333);
+                final Point3D pt3d = fDomain.getEdgeCenter3D(2, a).add(vec);
+                final Point2D pt2d = Tools.map3Dto2D(fDomain.getGeometry(), pt3d);
+                fDomain.setChamberCenter(pt2d, a);
+            }
         }
     }
-
 }

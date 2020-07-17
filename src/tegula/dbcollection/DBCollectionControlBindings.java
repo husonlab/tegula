@@ -38,7 +38,6 @@ public class DBCollectionControlBindings {
     public static void setup(DBCollectionTab dbCollectionTab) {
         final DBCollection dbCollection = dbCollectionTab.getDbCollection();
         final DBCollectionTabController controller = dbCollectionTab.getController();
-
         controller.getSelectTitledPane().setExpanded(false);
 
         dbCollectionTab.getDbCollection().countProperty().addListener((c, o, n) -> {
@@ -95,6 +94,11 @@ public class DBCollectionControlBindings {
         controller.getMaximalSymmetricCheckBox().setOnAction(onActionHandler);
 
         controller.getSignatureCBox().setOnAction(onActionHandler);
+
+        controller.getTileDegreesCBox().setOnAction(onActionHandler);
+        controller.getTileDegreesCBox().disableProperty().bind(dbCollection.dbVersionProperty().lessThan(0.1f));
+        controller.getVertexDegreesCBox().setOnAction(onActionHandler);
+        controller.getVertexDegreesCBox().disableProperty().bind(dbCollection.dbVersionProperty().lessThan(0.1f));
 
         controller.getOrientableCheckBox().setOnAction(onActionHandler);
         controller.getColorableCheckBox().setOnAction(onActionHandler);
@@ -171,37 +175,79 @@ public class DBCollectionControlBindings {
             buf.append("geometry != 'Hyperbolic'");
         }
 
-        final String groupString = controller.getOrbifoldCBox().getSelectionModel().getSelectedItem();
-        if (groupString != null && groupString.length() > 0) {
-            if (buf.length() > 0)
-                buf.append(" and ");
-            final String operator = getOperator(groupString, true);
-            if (operator.equalsIgnoreCase("c"))
-                buf.append(String.format(" instr(orbifold, '%s') > 0", getArgument(groupString, true)));
-            else if (operator.equalsIgnoreCase("!c"))
-                buf.append(String.format(" instr(orbifold, '%s') = 0", getArgument(groupString, true)));
-            else
-                buf.append(String.format(" orbifold %s '%s'", operator, getArgument(groupString, true)));
+        {
+            final String input = controller.getOrbifoldCBox().getSelectionModel().getSelectedItem();
+            if (input != null && input.length() > 0) {
+                if (buf.length() > 0)
+                    buf.append(" and ");
+                final String operator = getOperator(input, true);
+                if (operator.equalsIgnoreCase("c"))
+                    buf.append(String.format(" instr(orbifold, '%s') > 0", getArgument(input, true)));
+                else if (operator.equalsIgnoreCase("!c"))
+                    buf.append(String.format(" instr(orbifold, '%s') = 0", getArgument(input, true)));
+                else
+                    buf.append(String.format(" orbifold %s '%s'", operator, getArgument(input, true)));
+            }
         }
 
-        final String symmetryClass = controller.getSymmetryClassCBox().getSelectionModel().getSelectedItem();
-        if (symmetryClass != null && !symmetryClass.equals("All")) {
-            if (buf.length() > 0)
-                buf.append(" and ");
-            buf.append(String.format(" symmetry_class = '%s'", symmetryClass));
+        {
+            final String input = controller.getSymmetryClassCBox().getSelectionModel().getSelectedItem();
+            if (input != null && !input.equals("All")) {
+                if (buf.length() > 0)
+                    buf.append(" and ");
+                buf.append(String.format(" symmetry_class = '%s'", input));
+            }
         }
 
-        final String signatureString = controller.getSignatureCBox().getSelectionModel().getSelectedItem();
-        if (signatureString != null && signatureString.length() > 0) {
-            if (buf.length() > 0)
-                buf.append(" and ");
-            final String operator = getOperator(signatureString, true);
-            if (operator.equalsIgnoreCase("c"))
-                buf.append(String.format(" instr(signature, '%s') > 0", getArgument(signatureString, true)));
-            else if (operator.equalsIgnoreCase("!c"))
-                buf.append(String.format(" instr(signature, '%s') = 0", getArgument(signatureString, true)));
-            else
-                buf.append(String.format(" signature %s '%s'", operator, getArgument(signatureString, true)));
+        {
+            final String input = controller.getSignatureCBox().getSelectionModel().getSelectedItem();
+            if (input != null && input.length() > 0) {
+                if (!controller.getSignatureCBox().getItems().contains(input))
+                    controller.getSignatureCBox().getItems().add(0, input);
+                if (buf.length() > 0)
+                    buf.append(" and ");
+                final String operator = getOperator(input, true);
+                if (operator.equalsIgnoreCase("c"))
+                    buf.append(String.format(" instr(signature, '%s') > 0", getArgument(input, true)));
+                else if (operator.equalsIgnoreCase("!c"))
+                    buf.append(String.format(" instr(signature, '%s') = 0", getArgument(input, true)));
+                else
+                    buf.append(String.format(" signature %s '%s'", operator, getArgument(input, true)));
+            }
+        }
+
+        {
+            final String input = controller.getTileDegreesCBox().getSelectionModel().getSelectedItem();
+            if (input != null && input.length() > 0) {
+                if (!controller.getTileDegreesCBox().getItems().contains(input))
+                    controller.getTileDegreesCBox().getItems().add(0, input);
+                if (buf.length() > 0)
+                    buf.append(" and ");
+                final String operator = getOperator(input, true);
+                if (operator.equalsIgnoreCase("c"))
+                    buf.append(String.format(" instr(tile_deg, '%s') > 0", getArgument(input, true)));
+                else if (operator.equalsIgnoreCase("!c"))
+                    buf.append(String.format(" instr(tile_deg, '%s') = 0", getArgument(input, true)));
+                else
+                    buf.append(String.format(" tile_deg %s '%s'", operator, getArgument(input, true)));
+            }
+        }
+
+        {
+            final String input = controller.getVertexDegreesCBox().getSelectionModel().getSelectedItem();
+            if (input != null && input.length() > 0) {
+                if (!controller.getVertexDegreesCBox().getItems().contains(input))
+                    controller.getVertexDegreesCBox().getItems().add(0, input);
+                if (buf.length() > 0)
+                    buf.append(" and ");
+                final String operator = getOperator(input, true);
+                if (operator.equalsIgnoreCase("c"))
+                    buf.append(String.format(" instr(vertex_deg, '%s') > 0", getArgument(input, true)));
+                else if (operator.equalsIgnoreCase("!c"))
+                    buf.append(String.format(" instr(vertex_deg, '%s') = 0", getArgument(input, true)));
+                else
+                    buf.append(String.format(" vertex_deg %s '%s'", operator, getArgument(input, true)));
+            }
         }
 
         if (!controller.getNormalCheckBox().isIndeterminate()) {
@@ -220,14 +266,12 @@ public class DBCollectionControlBindings {
             if (buf.length() > 0)
                 buf.append(" and ");
             buf.append(" maximal = '").append(controller.getMaximalSymmetricCheckBox().isSelected()).append("'");
-
         }
 
         if (!controller.getOrientableCheckBox().isIndeterminate()) {
             if (buf.length() > 0)
                 buf.append(" and ");
             buf.append(" orientable = '").append(controller.getOrientableCheckBox().isSelected()).append("'");
-
         }
 
         if (!controller.getColorableCheckBox().isIndeterminate()) {

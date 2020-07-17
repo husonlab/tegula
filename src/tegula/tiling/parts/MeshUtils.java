@@ -20,11 +20,13 @@
 package tegula.tiling.parts;
 
 import javafx.collections.ObservableFloatArray;
+import javafx.geometry.Point3D;
 import javafx.scene.shape.ObservableFaceArray;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.shape.VertexFormat;
 import jloda.util.Triplet;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,11 +72,25 @@ public class MeshUtils {
      *
      * @return combined mesh
      */
+    public static TriangleMesh combineTriangleMeshes(Collection<TriangleMesh> meshes) {
+        return combineTriangleMeshes(meshes.toArray(new TriangleMesh[0]));
+    }
+
+    /**
+     * combine a collection of triangle meshes
+     *
+     * @return combined mesh
+     */
     public static TriangleMesh combineTriangleMeshes(TriangleMesh... meshes) {
-        if (meshes.length > 0 && meshes[0].getVertexFormat() != VertexFormat.POINT_TEXCOORD)
+        if (meshes.length == 0)
+            return null;
+        else if (meshes.length == 1)
+            return meshes[0];
+        else if (meshes[0].getVertexFormat() != VertexFormat.POINT_TEXCOORD)
             throw new RuntimeException("Unsupported vertex format");
 
         final TriangleMesh newMesh = new TriangleMesh();
+        MeshUtils.setDefaultTexCoordinates(newMesh);
 
         final int numberOfMeshes = meshes.length;
 
@@ -128,4 +144,33 @@ public class MeshUtils {
 
     }
 
+    /**
+     * create a fan mesh
+     */
+    public static TriangleMesh createFan(Point3D center, Point3D... points) {
+        final TriangleMesh mesh = new TriangleMesh();
+
+        mesh.getPoints().addAll((float) center.getX(), (float) center.getY(), (float) center.getZ());
+        for (Point3D point : points)
+            mesh.getPoints().addAll((float) point.getX(), (float) point.getY(), (float) point.getZ());
+
+        final int numberOfPoints = points.length + 1;
+
+        for (int i = 1; i + 1 < numberOfPoints; i++) {
+            mesh.getFaces().addAll(0, 0, i, 1, i + 1, 2);
+        }
+        setDefaultTexCoordinates(mesh);
+        setSmoothGroup(mesh, 1);
+
+        return mesh;
+    }
+
+    public static void setDefaultTexCoordinates(TriangleMesh mesh) {
+        mesh.getTexCoords().addAll(0.5f, 0, 0, 0, 1, 1);
+    }
+
+    public static void setSmoothGroup(TriangleMesh mesh, int group) {
+        for (int i = 0; i < mesh.getFaces().size() / 6; i++)
+            mesh.getFaceSmoothingGroups().addAll(group);
+    }
 }

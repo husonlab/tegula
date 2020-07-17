@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="8.0.4" transformSequenceNumber="8">
   <directoryPresets config="../../javafx-jmods" />
-  <application name="Tegula" applicationId="8023-6339-7402-8800" mediaDir="../../../builds" shortName="tegula" publisher="Daniel Huson and Ruediger Zeller" publisherWeb="www-ab.informatik.uni-tuebingen.de" version="0.0.0" allPathsRelative="true" macVolumeId="b8c0a1154e563a9a" javaMinVersion="14">
+  <application name="Tegula" applicationId="8023-6339-7402-8800" mediaDir="../../../builds" shortName="tegula" publisher="Daniel Huson and Ruediger Zeller" publisherWeb="www-ab.informatik.uni-tuebingen.de" version="0.0.0" allPathsRelative="true" macVolumeId="b8c0a1154e563a9a" javaMinVersion="13">
     <codeSigning macEnabled="true" macPkcs12File="../../../../etc/application.p12">
       <macSearchedJars>
         <entry>jna-*</entry>

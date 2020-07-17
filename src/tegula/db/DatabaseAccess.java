@@ -133,6 +133,17 @@ public class DatabaseAccess implements Closeable {
     }
 
     /**
+     * gets the database version
+     *
+     * @return version
+     * @throws SQLException
+     */
+    public float getVersion() throws SQLException {
+        return Basic.parseFloat(executeQueryString("select info_String from info where id='version';", 1).get(0));
+    }
+
+
+    /**
      * generic method for executing queries with results of type int/Integer
      *
      * @param query the SQL query
@@ -183,4 +194,4 @@ public class DatabaseAccess implements Closeable {
         }
         return result;
     }
-}
+ }

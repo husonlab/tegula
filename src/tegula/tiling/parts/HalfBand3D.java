@@ -20,149 +20,117 @@
 package tegula.tiling.parts;
 
 import javafx.geometry.Point3D;
-import javafx.scene.Group;
+import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.shape.TriangleMesh;
-import tegula.core.dsymbols.Geometry;
-import tegula.geometry.Tools;
+import javafx.scene.transform.Rotate;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * represents a band
  * Daniel Huson, 5.2020
  */
-public class HalfBand3D extends Group {
+public class HalfBand3D {
+
     /**
-     * connects two points by a band of the given width
-     *
-     * @param geom
-     * @param prev      point before
-     * @param point0    start
-     * @param point1    end
-     * @param next      point after
-     * @param side      point on the side on which the half band should be placed
-     * @param bandWidth
-     * @param above
-     * @return mesh
+     * construct a band from a list of points
      */
-    public static TriangleMesh connect(Geometry geom, Point3D prev, Point3D point0, Point3D point1, Point3D next, Point3D side, double bandWidth, double above) {
-        final Point3D[] points3d = new Point3D[6];
-        final int[] faces;
+    public static TriangleMesh createEuclidean(Point3D[] points0, double bandWidth, StrokeLineCap strokeLineCap, StrokeLineJoin strokeLineJoin) {
+        final ArrayList<Point3D> points = new ArrayList<>();
 
-        // Points visualized
-        // |2|----------|4|
-        // |0|----------|1|
-        // |3|----------|5|
+        Collections.addAll(points, points0);
+        //System.err.println(points0.length+" -> "+points.size());
 
-        switch (geom) {
-            case Euclidean -> {
-                final Point3D zAxis = new Point3D(0, 0, 1);
-                final Point3D diff = point1.subtract(point0).normalize();
-                final Point3D normal = diff.crossProduct(zAxis).normalize();
+        final ArrayList<Point3D> parallelPoints = new ArrayList<>();
 
-                points3d[0] = point0;
-                points3d[1] = point1;
-                points3d[2] = point0.add(normal.multiply(bandWidth));
-                points3d[3] = point0.add(normal.multiply(-bandWidth));
-                points3d[4] = point1.add(normal.multiply(bandWidth));
-                points3d[5] = point1.add(normal.multiply(-bandWidth));
-
-                // raises points above surface
-                for (int i = 0; i < points3d.length; i++) {
-                    points3d[i] = points3d[i].add(0, 0, above);
+        {
+            Point3D prev = null;
+            for (int i = 0; i < points.size(); i++) {
+                final Point3D point = points.get(i);
+                if (prev != null) {
+                    final Point3D normal = prev.subtract(point).crossProduct(Rotate.Z_AXIS).normalize();
+                    if (i == 1) { // take care of first point
+                        parallelPoints.add(prev.add(normal.multiply(bandWidth)));
+                    }
+                    if (i == points.size() - 1) // take care of last point
+                        parallelPoints.add(point.add(normal.multiply(bandWidth)));
+                    else // intermediate point
+                    {
+                        parallelPoints.add(shiftAndIntersect(points.get(i - 1), point, points.get(i + 1), bandWidth));
+                    }
                 }
-
-                faces = new int[]{2, 0, 1, 1, 4, 2, 2, 0, 0, 1, 1, 2, 0, 0, 5, 1, 1, 2, 0, 0, 3, 1, 5, 2};
+                prev = point;
             }
-            case Spherical -> {
-                final Point3D diff = point1.subtract(point0).normalize();
-                final Point3D normalToSphere0 = Tools.getNormalVector(point0, geom);
-                final Point3D normalToSphere1 = Tools.getNormalVector(point1, geom);
-                final Point3D normal = diff.crossProduct(normalToSphere0.normalize());
-
-                // uses two different normal vectors for two different points
-                points3d[0] = point0.add(normalToSphere0.normalize().multiply(above));
-                points3d[1] = point1.add(normalToSphere1.normalize().multiply(above));
-                points3d[2] = point0.add(normal.multiply(bandWidth)).add(normalToSphere0.normalize().multiply(above));
-                points3d[3] = point0.subtract(normal.multiply(bandWidth)).add(normalToSphere0.normalize().multiply(above));
-                points3d[4] = point1.add(normal.multiply(bandWidth)).add(normalToSphere1.normalize().multiply(above));
-                points3d[5] = point1.subtract(normal.multiply(bandWidth)).add(normalToSphere1.normalize().multiply(above));
-
-                faces = new int[]{2, 0, 4, 1, 1, 2, 2, 0, 1, 1, 0, 2, 0, 0, 1, 1, 5, 2, 0, 0, 5, 1, 3, 2};
-            }
-            case Hyperbolic -> {
-                final Point3D diff = point0.subtract(point1);
-                final Point3D normalToSphere0 = Tools.getNormalVector(point0, geom); // normal vector for point 0 of points3d
-                // array
-                final Point3D normalToSphere1 = Tools.getNormalVector(point1, geom);
-                final Point3D refPoint1 = point0.add(diff); // direction of line used in function below to orientate points
-                // correct
-                final Point3D refPoint2 = point1.add(diff);
-                final Point3D[] pointsForStart = Tools.equidistantHyperbolicPoints(point0, refPoint1, bandWidth);
-                final Point3D[] pointsForEnd = Tools.equidistantHyperbolicPoints(point1, refPoint2, bandWidth);
-
-                points3d[0] = point0.add(normalToSphere0.normalize().multiply(above));
-                points3d[1] = point1.add(normalToSphere1.normalize().multiply(above));
-
-                // needs a new normal vector for each point
-                final Point3D normalToSphere2 = Tools.getHyperbolicNormal(pointsForStart[0]);
-                points3d[2] = pointsForStart[0].add(normalToSphere2.normalize().multiply(above));
-
-                final Point3D normalToSphere3 = Tools.getHyperbolicNormal(pointsForStart[1]);
-                points3d[3] = pointsForStart[1].add(normalToSphere3.normalize().multiply(above));
-
-                final Point3D normalToSphere4 = Tools.getHyperbolicNormal(pointsForEnd[0]);
-                points3d[4] = pointsForEnd[0].add(normalToSphere4.normalize().multiply(above));
-
-                final Point3D normalToSphere5 = Tools.getHyperbolicNormal(pointsForEnd[1]);
-                points3d[5] = pointsForEnd[1].add(normalToSphere5.normalize().multiply(above));
-
-                // original structure does not use different normal vectors
-                // Point3D diff = point1.subtract(point0).normalize();
-                // Point3D normalToSphere0 = Tools.getNormalVector(point0, geom);
-                // Point3D normalToSphere1 = Tools.getNormalVector(point1, geom);
-                // Point3D normal = diff.crossProduct(normalToSphere0.normalize());
-                //
-                // points3d[0] = point0.add(normalToSphere0.normalize().multiply(above));
-                //
-                // points3d[1] = point1.add(normalToSphere1.normalize().multiply(above));
-                //
-                // points3d[2] =
-                // point0.add(normal.multiply(size)).add(normalToSphere0.normalize().multiply(above));
-                //
-                // points3d[3] =
-                // point0.subtract(normal.multiply(size)).add(normalToSphere0.normalize().multiply(above));
-                //
-                // points3d[4] =
-                // point1.add(normal.multiply(size)).add(normalToSphere1.normalize().multiply(above));
-                //
-                // points3d[5] =
-                // point1.subtract(normal.multiply(size)).add(normalToSphere1.normalize().multiply(above));
-
-                faces = new int[]{2, 0, 4, 1, 1, 2, 2, 0, 1, 1, 0, 2, 0, 0, 1, 1, 5, 2, 0, 0, 5, 1, 3, 2};
-            }
-            default -> throw new RuntimeException("Invalid case");
         }
 
-        // creates mesh
-        float[] points = new float[3 * points3d.length];
 
-        for (int i = 0; i < points3d.length; i++) {
-            points[3 * i] = (float) points3d[i].getX();
-            points[3 * i + 1] = (float) points3d[i].getY();
-            points[3 * i + 2] = (float) points3d[i].getZ();
+        final TriangleMesh band = new TriangleMesh();
+        MeshUtils.setDefaultTexCoordinates(band);
+
+        for (Point3D point : points) {
+            band.getPoints().addAll((float) point.getX(), (float) point.getY(), 1f);
         }
+        for (Point3D point : parallelPoints) {
+            band.getPoints().addAll((float) point.getX(), (float) point.getY(), 1f);
+        }
+        {
+            // layout:
+            //  p0-- p1-- p2--...-- pk
+            //  | \  | \  |  \      |
+            // pp0--pp1--pp2--...--ppk
 
-        final float[] texCoords = {0.5f, 0, 0, 0, 1, 1};
-        int[] smoothing = new int[faces.length / 6];
-        Arrays.fill(smoothing, 1);
+            final int k = points.size();
+            for (int i = 0; i < k - 1; i++) {
+                band.getFaces().addAll(i, 0, i + k, 1, i + k + 1, 2);
+                //System.err.println(i+" "+(i+k)+" "+(i+k+1));
+                band.getFaces().addAll(i, 0, i + k + 1, 1, i + 1, 2);
+                //System.err.println(i+" "+(i+k+1)+" "+(i+1));
+            }
+        }
+        MeshUtils.setSmoothGroup(band, 1);
+        return band;
+    }
 
-        final TriangleMesh mesh = new TriangleMesh();
-        mesh.getPoints().addAll(points);
-        mesh.getTexCoords().addAll(texCoords);
-        mesh.getFaces().addAll(faces);
-        mesh.getFaceSmoothingGroups().addAll(smoothing);
+    /**
+     * shift points p1 and p2 orthogonally to p1-p2 by distance d and copies of p2 and p3 similarly, returns the intersection
+     * of the two shifted lines
+     *
+     * @param p1
+     * @param p2
+     * @param q2
+     * @param d
+     * @return intersection point
+     */
+    public static Point3D shiftAndIntersect(Point3D p1, Point3D p2, Point3D q2, double d) {
+        // line p1-p2
+        final Point3D pTrans = new Point3D(-p2.subtract(p1).getY(), p2.subtract(p1).getX(), p1.getZ()).normalize().multiply(d);
+        p1 = p1.add(pTrans);
+        p2 = p2.add(pTrans);
 
-        return mesh;
+        // line q1-q2
+        Point3D q1 = p2;
+        final Point3D qTrans = new Point3D(-q2.subtract(q1).getY(), q2.subtract(q1).getX(), q1.getZ()).normalize().multiply(d);
+        q1 = q1.add(qTrans);
+        q2 = q2.add(qTrans);
+
+        final double x1 = p1.getX();
+        final double x2 = p2.getX();
+        final double x3 = q1.getX();
+        final double x4 = q2.getX();
+
+        final double y1 = p1.getY();
+        final double y2 = p2.getY();
+        final double y3 = q1.getY();
+        final double y4 = q2.getY();
+
+        if (Math.abs((x1 * (y2 - y4) + x2 * (y4 - y1) + x4 * (y1 - y2))) < 0.1) // points p1,p2,q2 are co-linear
+            return p2;
+
+        final double x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4));
+        final double y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4));
+
+        return new Point3D(x, y, 0);
     }
 }

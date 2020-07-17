@@ -40,10 +40,15 @@ public interface TilingCreator {
      * @return tiling
      */
     static TilingBase create(DSymbol dSymbol, TilingStyle tilingStyle, Updateable doc) {
-        return switch (dSymbol.computeGeometry()) {
-            case Spherical -> new SphericalTiling(dSymbol, tilingStyle);
-            case Hyperbolic -> new HyperbolicTiling(dSymbol, tilingStyle);
-            case Euclidean -> new EuclideanTiling(dSymbol, tilingStyle, doc);
-        };
+        switch (dSymbol.computeGeometry()) {
+            case Spherical:
+                return new SphericalTiling(dSymbol, tilingStyle);
+            case Hyperbolic:
+                return new HyperbolicTiling(dSymbol, tilingStyle);
+            case Euclidean:
+                return new EuclideanTiling(dSymbol, tilingStyle, doc);
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 }

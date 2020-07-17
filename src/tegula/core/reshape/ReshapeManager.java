@@ -34,8 +34,8 @@ import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
 import tegula.geometry.Tools;
 import tegula.tiling.Generators;
-import tegula.tiling.StraightenEdges;
 import tegula.tiling.TilingBase;
+import tegula.tilingeditor.StraightenEdges;
 import tegula.util.Updateable;
 
 import java.util.ArrayList;

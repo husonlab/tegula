@@ -133,14 +133,16 @@ public class BandCap3D {
             points[3 * i + 2] = (float) points3d[i].getZ();
         }
 
-        int[] smoothing = new int[faces.length / 6];
-        Arrays.fill(smoothing, 1);
 
         final TriangleMesh mesh = new TriangleMesh();
         mesh.getPoints().addAll(points);
         mesh.getTexCoords().addAll(0.5f, 0, 0, 0, 1, 1);
         mesh.getFaces().addAll(faces);
-        mesh.getFaceSmoothingGroups().addAll(smoothing);
+        {
+            int[] smoothing = new int[faces.length / 6];
+            Arrays.fill(smoothing, 1);
+            mesh.getFaceSmoothingGroups().addAll(smoothing);
+        }
 
         return mesh;
     }

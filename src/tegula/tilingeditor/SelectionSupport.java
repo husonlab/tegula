@@ -111,7 +111,7 @@ public class SelectionSupport {
 
                 if (type == null || pair.getFirst() == type) {
                     switch (pair.getFirst()) {
-                        case 'v' -> {
+                        case 'v':
                             if (vertexSelection.getSelectedItems().contains(id)) {
                                 scaleFactor = 1.5;
                                 material = selectedMeshMaterial;
@@ -122,8 +122,7 @@ public class SelectionSupport {
                                 drawMode = DrawMode.FILL;
                             }
                             break;
-                        }
-                        case 'e' -> {
+                        case 'e':
                             if (edgeSelection.getSelectedItems().contains(id)) {
                                 scaleFactor = 1.0;
                                 material = selectedMeshMaterial;
@@ -134,8 +133,7 @@ public class SelectionSupport {
                                 drawMode = DrawMode.FILL;
                             }
                             break;
-                        }
-                        case 't' -> {
+                        case 't':
                             if (tileSelection.getSelectedItems().contains(id)) {
                                 scaleFactor = 1.0;
                                 material = selectedMeshMaterial;
@@ -146,12 +144,11 @@ public class SelectionSupport {
                                 drawMode = DrawMode.FILL;
                             }
                             break;
-                        }
-                        default -> {
+                        default:
                             material = null;
                             scaleFactor = 1;
                             drawMode = DrawMode.FILL;
-                        }
+                            break;
                     }
                     if (material != null) {
                         node.setScaleX(scaleFactor);

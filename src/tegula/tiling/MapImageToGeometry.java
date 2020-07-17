@@ -69,12 +69,21 @@ public class MapImageToGeometry {
                 final Point3D[] points3D = {Tools.map2Dto3D(geometry, points2D[0]), Tools.map2Dto3D(geometry, points2D[1]),
                         Tools.map2Dto3D(geometry, points2D[2]), Tools.map2Dto3D(geometry, points2D[3])};
 
-                final double maxSideLength = switch (geometry) {
-                    case Spherical -> 20;
-                    case Hyperbolic -> 25;
-// don't subdivide
-                    case Euclidean -> 1000;
-                };
+                // don't subdivide
+                double maxSideLength;
+                switch (geometry) {
+                    case Spherical:
+                        maxSideLength = 20;
+                        break;
+                    case Hyperbolic:
+                        maxSideLength = 25;
+                        break;
+                    case Euclidean:
+                        maxSideLength = 1000;
+                        break;
+                    default:
+                        throw new IllegalArgumentException();
+                }
 
                 final TriangleMesh mesh = computeTriangleMesh(geometry, maxSideLength, points3D);
 
@@ -115,7 +124,7 @@ public class MapImageToGeometry {
             if (++count == 8)
                 break;
         }
-        System.err.println(String.format("MaxSideLength: %.3f Refinements: %d triangles: %d", maxSideLength, count, mesh.getFaces().size() / 6));
+        //System.err.println(String.format("MaxSideLength: %.3f Refinements: %d triangles: %d", maxSideLength, count, mesh.getFaces().size() / 6));
         return mesh;
     }
 
