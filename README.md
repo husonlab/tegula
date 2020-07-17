@@ -1,5 +1,4 @@
-# tiling
-Periodic 2D tilings
+# Tegula
 
 Tegula is a program for displaying and exploring two-dimensional periodic tilings, based on the concept of Delaney-Dress symbols. Tegula was written by Daniel Huson and Rüdiger Zeller, using code by Klaus Westphal. Tegula is written in Java (12) and uses JavaFX. 
 
