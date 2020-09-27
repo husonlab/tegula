@@ -26,6 +26,8 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
+import jloda.fx.window.NotificationManager;
+import jloda.util.ProgramProperties;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.reshape.ReshapeManager;
 import tegula.main.TilingStyle;
@@ -40,7 +42,7 @@ import java.util.Queue;
  * Daniel Huson and Ruediger Zeller, 2016
  */
 public class EuclideanTiling extends TilingBase implements TilingCreator {
-    public static final Group FAILED = new Group();
+    private static long previousWarning = 0L;
 
     private final QuadTree coveredPoints = new QuadTree();
 
@@ -50,10 +52,8 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
 
     private final Updateable doc;
 
-    private final Point3D windowCorner = new Point3D(0, 0, 0); // Upper left corner of window in Euclidean case
-
-    private final DoubleProperty width = new SimpleDoubleProperty(800);
-    private final DoubleProperty height = new SimpleDoubleProperty(800);
+    private final DoubleProperty widthProperty = new SimpleDoubleProperty(800);
+    private final DoubleProperty heightProperty = new SimpleDoubleProperty(800);
 
     /**
      * constructor
@@ -80,12 +80,16 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
      * @return group
      */
     private Group produceTiles(boolean reset) {
+        if (reset)
+            setNumberOfCopies(0);
         generators = getfDomain().getGenerators();
 
         //Add handles
         handles.getChildren().setAll(((new ReshapeManager(this, doc).createHandles())));
 
         final Group all = new Group();
+
+        final double margin = 100 * Math.max(getfDomain().getBoundingBox().getWidth(), getfDomain().getBoundingBox().getHeight());
 
         if (reset) { // need to recompute fundamental domain
             recycler.clear();
@@ -94,7 +98,6 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
             //Tolerance for rounding errors in QuadTree
             tolerance = computeTolerance(getGeometry(), referencePoint, generators);
 
-
             //Prototype of fDomain (for copies)
             fundPrototype.getChildren().clear();
             fundPrototype.getChildren().setAll(FundamentalDomain.compute(ds, getfDomain(), tilingStyle));
@@ -102,6 +105,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
         }
 
         if (!isDrawFundamentalDomainOnly()) {
+            final int maxCopies = ProgramProperties.get("MaxCopiesEuclidean", 5000);
             final QuadTree seen = new QuadTree(); // Saves reference points of tiles
 
             Point3D pt = transformRecycled.transform(referencePoint);
@@ -112,17 +116,33 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
 
             for (Transform generator : generators.getTransforms()) {  // Makes copies of fundamental domain by using generators
                 Point3D ref = transformRecycled.createConcatenation(generator).transform(referencePoint); // Reference point for new copy
-                if (isInRangeEuclidean(ref, windowCorner, getWidth(), getHeight()) && seen.insert(ref.getX(), ref.getY(), tolerance)) { // Checks whether reference point is in valid range and if it is in QuadTree "seen". Adds it if not.
+                if (isInWindowEuclidean(ref, getWidth(), getHeight(), margin) && seen.insert(ref.getX(), ref.getY(), tolerance)) { // Checks whether reference point is in valid range and if it is in QuadTree "seen". Adds it if not.
                     if (insertCoveredPoint(ref)) { // Checks whether copy fills empty space after translation of tiles
                         all.getChildren().add(provideCopy(generator, fundPrototype));
                     }
                 }
             }
 
+            final long start = System.currentTimeMillis();
+
             while (queue.size() > 0) {
                 // Breaks while loop if too many copies (rounding errors)
                 if (!reset && queue.size() >= 1.5 * getNumberOfCopies()) {
                     return FAILED;
+                }
+                if (getNumberOfCopies() + all.getChildren().size() > maxCopies) {
+                    if (System.currentTimeMillis() - previousWarning > 10000) {
+                        NotificationManager.showWarning("Exceeded max copies: " + maxCopies);
+                        previousWarning = System.currentTimeMillis();
+                    }
+                    break;
+                }
+                if (System.currentTimeMillis() - start > 10000) {
+                    if (System.currentTimeMillis() - previousWarning > 10000) {
+                        NotificationManager.showWarning("Exceeded max computation time (10sec)");
+                        previousWarning = System.currentTimeMillis();
+                    }
+                    break;
                 }
 
                 final Transform t = queue.poll(); // remove t from queue
@@ -133,7 +153,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
                             final Transform tg = t.createConcatenation(g);
                             final Point3D ref = transformRecycled.createConcatenation(tg).transform(referencePoint); // Reference point corresponding to transform tg
 
-                            if (isInRangeEuclidean(ref, windowCorner, getWidth(), getHeight()) && seen.insert(ref.getX(), ref.getY(), tolerance)) {
+                            if (isInWindowEuclidean(ref, getWidth(), getHeight(), margin) && seen.insert(ref.getX(), ref.getY(), tolerance)) {
                                 queue.add(tg);
                                 if (insertCoveredPoint(ref)) {
                                     all.getChildren().add(provideCopy(tg, fundPrototype));
@@ -145,7 +165,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
                             final Transform gt = g.createConcatenation(t);
                             final Point3D ref = transformRecycled.createConcatenation(gt).transform(referencePoint);
 
-                            if (isInRangeEuclidean(ref, windowCorner, getWidth(), getHeight()) && seen.insert(ref.getX(), ref.getY(), tolerance)) {
+                            if (isInWindowEuclidean(ref, getWidth(), getHeight(), margin) && seen.insert(ref.getX(), ref.getY(), tolerance)) {
                                 queue.add(gt);
                                 if (insertCoveredPoint(ref)) {
                                     all.getChildren().add(provideCopy(gt, fundPrototype));
@@ -167,7 +187,6 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
      * @param tiles
      */
     public void translateTiling(double dx, double dy, Group tiles) {
-
         // QuadTree is used for saving copies which are kept under translation
         coveredPoints.clear();
 
@@ -178,24 +197,24 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
         final Point3D refPoint = transformRecycled.transform(referencePoint); // Translates reference point to correct place
 
         //Recompute transformRecycled if necessary
-        if (!isInWindowEuclidean(refPoint, windowCorner, width.get(), height.get())) { // If transformRecycled shifts fDomain out of visible window
-            Transform t = calculateBackShiftEuclidean(windowCorner, width.get(), height.get());
+        if (!isInWindowEuclidean(refPoint, getWidth(), getHeight(), 50)) { // If transformRecycled shifts fDomain out of visible window
+            Transform t = calculateBackShiftEuclidean(getWidth(), getHeight());
             transformRecycled = transformRecycled.createConcatenation(t); // new transformRecycled does not shift out of window
         }
+
+        final double margin = 100 * Math.max(getfDomain().getBoundingBox().getWidth(), getfDomain().getBoundingBox().getHeight());
 
         //First step: Translate tiles by vector (dx,dy) ------------------------------------------------------------
         int i = 0;
         while (i < tiles.getChildren().size()) {
-            Group group = (Group) tiles.getChildren().get(i); // Copy with index i in tile. Each copy is a node of the group "tile".
+            final Group group = (Group) tiles.getChildren().get(i); // Copy with index i in tile. Each copy is a node of the group "tile".
             if (group.getTransforms().size() > 0) {
-                Transform nodeTransform = group.getTransforms().get(0); // get transform of node
-                Point3D point = translate.createConcatenation(nodeTransform).transform(referencePoint);
+                final Transform nodeTransform = group.getTransforms().get(0); // get transform of node
+                final Point3D point = translate.createConcatenation(nodeTransform).transform(referencePoint);
 
-                if (isInRangeEuclidean(point, windowCorner, width.get(), height.get())) {  // keep copy if point still is in valid range
+                if (isInWindowEuclidean(point, getWidth(), getHeight(), margin)) {  // keep copy if point still is in valid range
                     group.getTransforms().setAll(translate.createConcatenation(nodeTransform)); // new transform = (translate)*(old transform)
-                    if (!insertCoveredPoint(point)) // Save copy as a kept one
-                        System.err.println("Already present");
-
+                    insertCoveredPoint(point);
                     i++;
                 } else { // point is out of valid range
                     tiles.getChildren().remove(i);
@@ -224,18 +243,9 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
      *
      * @param height
      * @param width
-     * @param windowCorner
      * @return transform
      */
-    public Transform calculateBackShiftEuclidean(Point3D windowCorner, double width, double height) {
-
-        if (width < 450) {
-            width = 450;
-        }
-        if (height < 450) {
-            height = 450;
-        }
-
+    public Transform calculateBackShiftEuclidean(double width, double height) {
         //Add all generators
         generators = getfDomain().getGenerators();
 
@@ -248,7 +258,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
 
         Transform backShift = new Translate(), t;
         Point3D point = refPoint, apt = refPoint;
-        Point3D midpoint = new Point3D(windowCorner.getX() + width / 2, windowCorner.getY() + height / 2, 0);
+        Point3D midpoint = new Point3D(0.5 * width, 0.5 * height, 0);
         double d = point.distance(midpoint);
 
         for (Transform g : generators.getTransforms()) {
@@ -262,10 +272,11 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
             }
         }
 
-        while (!isInRangeForFDomainEuclidean(apt, windowCorner, width, height)) { // The loop works as long as the copy of fDomain lies outside the valid range for FDomain
+        while (!isInWindowEuclidean(apt, width, height, -5)) { // The loop works as long as the copy of fDomain lies outside the valid range for FDomain
             t = queue.poll(); // remove t from queue
 
             if (t != null) {
+                boolean changed = false;
                 for (Transform g : generators.getTransforms()) {
                     Transform tg = t.createConcatenation(g);
                     point = transformRecycled.createConcatenation(tg).transform(referencePoint);
@@ -275,6 +286,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
                             d = point.distance(midpoint);
                             backShift = tg;
                             apt = point;
+                            changed = true;
                         }
                         queue.add(tg);
                     }
@@ -287,86 +299,29 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
                             d = point.distance(midpoint);
                             backShift = gt;
                             apt = point;
+                            changed = true;
                         }
                         queue.add(gt);
                     }
                 }
+                if (!changed)
+                    break;
             }
         }
+        //System.err.println("backshift (copies: "+getNumberOfCopies()+")");
         return backShift;
-    }
-
-    /**
-     * Euclidean case: Checks whether "point" is in valid range
-     *
-     * @param point
-     * @param windowCorner
-     * @param width
-     * @param height
-     * @return
-     */
-    public boolean isInRangeEuclidean(Point3D point, Point3D windowCorner, double width, double height) {
-        // Adjust width and height for a range around visible window. Range around window has at least dimensions 600 times 600
-        if (width >= 350) {
-            width += 250;
-        } else {
-            width = 600;
-        }
-
-        if (height >= 350) {
-            height += 250;
-        } else {
-            height = 600;
-        }
-
-        double eps = 0;
-
-        return windowCorner.getX() - 250 - eps <= point.getX() && point.getX() <= windowCorner.getX() + width + eps &&
-                windowCorner.getY() - 250 - eps <= point.getY() && point.getY() <= windowCorner.getY() + height + eps;
     }
 
     /**
      * Euclidean case: Checks whether "point" is in visible window
      *
      * @param point
-     * @param windowCorner
      * @param width
      * @param height
      * @return
      */
-    public boolean isInWindowEuclidean(Point3D point, Point3D windowCorner, double width, double height) { //Checks whether point is in visible window
-        if (width < 450) {
-            width = 450;
-        }
-        if (height < 450) {
-            height = 450;
-        }
-
-        return windowCorner.getX() <= point.getX() && point.getX() <= windowCorner.getX() + width &&
-                windowCorner.getY() <= point.getY() && point.getY() <= windowCorner.getY() + height;
-    }
-
-    /**
-     * Euclidean case: checks whether fundamental domain lies in its valid range which is inside visible window.
-     *
-     * @param point
-     * @param windowCorner
-     * @param width
-     * @param height
-     * @return
-     */
-    public boolean isInRangeForFDomainEuclidean(Point3D point, Point3D windowCorner, double width, double height) {
-        if (width < 450) {
-            width = 450;
-        }
-        if (height < 450) {
-            height = 450;
-        }
-
-        double left = windowCorner.getX() + 50, right = windowCorner.getX() + width - 50;
-        double up = windowCorner.getY() + 50, down = windowCorner.getY() + height - 50;
-
-        return left <= point.getX() && point.getX() <= right && up <= point.getY() && point.getY() <= down;
+    public boolean isInWindowEuclidean(Point3D point, double width, double height, double margin) {
+        return -margin < point.getX() && point.getX() < width + margin && -margin < point.getY() && point.getY() < height + margin;
     }
 
     /**
@@ -388,7 +343,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
         super.reset();
         fundPrototype.getChildren().clear();
         coveredPoints.clear();
-        referencePoint = null;
+        referencePoint = new Point3D(1, 1, 0);
         recycler.clear();
     }
 
@@ -402,29 +357,28 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
         return coveredPoints.insert(p.getX(), p.getY(), tolerance);
     }
 
-
     public double getWidth() {
-        return width.get();
+        return widthProperty.get();
     }
 
     public DoubleProperty widthProperty() {
-        return width;
+        return widthProperty;
     }
 
     public void setWidth(double width) {
-        this.width.set(width);
+        this.widthProperty.set(width);
     }
 
     public double getHeight() {
-        return height.get();
+        return heightProperty.get();
     }
 
     public DoubleProperty heightProperty() {
-        return height;
+        return heightProperty;
     }
 
     public void setHeight(double height) {
-        this.height.set(height);
+        this.heightProperty.set(height);
     }
 
 }

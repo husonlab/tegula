@@ -28,7 +28,7 @@ import java.util.ArrayList;
  * Daniel Huson, 10.2019
  */
 public enum SymmetryClass {
-    Coxeter, Stellate, Hat, Projective, Moebius, Annular, Toroidal, Other;
+    Coxeter, Stellate, Hat, Projective, Moebius, Annular, Toroidal;
 
     /**
      * computes the symmetry class as defined in doi:10.1107/S205327331400549X
@@ -42,8 +42,7 @@ public enum SymmetryClass {
         int circles = 0;
         int stars = 0;
         int crosses = 0;
-        int leadingCones = 0;
-        int otherCones = 0;
+        int cones = 0;
         boolean inLeading = true;
         for (String part : list) {
             if (part.startsWith("(") && part.endsWith(")"))
@@ -51,9 +50,7 @@ public enum SymmetryClass {
             if (Basic.isInteger(part)) {
                 if (Basic.parseInt(part) > 1) {
                     if (inLeading)
-                        leadingCones++;
-                    else
-                        otherCones++;
+                        cones++;
                 }
             } else if (inLeading)
                 inLeading = false;
@@ -65,21 +62,20 @@ public enum SymmetryClass {
                 crosses++;
         }
 
-        if (stars > 0 && circles == 0 && crosses == 0 && leadingCones == 0)
+        if (circles == 0 && cones == 0 && stars == 1 && crosses == 0)
             return Coxeter;
-        else if (leadingCones > 0 && stars == 0 && circles == 0 && crosses == 0)
+        else if (circles == 0 && cones >= 2 && stars == 0 && crosses == 0)
             return Stellate;
-        else if (leadingCones > 0 && stars > 0 && circles == 0 && crosses == 0)
+        else if (circles == 0 && cones >= 1 && stars == 1 && crosses == 0)
             return Hat;
-        else if (circles == 0 && stars == 0 && crosses > 0)
+        else if (circles == 0 && cones >= 0 && stars == 0 && crosses >= 1)
             return Projective;
-        else if (circles == 0 && stars > 0 && crosses > 0)
+        else if (circles == 0 && cones >= 0 && stars >= 1 && crosses >= 1)
             return Moebius;
-        else if (stars >= 2 && crosses == 0)
-            return Annular;
-        else if (circles > 0 && stars == 0 && crosses == 0)
+        else if (cones >= 1 && stars == 0 && crosses == 0)
             return Toroidal;
         else
-            return Other;
+            return Annular;
+
     }
 }

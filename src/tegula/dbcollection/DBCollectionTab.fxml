@@ -153,13 +153,6 @@
                             </tooltip>
                         </ComboBox>
                         <Separator layoutX="20.0" layoutY="188.0" style="-fx-font-size: 12;"/>
-                        <ComboBox fx:id="signatureCBox" editable="true" layoutX="20.0" layoutY="219.0" prefWidth="145.0"
-                                  promptText="Signature" style="-fx-font-size: 12;">
-                            <tooltip>
-                                <Tooltip
-                                        text="Specify tile signature, e.g. (3 4 3 4) for a tile with node degrees 3, 4, 3, 4, use =, != and  c for 'contains.'"/>
-                            </tooltip>
-                        </ComboBox>
                         <ComboBox fx:id="tileDegreesCBox" editable="true" layoutX="20.0" layoutY="283.0"
                                   prefWidth="145.0" promptText="Tile degrees" style="-fx-font-size: 12;">
                             <tooltip>
@@ -167,10 +160,24 @@
                                         text="Specify tile degrees (number of vertices of tile), use =, != and  c for 'contains.'"/>
                             </tooltip>
                         </ComboBox>
+                        <ComboBox fx:id="tileFiguresCBox" editable="true" layoutX="20.0" layoutY="339.0"
+                                  prefWidth="145.0" promptText="Tile figures" style="-fx-font-size: 12;">
+                            <tooltip>
+                                <Tooltip
+                                        text="Specify tile figure(s), e.g. (3 4 3 4) for a tile with node degrees 3, 4, 3, 4, use =, != and  c for 'contains.'"/>
+                            </tooltip>
+                        </ComboBox>
                         <ComboBox fx:id="vertexDegreesCBox" editable="true" layoutX="20.0" layoutY="311.0"
                                   prefWidth="145.0" promptText="Vertex degrees" style="-fx-font-size: 12;">
                             <tooltip>
                                 <Tooltip text="Specify vertex degrees, use =, != and  c for 'contains.'"/>
+                            </tooltip>
+                        </ComboBox>
+                        <ComboBox fx:id="vertexFiguresCBox" editable="true" layoutX="20.0" layoutY="219.0"
+                                  prefWidth="145.0" promptText="Vertex figures" style="-fx-font-size: 12;">
+                            <tooltip>
+                                <Tooltip
+                                        text="Specify vertex figure(s), e.g. (3 4 3 4) for a vertex with tile degrees 3, 4, 3, 4, use =, != and  c for 'contains.'"/>
                             </tooltip>
                         </ComboBox>
                         <Separator layoutX="20.0" layoutY="275.0" style="-fx-font-size: 12;"/>
@@ -201,14 +208,6 @@
                                 <Tooltip text="Tilings whose symmetry group cannot be enlargened."/>
                             </tooltip>
                         </CheckBox>
-                        <CheckBox fx:id="orientableCheckBox" allowIndeterminate="true" indeterminate="true"
-                                  layoutX="20.0" layoutY="221.0" mnemonicParsing="false" style="-fx-font-size: 12;"
-                                  text="Orientable">
-                            <tooltip>
-                                <Tooltip text="Tilings that have an orientable symmetry group."/>
-                            </tooltip>
-                        </CheckBox>
-                        <Separator layoutX="20.0" layoutY="247.0" style="-fx-font-size: 12;"/>
                     </children>
                 </VBox>
             </content>

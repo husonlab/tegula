@@ -66,7 +66,7 @@ public class Tegula extends Application {
         ResourceManagerFX.addResourceRoot(Tegula.class, "tegula/resources");
         ProgramProperties.setProgramName(Version.NAME);
         ProgramProperties.setProgramVersion(Version.SHORT_DESCRIPTION);
-        ProgramProperties.setProgramLicence("This is an early (ALPHA) version of Tegula, made available for testing purposes. Source code will be released on publication.\n");
+        ProgramProperties.setProgramLicence("Tegula is licensed under the GNU GENERAL PUBLIC LICENSE. Source files are available at http:github.com/husonlab/tegula.");
         ProgramProperties.getProgramIconsFX().addAll(ResourceManagerFX.getIcons("Tegula16.png", "Tegula32.png", "Tegula64.png", "Tegula128.png"));
 
         SplashScreen.setVersionString(ProgramProperties.getProgramVersion());
@@ -81,7 +81,7 @@ public class Tegula extends Application {
         Basic.startCollectionStdErr();
 
         final ArgsOptions options = new ArgsOptions(args, Tegula.class, Version.NAME + " - Interactive periodic tilings");
-        options.setAuthors("Daniel H. Huson and Rüdiger Zeller, based on code by Klaus Westphal, with contributions from Julius Vetter and Cornelius Wiehl.\n");
+        options.setAuthors("Daniel H. Huson and Rüdiger Zeller, based on code by Klaus Westphal, with contributions from Julius Vetter and Cornelius Wiehl.");
         options.setLicense(ProgramProperties.getProgramLicence());
         options.setVersion(ProgramProperties.getProgramVersion());
 

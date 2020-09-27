@@ -61,9 +61,7 @@ public class FundamentalDomain {
 
         final int[] a2tile = dsymbol.computeOrbits(0, 1);
         final int[] a2edge = dsymbol.computeOrbits(0, 2);
-        final BitSet firstInEdge = dsymbol.computeFirstInOrbit(0, 2);
         final int[] a2vertex = dsymbol.computeOrbits(1, 2);
-        final BitSet firstInVertex = dsymbol.computeFirstInOrbit(1, 2);
 
         // set colors
         final Material[] tile2material = new Material[a2tile.length + 1];
@@ -72,7 +70,7 @@ public class FundamentalDomain {
                 tile2material[t] = new PhongMaterial(tilingStyle.getTileColor(t));
         }
 
-        final double bandWidth = 0.2 * tilingStyle.getBandWidth();
+        final double bandWidth = (geom == Geometry.Euclidean ? 0.2 : 0.2) * tilingStyle.getBandWidth();
 
         final Material[] edge2material = new Material[a2edge.length + 1];
         final double[] edgeWidth = new double[a2edge.length + 1];
@@ -103,9 +101,6 @@ public class FundamentalDomain {
         final Group verticesGroup = new Group();
         final Group othersGroup = new Group();
 
-        BitSet vertex1WithGaps = computeVertex1WithGaps(fDomain);
-        BitSet edgeCenter2WithGaps = computeEdgeCenter2WithGaps(fDomain);
-
         final int orientation = (computeWindingNumber(fDomain.getVertex3D(0, 1), fDomain.getVertex3D(1, 1),
                 fDomain.getVertex3D(2, 1)) < 0 ? fDomain.getOrientation(1) : -fDomain.getOrientation(1));
 
@@ -126,7 +121,7 @@ public class FundamentalDomain {
                 // clockwise orientation
                 // sets points for band caps
                 // scales the points on sphere to reduce rendering problems
-                case Spherical:
+                case Spherical: {
                     final int depth = tilingStyle.isSmoothEdges() ? 4 : 0; // 4^5 = 1024
                     chamberFaces = new int[(int) Math.pow(4, (depth + 1)) * 6];
                     chamberPoints = new Point3D[depth == 0 ? 6 : 1026]; // 3, 6, 66, 258, 1026 // size of points array dependent on depth
@@ -193,7 +188,8 @@ public class FundamentalDomain {
                         chamberPoints[i] = chamberPoints[i].multiply(0.995);
                     }
                     break;
-                case Euclidean:
+                }
+                case Euclidean: {
                     chamberPoints = new Point3D[7];
                     chamberPoints[0] = fDomain.getVertex3D(0, a);
                     chamberPoints[1] = fDomain.getVertex3D(1, a);
@@ -215,8 +211,9 @@ public class FundamentalDomain {
                     edgePoints3D[2] = chamberPoints[1];
                     a2VertexPoints3D[a] = chamberPoints[0];
                     break;
+                }
 // scales points to reduce rendering problems
-                case Hyperbolic:
+                case Hyperbolic: {
                     chamberPoints = new Point3D[13];
                     chamberPoints[0] = fDomain.getVertex3D(0, a);
                     chamberPoints[1] = fDomain.getVertex3D(1, a);
@@ -244,6 +241,8 @@ public class FundamentalDomain {
                             2, 0, 3, 1, 6, 2, //
                             6, 0, 3, 1, 1, 2 //
                     };
+                    a2VertexPoints3D[a] = chamberPoints[0];
+
                     int[] pointsOf2EdgeSorted = {0, 9, 7, 10, 5, 11, 8, 12, 1};
                     edgePoints3D = new Point3D[9];
                     for (int i = 0; i < 9; i++) {
@@ -253,6 +252,7 @@ public class FundamentalDomain {
                         chamberPoints[i] = chamberPoints[i].multiply(1.0125);
                     }
                     break;
+                }
                 default:
                     throw new RuntimeException("Invalid case");
             }
@@ -272,6 +272,7 @@ public class FundamentalDomain {
 
         if (tilingStyle.isShowFaces() || tilingStyle.isShowBackFaces()) { // construct triangles. All triangles belonging to flags of the same 0,1-orbit are put into a single mesh
             for (int a0 : dsymbol.orbits(0, 1)) {
+                final PhongMaterial material = (PhongMaterial) tile2material[a2tile[a0]];
                 final ArrayList<TriangleMesh> meshes = new ArrayList<>();
 
                 for (int a : dsymbol.orbitMembers(0, 1, a0)) {
@@ -300,7 +301,7 @@ public class FundamentalDomain {
                     final MeshView meshView = new MeshView(mesh);
                     // material.setSpecularColor(Color.YELLOW);
                     meshView.setId("t=" + a2tile[a0]);
-                    meshView.setMaterial(tile2material[a2tile[a0]]);
+                    meshView.setMaterial(material);
                     meshes.add(mesh);
                     facesGroup.getChildren().add(meshView);
                 }
@@ -308,18 +309,17 @@ public class FundamentalDomain {
                     final MeshView meshView = new MeshView(MeshUtils.reverseOrientation(mesh));
                     // material.setSpecularColor(Color.YELLOW);
                     meshView.setId("t=" + a2tile[a0]);
-                    meshView.setMaterial(tile2material[a2tile[a0]]);
+                    meshView.setMaterial(material);
                     meshes.add(mesh);
                     facesGroup.getChildren().add(meshView);
                 }
             }
         }
         if (tilingStyle.isShowEdges() || tilingStyle.isShowBackEdges()) {
-            final double linesAbove = (geom == Geometry.Euclidean ? 1 : 0);
+            final double linesAbove = (geom == Geometry.Euclidean ? -1 : 0);
 
             for (int a0 : dsymbol.orbits(0, 2)) {
                 final ArrayList<TriangleMesh> meshes = new ArrayList<>();
-                final ArrayList<TriangleMesh> caps = new ArrayList<>();
 
                 for (int a : dsymbol.orbitMembers(0, 2, a0)) {
                     final Point3D[] edgePoints = a2edgePoints[a];
@@ -328,75 +328,70 @@ public class FundamentalDomain {
                         if (fDomain.getOrientation(a) != orientation) {
                             reverseOrderOfPoints(edgePoints);
                         }
-                        meshes.add(HalfBand3D.createEuclidean(edgePoints, edgeWidth[a2edge[a]], StrokeLineCap.ROUND, null));
+                        meshes.add(HalfBand3D.createEuclidean(edgePoints, edgeWidth[a2edge[a]], StrokeLineCap.ROUND, null)); // todo: this is broken!
 
                     } else if (dsymbol.getS2(a) > a || fDomain.isBoundaryEdge(2, a)) {
                         if (fDomain.getOrientation(a) != orientation) {
                             reverseOrderOfPoints(edgePoints);
                         }
-                        meshes.add(Band3D.connect(geom, edgePoints, edgeWidth[a2edge[a]], linesAbove, StrokeLineCap.ROUND));
+                        meshes.add(Band3D.connect(geom, edgePoints, edgeWidth[a2edge[a]], linesAbove, tilingStyle.getBandCapFineness() > 0 ? StrokeLineCap.ROUND : StrokeLineCap.BUTT));
                     }
                 }
-                    if (tilingStyle.isShowEdges()) {
-                        final ArrayList<TriangleMesh> list = new ArrayList<>(meshes);
-                        if (tilingStyle.isShowVertices())
-                            list.addAll(caps);
-                        final TriangleMesh mesh = MeshUtils.combineTriangleMeshes(list.toArray(new TriangleMesh[0]));
-                        mesh.getTexCoords().addAll(0.5f, 0, 0, 0, 1, 1);
+                if (tilingStyle.isShowEdges()) {
+                    final ArrayList<TriangleMesh> list = new ArrayList<>(meshes);
+                    final TriangleMesh mesh = MeshUtils.combineTriangleMeshes(list.toArray(new TriangleMesh[0]));
+                    mesh.getTexCoords().addAll(0.5f, 0, 0, 0, 1, 1);
 
-                        final MeshView meshView = new MeshView(mesh);
-                        // material.setSpecularColor(Color.YELLOW);
-                        meshView.setId("e=" + a2edge[a0]);
-                        meshView.setMaterial(edge2material[a2edge[a0]]);
-                        meshes.add(mesh);
-                        edgesGroup.getChildren().add(meshView);
+                    final MeshView meshView = new MeshView(mesh);
+                    // material.setSpecularColor(Color.YELLOW);
+                    meshView.setId("e=" + a2edge[a0]);
+                    meshView.setMaterial(edge2material[a2edge[a0]]);
+                    meshes.add(mesh);
+                    edgesGroup.getChildren().add(meshView);
 
-                        // test createFan:
-                        //meshes.add(MeshUtils.createFan(cornerPoints[0],cornerPoints[0].add(50,0,0),cornerPoints[0].add(0,50,0),cornerPoints[0].add(50,50,0)));
-                    }
-                    if (tilingStyle.isShowBackEdges()) {
-                        final ArrayList<TriangleMesh> list = new ArrayList<>(meshes);
-                        if (tilingStyle.isShowBackVertices())
-                            list.addAll(caps);
+                    // test createFan:
+                    //meshes.add(MeshUtils.createFan(cornerPoints[0],cornerPoints[0].add(50,0,0),cornerPoints[0].add(0,50,0),cornerPoints[0].add(50,50,0)));
+                }
+                if (tilingStyle.isShowBackEdges()) {
+                    final ArrayList<TriangleMesh> list = new ArrayList<>(meshes);
+                    final TriangleMesh mesh = MeshUtils.combineTriangleMeshes(list.toArray(new TriangleMesh[0]));
+                    mesh.getTexCoords().addAll(0.5f, 0, 0, 0, 1, 1);
 
-                        final TriangleMesh mesh = MeshUtils.combineTriangleMeshes(list.toArray(new TriangleMesh[0]));
-                        mesh.getTexCoords().addAll(0.5f, 0, 0, 0, 1, 1);
-
-                        final MeshView meshView = new MeshView(MeshUtils.reverseOrientation(mesh));
-                        // material.setSpecularColor(Color.YELLOW);
-                        meshView.setId("e=" + a2edge[a0]);
-                        meshView.setMaterial(edge2material[a2edge[a0]]);
-                        meshes.add(mesh);
-                        edgesGroup.getChildren().add(meshView);
-                    }
+                    final MeshView meshView = new MeshView(MeshUtils.reverseOrientation(mesh));
+                    // material.setSpecularColor(Color.YELLOW);
+                    meshView.setId("e=" + a2edge[a0]);
+                    meshView.setMaterial(edge2material[a2edge[a0]]);
+                    meshes.add(mesh);
+                    edgesGroup.getChildren().add(meshView);
+                }
             }
         }
         if (tilingStyle.isShowVertices() || tilingStyle.isShowBackVertices()) {
-            final double linesAbove = (geom == Geometry.Euclidean ? 1 : 0);
+            final double linesAbove = (geom == Geometry.Euclidean ? -1 : 0);
 
             for (int a : dsymbol.orbits(1, 2)) {
                 final Point3D center = a2VertexPoints3D[a];
-                    // todo: need better tangent computation
-                final Point3D tangent = center.crossProduct(new Point3D(1, 0, 0));
+                // todo: need better tangent computation
+                final Point3D tangent = geom == Geometry.Euclidean ? new Point3D(1, 0, 0) : center.crossProduct(new Point3D(1, 0, 0));
 
-                    final Point3D[] coordinates = BandCap3D.circle(center, tangent, bandWidth, bandCapFineness, geom);
-                    final TriangleMesh mesh = BandCap3D.CircleMesh(center, coordinates, geom, linesAbove, false);
-                    mesh.getTexCoords().addAll(0.5f, 0, 0, 0, 1, 1);
+                final Point3D[] coordinates = BandCap3D.circle(center, tangent, bandWidth, bandCapFineness, geom);
+                final TriangleMesh mesh = BandCap3D.CircleMesh(center, coordinates, geom, linesAbove, false);
+                MeshUtils.setDefaultTexCoordinates(mesh);
 
-                    if (tilingStyle.isShowVertices()) {
-                        final MeshView meshView = new MeshView(mesh);
-                        // material.setSpecularColor(Color.YELLOW);
-                        meshView.setId("v=" + a2vertex[a]);
-                        meshView.setMaterial(vertex2material[a2edge[a]]);
-                        verticesGroup.getChildren().add(meshView);
-                    }
-                    if (tilingStyle.isShowBackVertices()) {
-                        final MeshView meshView = new MeshView(MeshUtils.reverseOrientation(mesh));
-                        // material.setSpecularColor(Color.YELLOW);
-                        meshView.setId("v=" + a2vertex[a]);
-                        meshView.setMaterial(vertex2material[a2edge[a]]);
-                        verticesGroup.getChildren().add(meshView);
-                    }
+                if (tilingStyle.isShowVertices()) {
+                    final MeshView meshView = new MeshView(mesh);
+                    // material.setSpecularColor(Color.YELLOW);
+                    meshView.setId("v=" + a2vertex[a]);
+                    meshView.setMaterial(vertex2material[a2vertex[a]]);
+                    verticesGroup.getChildren().add(meshView);
+                }
+                if (tilingStyle.isShowBackVertices()) {
+                    final MeshView meshView = new MeshView(MeshUtils.reverseOrientation(mesh));
+                    // material.setSpecularColor(Color.YELLOW);
+                    meshView.setId("v=" + a2vertex[a]);
+                    meshView.setMaterial(vertex2material[a2vertex[a]]);
+                    verticesGroup.getChildren().add(meshView);
+                }
             }
         }
 

@@ -126,6 +126,11 @@ public class MainWindowController {
     @FXML
     private MenuItem zoomOutMenuItem;
 
+    @FXML
+    private MenuItem setMaxCopiesHyperbolicMenuItem;
+
+    @FXML
+    private MenuItem setMaxCopiesEuclideanMenuItem;
 
     @FXML
     private MenuItem fullScreenMenuItem;
@@ -196,6 +201,10 @@ public class MainWindowController {
     @FXML
     private Button redoButton;
 
+
+    @FXML
+    private TextArea infoTextArea;
+
     @FXML
     void initialize() {
         assert anchorPane != null : "fx:id=\"anchorPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
@@ -226,6 +235,8 @@ public class MainWindowController {
         assert showLessTilesMenuItem != null : "fx:id=\"showLessTilesMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert zoomInMenuItem != null : "fx:id=\"zoomInMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert zoomOutMenuItem != null : "fx:id=\"zoomOutMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert setMaxCopiesHyperbolicMenuItem != null : "fx:id=\"setMaxCopiesHyperbolicMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert setMaxCopiesEuclideanMenuItem != null : "fx:id=\"setMaxCopiesEuclideanMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert resetMenuItem != null : "fx:id=\"resetMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert fullScreenMenuItem != null : "fx:id=\"fullScreenMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert tilingsMenu != null : "fx:id=\"tilingsMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
@@ -251,6 +262,7 @@ public class MainWindowController {
         assert zoomOutButton != null : "fx:id=\"zoomOutButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert undoButton != null : "fx:id=\"undoButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert redoButton != null : "fx:id=\"redoButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
+        assert infoTextArea != null : "fx:id=\"infoTextArea\" was not injected: check your FXML file 'MainWindow.fxml'.";
 
 
         // if we are running on MacOS, put the specific menu items in the right places
@@ -387,6 +399,14 @@ public class MainWindowController {
         return zoomOutMenuItem;
     }
 
+    public MenuItem getSetMaxCopiesHyperbolicMenuItem() {
+        return setMaxCopiesHyperbolicMenuItem;
+    }
+
+    public MenuItem getSetMaxCopiesEuclideanMenuItem() {
+        return setMaxCopiesEuclideanMenuItem;
+    }
+
     public MenuItem getFullScreenMenuItem() {
         return fullScreenMenuItem;
     }
@@ -477,5 +497,9 @@ public class MainWindowController {
 
     public Button getRedoButton() {
         return redoButton;
+    }
+
+    public TextArea getInfoTextArea() {
+        return infoTextArea;
     }
 }

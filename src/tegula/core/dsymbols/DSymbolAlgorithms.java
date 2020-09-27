@@ -365,6 +365,7 @@ public class DSymbolAlgorithms {
     /**
      * determines whether tiling is "normal", meaning that the intersection of any two tiles is either empty, a
      * single point or a single line segment.
+     * todo: this is mathematically incorrect and Olaf is working on a correct algorithm
      *
      * @param ds
      * @return true, if simple
@@ -690,6 +691,10 @@ public class DSymbolAlgorithms {
         return result;
     }
 
+    public static String computeVertexFigure(DSymbol dSymbol) {
+        return computeSignature(dualize(dSymbol));
+    }
+
     /**
      * computes the signature of the corresponding tiling.
      * This is of the form (a_1 a_2 a_3 ...)(b_1 b_2 b_3 ...)..., where a_1, a_2 etc are the vertex degrees of the first tile etc
@@ -711,16 +716,16 @@ public class DSymbolAlgorithms {
             final int v01 = dSymbol.getVij(0, 1, t);
             if (v01 > 1) {
                 final ArrayList<Integer> orig = new ArrayList<>(degrees);
-                for (int copy = 0; copy < v01; copy++) {
+                for (int copy = 1; copy < v01; copy++) {
                     degrees.addAll(orig);
                 }
             }
             cycles.add(new Pair<>(degrees.size(), createRotatedString(degrees)));
         }
         cycles.sort((a, b) -> {
-            if (a.getFirst() > b.getFirst())
+            if (a.getFirst() < b.getFirst())
                 return -1;
-            else if (a.getFirst() < b.getFirst())
+            else if (a.getFirst() > b.getFirst())
                 return 1;
             else return a.getSecond().compareTo(b.getSecond());
         });
@@ -752,8 +757,8 @@ public class DSymbolAlgorithms {
     }
 
     private static String createRotatedString(ArrayList<Integer> degrees) {
-        final Integer[] sorted1 = Basic.maxLexRotation(degrees.toArray(new Integer[0]));
-        final Integer[] sorted2 = Basic.maxLexRotation(Basic.reverse(degrees).toArray(new Integer[0]));
+        final Integer[] sorted1 = minLexRotation(degrees.toArray(new Integer[0]));
+        final Integer[] sorted2 = minLexRotation(Basic.reverse(degrees).toArray(new Integer[0]));
 
         final Integer[] array;
         if (Arrays.compare(sorted1, sorted2) <= 0) {
@@ -807,5 +812,36 @@ public class DSymbolAlgorithms {
                 return false;
         }
         return true;
+    }
+
+    public static Integer[] minLexRotation(Integer[] numbers) {
+        final int n = numbers.length;
+        if (n == 0)
+            return numbers;
+
+        final Integer[][] array = new Integer[n][];
+        final Integer[] concat = new Integer[2 * numbers.length];
+        System.arraycopy(numbers, 0, concat, 0, n);
+        System.arraycopy(numbers, 0, concat, n, n);
+
+        for (int i = 0; i < n; i++) {
+            array[i] = new Integer[numbers.length];
+            System.arraycopy(concat, i, array[i], 0, n);
+        }
+        Arrays.sort(array, (a, b) -> {
+            for (int i = 0; i < a.length; i++) {
+                if (a[i] < b[i])
+                    return -1;
+                else if (a[i] > b[i])
+                    return 1;
+            }
+            return 0;
+        });
+        return array[0];
+    }
+
+    public static void main(String[] args) {
+        DSymbol dSymbol = new DSymbol("<17.0:2:1 2,1 2,2:4 3,6>");
+        System.err.println(computeSignature(dSymbol));
     }
 }

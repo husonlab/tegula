@@ -26,7 +26,6 @@ import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -62,9 +61,6 @@ public class TilingPane extends StackPane implements Updateable {
     private final SimpleObjectProperty<Geometry> geometry = new SimpleObjectProperty<>();
     private final TilingStyle tilingStyle;
 
-    private final DoubleProperty euclideanWidth = new SimpleDoubleProperty(800);
-    private final DoubleProperty euclideanHeight = new SimpleDoubleProperty(800);
-
     private final ObjectProperty<Transform> worldRotate = new SimpleObjectProperty<>(this, "rotation", new Rotate(0, 0, 0, 1));
 
     private final Translate worldTranslate = new Translate(0, 0, 0);
@@ -74,7 +70,7 @@ public class TilingPane extends StackPane implements Updateable {
     private final Group world = new Group();
     private final Group universe = new Group(world);
 
-    private PerspectiveCamera perspectiveCamera;
+    private final SubScene subScene;
 
     private final PointLight pointLight;
     private final AmbientLight ambientLight;
@@ -88,8 +84,6 @@ public class TilingPane extends StackPane implements Updateable {
     private final LongProperty lastDSymbolUpdate = new SimpleLongProperty();
 
     private final MouseHandler mouseHandler;
-
-    private SubScene subScene;
 
     /**
      * constructor
@@ -109,15 +103,6 @@ public class TilingPane extends StackPane implements Updateable {
 
         setShowSphereAsDisk(showSphereAsDisk);
 
-        //root.prefWidthProperty().bind(widthProperty());
-        //root.prefHeightProperty().bind(heightProperty());
-
-        perspectiveCamera = new PerspectiveCamera(true);
-        perspectiveCamera.setNearClip(0.1);
-        perspectiveCamera.setFarClip(10000.0);
-        perspectiveCamera.setTranslateZ(-500);
-        perspectiveCamera.setFieldOfView(35);
-
         pointLight = new PointLight(Color.WHITE);
         pointLight.setTranslateX(-1000);
         pointLight.setTranslateY(-1000);
@@ -126,20 +111,7 @@ public class TilingPane extends StackPane implements Updateable {
 
         ambientLight = new AmbientLight(Color.WHITE);
 
-        euclideanWidthProperty().addListener((c, o, n) -> {
-            if (getTiling() instanceof EuclideanTiling) {
-                ((EuclideanTiling) getTiling()).setWidth(n.doubleValue());
-            }
-        });
-
-        euclideanHeightProperty().addListener((c, o, n) -> {
-            if (getTiling() instanceof EuclideanTiling) {
-                ((EuclideanTiling) getTiling()).setHeight(n.doubleValue());
-            }
-        });
-
         subScene = new SubScene(new Group(universe), 800, 800, true, SceneAntialiasing.BALANCED);
-        subScene.setCamera(perspectiveCamera);
 
         world.getTransforms().add(worldTranslate);
         world.getTransforms().add(worldScale);
@@ -155,11 +127,16 @@ public class TilingPane extends StackPane implements Updateable {
         // setup top pane and stacked pane
 
         geometryProperty().addListener((c, o, n) -> {
-            setUseDepthBuffer(this, n != Geometry.Euclidean);
             if (o == Geometry.Spherical && n != Geometry.Spherical) {
                 worldRotate.setValue(new Rotate()); // remove any rotations
             }
+            if (n == Geometry.Euclidean) {
+                subScene.setCamera(new ParallelCamera());
+            } else {
+                subScene.setCamera(new PerspectiveCamera(true));
+            }
         });
+        geometry.set(dSymbol.computeGeometry());
 
         setBackground(new Background(new BackgroundFill(tilingStyle.getBackgroundColor(), null, null)));
 
@@ -167,12 +144,22 @@ public class TilingPane extends StackPane implements Updateable {
         tilingStyle.backgroundColorProperty().addListener((c, o, n) -> setBackground(new Background(new BackgroundFill(n, null, null))));
 
         // need to call this otherwise euclidean dimensions won't be correct
-        setUseDepthBuffer(this, true);
-
 
         worldRotate.addListener((observable, oldValue, newValue) -> {
             int indexOf = world.getTransforms().indexOf(oldValue);
             world.getTransforms().set(indexOf, newValue);
+        });
+
+
+        widthProperty().addListener(c -> {
+            if (getTiling() instanceof EuclideanTiling) {
+                update();
+            }
+        });
+        heightProperty().addListener(c -> {
+            if (getTiling() instanceof EuclideanTiling) {
+                update();
+            }
         });
 
         if (allowMouseInteraction)
@@ -182,7 +169,7 @@ public class TilingPane extends StackPane implements Updateable {
 
         hyperbolicModel.addListener((c, o, n) -> {
             if (getGeometry() == Geometry.Hyperbolic)
-                CameraSettings.setupHyperbolicCamera(perspectiveCamera, n, true);
+                CameraSettings.setupHyperbolicCamera(getCamera(), n, true);
         });
 
         computTiling(dSymbol);
@@ -206,17 +193,18 @@ public class TilingPane extends StackPane implements Updateable {
             computTiling(getTiling().getDSymbol());
     }
 
-
     /**
      * update the tiling
      */
     public void update() {
-        // System.err.println("Update");
-        setUseDepthBuffer(this, getGeometry() != Geometry.Euclidean);
-
-
+        //System.err.println("Update");
         if (getTiling() == null)
             return;
+
+        if (getTiling() instanceof EuclideanTiling) {
+            ((EuclideanTiling) getTiling()).setWidth(getWidth() / worldScale.getX());
+            ((EuclideanTiling) getTiling()).setHeight(getHeight() / worldScale.getY());
+        }
 
         getWorld().getChildren().clear();
         final Group additionalStuff = new Group();
@@ -252,7 +240,7 @@ public class TilingPane extends StackPane implements Updateable {
                     universe.getChildren().add(pointLight);
                 universe.getChildren().remove(ambientLight);
                 Platform.runLater(() -> {
-                    CameraSettings.setupSphericalCamera(perspectiveCamera);
+                    CameraSettings.setupSphericalCamera(getCamera());
                 });
                 break;
 // need to do this later because tilings are built in separate thread when reading file
@@ -261,34 +249,31 @@ public class TilingPane extends StackPane implements Updateable {
                 if (!universe.getChildren().contains(ambientLight))
                     universe.getChildren().add(ambientLight);
                 Platform.runLater(() -> {
-                            CameraSettings.setupHyperbolicCamera(perspectiveCamera, hyperbolicModel.get(), false);
+                            CameraSettings.setupHyperbolicCamera(getCamera(), hyperbolicModel.get(), false);
                         }
                 );
                 break;
-// CameraSettings.setupEuclideanCamera(perspectiveCamera);
 //Add rectangles for debugging
             case Euclidean:
                 universe.getChildren().remove(pointLight);
                 if (!universe.getChildren().contains(ambientLight))
                     universe.getChildren().add(ambientLight);
+                Platform.runLater(() -> {
+                            CameraSettings.setupEuclideanCamera(getCamera());
+                        }
+                );
                 if (false) {
-                    Rectangle rect = new Rectangle(euclideanWidth.get(), euclideanHeight.get());
-                    rect.setFill(Color.TRANSPARENT);
-                    rect.setStroke(Color.BLACK);
-                    Rectangle range = new Rectangle(euclideanWidth.get() + 250, euclideanHeight.get() + 250);
-                    range.setFill(Color.TRANSPARENT);
-                    range.setStroke(Color.BLACK);
-                    Rectangle test = new Rectangle(euclideanWidth.get() + 200, euclideanHeight.get() + 200);
-                    test.setFill(Color.TRANSPARENT);
-                    test.setStroke(Color.BLACK);
-                    Rectangle test2 = new Rectangle(euclideanWidth.get() + 150, euclideanHeight.get() + 150);
+                    System.err.println("Width: " + getWidth());
+                    System.err.println("tiling width: " + ((EuclideanTiling) getTiling()).getWidth());
+                    Rectangle test2 = new Rectangle(((EuclideanTiling) getTiling()).getWidth() - 5, ((EuclideanTiling) getTiling()).getHeight() - 5);
                     test2.setFill(Color.TRANSPARENT);
-                    test2.setStroke(Color.BLACK);
-                    Rectangle small = new Rectangle(40, 40);
+                    test2.setStroke(Color.GREEN);
+                    Rectangle small = new Rectangle(100 * getFDomain().getBoundingBox().getWidth(), 100 * getFDomain().getBoundingBox().getHeight());
+                    small.setTranslateX(50);
+                    small.setTranslateY(50);
                     small.setFill(Color.TRANSPARENT);
                     small.setStroke(Color.ORANGE);
-
-                    additionalStuff.getChildren().addAll(rect, range, test, test2, small);
+                    additionalStuff.getChildren().addAll(test2, small);
                     //System.err.println(String.format("Rect: %.1f x %.1f", rect.getWidth(), rect.getHeight()));
                 }
                 break;
@@ -329,29 +314,6 @@ public class TilingPane extends StackPane implements Updateable {
         }
     }
 
-    /**
-     * determine whether to use depth buffer
-     *
-     * @param useDepthBuffer
-     */
-    public void setUseDepthBuffer(final Pane mainPane, boolean useDepthBuffer) {
-        if (useDepthBuffer != subScene.isDepthBuffer() || useDepthBuffer && perspectiveCamera == null) {
-            mainPane.getChildren().remove(subScene);
-            ((Group) subScene.getRoot()).getChildren().remove(universe);
-
-            final SubScene newSubScene = new SubScene(new Group(universe), subScene.getWidth(), subScene.getHeight(), useDepthBuffer, subScene.getAntiAliasing());
-            newSubScene.heightProperty().bind(mainPane.heightProperty());
-            newSubScene.widthProperty().bind(mainPane.widthProperty());
-            if (useDepthBuffer) {
-                perspectiveCamera = new PerspectiveCamera(true);
-                newSubScene.setCamera(perspectiveCamera);
-            } else
-                perspectiveCamera = null;
-            mainPane.getChildren().add(0, newSubScene);
-            subScene = newSubScene;
-        }
-    }
-
     public Group getWorld() {
         return world;
     }
@@ -366,30 +328,6 @@ public class TilingPane extends StackPane implements Updateable {
 
     public ObjectProperty<TilingBase> tilingProperty() {
         return tiling;
-    }
-
-    public double getEuclideanWidth() {
-        return euclideanWidth.get();
-    }
-
-    public DoubleProperty euclideanWidthProperty() {
-        return euclideanWidth;
-    }
-
-    public void setEuclideanWidth(double euclideanWidth) {
-        this.euclideanWidth.set(euclideanWidth);
-    }
-
-    public double getEuclideanHeight() {
-        return euclideanHeight.get();
-    }
-
-    public DoubleProperty euclideanHeightProperty() {
-        return euclideanHeight;
-    }
-
-    public void setEuclideanHeight(double euclideanHeight) {
-        this.euclideanHeight.set(euclideanHeight);
     }
 
     public ReadOnlyObjectProperty<Geometry> geometryProperty() {
@@ -461,10 +399,6 @@ public class TilingPane extends StackPane implements Updateable {
         return hyperbolicModel;
     }
 
-    public PerspectiveCamera getPerspectiveCamera() {
-        return perspectiveCamera;
-    }
-
     public MouseHandler getMouseHandler() {
         return mouseHandler;
     }
@@ -525,5 +459,9 @@ public class TilingPane extends StackPane implements Updateable {
             for (Node child : ((Parent) node).getChildrenUnmodifiable())
                 visitAllNodes(child, consumer);
         }
+    }
+
+    public Camera getCamera() {
+        return subScene.getCamera();
     }
 }

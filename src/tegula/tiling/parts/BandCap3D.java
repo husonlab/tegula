@@ -54,8 +54,7 @@ public class BandCap3D {
             // finds coordinates of a regular n-sided polygon in the x y plane with center
             // at 0
             for (int n = 0; n < N; n++) {
-                coordinates[n] = new Point3D(radius * Math.cos(2 * Math.PI * n / N),
-                        radius * Math.sin(2 * Math.PI * n / N), 0);
+                coordinates[n] = new Point3D(radius * Math.cos(2 * Math.PI * n / N), radius * Math.sin(2 * Math.PI * n / N), 0);
             }
 
             // Finds normal vector
@@ -65,12 +64,9 @@ public class BandCap3D {
             // Transform points with Matrix multiplication. Affine Transformation to the
             // plane of the center point on the surface
             for (int n = 0; n < N; n++) {
-                double newX = tangent.getX() * coordinates[n].getX() + newYAxis.getX() * coordinates[n].getY()
-                        + normal.getX() * coordinates[n].getZ();
-                double newY = tangent.getY() * coordinates[n].getX() + newYAxis.getY() * coordinates[n].getY()
-                        + normal.getY() * coordinates[n].getZ();
-                double newZ = tangent.getZ() * coordinates[n].getX() + newYAxis.getZ() * coordinates[n].getY()
-                        + normal.getZ() * coordinates[n].getZ();
+                double newX = tangent.getX() * coordinates[n].getX() + newYAxis.getX() * coordinates[n].getY() + normal.getX() * coordinates[n].getZ();
+                double newY = tangent.getY() * coordinates[n].getX() + newYAxis.getY() * coordinates[n].getY() + normal.getY() * coordinates[n].getZ();
+                double newZ = tangent.getZ() * coordinates[n].getX() + newYAxis.getZ() * coordinates[n].getY() + normal.getZ() * coordinates[n].getZ();
                 coordinates[n] = new Point3D(newX, newY, newZ).add(center);
             }
         }

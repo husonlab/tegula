@@ -24,7 +24,9 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
+import jloda.fx.dialog.SetIntegerParameterDialog;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.Print;
 import jloda.fx.util.Printable;
@@ -335,14 +337,16 @@ public class ControlBindings {
                     public void undo() {
                         tilingPane.getWorldScale().setX(1.0 / 1.05 * tilingPane.getWorldScale().getX());
                         tilingPane.getWorldScale().setY(1.0 / 1.05 * tilingPane.getWorldScale().getY());
-                        if (tilingPane.getGeometry() == Geometry.Euclidean)
-                            tilingPane.update();
+                        if (tilingPane.getGeometry() == Geometry.Euclidean) {
+                        }
                     }
 
                     @Override
                     public void redo() {
                         tilingPane.getWorldScale().setX(1.05 * tilingPane.getWorldScale().getX());
                         tilingPane.getWorldScale().setY(1.05 * tilingPane.getWorldScale().getY());
+                        if (tilingPane.getGeometry() == Geometry.Euclidean)
+                            tilingPane.update();
                     }
                 });
             } else if (selectedTab.get() instanceof ICollectionTab) {
@@ -361,6 +365,8 @@ public class ControlBindings {
                     public void undo() {
                         tilingPane.getWorldScale().setX(1.05 * tilingPane.getWorldScale().getX());
                         tilingPane.getWorldScale().setY(1.05 * tilingPane.getWorldScale().getY());
+                        if (tilingPane.getGeometry() == Geometry.Euclidean)
+                            tilingPane.update();
                     }
 
                     @Override
@@ -379,6 +385,17 @@ public class ControlBindings {
         controller.getZoomOutMenuItem().disableProperty().bind(selectedTab.isNull());
         controller.getZoomOutButton().setOnAction(controller.getZoomOutMenuItem().getOnAction());
         controller.getZoomOutButton().disableProperty().bind(selectedTab.isNull());
+
+        controller.getSetMaxCopiesHyperbolicMenuItem().setOnAction(e -> {
+            final Integer result = SetIntegerParameterDialog.apply(window.getStage(), "Set max copies of hyperbolic fundamental domain", ProgramProperties.get("MaxCopiesHyperbolic", 5000));
+            if (result != null)
+                ProgramProperties.put("MaxCopiesHyperbolic", result);
+        });
+        controller.getSetMaxCopiesEuclideanMenuItem().setOnAction(e -> {
+            final Integer result = SetIntegerParameterDialog.apply(window.getStage(), "Set max copies of hyperbolic fundamental domain", ProgramProperties.get("MaxCopiesEuclidean", 5000));
+            if (result != null)
+                ProgramProperties.put("MaxCopiesEuclidean", result);
+        });
 
         controller.getStraightenMenuItem().setOnAction((e) -> {
             if (selectedTab.get() instanceof TilingEditorTab) {
@@ -470,6 +487,14 @@ public class ControlBindings {
         controller.getCheckForUpdatesMenuItem().setOnAction((e) -> CheckForUpdate.apply());
         MainWindowManager.getInstance().changedProperty().addListener((c, o, n) -> controller.getCheckForUpdatesMenuItem().disableProperty().set(MainWindowManager.getInstance().size() > 1
                 || (MainWindowManager.getInstance().size() == 1 && !MainWindowManager.getInstance().getMainWindow(0).isEmpty())));
+
+
+        controller.getAnchorPane().getChildren().remove(controller.getInfoTextArea());
+        controller.getAnchorPane().getChildren().add(controller.getInfoTextArea());
+        AnchorPane.setTopAnchor(controller.getInfoTextArea(), 100.0);
+        AnchorPane.setLeftAnchor(controller.getInfoTextArea(), 50.0);
+        controller.getInfoTextArea().visibleProperty().bind(Bindings.size(window.getMainTabPane().getTabs()).isEqualTo(0));
+
 
     }
 }

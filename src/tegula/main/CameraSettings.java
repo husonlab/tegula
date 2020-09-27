@@ -23,6 +23,7 @@ import javafx.animation.ParallelTransition;
 import javafx.animation.RotateTransition;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Point3D;
+import javafx.scene.Camera;
 import javafx.scene.PerspectiveCamera;
 import javafx.util.Duration;
 
@@ -33,24 +34,29 @@ import javafx.util.Duration;
 public class CameraSettings {
     public enum HyperbolicModel {Poincare, Klein, Hyperboloid}
 
-    public static void setupSphericalCamera(PerspectiveCamera camera) {
+    public static void setupEuclideanCamera(Camera camera) {
+    }
+
+    public static void setupSphericalCamera(Camera camera) {
         camera.setRotate(0);
         camera.setTranslateX(0);
         camera.setTranslateZ(-850);
-        camera.setFieldOfView(15);
+        if (camera instanceof PerspectiveCamera)
+            ((PerspectiveCamera) camera).setFieldOfView(15);
         camera.setFarClip(10000);
     }
 
     /**
      * setup camera for hyperbolic tilings
      *
-     * @param camera
-     * @param model
+     * @param camera  perspective camera
+     * @param model   hyperbolic model
      * @param animate if true, animate transition to model
      */
-    public static void setupHyperbolicCamera(PerspectiveCamera camera, HyperbolicModel model, boolean animate) {
+    public static void setupHyperbolicCamera(Camera camera, HyperbolicModel model, boolean animate) {
 
-        camera.setFieldOfView(90);
+        if (camera instanceof PerspectiveCamera)
+            ((PerspectiveCamera) camera).setFieldOfView(90);
 
         final double cameraAngle;
         final double cameraTranslateX;

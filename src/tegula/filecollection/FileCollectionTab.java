@@ -102,6 +102,7 @@ public class FileCollectionTab extends Tab implements ICollectionTab, Closeable,
         this.tilingStyle = new TilingStyle();
         tilingStyle.setShowEdges(true);
         tilingStyle.setBandWidth(4);
+        tilingStyle.setBandCapFineness(0);
         tilingStyle.setShowFaces(false);
         tilingStyle.setTileOpacity(0.8);
         tilingStyle.setShowVertices(false);

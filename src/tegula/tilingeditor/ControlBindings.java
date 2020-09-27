@@ -381,7 +381,6 @@ public class ControlBindings {
         }
         tilingStyle.tileColorsSchemeProperty().addListener((c, o, n) -> controller.getColorSchemeChoiceBox().getSelectionModel().select(n));
 
-
         controller.getStopAnimationButton().setVisible(false);
         if (tilingPane.getMouseHandler() != null) {
             controller.getStopAnimationButton().setOnAction((e) -> tilingPane.getMouseHandler().getAnimator().stop());

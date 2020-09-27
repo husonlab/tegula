@@ -22,6 +22,7 @@ package tegula.tiling;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Polyline;
@@ -49,9 +50,10 @@ public class CopyTiles {
 
         for (Node node : group.getChildren()) {
             if (node instanceof MeshView) {
-                MeshView src = (MeshView) node;
+                final MeshView src = (MeshView) node;
+                final PhongMaterial material = (PhongMaterial) src.getMaterial();
                 MeshView target = new MeshView(((MeshView) node).getMesh());
-                target.setMaterial(src.getMaterial());
+                target.setMaterial(material);
                 target.setId(src.getId());
                 target.setUserData(src.getUserData());
                 target.setDrawMode(src.getDrawMode());
@@ -59,10 +61,9 @@ public class CopyTiles {
 
                 if (node.getOnMouseClicked() != null)
                     target.setOnMouseClicked(node.getOnMouseClicked());
-
             } else if (node instanceof ImageView) {
-                ImageView src = (ImageView) node;
-                ImageView target = new ImageView(((ImageView) node).getImage());
+                final ImageView src = (ImageView) node;
+                final ImageView target = new ImageView(((ImageView) node).getImage());
                 target.setFitWidth(src.getFitWidth());
                 target.setFitHeight(src.getFitHeight());
                 target.setId(src.getId());
@@ -76,10 +77,9 @@ public class CopyTiles {
 
                 if (node.getOnMouseClicked() != null)
                     target.setOnMouseClicked(node.getOnMouseClicked());
-
             } else if (node instanceof Polyline) {
-                Polyline src = (Polyline) node;
-                Polyline target = new Polyline();
+                final Polyline src = (Polyline) node;
+                final Polyline target = new Polyline();
                 target.getPoints().addAll(src.getPoints());
                 target.setFill(src.getFill());
                 target.setStroke(src.getStroke());
@@ -90,10 +90,9 @@ public class CopyTiles {
 
                 if (node.getOnMouseClicked() != null)
                     target.setOnMouseClicked(node.getOnMouseClicked());
-
             } else if (node instanceof Sphere) {
-                Sphere src = (Sphere) node;
-                Sphere target = new Sphere(src.getRadius());
+                final Sphere src = (Sphere) node;
+                final Sphere target = new Sphere(src.getRadius());
                 target.setMaterial(src.getMaterial());
                 target.getTransforms().addAll(src.getTransforms());
                 target.setId(src.getId());
@@ -102,10 +101,9 @@ public class CopyTiles {
 
                 if (node.getOnMouseClicked() != null)
                     target.setOnMouseClicked(node.getOnMouseClicked());
-
             } else if (node instanceof Cylinder) {
-                Cylinder src = (Cylinder) node;
-                Cylinder target = new Cylinder(src.getRadius(), src.getHeight(), src.getDivisions());
+                final Cylinder src = (Cylinder) node;
+                final Cylinder target = new Cylinder(src.getRadius(), src.getHeight(), src.getDivisions());
                 target.setCullFace(src.getCullFace());
                 target.setDrawMode(src.getDrawMode());
                 target.setMaterial(src.getMaterial());
@@ -116,10 +114,9 @@ public class CopyTiles {
 
                 if (node.getOnMouseClicked() != null)
                     target.setOnMouseClicked(node.getOnMouseClicked());
-
             } else if (node instanceof Text) {
-                Text src = (Text) node;
-                Text target = new Text(src.getText());
+                final Text src = (Text) node;
+                final Text target = new Text(src.getText());
                 target.setFont(src.getFont());
                 target.setFill(src.getFill());
                 target.getTransforms().addAll(src.getTransforms());
@@ -127,8 +124,8 @@ public class CopyTiles {
                 target.setUserData(src.getUserData());
                 result.getChildren().add(target);
             } else if (node instanceof Group) {
-                Group src = (Group) node;
-                Group target = apply(src);
+                final Group src = (Group) node;
+                final Group target = apply(src);
                 target.getTransforms().addAll(src.getTransforms());
                 target.setId(src.getId());
                 target.setUserData(src.getUserData());
@@ -151,5 +148,4 @@ public class CopyTiles {
 
         return result;
     }
-
 }

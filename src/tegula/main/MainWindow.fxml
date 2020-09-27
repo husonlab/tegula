@@ -185,6 +185,11 @@
                                             </accelerator>
                                         </MenuItem>
                                         <SeparatorMenuItem mnemonicParsing="false"/>
+                                        <MenuItem fx:id="setMaxCopiesHyperbolicMenuItem"
+                                                  text="Set Max Copies Hyperbolic..."/>
+                                        <MenuItem fx:id="setMaxCopiesEuclideanMenuItem"
+                                                  text="Set Max Copies Euclidean..."/>
+                                        <SeparatorMenuItem mnemonicParsing="false"/>
                                         <MenuItem fx:id="fullScreenMenuItem" text="Enter Fullscreen">
                                             <accelerator>
                                                 <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="DOWN"
@@ -341,7 +346,16 @@
                 </VBox>
             </top>
             <center>
-                <StackPane fx:id="centerPane" prefHeight="150.0" prefWidth="200.0"/>
+                <StackPane fx:id="centerPane" prefHeight="150.0" prefWidth="200.0">
+                    <children>
+                        <TextArea fx:id="infoTextArea" editable="false" focusTraversable="false" maxHeight="-Infinity"
+                                  maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefColumnCount="35"
+                                  prefRowCount="8"
+                                  style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-image-width: 0; -fx-text-box-border: transparent; -fx-background-insets: 0;"
+                                  text="&#10;To get started, download and unzip a database of tilings from:&#10;&#10;https://software-ab.informatik.uni-tuebingen.de/download/tegula&#10;&#10;Then open the file using the File-&gt;Open menu item.&#10;&#10;"
+                                  wrapText="true"/>
+                    </children>
+                </StackPane>
             </center>
             <bottom>
                 <FlowPane fx:id="statusBar" hgap="5.0" maxWidth="1.7976931348623157E308" minHeight="-Infinity"

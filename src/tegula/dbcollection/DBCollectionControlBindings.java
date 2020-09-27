@@ -32,8 +32,6 @@ import tegula.core.dsymbols.SymmetryClass;
 public class DBCollectionControlBindings {
     /**
      * constructor
-     *
-     * @param dbCollectionTab
      */
     public static void setup(DBCollectionTab dbCollectionTab) {
         final DBCollection dbCollection = dbCollectionTab.getDbCollection();
@@ -93,14 +91,18 @@ public class DBCollectionControlBindings {
 
         controller.getMaximalSymmetricCheckBox().setOnAction(onActionHandler);
 
-        controller.getSignatureCBox().setOnAction(onActionHandler);
+        controller.getTileFiguresCBox().setOnAction(onActionHandler);
+        controller.getTileFiguresCBox().disableProperty().bind(dbCollection.dbVersionProperty().lessThan(0.2f)); // older versions contain errors
 
         controller.getTileDegreesCBox().setOnAction(onActionHandler);
-        controller.getTileDegreesCBox().disableProperty().bind(dbCollection.dbVersionProperty().lessThan(0.1f));
         controller.getVertexDegreesCBox().setOnAction(onActionHandler);
+
+        controller.getTileDegreesCBox().disableProperty().bind(dbCollection.dbVersionProperty().lessThan(0.1f));
         controller.getVertexDegreesCBox().disableProperty().bind(dbCollection.dbVersionProperty().lessThan(0.1f));
 
-        controller.getOrientableCheckBox().setOnAction(onActionHandler);
+        controller.getVertexFiguresCBox().setOnAction(onActionHandler);
+        controller.getVertexFiguresCBox().disableProperty().bind(dbCollection.dbVersionProperty().lessThan(0.2f));
+
         controller.getColorableCheckBox().setOnAction(onActionHandler);
 
         controller.getOrbifoldCBox().valueProperty().addListener((c, o, n) -> {
@@ -200,53 +202,92 @@ public class DBCollectionControlBindings {
         }
 
         {
-            final String input = controller.getSignatureCBox().getSelectionModel().getSelectedItem();
-            if (input != null && input.length() > 0) {
-                if (!controller.getSignatureCBox().getItems().contains(input))
-                    controller.getSignatureCBox().getItems().add(0, input);
-                if (buf.length() > 0)
-                    buf.append(" and ");
-                final String operator = getOperator(input, true);
-                if (operator.equalsIgnoreCase("c"))
-                    buf.append(String.format(" instr(signature, '%s') > 0", getArgument(input, true)));
-                else if (operator.equalsIgnoreCase("!c"))
-                    buf.append(String.format(" instr(signature, '%s') = 0", getArgument(input, true)));
-                else
-                    buf.append(String.format(" signature %s '%s'", operator, getArgument(input, true)));
+            String input = controller.getTileFiguresCBox().getSelectionModel().getSelectedItem();
+            if (input != null) {
+                input = input.trim();
+                if (input.length() > 0) {
+                    if (!input.contains("(") && !input.contains(")"))
+                        input = "(" + input + ")";
+                    input = input.replaceAll("[.,]", " ");
+                    input = input.replaceAll("\\s+", " ");
+
+                    if (!controller.getTileFiguresCBox().getItems().contains(input))
+                        controller.getTileFiguresCBox().getItems().add(input);
+                    if (buf.length() > 0)
+                        buf.append(" and ");
+                    final String operator = getOperator(input, true);
+                    if (operator.equalsIgnoreCase("c"))
+                        buf.append(String.format(" instr(tile_fig, '%s') > 0", getArgument(input, true)));
+                    else if (operator.equalsIgnoreCase("!c"))
+                        buf.append(String.format(" instr(tile_fig, '%s') = 0", getArgument(input, true)));
+                    else
+                        buf.append(String.format(" tile_fig %s '%s'", operator, getArgument(input, true)));
+                }
             }
         }
 
         {
-            final String input = controller.getTileDegreesCBox().getSelectionModel().getSelectedItem();
-            if (input != null && input.length() > 0) {
-                if (!controller.getTileDegreesCBox().getItems().contains(input))
-                    controller.getTileDegreesCBox().getItems().add(0, input);
-                if (buf.length() > 0)
-                    buf.append(" and ");
-                final String operator = getOperator(input, true);
-                if (operator.equalsIgnoreCase("c"))
-                    buf.append(String.format(" instr(tile_deg, '%s') > 0", getArgument(input, true)));
-                else if (operator.equalsIgnoreCase("!c"))
-                    buf.append(String.format(" instr(tile_deg, '%s') = 0", getArgument(input, true)));
-                else
-                    buf.append(String.format(" tile_deg %s '%s'", operator, getArgument(input, true)));
+            String input = controller.getTileDegreesCBox().getSelectionModel().getSelectedItem();
+            if (input != null) {
+                input = input.trim();
+                if (input.length() > 0) {
+                    if (!controller.getTileDegreesCBox().getItems().contains(input))
+                        controller.getTileDegreesCBox().getItems().add(input);
+                    if (buf.length() > 0)
+                        buf.append(" and ");
+                    final String operator = getOperator(input, true);
+                    if (operator.equalsIgnoreCase("c"))
+                        buf.append(String.format(" instr(tile_deg, '%s') > 0", getArgument(input, true)));
+                    else if (operator.equalsIgnoreCase("!c"))
+                        buf.append(String.format(" instr(tile_deg, '%s') = 0", getArgument(input, true)));
+                    else
+                        buf.append(String.format(" tile_deg %s '%s'", operator, getArgument(input, true)));
+                }
             }
         }
 
         {
-            final String input = controller.getVertexDegreesCBox().getSelectionModel().getSelectedItem();
-            if (input != null && input.length() > 0) {
-                if (!controller.getVertexDegreesCBox().getItems().contains(input))
-                    controller.getVertexDegreesCBox().getItems().add(0, input);
-                if (buf.length() > 0)
-                    buf.append(" and ");
-                final String operator = getOperator(input, true);
-                if (operator.equalsIgnoreCase("c"))
-                    buf.append(String.format(" instr(vertex_deg, '%s') > 0", getArgument(input, true)));
-                else if (operator.equalsIgnoreCase("!c"))
-                    buf.append(String.format(" instr(vertex_deg, '%s') = 0", getArgument(input, true)));
-                else
-                    buf.append(String.format(" vertex_deg %s '%s'", operator, getArgument(input, true)));
+            String input = controller.getVertexFiguresCBox().getSelectionModel().getSelectedItem();
+            if (input != null) {
+                input = input.trim();
+                if (input.length() > 0) {
+                    if (!input.contains("(") && !input.contains(")"))
+                        input = "(" + input + ")";
+                    input = input.replaceAll("[.,]", " ");
+                    input = input.replaceAll("\\s+", " ");
+
+                    if (!controller.getVertexFiguresCBox().getItems().contains(input))
+                        controller.getVertexFiguresCBox().getItems().add(input);
+                    if (buf.length() > 0)
+                        buf.append(" and ");
+                    final String operator = getOperator(input, true);
+                    if (operator.equalsIgnoreCase("c"))
+                        buf.append(String.format(" instr(vertex_fig, '%s') > 0", getArgument(input, true)));
+                    else if (operator.equalsIgnoreCase("!c"))
+                        buf.append(String.format(" instr(vertex_fig, '%s') = 0", getArgument(input, true)));
+                    else
+                        buf.append(String.format(" vertex_fig %s '%s'", operator, getArgument(input, true)));
+                }
+            }
+        }
+
+        {
+            String input = controller.getVertexDegreesCBox().getSelectionModel().getSelectedItem();
+            if (input != null) {
+                input = input.trim();
+                if (input.length() > 0) {
+                    if (!controller.getVertexDegreesCBox().getItems().contains(input))
+                        controller.getVertexDegreesCBox().getItems().add(input);
+                    if (buf.length() > 0)
+                        buf.append(" and ");
+                    final String operator = getOperator(input, true);
+                    if (operator.equalsIgnoreCase("c"))
+                        buf.append(String.format(" instr(vertex_deg, '%s') > 0", getArgument(input, true)));
+                    else if (operator.equalsIgnoreCase("!c"))
+                        buf.append(String.format(" instr(vertex_deg, '%s') = 0", getArgument(input, true)));
+                    else
+                        buf.append(String.format(" vertex_deg %s '%s'", operator, getArgument(input, true)));
+                }
             }
         }
 
@@ -266,12 +307,6 @@ public class DBCollectionControlBindings {
             if (buf.length() > 0)
                 buf.append(" and ");
             buf.append(" maximal = '").append(controller.getMaximalSymmetricCheckBox().isSelected()).append("'");
-        }
-
-        if (!controller.getOrientableCheckBox().isIndeterminate()) {
-            if (buf.length() > 0)
-                buf.append(" and ");
-            buf.append(" orientable = '").append(controller.getOrientableCheckBox().isSelected()).append("'");
         }
 
         if (!controller.getColorableCheckBox().isIndeterminate()) {
@@ -320,6 +355,4 @@ public class DBCollectionControlBindings {
         else
             return value.substring(pos).trim();
     }
-
-
 }

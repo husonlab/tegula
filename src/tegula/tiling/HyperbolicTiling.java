@@ -26,6 +26,8 @@ import javafx.scene.Node;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
+import jloda.fx.window.NotificationManager;
+import jloda.util.ProgramProperties;
 import tegula.core.dsymbols.DSymbol;
 import tegula.geometry.Tools;
 import tegula.main.TilingStyle;
@@ -41,6 +43,8 @@ import java.util.Queue;
  */
 public class HyperbolicTiling extends TilingBase implements TilingCreator {
     public static final double ValidHyperbolicRange = 4.8;
+
+    private static long previousWarning = 0L;
 
     private final OctTree coveredPoints = new OctTree();
 
@@ -100,6 +104,7 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
 
 
         if (!isDrawFundamentalDomainOnly()) {
+            final int maxCopies = ProgramProperties.get("MaxCopiesHyperbolic", 5000);
             final OctTree seen = new OctTree();
 
             Point3D pt = transformRecycled.transform(referencePoint);
@@ -117,12 +122,28 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
                 }
             }
 
+            final long start = System.currentTimeMillis();
+
             int countChildren = 0;
             while (queue.size() > 0) {
                 // Breaks while loop if too many copies (rounding errors)
                 if (!reset && getNumberOfCopies() > 0 && countChildren >= 1.5 * getNumberOfCopies()) {
                     System.out.println(countChildren + " children and " + getNumberOfCopies() + " copies");
                     return FAILED;
+                }
+                if (coveredPoints.size() > maxCopies) {
+                    if (System.currentTimeMillis() - previousWarning > 10000) {
+                        NotificationManager.showWarning("Exceeded max copies: " + maxCopies);
+                        previousWarning = System.currentTimeMillis();
+                    }
+                    break;
+                }
+                if (System.currentTimeMillis() - start > 10000) {
+                    if (System.currentTimeMillis() - previousWarning > 10000) {
+                        NotificationManager.showWarning("Exceeded max computation time (10sec)");
+                        previousWarning = System.currentTimeMillis();
+                    }
+                    break;
                 }
 
                 final Transform t = queue.poll(); // remove t from queue

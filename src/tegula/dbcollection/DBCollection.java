@@ -38,6 +38,8 @@ import java.util.ArrayList;
  * Daniel Huson, 10.2019
  */
 public class DBCollection implements Closeable, IFileBased {
+    public static float VERSION = 0.2f;
+
     private final DatabaseAccess databaseAccess;
     private final StringProperty fileName = new SimpleStringProperty();
 
@@ -71,6 +73,11 @@ public class DBCollection implements Closeable, IFileBased {
                 NotificationManager.showError("Error: " + e.getMessage());
             }
         });
+
+        if (getDbVersion() < VERSION)
+            NotificationManager.showWarning("Opened old database version: " + getDbVersion() + ", software supports version: " + VERSION + ", download and use new database version");
+        if (getDbVersion() > VERSION)
+            NotificationManager.showWarning("Opened newer database version: " + getDbVersion() + ", software supports version: " + VERSION + ", download and install new software version");
     }
 
     public int getNumberOfPages() {

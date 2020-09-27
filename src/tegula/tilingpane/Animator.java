@@ -48,20 +48,20 @@ public class Animator {
     /**
      * setup animation
      *
-     * @param tilingPane
      */
     public Animator(TilingPane tilingPane) {
         this.tilingPane = tilingPane;
         timeline = new Timeline(Timeline.INDEFINITE);
         timeline.setCycleCount(Integer.MAX_VALUE);
+
+        tilingPane.geometryProperty().addListener((c, o, n) -> {
+            if (o != n) stop();
+        });
     }
 
     /**
      * set a rotational animation
      *
-     * @param rotationalAxis
-     * @param angle
-     * @param millis
      */
     public void set(final Point3D rotationalAxis, double angle, final long millis) {
         dx = dy = 0;
@@ -80,9 +80,6 @@ public class Animator {
     /**
      * set a translational animation
      *
-     * @param dx0
-     * @param dy0
-     * @param millis
      */
     public void set(final double dx0, final double dy0, final long millis) {
         angle = 0;

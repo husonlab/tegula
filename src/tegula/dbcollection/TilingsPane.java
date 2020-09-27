@@ -38,22 +38,32 @@ import jloda.fx.util.SelectionEffect;
 import jloda.util.Basic;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.DSymbolAlgorithms;
+import tegula.core.dsymbols.Geometry;
 import tegula.main.TilingStyle;
 import tegula.tilingeditor.TilingEditorTab;
 import tegula.tilingpane.TilingPane;
 
 import java.util.Collection;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * pane containing all given tilings
  * Daniel Huson, 10.2019
  */
 public class TilingsPane extends FlowPane {
+    private static final Object sync = new Object();
+    private static ExecutorService executorService = null;
 
     /**
      * construct pane
      */
     public TilingsPane() {
+        synchronized (sync) {
+            if (executorService == null)
+                executorService = Executors.newFixedThreadPool(ProgramExecutorService.getNumberOfCoresToUse());
+        }
         setHgap(20);
         setVgap(20);
         setPadding(new Insets(20, 20, 20, 20));
@@ -107,31 +117,32 @@ public class TilingsPane extends FlowPane {
         final VBox vBox = new VBox(rectangle, size < 150 ? shortLabel : label);
         vBox.setUserData(dSymbol);
 
-        ProgramExecutorService.getInstance().submit(() -> {
+        executorService.submit(() -> {
             final TilingStyle tilingStyle = new TilingStyle(collectionTab.getTilingStyle());
 
             final TilingPane tilingPane = new TilingPane(dSymbol, tilingStyle, true, false);
             tilingPane.getTilingStyle().setBendAnEdge(!DSymbolAlgorithms.isMaximalSymmetry(dSymbol));
+            tilingPane.getTilingStyle().setBandWidth(tilingPane.getGeometry() == Geometry.Spherical ? 4 : 8);
             tilingPane.setPrefWidth(0.5 * sizeSlider.getMax());
             tilingPane.setPrefHeight(0.5 * sizeSlider.getMax());
             new Scene(tilingPane);
 
-            Platform.runLater(() -> {
-                //simpleTilingPane.getSimpleTiling().getTilingStyle().setShowBackEdges(simpleTilingPane.getSimpleTiling().getTiling().getGeometry()== Geometry.Spherical);
-                tilingPane.update();
-
-                final ImageView imageView = new ImageView(tilingPane.snapshot(null, null));
-                imageView.setPreserveRatio(true);
-                imageView.setFitWidth(sizeSlider.getValue());
-                imageView.fitWidthProperty().bind(sizeSlider.valueProperty());
-                imageView.fitWidthProperty().addListener((c, o, n) -> {
-                    if (n.doubleValue() < 150)
-                        vBox.getChildren().set(1, shortLabel);
-                    else
-                        vBox.getChildren().set(1, label);
+            // need to wait a short while before making a snapshot (otherwise some hyperbolic tilings will not appear)
+            Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+                Platform.runLater(() -> {
+                    final ImageView imageView = new ImageView(tilingPane.snapshot(null, null));
+                    imageView.setPreserveRatio(true);
+                    imageView.setFitWidth(sizeSlider.getValue());
+                    imageView.fitWidthProperty().bind(sizeSlider.valueProperty());
+                    imageView.fitWidthProperty().addListener((c, o, n) -> {
+                        if (n.doubleValue() < 150)
+                            vBox.getChildren().set(1, shortLabel);
+                        else
+                            vBox.getChildren().set(1, label);
+                    });
+                    vBox.getChildren().set(0, imageView);
                 });
-                vBox.getChildren().set(0, imageView);
-            });
+            }, tilingPane.getGeometry() == Geometry.Hyperbolic ? 600 : 100, TimeUnit.MILLISECONDS);
         });
 
         final AMultipleSelectionModel<DSymbol> selectionModel = collectionTab.getSelectionModel();

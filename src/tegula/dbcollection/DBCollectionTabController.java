@@ -78,7 +78,9 @@ public class DBCollectionTabController {
     private ComboBox<String> symmetryClassCBox;
 
     @FXML
-    private ComboBox<String> signatureCBox;
+    private ComboBox<String> vertexFiguresCBox;
+    @FXML
+    private ComboBox<String> tileFiguresCBox;
 
     @FXML
     private ComboBox<String> tileDegreesCBox;
@@ -89,9 +91,6 @@ public class DBCollectionTabController {
 
     @FXML
     private CheckBox maximalSymmetricCheckBox;
-
-    @FXML
-    private CheckBox orientableCheckBox;
 
     @FXML
     private CheckBox colorableCheckBox;
@@ -127,11 +126,11 @@ public class DBCollectionTabController {
         assert hyperbolicCheckBox != null : "fx:id=\"hyperbolicCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert orbifoldCBox != null : "fx:id=\"orbifoldCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert symmetryClassCBox != null : "fx:id=\"symmetryClassCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
-        assert signatureCBox != null : "fx:id=\"signatureCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
+        assert vertexFiguresCBox != null : "fx:id=\"vertexFiguresCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
+        assert tileFiguresCBox != null : "fx:id=\"tileFiguresCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert tileDegreesCBox != null : "fx:id=\"tileDegreesCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert vertexDegreesCBox != null : "fx:id=\"vertexDegreesCBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert maximalSymmetricCheckBox != null : "fx:id=\"maximalSymmetricCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
-        assert orientableCheckBox != null : "fx:id=\"orientableCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert colorableCheckBox != null : "fx:id=\"colorableCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert normalCheckBox != null : "fx:id=\"normalCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
         assert selfDualCheckBox != null : "fx:id=\"selfDualCheckBox\" was not injected: check your FXML file 'DBCollectionTab.fxml'.";
@@ -196,8 +195,12 @@ public class DBCollectionTabController {
         return symmetryClassCBox;
     }
 
-    public ComboBox<String> getSignatureCBox() {
-        return signatureCBox;
+    public ComboBox<String> getVertexFiguresCBox() {
+        return vertexFiguresCBox;
+    }
+
+    public ComboBox<String> getTileFiguresCBox() {
+        return tileFiguresCBox;
     }
 
     public ComboBox<String> getTileDegreesCBox() {
@@ -210,10 +213,6 @@ public class DBCollectionTabController {
 
     public CheckBox getMaximalSymmetricCheckBox() {
         return maximalSymmetricCheckBox;
-    }
-
-    public CheckBox getOrientableCheckBox() {
-        return orientableCheckBox;
     }
 
     public CheckBox getColorableCheckBox() {

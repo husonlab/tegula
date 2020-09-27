@@ -24,6 +24,7 @@ import javafx.geometry.Point3D;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
+import jloda.util.Pair;
 import tegula.core.dsymbols.Geometry;
 
 /**
@@ -31,7 +32,9 @@ import tegula.core.dsymbols.Geometry;
  * Ruediger Zeller, 2017
  */
 public class Tools {
-
+    public static Point3D xAxis = new Point3D(1d, 0d, 0d);
+    public static Point3D yAxis = new Point3D(0d, 1d, 0d);
+    public static Point3D zAxis = new Point3D(0d, 0d, 1d);
 
     /**
      * Distance of points a,b. In hyperbolic case: Hyperbolic distance between
@@ -111,10 +114,9 @@ public class Tools {
     public static Point3D interpolateHyperbolicPoints(Point3D a, Point3D b, double pos) {
         final Point3D point1 = a.multiply(0.01);
         final Point3D point2 = b.multiply(0.01);
-        final Point3D xAxis = new Point3D(1, 0, 0);
-        final Point3D origin = new Point3D(0, 0, 1);
+        final Point3D bottom = new Point3D(0, 0, 1);
 
-        final double rotAngle1 = (point1.equals(origin) ? 0 : xAxis.angle(point1.getX(), point1.getY(), 0));
+        final double rotAngle1 = (point1.equals(bottom) ? 0 : xAxis.angle(point1.getX(), point1.getY(), 0));
 
         final Point3D rotAxis1 = new Point3D(0, 0, point1.getY() >= 0 ? -1 : 1);
 
@@ -132,7 +134,7 @@ public class Tools {
 
         final Point3D p2moved = translate1.transform(rotateToX.transform(point2));
 
-        final double rotAngle2 = (p2moved.equals(origin) ? 0 : xAxis.angle(p2moved.getX(), p2moved.getY(), 0));
+        final double rotAngle2 = (p2moved.equals(bottom) ? 0 : xAxis.angle(p2moved.getX(), p2moved.getY(), 0));
         final Point3D rotAxis2 = new Point3D(0, 0, p2moved.getY() >= 0 ? -1 : 1);
 
         Rotate rotate2 = new Rotate(-rotAngle2, rotAxis2); // only inverse is needed
@@ -143,74 +145,63 @@ public class Tools {
 
         final Affine translate2 = new Affine(Math.cosh(dist2), 0, Math.sinh(dist2), 0, 0, 1, 0, 0, Math.sinh(dist2), 0, Math.cosh(dist2), 0);
 
-        return rotateToXInv.transform(translate1Inv.transform(rotate2.transform(translate2.transform(origin)))).multiply(100);
+        return rotateToXInv.transform(translate1Inv.transform(rotate2.transform(translate2.transform(bottom)))).multiply(100);
     }
 
     /**
      * by Cornelius calculates two points of equal hyperbolic distance to point
      *
-     * @param point
+     * @param point1
      * @param point2
      * @param distance
      * @return two points of equal hyperbolic distance perpendicular to direction of
      * second point
      */
-    public static Point3D[] equidistantHyperbolicPoints(Point3D point, Point3D point2, double distance) {
-        Point3D[] returnpoints = new Point3D[2];
-        Point3D start = point.multiply(0.01);
-        Point3D end = point2.multiply(0.01);
-        Point3D xAxis = new Point3D(1, 0, 0);
-        Point3D ursprung = new Point3D(0, 0, 1);
+    public static Pair<Point3D, Point3D> equidistantHyperbolicPoints(Point3D point1, Point3D point2, double distance) {
+        final Point3D start = point1.multiply(0.01);
+        final Point3D end = point2.multiply(0.01);
+        distance *= 0.01;
 
         // rotates start point on to the x-Axis
         double rotAngle = xAxis.angle(start.getX(), start.getY(), 0);
 
-        Point3D rotAxis;
+        final Point3D rotAxis;
         if (start.getY() >= 0)
-            rotAxis = new Point3D(0, 0, -1);
+            rotAxis = zAxis.multiply(-1);
         else
-            rotAxis = new Point3D(0, 0, 1);
+            rotAxis = zAxis;
 
-        Rotate rotateToX = new Rotate(rotAngle, rotAxis);
-        Rotate rotateToXInv = new Rotate(-rotAngle, rotAxis);
+        final Rotate rotateToX = new Rotate(rotAngle, rotAxis);
+        final Rotate rotateToXInv = new Rotate(-rotAngle, rotAxis);
 
-        // translates start point to ursprung
-        double dist = Math.log(Math.abs(start.getZ() + Math.sqrt(Math.abs(start.getZ() * start.getZ() - 1))));
+        // translates start point to origin
+        final double dist = Math.log(Math.abs(start.getZ() + Math.sqrt(Math.abs(start.getZ() * start.getZ() - 1))));
 
-        Affine translate1 = new Affine(Math.cosh(-dist), 0, Math.sinh(-dist), 0, 0, 1, 0, 0, Math.sinh(-dist), 0,
-                Math.cosh(-dist), 0);
-        Affine translate1Inv = new Affine(Math.cosh(dist), 0, Math.sinh(dist), 0, 0, 1, 0, 0, Math.sinh(dist), 0,
-                Math.cosh(dist), 0);
+        final Affine translate1 = new Affine(Math.cosh(-dist), 0, Math.sinh(-dist), 0, 0, 1, 0, 0, Math.sinh(-dist), 0, Math.cosh(-dist), 0);
+        final Affine translate1Inv = new Affine(Math.cosh(dist), 0, Math.sinh(dist), 0, 0, 1, 0, 0, Math.sinh(dist), 0, Math.cosh(dist), 0);
 
         // uses same rotation and translation on end point
-        Point3D endmoved = translate1.transform(rotateToX.transform(end));
+        final Point3D endmoved = translate1.transform(rotateToX.transform(end));
 
         // rotate moved end point to x axis
-        Point3D rotAxis2;
         double rotAngle2 = xAxis.angle(endmoved.getX(), endmoved.getY(), 0);
-
+        final Point3D rotAxis2;
         if (endmoved.getY() >= 0)
             rotAxis2 = new Point3D(0, 0, -1);
         else
             rotAxis2 = new Point3D(0, 0, 1);
 
         // Rotate rotat2 = new Rotate(rotAngle2, rotAxis2);
-        Rotate rotat2Inv = new Rotate(-rotAngle2, rotAxis2); // only inverse is needed
+        final Rotate rotat2Inv = new Rotate(-rotAngle2, rotAxis2); // only inverse is needed
 
-        // creates points on of equal distance to urpsrung that are perpendicular to the
-        // moved end point
-        final double z = Math.sqrt(Math.pow(Math.sinh(distance) * 0.01, 2) + 1);
-        Point3D returnpoint1 = new Point3D(0, arcsinh(-distance * 0.01), z);
-        Point3D returnpoint2 = new Point3D(0, arcsinh(distance * 0.01), z);
+        // creates points of equal distance to orign that are perpendicular to the moved end point
+        final double z = Math.sqrt(Math.pow(Math.sinh(distance), 2) + 1);
+        final Point3D returnpoint1 = new Point3D(0, arcsinh(-distance), z);
+        final Point3D returnpoint2 = new Point3D(0, arcsinh(distance), z);
 
         // uses same rotations and translations that were used on end point
-        returnpoints[0] = rotateToXInv.transform(translate1Inv.transform(rotat2Inv.transform(returnpoint1)))
-                .multiply(100);
-        returnpoints[1] = rotateToXInv.transform(translate1Inv.transform(rotat2Inv.transform(returnpoint2)))
-                .multiply(100);
-
-        return returnpoints;
-
+        return new Pair<>(rotateToXInv.transform(translate1Inv.transform(rotat2Inv.transform(returnpoint1))).multiply(100),
+                rotateToXInv.transform(translate1Inv.transform(rotat2Inv.transform(returnpoint2))).multiply(100));
     }
 
     /**
@@ -224,37 +215,34 @@ public class Tools {
      * @return circle coordinates
      */
     public static Point3D[] hyperbolicCircleCoordinates(Point3D point0, Point3D orientation, double radius, int fine) {
-
-        Point3D center = point0.multiply(0.01);
-        Point3D end = center.add(orientation.normalize());
-        Point3D xAxis = new Point3D(1, 0, 0);
+        final Point3D center = point0.multiply(0.01);
+        final Point3D end = center.add(orientation.normalize());
+        radius *= 0.01;
 
         // rotates center point to x axis
-        double rotAngle = xAxis.angle(center.getX(), center.getY(), 0);
+        final double rotAngle = xAxis.angle(center.getX(), center.getY(), 0);
 
-        Point3D rotAxis;
+        final Point3D rotAxis;
         if (center.getY() >= 0)
             rotAxis = new Point3D(0, 0, -1);
         else
             rotAxis = new Point3D(0, 0, 1);
 
-        Rotate rotateToX = new Rotate(rotAngle, rotAxis);
-        Rotate rotateToXInv = new Rotate(-rotAngle, rotAxis);
+        final Rotate rotateToX = new Rotate(rotAngle, rotAxis);
+        final Rotate rotateToXInv = new Rotate(-rotAngle, rotAxis);
 
         // translates center point to ursprung
-        double dist = Math.log(Math.abs(center.getZ() + Math.sqrt(Math.abs(center.getZ() * center.getZ() - 1))));
+        final double dist = Math.log(Math.abs(center.getZ() + Math.sqrt(Math.abs(center.getZ() * center.getZ() - 1))));
 
-        Affine translate1 = new Affine(Math.cosh(-dist), 0, Math.sinh(-dist), 0, 0, 1, 0, 0, Math.sinh(-dist), 0,
-                Math.cosh(-dist), 0);
-        Affine translate1Inv = new Affine(Math.cosh(dist), 0, Math.sinh(dist), 0, 0, 1, 0, 0, Math.sinh(dist), 0,
-                Math.cosh(dist), 0);
+        final Affine translate1 = new Affine(Math.cosh(-dist), 0, Math.sinh(-dist), 0, 0, 1, 0, 0, Math.sinh(-dist), 0, Math.cosh(-dist), 0);
+        final Affine translate1Inv = new Affine(Math.cosh(dist), 0, Math.sinh(dist), 0, 0, 1, 0, 0, Math.sinh(dist), 0, Math.cosh(dist), 0);
 
-        Point3D endmoved = translate1.transform(rotateToX.transform(end));
+        final Point3D endmoved = translate1.transform(rotateToX.transform(end));
 
         // rotates moved end point to x axis
-        Point3D rotAxis2;
-        double rotAngle2 = xAxis.angle(endmoved.getX(), endmoved.getY(), 0);
+        final double rotAngle2 = xAxis.angle(endmoved.getX(), endmoved.getY(), 0);
 
+        final Point3D rotAxis2;
         if (endmoved.getY() >= 0)
             rotAxis2 = new Point3D(0, 0, -1);
         else
@@ -263,21 +251,18 @@ public class Tools {
         Rotate rotat2Inv = new Rotate(-rotAngle2, rotAxis2); // only inverse is needed
 
         // creates circle points around (0,0,1);
-        Point3D[] coordinates = new Point3D[fine];
-        Point3D[] returncoordinates = new Point3D[fine];
-        double zvalue = Math.sqrt(Math.pow(radius * 0.01, 2) + 1);
+        final Point3D[] coordinates = new Point3D[fine];
+        final Point3D[] result = new Point3D[fine];
+        final double zvalue = Math.sqrt(Math.pow(radius, 2) + 1);
         for (int n = 0; n < fine; n++) {
-            coordinates[n] = new Point3D(Math.sinh(radius * 0.01) * Math.cos(2 * Math.PI * n / fine),
-                    Math.sinh(radius * 0.01) * Math.sin(2 * Math.PI * n / fine), zvalue);
+            coordinates[n] = new Point3D(Math.sinh(radius) * Math.cos(2 * Math.PI * n / fine), Math.sinh(radius) * Math.sin(2 * Math.PI * n / fine), zvalue);
         }
 
         // rotates and translates circle points back to original center
         for (int i = 0; i < fine; i++) {
-            returncoordinates[i] = rotateToXInv.transform(translate1Inv.transform(rotat2Inv.transform(coordinates[i])))
-                    .multiply(100);
+            result[i] = rotateToXInv.transform(translate1Inv.transform(rotat2Inv.transform(coordinates[i]))).multiply(100);
         }
-
-        return returncoordinates;
+        return result;
     }
 
     /**
@@ -290,11 +275,7 @@ public class Tools {
      * @return
      */
     public static Point3D interpolateSpherePoints(Point3D pointA, Point3D pointB, double pos) {
-        Point3D xAxis = new Point3D(100, 0, 0);
-        Point3D yAxis = new Point3D(0, 100, 0);
-        Point3D zAxis = new Point3D(0, 0, 100);
-
-        double rotAngle1 = xAxis.angle(new Point3D(pointA.getX(), pointA.getY(), 0));
+        final double rotAngle1 = xAxis.angle(new Point3D(pointA.getX(), pointA.getY(), 0));
 
         Point3D rotAxis;
         if (pointA.getY() >= 0)
@@ -302,44 +283,44 @@ public class Tools {
         else
             rotAxis = zAxis;
 
-        Rotate rotateToX = new Rotate(rotAngle1, rotAxis);
-        Rotate rotateToXInv = new Rotate(-rotAngle1, rotAxis);
+        final Rotate rotateToX = new Rotate(rotAngle1, rotAxis);
+        final Rotate rotateToXInv = new Rotate(-rotAngle1, rotAxis);
 
         ////////
 
-        double rotAngle2 = zAxis.angle(rotateToX.transform(pointA).getX(), 0, pointA.getZ());
+        final double rotAngle2 = zAxis.angle(rotateToX.transform(pointA).getX(), 0, pointA.getZ());
 
         if (rotateToX.transform(pointA).getX() >= 0)
             rotAxis = yAxis.multiply(-1);
         else
             rotAxis = yAxis;
 
-        Rotate rotateToZ = new Rotate(rotAngle2, rotAxis);
-        Rotate rotateToZInv = new Rotate(-rotAngle2, rotAxis);
+        final Rotate rotateToZ = new Rotate(rotAngle2, rotAxis);
+        final Rotate rotateToZInv = new Rotate(-rotAngle2, rotAxis);
 
         ////////
 
-        Point3D bNew = rotateToZ.transform(rotateToX.transform(pointB));
+        final Point3D bNew = rotateToZ.transform(rotateToX.transform(pointB));
 
-        double rotAngle3 = xAxis.angle(new Point3D(bNew.getX(), bNew.getY(), 0));
+        final double rotAngle3 = xAxis.angle(new Point3D(bNew.getX(), bNew.getY(), 0));
         if (bNew.getY() >= 0)
             rotAxis = zAxis.multiply(-1);
         else
             rotAxis = zAxis;
 
-        Rotate rotBNew = new Rotate(rotAngle3, rotAxis);
-        Rotate rotBNewInv = new Rotate(-rotAngle3, rotAxis);
+        final Rotate rotBNew = new Rotate(rotAngle3, rotAxis);
+        final Rotate rotBNewInv = new Rotate(-rotAngle3, rotAxis);
 
         ////////
 
-        double rotAngle4 = zAxis.angle(rotBNew.transform(bNew).getX(), 0, bNew.getZ());
+        final double rotAngle4 = zAxis.angle(rotBNew.transform(bNew).getX(), 0, bNew.getZ());
 
         if (rotBNew.transform(bNew).getX() >= 0)
             rotAxis = yAxis.multiply(-1);
         else
             rotAxis = yAxis;
 
-        Rotate rotInterpolate = new Rotate(-pos * rotAngle4, rotAxis);
+        final Rotate rotInterpolate = new Rotate(-pos * rotAngle4, rotAxis);
 
         return rotateToXInv.transform(rotateToZInv.transform(rotBNewInv.transform(rotInterpolate.transform(zAxis))));
     }
@@ -352,13 +333,13 @@ public class Tools {
      * @return transform
      */
     public static Transform hyperbolicTranslation(double dx, double dy) {
-        Rotate rotateForward, rotateBackward; // Rotations to x-axis and back
-        Affine translateX;
+        final Rotate rotateForward, rotateBackward; // Rotations to x-axis and back
+        final Affine translateX;
         final Point3D X_Axis = new Point3D(1, 0, 0);
-        double d = Math.sqrt(dx * dx + dy * dy); // Length of translation
+        final double d = Math.sqrt(dx * dx + dy * dy); // Length of translation
         final Point3D vec = new Point3D(dx, dy, 0);
 
-        double rotAngle = vec.angle(X_Axis); // Rotation angle between direction
+        final double rotAngle = vec.angle(X_Axis); // Rotation angle between direction
         // of translation and x-axis
         Point3D rotAxis = new Point3D(0, 0, 1); // Rotation axis
 
@@ -385,9 +366,9 @@ public class Tools {
      * @return 3D point
      */
     public static Point3D sphericalMidpoint(Point3D point0, Point3D point1) {
-        Point3D point0n = point0.normalize();
-        Point3D point1n = point1.normalize();
-        Point3D difference = point1n.subtract(point0n);
+        final Point3D point0n = point0.normalize();
+        final Point3D point1n = point1.normalize();
+        final Point3D difference = point1n.subtract(point0n);
         return (point0n.add(difference.multiply(0.5))).normalize().multiply(100);
     }
 
@@ -400,9 +381,9 @@ public class Tools {
      * @return 3D point
      */
     public static Point3D interpolateSpherePoints2(Point3D a, Point3D b, double pos, double intlength, double intupperbound) {
-        double tol = 0.000001; // minimum accuracy
-        double value = intupperbound - (intlength * 0.5);
-        Point3D midpoint = sphericalMidpoint(a, b);
+        final double tol = 0.000001; // minimum accuracy
+        final double value = intupperbound - (intlength * 0.5);
+        final Point3D midpoint = sphericalMidpoint(a, b);
         if ((value - tol <= pos) && (pos <= value + tol)) {
             return midpoint;
         } else if (pos < value) {

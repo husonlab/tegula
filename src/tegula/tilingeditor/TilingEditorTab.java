@@ -107,21 +107,8 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
         setContent(root);
 
         tilingPane = new TilingPane(dSymbol, tilingStyle);
-        tilingPane.prefWidthProperty().bind(controller.getMainPane().widthProperty());
-
-        tilingPane.prefHeightProperty().bind(controller.getMainPane().prefHeightProperty());
 
         controller.getMainPane().getChildren().add(tilingPane);
-
-        tabPaneProperty().addListener((c, o, n) -> {
-            if (n != null) {
-                controller.getBorderPane().prefWidthProperty().bind(n.widthProperty());
-                controller.getBorderPane().prefHeightProperty().bind(n.heightProperty());
-            } else {
-                controller.getBorderPane().prefWidthProperty().unbind();
-                controller.getBorderPane().prefHeightProperty().unbind();
-            }
-        });
 
         ControlBindings.setup(this);
 
@@ -140,24 +127,6 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
 
         GroupEditingControls.setup(this);
         TileColorControls.setup(this);
-
-        controller.getMainPane().widthProperty().addListener((c, o, n) -> {
-            if (o.doubleValue() == 0)
-                o = 800;
-
-            tilingPane.setEuclideanWidth(tilingPane.getEuclideanWidth() * (n.doubleValue() / o.doubleValue()));
-            if (getTiling().getGeometry() == Geometry.Euclidean)
-                tilingPane.update();
-        });
-
-        controller.getMainPane().heightProperty().addListener((c, o, n) -> {
-            if (o.doubleValue() == 0)
-                o = 800;
-
-            tilingPane.setEuclideanHeight(tilingPane.getEuclideanHeight() * (n.doubleValue() / o.doubleValue()));
-            if (getTiling().getGeometry() == Geometry.Euclidean)
-                tilingPane.update();
-        });
 
         tilingPane.lastDSymbolUpdateProperty().addListener((e) -> {
             geometry.set(dSymbol.computeGeometry());

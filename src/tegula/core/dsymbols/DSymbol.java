@@ -596,18 +596,20 @@ public class DSymbol {
     private int orientate(Single<Integer> result, int value, int a, int[] ori) {
         int b;
 
-        ori[a] = value;
-        for (int i = 0; result.get() != 0 && i <= dim(); i++) {
-            b = getSi(i, a);
-            if (ori[b] != 0) {
-                if (ori[b] != -ori[a]) {
-                    if (a == b)
-                        result.set(1);
-                    else
-                        result.set(0);
-                }
-            } else
-                orientate(result, -ori[a], b, ori);
+        if (a <= size()) {
+            ori[a] = value;
+            for (int i = 0; result.get() != 0 && i <= dim(); i++) {
+                b = getSi(i, a);
+                if (ori[b] != 0) {
+                    if (ori[b] != -ori[a]) {
+                        if (a == b)
+                            result.set(1);
+                        else
+                            result.set(0);
+                    }
+                } else
+                    orientate(result, -ori[a], b, ori);
+            }
         }
         return result.get();
     }

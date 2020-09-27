@@ -99,6 +99,7 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
 
         this.tilingStyle = new TilingStyle();
         tilingStyle.setShowEdges(true);
+        tilingStyle.setBandCapFineness(0);
         tilingStyle.setBandWidth(4);
         tilingStyle.setShowFaces(false);
         tilingStyle.setTileOpacity(0.8);

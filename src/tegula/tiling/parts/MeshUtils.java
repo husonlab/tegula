@@ -82,15 +82,15 @@ public class MeshUtils {
      * @return combined mesh
      */
     public static TriangleMesh combineTriangleMeshes(TriangleMesh... meshes) {
+        final TriangleMesh newMesh = new TriangleMesh();
+        MeshUtils.setDefaultTexCoordinates(newMesh);
+
         if (meshes.length == 0)
-            return null;
+            return newMesh;
         else if (meshes.length == 1)
             return meshes[0];
         else if (meshes[0].getVertexFormat() != VertexFormat.POINT_TEXCOORD)
             throw new RuntimeException("Unsupported vertex format");
-
-        final TriangleMesh newMesh = new TriangleMesh();
-        MeshUtils.setDefaultTexCoordinates(newMesh);
 
         final int numberOfMeshes = meshes.length;
 
