@@ -68,6 +68,16 @@ public class TilingEditorTabController {
     private Button showMoreTilesButton;
 
     @FXML
+    private TitledPane sphericalLightingTitledPane;
+
+    @FXML
+    private RadioButton pointLightRadioButton;
+
+    @FXML
+    private RadioButton ambientLightRadioButton;
+
+
+    @FXML
     private VBox appearanceVBox;
 
     @FXML
@@ -142,7 +152,6 @@ public class TilingEditorTabController {
     @FXML
     private Button stopAnimationButton;
 
-
     @FXML
     private Button contractEdgeButton;
 
@@ -170,6 +179,9 @@ public class TilingEditorTabController {
         assert modelChoiceBox != null : "fx:id=\"modelChoiceBox\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert showLessTilesButton != null : "fx:id=\"showLessTilesButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert showMoreTilesButton != null : "fx:id=\"showMoreTilesButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert sphericalLightingTitledPane != null : "fx:id=\"sphericalLightingTitledPane\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert pointLightRadioButton != null : "fx:id=\"pointLightRadioButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+        assert ambientLightRadioButton != null : "fx:id=\"ambientLightRadioButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert appearanceVBox != null : "fx:id=\"appearanceVBox\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert colorSchemeChoiceBox != null : "fx:id=\"colorSchemeChoiceBox\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert showFacesToggleButton != null : "fx:id=\"showFacesToggleButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
@@ -196,6 +208,10 @@ public class TilingEditorTabController {
         assert maximizeButton != null : "fx:id=\"maximizeButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert stopAnimationButton != null : "fx:id=\"stopAnimationButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
         assert resetButton != null : "fx:id=\"resetButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
+
+        final ToggleGroup group = new ToggleGroup();
+        group.getToggles().addAll(pointLightRadioButton, ambientLightRadioButton);
+        pointLightRadioButton.setSelected(true);
     }
 
 
@@ -313,6 +329,18 @@ public class TilingEditorTabController {
 
     public TitledPane getHyperbolicModelTitledPane() {
         return hyperbolicModelTitledPane;
+    }
+
+    public TitledPane getSphericalLightingTitledPane() {
+        return sphericalLightingTitledPane;
+    }
+
+    public RadioButton getPointLightRadioButton() {
+        return pointLightRadioButton;
+    }
+
+    public RadioButton getAmbientLightRadioButton() {
+        return ambientLightRadioButton;
     }
 
     public Button getResizeButton() {

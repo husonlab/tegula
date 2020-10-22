@@ -51,7 +51,7 @@ public class DatabaseAccess implements Closeable {
 
         connection = config.createConnection("jdbc:sqlite:" + dbFile);
 
-        System.err.println("Opened: " + dbFile + ": " + computeDBSize());
+        System.err.printf("Opened: " + dbFile + ": %,d%n", computeDBSize());
     }
 
     public void close() {
@@ -194,4 +194,4 @@ public class DatabaseAccess implements Closeable {
         }
         return result;
     }
- }
+}

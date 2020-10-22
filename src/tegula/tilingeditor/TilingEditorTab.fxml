@@ -25,67 +25,53 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.*?>
 <?import java.lang.String?>
-<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="500.0" prefWidth="500.0"
-            xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="tegula.tilingeditor.TilingEditorTabController">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="500.0" prefWidth="550.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tegula.tilingeditor.TilingEditorTabController">
     <children>
-        <BorderPane fx:id="borderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                    AnchorPane.topAnchor="0.0">
+        <BorderPane fx:id="borderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <top>
-                <ToolBar fx:id="mainToolBar" maxHeight="-Infinity" maxWidth="1.7976931348623157E308"
-                         minHeight="-Infinity" prefHeight="24.0" BorderPane.alignment="TOP_CENTER"/>
+                <ToolBar fx:id="mainToolBar" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="24.0" BorderPane.alignment="TOP_CENTER" />
             </top>
             <center>
-                <StackPane fx:id="mainPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-                           minHeight="0.0" minWidth="0.0" BorderPane.alignment="CENTER">
+                <StackPane fx:id="mainPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" BorderPane.alignment="CENTER">
                 </StackPane>
             </center>
             <bottom>
-                <BorderPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="24.0"
-                            style="-fx-border-color: lightgray; -fx-background-color: #f4f4f4;"
-                            BorderPane.alignment="BOTTOM_CENTER">
+                <BorderPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="24.0" style="-fx-border-color: lightgray; -fx-background-color: #f4f4f4;" BorderPane.alignment="BOTTOM_CENTER">
                     <center>
-                        <TextField fx:id="infoTextField" alignment="CENTER" editable="false" focusTraversable="false"
-                                   maxHeight="-Infinity" minHeight="-Infinity" prefHeight="24.0" promptText="Tiling"
-                                   style="-fx-background-color: transparent;">
+                        <TextField fx:id="infoTextField" alignment="CENTER" editable="false" focusTraversable="false" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="24.0" promptText="Tiling" style="-fx-background-color: transparent;">
                             <font>
-                                <Font name="Helvetica" size="12.0"/>
+                                <Font name="Helvetica" size="12.0" />
                             </font>
                         </TextField>
                     </center>
                 </BorderPane>
             </bottom>
         </BorderPane>
-        <TitledPane expanded="false" maxWidth="130.0" prefWidth="130.0" style="-fx-font-size: 12;" text="Symmetries"
-                    AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <TitledPane expanded="false" maxWidth="130.0" prefWidth="130.0" style="-fx-font-size: 12;" text="Symmetries" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
             <content>
                 <VBox fx:id="symmetiesVBox" alignment="TOP_CENTER" spacing="3.0">
                     <children>
-                        <TextField fx:id="groupTextField" alignment="CENTER" editable="false" focusTraversable="false"
-                                   style="-fx-font-size: 12;" text="group">
+                        <TextField fx:id="groupTextField" alignment="CENTER" editable="false" focusTraversable="false" style="-fx-font-size: 12;" text="group">
                             <tooltip>
-                                <Tooltip text="Orbifold name of symmetry group"/>
+                                <Tooltip text="Orbifold name of symmetry group" />
                             </tooltip>
                         </TextField>
                     </children>
                 </VBox>
             </content>
         </TitledPane>
-        <TitledPane fx:id="hyperbolicModelTitledPane" expanded="false" maxWidth="130.0" prefWidth="130.0"
-                    style="-fx-font-size: 12;" text="Hyperbolic model" AnchorPane.leftAnchor="130.0"
-                    AnchorPane.topAnchor="0.0">
+        <TitledPane fx:id="hyperbolicModelTitledPane" expanded="false" maxWidth="130.0" prefWidth="130.0" style="-fx-font-size: 12;" text="Hyperbolic model" AnchorPane.leftAnchor="130.0" AnchorPane.topAnchor="0.0">
             <content>
                 <VBox alignment="TOP_CENTER" spacing="5.0">
                     <children>
                         <ChoiceBox fx:id="modelChoiceBox" style="-fx-font-size: 12;" value="Poincare">
                             <items>
                                 <FXCollections fx:factory="observableArrayList">
-                                    <String fx:value="Poincare"/>
-                                    <String fx:value="Klein"/>
-                                    <String fx:value="Hyperboloid"/>
+                                    <String fx:value="Poincare" />
+                                    <String fx:value="Klein" />
+                                    <String fx:value="Hyperboloid" />
                                 </FXCollections>
                             </items>
                         </ChoiceBox>
@@ -93,19 +79,17 @@
                             <children>
                                 <Label text="Tiles">
                                     <HBox.margin>
-                                        <Insets top="4.0"/>
+                                        <Insets top="4.0" />
                                     </HBox.margin>
                                 </Label>
-                                <Button fx:id="showLessTilesButton" mnemonicParsing="false" style="-fx-font-size: 12;"
-                                        text="--">
+                                <Button fx:id="showLessTilesButton" mnemonicParsing="false" style="-fx-font-size: 12;" text="--">
                                     <tooltip>
-                                        <Tooltip text="Show less tiles"/>
+                                        <Tooltip text="Show less tiles" />
                                     </tooltip>
                                 </Button>
-                                <Button fx:id="showMoreTilesButton" mnemonicParsing="false" style="-fx-font-size: 12;"
-                                        text="++">
+                                <Button fx:id="showMoreTilesButton" mnemonicParsing="false" style="-fx-font-size: 12;" text="++">
                                     <tooltip>
-                                        <Tooltip text="Show more tiles"/>
+                                        <Tooltip text="Show more tiles" />
                                     </tooltip>
                                 </Button>
                             </children>
@@ -114,239 +98,215 @@
                 </VBox>
             </content>
             <font>
-                <Font size="12.0"/>
+                <Font size="12.0" />
             </font>
         </TitledPane>
-        <TitledPane expanded="false" maxWidth="130.0" prefWidth="130.0" text="Appearance" AnchorPane.rightAnchor="0.0"
-                    AnchorPane.topAnchor="0.0">
+      <TitledPane fx:id="sphericalLightingTitledPane" expanded="false" layoutX="140.0" layoutY="10.0" maxWidth="130.0" prefWidth="130.0" style="-fx-font-size: 12;" text="Spherical lighting" AnchorPane.leftAnchor="260.0" AnchorPane.topAnchor="0.0">
+         <content>
+            <VBox alignment="CENTER_LEFT" spacing="5.0">
+               <children>
+                  <RadioButton fx:id="pointLightRadioButton" mnemonicParsing="false" text="Point light" />
+                  <RadioButton fx:id="ambientLightRadioButton" layoutX="32.0" layoutY="20.0" mnemonicParsing="false" text="Ambient light" />
+               </children>
+            </VBox>
+         </content>
+         <font>
+            <Font size="12.0" />
+         </font>
+      </TitledPane>
+        <TitledPane expanded="false" maxWidth="130.0" prefWidth="130.0" text="Appearance" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <content>
                 <VBox fx:id="appearanceVBox" spacing="5.0">
                     <children>
-                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" style="-fx-font-size: 12;"
-                               text="Color scheme"/>
-                        <ChoiceBox fx:id="colorSchemeChoiceBox" maxWidth="1.7976931348623157E308"
-                                   style="-fx-font-size: 12;" VBox.vgrow="NEVER">
+                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" style="-fx-font-size: 12;" text="Color scheme" />
+                        <ChoiceBox fx:id="colorSchemeChoiceBox" maxWidth="1.7976931348623157E308" style="-fx-font-size: 12;" VBox.vgrow="NEVER">
                             <tooltip>
-                                <Tooltip text="Select color scheme to be applied to tiles"/>
+                                <Tooltip text="Select color scheme to be applied to tiles" />
                             </tooltip>
                         </ChoiceBox>
-                        <Separator prefWidth="200.0"/>
+                        <Separator prefWidth="200.0" />
                         <HBox layoutX="20.0" layoutY="218.0">
                             <children>
-                                <ToggleButton fx:id="showFacesToggleButton" mnemonicParsing="false"
-                                              style="-fx-font-size: 12;" text="Faces">
+                                <ToggleButton fx:id="showFacesToggleButton" mnemonicParsing="false" style="-fx-font-size: 12;" text="Faces">
                                     <tooltip>
-                                        <Tooltip text="Set visibility of faces"/>
+                                        <Tooltip text="Set visibility of faces" />
                                     </tooltip>
                                 </ToggleButton>
-                                <ToggleButton fx:id="showBackFacesToggleButton" layoutX="10.0" layoutY="10.0"
-                                              mnemonicParsing="false" style="-fx-font-size: 12;" text="Backs">
+                                <ToggleButton fx:id="showBackFacesToggleButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" style="-fx-font-size: 12;" text="Backs">
                                     <tooltip>
-                                        <Tooltip text="Set visibility of backs of faces"/>
+                                        <Tooltip text="Set visibility of backs of faces" />
                                     </tooltip>
                                 </ToggleButton>
                             </children>
                         </HBox>
-                        <ColorPicker fx:id="tile1ColorPicker" promptText="tile1ColorPicker" style="-fx-font-size: 12;"/>
-                        <Slider fx:id="tilesOpacitySlider" blockIncrement="0.05" majorTickUnit="0.25" max="1.0"
-                                showTickMarks="true" snapToTicks="true" value="1.0">
+                        <ColorPicker fx:id="tile1ColorPicker" promptText="tile1ColorPicker" style="-fx-font-size: 12;" />
+                        <Slider fx:id="tilesOpacitySlider" blockIncrement="0.05" majorTickUnit="0.25" max="1.0" showTickMarks="true" snapToTicks="true" value="1.0">
                             <tooltip>
-                                <Tooltip text="Set opacity of faces"/>
+                                <Tooltip text="Set opacity of faces" />
                             </tooltip>
                         </Slider>
-                        <Separator layoutX="20.0" layoutY="147.0" prefWidth="200.0"/>
+                        <Separator layoutX="20.0" layoutY="147.0" prefWidth="200.0" />
                         <HBox layoutX="20.0" layoutY="218.0">
                             <children>
-                                <ToggleButton fx:id="showEdgesToggleButton" mnemonicParsing="false"
-                                              style="-fx-font-size: 12;" text="Edges">
+                                <ToggleButton fx:id="showEdgesToggleButton" mnemonicParsing="false" style="-fx-font-size: 12;" text="Edges">
                                     <tooltip>
-                                        <Tooltip text="Draw edges as bands"/>
+                                        <Tooltip text="Draw edges as bands" />
                                     </tooltip>
                                 </ToggleButton>
-                                <ToggleButton fx:id="showBackEdgesToggleButton" layoutX="10.0" layoutY="10.0"
-                                              mnemonicParsing="false" style="-fx-font-size: 12;" text="Backs">
+                                <ToggleButton fx:id="showBackEdgesToggleButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" style="-fx-font-size: 12;" text="Backs">
                                     <tooltip>
-                                        <Tooltip text="Set visibility of backs of bands"/>
+                                        <Tooltip text="Set visibility of backs of bands" />
                                     </tooltip>
                                 </ToggleButton>
                             </children>
                         </HBox>
                         <HBox>
                             <children>
-                                <ToggleButton fx:id="showVerticesToggleButton" mnemonicParsing="false"
-                                              style="-fx-font-size: 12;" text="Nodes">
+                                <ToggleButton fx:id="showVerticesToggleButton" mnemonicParsing="false" style="-fx-font-size: 12;" text="Nodes">
                                     <tooltip>
-                                        <Tooltip text="Show vertices"/>
+                                        <Tooltip text="Show vertices" />
                                     </tooltip>
                                 </ToggleButton>
-                                <ToggleButton fx:id="showBackVerticesToggleButton" layoutX="10.0" layoutY="10.0"
-                                              mnemonicParsing="false" style="-fx-font-size: 12;" text="Backs">
+                                <ToggleButton fx:id="showBackVerticesToggleButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" style="-fx-font-size: 12;" text="Backs">
                                     <tooltip>
-                                        <Tooltip text="Show backs of vertices"/>
+                                        <Tooltip text="Show backs of vertices" />
                                     </tooltip>
                                 </ToggleButton>
                             </children>
                         </HBox>
                         <HBox spacing="5.0" VBox.vgrow="NEVER">
                             <children>
-                                <Label alignment="CENTER" maxWidth="1.7976931348623157E308" style="-fx-font-size: 12;"
-                                       text="Width">
+                                <Label alignment="CENTER" maxWidth="1.7976931348623157E308" style="-fx-font-size: 12;" text="Width">
                                     <HBox.margin>
-                                        <Insets bottom="3.0" top="3.0"/>
+                                        <Insets bottom="3.0" top="3.0" />
                                     </HBox.margin>
                                 </Label>
-                                <Spinner fx:id="bandWidthSpinner" editable="true" maxWidth="1.7976931348623157E308"
-                                         prefWidth="65.0" style="-fx-font-size: 12;"/>
+                                <Spinner fx:id="bandWidthSpinner" editable="true" maxWidth="1.7976931348623157E308" prefWidth="65.0" style="-fx-font-size: 12;" />
                             </children>
                         </HBox>
                         <ColorPicker fx:id="bandsColorPicker" style="-fx-font-size: 12;">
                             <tooltip>
-                                <Tooltip text="Set the color of bands"/>
+                                <Tooltip text="Set the color of bands" />
                             </tooltip>
                         </ColorPicker>
-                        <Slider fx:id="bandsOpacitySlider" blockIncrement="0.05" layoutX="20.0" layoutY="146.0"
-                                majorTickUnit="0.25" max="1.0" showTickMarks="true" snapToTicks="true" value="1.0">
+                        <Slider fx:id="bandsOpacitySlider" blockIncrement="0.05" layoutX="20.0" layoutY="146.0" majorTickUnit="0.25" max="1.0" showTickMarks="true" snapToTicks="true" value="1.0">
                             <tooltip>
-                                <Tooltip text="Set opacity of bands"/>
+                                <Tooltip text="Set opacity of bands" />
                             </tooltip>
                         </Slider>
-                        <Separator prefWidth="200.0"/>
-                        <CheckBox fx:id="smoothEdgesCheckBox" mnemonicParsing="false" selected="true"
-                                  style="-fx-font-size: 12;" text="Smooth">
+                        <Separator prefWidth="200.0" />
+                        <CheckBox fx:id="smoothEdgesCheckBox" mnemonicParsing="false" selected="true" style="-fx-font-size: 12;" text="Smooth">
                             <tooltip>
-                                <Tooltip text="Use smoothing when drawing spherical or hyperbolic tilings"/>
+                                <Tooltip text="Use smoothing when drawing spherical or hyperbolic tilings" />
                             </tooltip>
                         </CheckBox>
-                        <Separator layoutX="20.0" layoutY="331.0" prefWidth="200.0"/>
-                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Background"/>
+                        <Separator layoutX="20.0" layoutY="331.0" prefWidth="200.0" />
+                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Background" />
                         <ColorPicker fx:id="backgroundColorPicker" style="-fx-font-size: 12;">
                             <tooltip>
-                                <Tooltip text="Set the background color"/>
+                                <Tooltip text="Set the background color" />
                             </tooltip>
                         </ColorPicker>
                     </children>
                 </VBox>
             </content>
             <font>
-                <Font size="12.0"/>
+                <Font size="12.0" />
             </font>
         </TitledPane>
-        <TitledPane fx:id="fundamentalDomainTitledPane" contentDisplay="RIGHT" expanded="false"
-                    maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="140.0"
-                    style="-fx-font-size: 12;" text="Fundamental domain" AnchorPane.bottomAnchor="0.0"
-                    AnchorPane.leftAnchor="0.0">
+        <TitledPane fx:id="fundamentalDomainTitledPane" contentDisplay="RIGHT" expanded="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="140.0" style="-fx-font-size: 12;" text="Fundamental domain" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0">
             <content>
-                <AnchorPane fx:id="fdomainAnchorPane" maxHeight="1.7976931348623157E308"
-                            maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity"
-                            prefHeight="130.0" prefWidth="130.0">
+                <AnchorPane fx:id="fdomainAnchorPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="130.0" prefWidth="130.0">
                     <children>
-                        <ToolBar fx:id="fdomainToolBar" minHeight="26.0" prefHeight="26.0" AnchorPane.leftAnchor="-10.0"
-                                 AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="-10.0">
+                        <ToolBar fx:id="fdomainToolBar" minHeight="26.0" prefHeight="26.0" AnchorPane.leftAnchor="-10.0" AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="-10.0">
                             <items>
-                                <Button fx:id="resetButton" focusTraversable="false" minHeight="22.0"
-                                        mnemonicParsing="false" prefHeight="22.0" text="Reset"/>
+                                <Button fx:id="resetButton" focusTraversable="false" minHeight="22.0" mnemonicParsing="false" prefHeight="22.0" text="Reset" />
                             </items>
                         </ToolBar>
                     </children>
                 </AnchorPane>
             </content>
             <graphic>
-                <Button fx:id="resizeButton" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity"
-                        minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="10.0"
-                        prefWidth="10.0" style="-fx-background-color: lightgray;">
+                <Button fx:id="resizeButton" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="10.0" prefWidth="10.0" style="-fx-background-color: lightgray;">
                     <graphic>
                         <ImageView fitHeight="8.0" fitWidth="8.0" pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image url="/tegula/resources/icons/Resize16.png"/>
+                                <Image url="/tegula/resources/icons/Resize16.png" />
                             </image>
                         </ImageView>
                     </graphic>
                 </Button>
             </graphic>
         </TitledPane>
-        <TitledPane expanded="false" maxWidth="130.0" prefWidth="130.0" style="-fx-font-size: 12;" text="Algorithms"
-                    AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <TitledPane expanded="false" maxWidth="130.0" prefWidth="130.0" style="-fx-font-size: 12;" text="Algorithms" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
             <content>
                 <VBox alignment="TOP_CENTER" prefWidth="150.0" spacing="5.0">
                     <children>
-                        <Button fx:id="straightenEdgesButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                style="-fx-font-size: 12;" text="Straighten">
+                        <Button fx:id="straightenEdgesButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-font-size: 12;" text="Straighten">
                             <tooltip>
-                                <Tooltip text="Straighten edge(s)"/>
+                                <Tooltip text="Straighten edge(s)" />
                             </tooltip>
                         </Button>
-                        <Separator prefWidth="200.0"/>
-                        <Button fx:id="dualizeButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                style="-fx-font-size: 12;" text="Dualize">
+                        <Separator prefWidth="200.0" />
+                        <Button fx:id="dualizeButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-font-size: 12;" text="Dualize">
                             <tooltip>
-                                <Tooltip text="Replace the current tiling by its dual"/>
+                                <Tooltip text="Replace the current tiling by its dual" />
                             </tooltip>
                         </Button>
-                        <Button fx:id="orientateButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                style="-fx-font-size: 12;" text="Orientate">
+                        <Button fx:id="orientateButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-font-size: 12;" text="Orientate">
                             <tooltip>
-                                <Tooltip text="Remove orientation-reversing symmetries (stars and crosscaps)"/>
+                                <Tooltip text="Remove orientation-reversing symmetries (stars and crosscaps)" />
                             </tooltip>
                         </Button>
-                        <Button fx:id="removeRotationsButton" layoutX="20.0" layoutY="84.0"
-                                maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-font-size: 12;"
-                                text="Try Remove Rotation">
+                        <Button fx:id="removeRotationsButton" layoutX="20.0" layoutY="84.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-font-size: 12;" text="Try Remove Rotation">
                             <tooltip>
-                                <Tooltip text="Remove rotation"/>
+                                <Tooltip text="Remove rotation" />
                             </tooltip>
                         </Button>
-                        <Button fx:id="maximizeButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                style="-fx-font-size: 12;" text="Max Symm">
+                        <Button fx:id="maximizeButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-font-size: 12;" text="Max Symm">
                             <tooltip>
-                                <Tooltip text="Maximize the symmetries of the tiling"/>
+                                <Tooltip text="Maximize the symmetries of the tiling" />
                             </tooltip>
                         </Button>
-                        <Separator layoutX="20.0" layoutY="48.0" prefWidth="200.0"/>
-                        <Button fx:id="truncateVertexButton" layoutX="20.0" layoutY="56.0"
-                                maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-font-size: 12;"
-                                text="Truncate Vertex">
+                        <Separator layoutX="20.0" layoutY="48.0" prefWidth="200.0" />
+                        <Button fx:id="truncateVertexButton" layoutX="20.0" layoutY="56.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-font-size: 12;" text="Truncate Vertex">
                             <tooltip>
-                                <Tooltip text="Replace the current tiling by its dual"/>
+                                <Tooltip text="Replace the current tiling by its dual" />
                             </tooltip>
                         </Button>
-                        <Button fx:id="contractEdgeButton" layoutX="20.0" layoutY="148.0"
-                                maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-font-size: 12;"
-                                text="Contract Edge">
+                        <Button fx:id="contractEdgeButton" layoutX="20.0" layoutY="148.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-font-size: 12;" text="Contract Edge">
                             <tooltip>
-                                <Tooltip text="Replace the current tiling by its dual"/>
+                                <Tooltip text="Replace the current tiling by its dual" />
                             </tooltip>
                         </Button>
-                        <Separator layoutX="20.0" layoutY="140.0" prefWidth="200.0"/>
-                        <Button fx:id="splitTileButton" layoutX="20.0" layoutY="176.0" maxWidth="1.7976931348623157E308"
-                                mnemonicParsing="false" style="-fx-font-size: 12;" text="Split Tile">
+                        <Separator layoutX="20.0" layoutY="140.0" prefWidth="200.0" />
+                        <Button fx:id="splitTileButton" layoutX="20.0" layoutY="176.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-font-size: 12;" text="Split Tile">
                             <tooltip>
-                                <Tooltip text="Replace the current tiling by its dual"/>
+                                <Tooltip text="Replace the current tiling by its dual" />
                             </tooltip>
                         </Button>
-                        <Button fx:id="glueTilesButton" layoutX="20.0" layoutY="212.0" maxWidth="1.7976931348623157E308"
-                                mnemonicParsing="false" style="-fx-font-size: 12;" text="Glue Tiles">
+                        <Button fx:id="glueTilesButton" layoutX="20.0" layoutY="212.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-font-size: 12;" text="Glue Tiles">
                             <tooltip>
-                                <Tooltip text="Replace the current tiling by its dual"/>
+                                <Tooltip text="Replace the current tiling by its dual" />
                             </tooltip>
                         </Button>
                     </children>
                 </VBox>
             </content>
         </TitledPane>
-        <Button fx:id="stopAnimationButton" cancelButton="true" minHeight="-Infinity" mnemonicParsing="false"
-                prefHeight="23.0" text="Animation" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="130.0">
+        <Button fx:id="stopAnimationButton" cancelButton="true" minHeight="-Infinity" mnemonicParsing="false" prefHeight="23.0" text="Animation" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="130.0">
             <graphic>
                 <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                     <image>
-                        <Image url="/tegula/resources/icons/Close16.gif"/>
+                        <Image url="/tegula/resources/icons/Close16.gif" />
                     </image>
                 </ImageView>
             </graphic>
             <font>
-                <Font size="12.0"/>
+                <Font size="12.0" />
             </font>
             <tooltip>
-                <Tooltip text="Stop animation"/>
+                <Tooltip text="Stop animation" />
             </tooltip>
         </Button>
     </children>

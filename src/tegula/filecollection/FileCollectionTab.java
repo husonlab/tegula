@@ -99,7 +99,7 @@ public class FileCollectionTab extends Tab implements ICollectionTab, Closeable,
 
         setContent(root);
 
-        this.tilingStyle = new TilingStyle();
+        tilingStyle = new TilingStyle();
         tilingStyle.setShowEdges(true);
         tilingStyle.setBandWidth(4);
         tilingStyle.setBandCapFineness(0);
@@ -108,7 +108,8 @@ public class FileCollectionTab extends Tab implements ICollectionTab, Closeable,
         tilingStyle.setShowVertices(false);
         tilingStyle.setBandColor(Color.BLACK);
         tilingStyle.setBackgroundColor(Color.GHOSTWHITE);
-        tilingStyle.setTileColorsScheme("Retro29");
+        tilingStyle.setTileColorsScheme("Alhambra");
+        tilingStyle.setSphericalUsePointLight(false);
 
         colorPreview.addListener((c, o, n) -> {
             tilingStyle.setShowFaces(n);

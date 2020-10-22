@@ -48,6 +48,8 @@ public class TilingStyle {
     private final BooleanProperty showVertices = new SimpleBooleanProperty(false);
     private final BooleanProperty showBackVertices = new SimpleBooleanProperty(false);
 
+    private final BooleanProperty sphericalUsePointLight = new SimpleBooleanProperty(true);
+
     private final BooleanProperty smoothEdges = new SimpleBooleanProperty(true);
 
     private final ObservableList<Color> tileColors = FXCollections.observableArrayList();
@@ -108,6 +110,8 @@ public class TilingStyle {
         setShowHandles(src.isShowHandles());
         setShowSymmetryIcons(src.isShowSymmetryIcons());
         setShowDecorations(src.getShowDecorations());
+
+        setSphericalUsePointLight(src.isSphericalUsePointLight());
     }
 
     public void setTileColorsScheme(String colorSchemeName) {
@@ -272,6 +276,18 @@ public class TilingStyle {
 
     public void setShowBackVertices(boolean showBackVertices) {
         this.showBackVertices.set(showBackVertices);
+    }
+
+    public boolean isSphericalUsePointLight() {
+        return sphericalUsePointLight.get();
+    }
+
+    public BooleanProperty sphericalUsePointLightProperty() {
+        return sphericalUsePointLight;
+    }
+
+    public void setSphericalUsePointLight(boolean sphericalUsePointLight) {
+        this.sphericalUsePointLight.set(sphericalUsePointLight);
     }
 
     public boolean isBendAnEdge() {

@@ -47,7 +47,6 @@ public class Animator {
 
     /**
      * setup animation
-     *
      */
     public Animator(TilingPane tilingPane) {
         this.tilingPane = tilingPane;
@@ -61,7 +60,6 @@ public class Animator {
 
     /**
      * set a rotational animation
-     *
      */
     public void set(final Point3D rotationalAxis, double angle, final long millis) {
         dx = dy = 0;
@@ -79,7 +77,6 @@ public class Animator {
 
     /**
      * set a translational animation
-     *
      */
     public void set(final double dx0, final double dy0, final long millis) {
         angle = 0;

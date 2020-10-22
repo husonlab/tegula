@@ -235,26 +235,33 @@ public class TilingPane extends StackPane implements Updateable {
         }
 
         switch (getGeometry()) {
-            case Spherical:
-                if (!universe.getChildren().contains(pointLight))
-                    universe.getChildren().add(pointLight);
-                universe.getChildren().remove(ambientLight);
+            case Spherical: {
+                if (tilingStyle.isSphericalUsePointLight()) {
+                    if (!universe.getChildren().contains(pointLight))
+                        universe.getChildren().add(pointLight);
+                    universe.getChildren().remove(ambientLight);
+                } else {
+                    universe.getChildren().remove(pointLight);
+                    if (!universe.getChildren().contains(ambientLight))
+                        universe.getChildren().add(ambientLight);
+                }
                 Platform.runLater(() -> {
                     CameraSettings.setupSphericalCamera(getCamera());
                 });
                 break;
-// need to do this later because tilings are built in separate thread when reading file
-            case Hyperbolic:
+            }
+            case Hyperbolic: {
                 universe.getChildren().remove(pointLight);
                 if (!universe.getChildren().contains(ambientLight))
                     universe.getChildren().add(ambientLight);
+
                 Platform.runLater(() -> {
                             CameraSettings.setupHyperbolicCamera(getCamera(), hyperbolicModel.get(), false);
                         }
                 );
                 break;
-//Add rectangles for debugging
-            case Euclidean:
+            }
+            case Euclidean: {
                 universe.getChildren().remove(pointLight);
                 if (!universe.getChildren().contains(ambientLight))
                     universe.getChildren().add(ambientLight);
@@ -277,6 +284,7 @@ public class TilingPane extends StackPane implements Updateable {
                     //System.err.println(String.format("Rect: %.1f x %.1f", rect.getWidth(), rect.getHeight()));
                 }
                 break;
+            }
         }
         tiles.getChildren().setAll(getTiling().update().getChildren());
 

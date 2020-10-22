@@ -154,6 +154,7 @@ public class Orbit {
     public int[] getOp() {
         return op;
     }
+
     public void setOp(int i, int value) {
         if (i >= op.length) {
             final int[] old = op;

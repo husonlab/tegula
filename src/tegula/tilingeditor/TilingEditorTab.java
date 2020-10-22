@@ -131,19 +131,19 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
         tilingPane.lastDSymbolUpdateProperty().addListener((e) -> {
             geometry.set(dSymbol.computeGeometry());
             maximalTiling.set(DSymbolAlgorithms.isMaximalSymmetry(getTiling().getDSymbol()));
-            orientableTiling.set(getTiling().getDSymbol().computeOrientation() == 2);
-            diskTiling.set(DSymbolAlgorithms.allTilesAreDisks(getTiling().getDSymbol()));
-            groupName.setValue(OrbifoldGroupName.getGroupName(getTiling().getDSymbol()));
-            infoLine.setValue(String.format("n:%d t:%d e:%d v:%d g:%s %s", getTiling().getDSymbol().size(), getTiling().getDSymbol().countOrbits(0, 1),
-                    getTiling().getDSymbol().countOrbits(0, 2), getTiling().getDSymbol().countOrbits(1, 2),
+            orientableTiling.set(dSymbol.computeOrientation() == 2);
+            diskTiling.set(DSymbolAlgorithms.allTilesAreDisks(dSymbol));
+            groupName.setValue(OrbifoldGroupName.getGroupName(dSymbol));
+            infoLine.setValue(String.format("Tiling %d - n:%d t:%d e:%d v:%d g:%s %s", dSymbol.getNr1(), dSymbol.size(), dSymbol.countOrbits(0, 1),
+                    getTiling().getDSymbol().countOrbits(0, 2), dSymbol.countOrbits(1, 2),
                     getGroupName(),
                     // DSymbolAlgorithms.computeSignature(getTiling().getDSymbol())+
                     (isMaximalTiling() ? " max" : "") + (isOrientableTiling() ? " orient." : "") + (isDiskTiling() ? "" : " non-disks"))
                     + (DSymbolAlgorithms.isNormal(getTiling().getDSymbol()) ? " normal" : "")
                     + String.format(" (objects: %,d)", computeSize(tilingPane.getWorld())));
 
-            canDualizeTiling.set(!Isomorphic.isomorphic(getTiling().getDSymbol(), DSymbolAlgorithms.dualize(getTiling().getDSymbol())));
-            SelectionSupport.setupSelection(getTiling().getDSymbol(), vertexSelection, edgeSelection, tileSelection);
+            canDualizeTiling.set(!Isomorphic.isomorphic(dSymbol, DSymbolAlgorithms.dualize(dSymbol)));
+            SelectionSupport.setupSelection(dSymbol, vertexSelection, edgeSelection, tileSelection);
             updateCanContractEdge();
             updateCanGlueTiles();
         });

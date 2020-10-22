@@ -81,7 +81,7 @@ public class DBCollection implements Closeable, IFileBased {
     }
 
     public int getNumberOfPages() {
-       return (int) Math.ceil((float) getCount() / getPageSize());
+        return (int) Math.ceil((float) getCount() / getPageSize());
     }
 
     public int getNumberOfDSymbolsOnPage(int pageNumber) {

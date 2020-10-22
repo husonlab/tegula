@@ -287,6 +287,16 @@ public class ControlBindings {
                         }));
         });
 
+
+        controller.getPointLightRadioButton().selectedProperty().addListener((c, o, n) -> {
+            undoManager.doAndAdd(new UndoableChangeProperty<>("point lighting",
+                    tilingStyle.sphericalUsePointLightProperty(), !n, n,
+                    (v) -> {
+                        tilingPane.update();
+                    }));
+
+        });
+
         controller.getShowBackNodesToggleButton().setSelected(tilingStyle.isShowBackVertices());
         controller.getShowBackNodesToggleButton().setOnAction((e) -> {
             if (!undoManager.isPerformingUndoOrRedo())
@@ -391,6 +401,12 @@ public class ControlBindings {
         tilingPane.geometryProperty().addListener((c, o, n) -> {
             if (n != Geometry.Hyperbolic)
                 controller.getHyperbolicModelTitledPane().setExpanded(false);
+        });
+
+        controller.getSphericalLightingTitledPane().disableProperty().bind(tilingPane.geometryProperty().isNotEqualTo(Geometry.Spherical));
+        tilingPane.geometryProperty().addListener((c, o, n) -> {
+            if (n != Geometry.Spherical)
+                controller.getSphericalLightingTitledPane().setExpanded(false);
         });
     }
 }

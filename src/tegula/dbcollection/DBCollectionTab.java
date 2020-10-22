@@ -106,7 +106,8 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
         tilingStyle.setShowVertices(false);
         tilingStyle.setBandColor(Color.BLACK);
         tilingStyle.setBackgroundColor(Color.GHOSTWHITE);
-        tilingStyle.setTileColorsScheme("Retro29");
+        tilingStyle.setTileColorsScheme("Alhambra");
+        tilingStyle.setSphericalUsePointLight(false);
 
         colorPreview.addListener((c, o, n) -> {
             tilingStyle.setShowFaces(n);
