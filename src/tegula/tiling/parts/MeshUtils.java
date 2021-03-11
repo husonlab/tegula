@@ -114,7 +114,7 @@ public class MeshUtils {
                         if (pos == null) {
                             pos = count++;
                             point2index.put(point, pos);
-                            newMesh.getPoints().addAll(point.get1(), point.get2(), point.get3());
+                            newMesh.getPoints().addAll(point.getFirst(), point.getSecond(), point.getThird());
                         }
                         index[p++] = pos;
                     }
