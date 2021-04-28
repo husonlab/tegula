@@ -24,7 +24,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
-<AnchorPane fx:id="anchorPane" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+<AnchorPane fx:id="anchorPane" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="tegula.main.MainWindowController">
     <children>
         <BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
@@ -132,6 +132,9 @@
                                 </Menu>
                                 <Menu fx:id="viewMenu" text="View">
                                     <items>
+                                        <CheckMenuItem fx:id="useDarkThemeCheckMenuItem" mnemonicParsing="false"
+                                                       text="Use Dark Theme"/>
+                                        <SeparatorMenuItem mnemonicParsing="false"/>
                                         <CheckMenuItem fx:id="showLabelsMenuItem" text="Show Labels">
                                             <accelerator>
                                                 <KeyCodeCombination alt="UP" code="L" control="UP" meta="UP"
@@ -346,11 +349,11 @@
                 </VBox>
             </top>
             <center>
-                <StackPane fx:id="centerPane" prefHeight="150.0" prefWidth="200.0">
+                <StackPane fx:id="centerPane" prefHeight="160.0" prefWidth="220.0">
                     <children>
                         <TextArea fx:id="infoTextArea" editable="false" focusTraversable="false" maxHeight="-Infinity"
                                   maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefColumnCount="35"
-                                  prefRowCount="8"
+                                  prefRowCount="9"
                                   style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-image-width: 0; -fx-text-box-border: transparent; -fx-background-insets: 0;"
                                   text="&#10;To get started, download and unzip a database of tilings from:&#10;&#10;https://software-ab.informatik.uni-tuebingen.de/download/tegula&#10;&#10;Then open the file using the File-&gt;Open menu item.&#10;&#10;"
                                   wrapText="true"/>

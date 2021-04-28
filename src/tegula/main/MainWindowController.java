@@ -205,66 +205,12 @@ public class MainWindowController {
     @FXML
     private TextArea infoTextArea;
 
+
+    @FXML
+    private CheckMenuItem useDarkThemeCheckMenuItem;
+
     @FXML
     void initialize() {
-        assert anchorPane != null : "fx:id=\"anchorPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert borderPane != null : "fx:id=\"borderPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert menuBar != null : "fx:id=\"menuBar\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert fileMenu != null : "fx:id=\"fileMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert newMenuItem != null : "fx:id=\"newMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert openMenuItem != null : "fx:id=\"openMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert saveSelectedMenuItem != null : "fx:id=\"saveSelectedMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert openRecentMenu != null : "fx:id=\"openRecentMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert pageSetupMenuItem != null : "fx:id=\"pageSetupMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert printMenuItem != null : "fx:id=\"printMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert closeMenuItem != null : "fx:id=\"closeMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert quitMenuItem != null : "fx:id=\"quitMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert editMenu != null : "fx:id=\"editMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert undoMenuItem != null : "fx:id=\"undoMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert redoMenuItem != null : "fx:id=\"redoMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert copyMenuItem != null : "fx:id=\"copyMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert pasteMenuItem != null : "fx:id=\"pasteMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert selectAllMenuItem != null : "fx:id=\"selectAllMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert selectNoneMenuItem != null : "fx:id=\"selectNoneMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert openInEditorMenuItem != null : "fx:id=\"openInEditorMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert viewMenu != null : "fx:id=\"viewMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert showLabelsMenuItem != null : "fx:id=\"showLabelsMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert colorPreviewMenuItem != null : "fx:id=\"colorPreviewMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert showChambersMenuItem != null : "fx:id=\"showChambersMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert showMoreTilesMenuItem != null : "fx:id=\"showMoreTilesMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert showLessTilesMenuItem != null : "fx:id=\"showLessTilesMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert zoomInMenuItem != null : "fx:id=\"zoomInMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert zoomOutMenuItem != null : "fx:id=\"zoomOutMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert setMaxCopiesHyperbolicMenuItem != null : "fx:id=\"setMaxCopiesHyperbolicMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert setMaxCopiesEuclideanMenuItem != null : "fx:id=\"setMaxCopiesEuclideanMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert resetMenuItem != null : "fx:id=\"resetMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert fullScreenMenuItem != null : "fx:id=\"fullScreenMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert tilingsMenu != null : "fx:id=\"tilingsMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert firstPageMenuItem != null : "fx:id=\"firstPageMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert lastPageMenuItem != null : "fx:id=\"lastPageMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert choosePageMenuItem != null : "fx:id=\"choosePageMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert dualizeMenuItem != null : "fx:id=\"dualizeMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert maxSymmetryMenuItem != null : "fx:id=\"maxSymmetryMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert orientateMenuItem != null : "fx:id=\"orientateMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert straightenMenuItem != null : "fx:id=\"straightenMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert windowMenu != null : "fx:id=\"windowMenu\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert aboutMenuItem != null : "fx:id=\"aboutMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert checkForUpdatesMenuItem != null : "fx:id=\"checkForUpdatesMenuItem\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert mainToolBar != null : "fx:id=\"mainToolBar\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert mainSplitPane != null : "fx:id=\"mainSplitPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert centerPane != null : "fx:id=\"centerPane\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert statusBar != null : "fx:id=\"statusBar\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert memoryUsageLabel != null : "fx:id=\"memoryUsageLabel\" was not injected: check your FXML file 'MainWindow.fxml'.";
-
-        assert openButton != null : "fx:id=\"openButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert printButton != null : "fx:id=\"printButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert zoomInButton != null : "fx:id=\"zoomInButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert zoomOutButton != null : "fx:id=\"zoomOutButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert undoButton != null : "fx:id=\"undoButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert redoButton != null : "fx:id=\"redoButton\" was not injected: check your FXML file 'MainWindow.fxml'.";
-        assert infoTextArea != null : "fx:id=\"infoTextArea\" was not injected: check your FXML file 'MainWindow.fxml'.";
-
-
         // if we are running on MacOS, put the specific menu items in the right places
         if (ProgramProperties.isMacOS()) {
             getMenuBar().setUseSystemMenuBar(true);
@@ -501,5 +447,9 @@ public class MainWindowController {
 
     public TextArea getInfoTextArea() {
         return infoTextArea;
+    }
+
+    public CheckMenuItem getUseDarkThemeCheckMenuItem() {
+        return useDarkThemeCheckMenuItem;
     }
 }
