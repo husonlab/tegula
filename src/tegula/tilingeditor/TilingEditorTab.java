@@ -84,10 +84,10 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
     /**
      * constructor
      *
-     * @param dSymbol
+     * @param dSymbol0
      * @param name
      */
-    public TilingEditorTab(DSymbol dSymbol, String name) {
+    public TilingEditorTab(DSymbol dSymbol0, String name) {
         setFileName(name);
         setText(getTitle());
 
@@ -106,7 +106,7 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
 
         setContent(root);
 
-        tilingPane = new TilingPane(dSymbol, tilingStyle);
+        tilingPane = new TilingPane(dSymbol0, tilingStyle);
 
         controller.getMainPane().getChildren().add(tilingPane);
 
@@ -128,7 +128,8 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
         GroupEditingControls.setup(this);
         TileColorControls.setup(this);
 
-        tilingPane.lastDSymbolUpdateProperty().addListener((e) -> {
+        tilingPane.lastDSymbolUpdateProperty().addListener(e -> {
+            DSymbol dSymbol = getTiling().getDSymbol();
             geometry.set(dSymbol.computeGeometry());
             maximalTiling.set(DSymbolAlgorithms.isMaximalSymmetry(getTiling().getDSymbol()));
             orientableTiling.set(dSymbol.computeOrientation() == 2);

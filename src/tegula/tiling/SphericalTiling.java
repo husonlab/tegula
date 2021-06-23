@@ -23,6 +23,7 @@ import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
+import jloda.fx.window.NotificationManager;
 import tegula.core.dsymbols.DSymbol;
 import tegula.main.TilingStyle;
 import tegula.tiling.parts.OctTree;
@@ -90,6 +91,10 @@ public class SphericalTiling extends TilingBase implements TilingCreator {
             }
 
             while (queue.size() > 0) {
+                if (queue.size() >= 1000) {
+                    NotificationManager.showError("Internal error");
+                    break;
+                }
                 final Transform t = queue.poll(); // remove t from queue
 
                 for (Transform g : generators.getTransforms()) {
