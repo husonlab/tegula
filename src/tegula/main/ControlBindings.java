@@ -495,7 +495,7 @@ public class ControlBindings {
         AnchorPane.setLeftAnchor(controller.getInfoTextArea(), 50.0);
         controller.getInfoTextArea().visibleProperty().bind(Bindings.size(window.getMainTabPane().getTabs()).isEqualTo(0));
 
-        controller.getUseDarkThemeCheckMenuItem().selectedProperty().addListener(MainWindowManager.getUseDarkThemeListener(window));
+        controller.getUseDarkThemeCheckMenuItem().selectedProperty().bindBidirectional(MainWindowManager.useDarkThemeProperty());
         controller.getUseDarkThemeCheckMenuItem().setSelected(MainWindowManager.isUseDarkTheme());
     }
 }
