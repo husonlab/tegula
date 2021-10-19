@@ -22,7 +22,7 @@ package tegula.dbcollection;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
-import jloda.util.Basic;
+import jloda.util.StringUtils;
 import tegula.core.dsymbols.SymmetryClass;
 
 /**
@@ -113,8 +113,8 @@ public class DBCollectionControlBindings {
 
         controller.getSymmetryClassCBox().getItems().add("All");
 
-        controller.getSymmetryClassCBox().getItems().addAll(Basic.toStrings(SymmetryClass.values()));
-        controller.getSymmetryClassCBox().setOnAction(onActionHandler);
+		controller.getSymmetryClassCBox().getItems().addAll(StringUtils.toStrings(SymmetryClass.values()));
+		controller.getSymmetryClassCBox().setOnAction(onActionHandler);
 
         controller.getSearchCBox().setOnAction((c) -> dbCollectionTab.processDBSelect(controller.getSearchCBox().getValue(), 0));
 

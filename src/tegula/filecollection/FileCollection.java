@@ -20,7 +20,7 @@
 package tegula.filecollection;
 
 import javafx.beans.property.*;
-import jloda.util.Basic;
+import jloda.util.FileUtils;
 import jloda.util.ProgramProperties;
 import tegula.core.dsymbols.DSymbol;
 import tegula.util.IFileBased;
@@ -124,7 +124,7 @@ public class FileCollection implements Closeable, IFileBased {
 
     @Override
     public String getTitle() {
-        return String.format("%s - %s", Basic.getFileNameWithoutPath(getFileName()), ProgramProperties.getProgramVersion());
+		return String.format("%s - %s", FileUtils.getFileNameWithoutPath(getFileName()), ProgramProperties.getProgramVersion());
     }
 
     public ArrayList<String> getLines() {

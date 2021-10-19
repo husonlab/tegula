@@ -22,6 +22,7 @@ package tegula.core.dsymbols;
 import jloda.util.Basic;
 import jloda.util.BitSetUtils;
 import jloda.util.Single;
+import jloda.util.StringUtils;
 
 import java.io.*;
 import java.util.*;
@@ -743,8 +744,8 @@ public class DSymbol {
                     int m = scanner.nextInt();
                     setMij(i, i + 1, a, m);
                     if (debug) {
-                        System.err.println("setM" + i + "" + (i + 1) + "(" + a + ")=" + m);
-                        System.err.println("orbit(" + i + "," + (i + 1) + "," + a + "): " + Basic.toString(orbitMembers(i, i + 1, a), " "));
+						System.err.println("setM" + i + "" + (i + 1) + "(" + a + ")=" + m);
+						System.err.println("orbit(" + i + "," + (i + 1) + "," + a + "): " + StringUtils.toString(orbitMembers(i, i + 1, a), " "));
                     }
                 }
             }
@@ -753,7 +754,7 @@ public class DSymbol {
             }
             if (debug) {
                 for (int a : orbits(0, 2)) {
-                    System.err.println("orbit(0,2," + a + "): " + Basic.toString(orbitMembers(0, 2, a), " "));
+					System.err.println("orbit(0,2," + a + "): " + StringUtils.toString(orbitMembers(0, 2, a), " "));
                 }
             }
 

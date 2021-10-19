@@ -29,7 +29,7 @@ import jloda.fx.util.ExtendedFXMLLoader;
 import jloda.fx.util.MemoryUsage;
 import jloda.fx.window.IMainWindow;
 import jloda.fx.window.SetupWindowMenu;
-import jloda.util.FileOpenManager;
+import jloda.fx.util.FileOpenManager;
 import jloda.util.ProgramProperties;
 import tegula.dbcollection.DBCollectionTab;
 import tegula.filecollection.FileCollectionTab;

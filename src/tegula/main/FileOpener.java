@@ -23,6 +23,7 @@ import jloda.fx.util.RecentFilesManager;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.NotificationManager;
 import jloda.util.Basic;
+import jloda.util.FileUtils;
 import jloda.util.ProgramProperties;
 import tegula.dbcollection.DBCollection;
 import tegula.dbcollection.DBCollectionTab;
@@ -67,9 +68,9 @@ public class FileOpener implements Consumer<String> {
 
                     final DBCollection dbCollection = new DBCollection(file.getPath());
                     final DBCollectionTab dbCollectionTab = new DBCollectionTab(toUse, dbCollection);
-                    toUse.getMainTabPane().getTabs().add(dbCollectionTab);
-                    toUse.getStage().setTitle(Basic.getFileNameWithoutPath(fileName) + " - " + ProgramProperties.getProgramName());
-                    RecentFilesManager.getInstance().insertRecentFile(file.getPath());
+					toUse.getMainTabPane().getTabs().add(dbCollectionTab);
+					toUse.getStage().setTitle(FileUtils.getFileNameWithoutPath(fileName) + " - " + ProgramProperties.getProgramName());
+					RecentFilesManager.getInstance().insertRecentFile(file.getPath());
                 } catch (IOException | SQLException ex) {
                     NotificationManager.showError(("Open failed: " + ex.getMessage()));
                 }

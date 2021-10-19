@@ -20,6 +20,7 @@
 package tegula.db;
 
 import jloda.util.Basic;
+import jloda.util.FileUtils;
 import org.sqlite.SQLiteConfig;
 
 import java.io.Closeable;
@@ -44,8 +45,8 @@ public class DatabaseAccess implements Closeable {
      * @throws SQLException
      */
     public DatabaseAccess(String dbFile) throws IOException, SQLException {
-        if (!Basic.fileExistsAndIsNonEmpty(dbFile))
-            throw new IOException("File not found or unreadable: " + dbFile);
+		if (!FileUtils.fileExistsAndIsNonEmpty(dbFile))
+			throw new IOException("File not found or unreadable: " + dbFile);
 
         final SQLiteConfig config = new SQLiteConfig();
 

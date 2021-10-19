@@ -28,14 +28,13 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import jloda.fx.dialog.SetIntegerParameterDialog;
 import jloda.fx.undo.UndoableRedoableCommand;
+import jloda.fx.util.FileOpenManager;
 import jloda.fx.util.Print;
 import jloda.fx.util.Printable;
 import jloda.fx.util.RecentFilesManager;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.NotificationManager;
-import jloda.util.Basic;
-import jloda.util.FileOpenManager;
-import jloda.util.ProgramProperties;
+import jloda.util.*;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.Geometry;
 import tegula.dbcollection.ICollectionTab;
@@ -181,7 +180,7 @@ public class ControlBindings {
                         list.addAll(((ICollectionTab) tab).getSelectionModel().getSelectedItems());
                     }
                     try (final BufferedWriter w = new BufferedWriter(new FileWriter(selectedFile, true))) {
-                        w.write(Basic.toString(list, "\n") + "\n");
+						w.write(StringUtils.toString(list, "\n") + "\n");
                     } catch (IOException ex) {
                         Basic.caught(ex);
                         NotificationManager.showError("Save selection failed: " + ex.getMessage());
@@ -244,7 +243,7 @@ public class ControlBindings {
                 final ICollectionTab tab = (ICollectionTab) selectedTab.get();
                 final Collection<DSymbol> symbols = Basic.reverse(tab.getSelectionModel().getSelectedItems());
                 for (DSymbol dSymbol : symbols) {
-                    final TilingEditorTab editorTab = new TilingEditorTab(new DSymbol(dSymbol), Basic.replaceFileSuffix(Basic.getFileNameWithoutPath(tab.getFileName()), "-" + dSymbol.getNr1()));
+					final TilingEditorTab editorTab = new TilingEditorTab(new DSymbol(dSymbol), FileUtils.replaceFileSuffix(FileUtils.getFileNameWithoutPath(tab.getFileName()), "-" + dSymbol.getNr1()));
                     window.getMainTabPane().getTabs().add(editorTab);
                     window.getMainTabPane().getSelectionModel().select(editorTab);
                 }

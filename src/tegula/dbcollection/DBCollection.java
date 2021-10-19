@@ -23,6 +23,7 @@ import javafx.beans.property.*;
 import jloda.fx.util.AService;
 import jloda.fx.window.NotificationManager;
 import jloda.util.Basic;
+import jloda.util.FileUtils;
 import jloda.util.ProgramProperties;
 import tegula.core.dsymbols.DSymbol;
 import tegula.db.DatabaseAccess;
@@ -172,9 +173,9 @@ public class DBCollection implements Closeable, IFileBased {
     @Override
     public String getTitle() {
         if (getDbSelect().length() == 0)
-            return String.format("%s - %s", Basic.getFileNameWithoutPath(getFileName()), ProgramProperties.getProgramVersion());
+			return String.format("%s - %s", FileUtils.getFileNameWithoutPath(getFileName()), ProgramProperties.getProgramVersion());
         else
-            return String.format("%s (%s) - %s", Basic.getFileNameWithoutPath(getFileName()), getDbSelect(), ProgramProperties.getProgramVersion());
+			return String.format("%s (%s) - %s", FileUtils.getFileNameWithoutPath(getFileName()), getDbSelect(), ProgramProperties.getProgramVersion());
     }
 
     public float getDbVersion() {

@@ -31,6 +31,7 @@ import javafx.scene.shape.MeshView;
 import jloda.fx.control.AnotherMultipleSelectionModel;
 import jloda.util.Basic;
 import jloda.util.Pair;
+import jloda.util.StringUtils;
 import tegula.core.dsymbols.DSymbol;
 import tegula.main.TilingStyle;
 
@@ -174,7 +175,7 @@ public class SelectionSupport {
 
     public static Pair<Character, Integer> getTypeAndId(Node node) {
         if (node.getId() != null) {
-            final String[] tokens = Basic.split(node.getId(), '=');
+			final String[] tokens = StringUtils.split(node.getId(), '=');
             if (tokens.length == 2 && (tokens[0].equals("v") || tokens[0].equals("e") || tokens[0].equals("t")) && Basic.isInteger(tokens[1]))
                 return new Pair<>(tokens[0].charAt(0), Basic.parseInt(tokens[1]));
         }

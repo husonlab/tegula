@@ -19,10 +19,7 @@
 
 package tegula.core.dsymbols;
 
-import jloda.util.Basic;
-import jloda.util.BitSetUtils;
-import jloda.util.Pair;
-import jloda.util.Single;
+import jloda.util.*;
 
 import java.util.*;
 
@@ -784,7 +781,7 @@ public class DSymbolAlgorithms {
         for (int a : ds.orbits(0, 1))
             list.add(ds.getM01(a));
         list.sort(Integer::compare);
-        return Basic.toString(list, " ");
+		return StringUtils.toString(list, " ");
     }
 
     public static String computeVertexDegrees(DSymbol ds) {
@@ -792,7 +789,7 @@ public class DSymbolAlgorithms {
         for (int a : ds.orbits(1, 2))
             list.add(ds.getM12(a));
         list.sort(Integer::compare);
-        return Basic.toString(list, " ");
+		return StringUtils.toString(list, " ");
     }
 
     /**

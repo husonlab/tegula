@@ -20,6 +20,7 @@
 package tegula.core.dsymbols;
 
 import jloda.util.Basic;
+import jloda.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -38,7 +39,7 @@ public class OrbifoldGroupName {
      * @return orbifold group name
      */
     public static String getGroupName(DSymbol dSymbol) {
-        return Basic.toString(getGroupNameAsList(dSymbol), "");
+		return StringUtils.toString(getGroupNameAsList(dSymbol), "");
     }
 
     /**

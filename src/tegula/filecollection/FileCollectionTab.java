@@ -35,6 +35,7 @@ import jloda.fx.util.Printable;
 import jloda.fx.util.ProgramExecutorService;
 import jloda.fx.window.NotificationManager;
 import jloda.util.Basic;
+import jloda.util.FileUtils;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.DSymbolAlgorithms;
 import tegula.core.dsymbols.OrbifoldGroupName;
@@ -87,21 +88,21 @@ public class FileCollectionTab extends Tab implements ICollectionTab, Closeable,
      * @param fileCollection
      */
     public FileCollectionTab(MainWindow mainWindow, FileCollection fileCollection) {
-        this.mainWindow = mainWindow;
-        this.fileCollection = fileCollection;
+		this.mainWindow = mainWindow;
+		this.fileCollection = fileCollection;
 
-        setText(Basic.getFileNameWithoutPath(fileCollection.getFileName()));
-        fileCollection.fileNameProperty().addListener((c, o, n) -> setText(Basic.getFileNameWithoutPath(n)));
+		setText(FileUtils.getFileNameWithoutPath(fileCollection.getFileName()));
+		fileCollection.fileNameProperty().addListener((c, o, n) -> setText(FileUtils.getFileNameWithoutPath(n)));
 
-        final ExtendedFXMLLoader<FileCollectionTabController> extendedFXMLLoader = new ExtendedFXMLLoader<>(this.getClass());
-        root = extendedFXMLLoader.getRoot();
-        controller = extendedFXMLLoader.getController();
+		final ExtendedFXMLLoader<FileCollectionTabController> extendedFXMLLoader = new ExtendedFXMLLoader<>(this.getClass());
+		root = extendedFXMLLoader.getRoot();
+		controller = extendedFXMLLoader.getController();
 
-        setContent(root);
+		setContent(root);
 
-        tilingStyle = new TilingStyle();
-        tilingStyle.setShowEdges(true);
-        tilingStyle.setBandWidth(4);
+		tilingStyle = new TilingStyle();
+		tilingStyle.setShowEdges(true);
+		tilingStyle.setBandWidth(4);
         tilingStyle.setBandCapFineness(0);
         tilingStyle.setShowFaces(false);
         tilingStyle.setTileOpacity(0.8);
@@ -143,7 +144,7 @@ public class FileCollectionTab extends Tab implements ICollectionTab, Closeable,
 
     private void processOpenFile(int pageNumber) {
         try {
-            final ArrayList<String> lines = Basic.getLinesFromFile(fileCollection.getFileName());
+			final ArrayList<String> lines = FileUtils.getLinesFromFile(fileCollection.getFileName());
 
             Platform.runLater(() -> {
                 fileCollection.setLines(lines);

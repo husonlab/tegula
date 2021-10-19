@@ -35,7 +35,7 @@ import javafx.scene.shape.Rectangle;
 import jloda.fx.control.AMultipleSelectionModel;
 import jloda.fx.util.ProgramExecutorService;
 import jloda.fx.util.SelectionEffect;
-import jloda.util.Basic;
+import jloda.util.FileUtils;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.DSymbolAlgorithms;
 import tegula.core.dsymbols.Geometry;
@@ -152,7 +152,7 @@ public class TilingsPane extends FlowPane {
                     selectionModel.clearSelection();
                 selectionModel.select((DSymbol) vBox.getUserData());
             } else if (e.getClickCount() == 2) {
-                final TilingEditorTab editorTab = new TilingEditorTab(new DSymbol(dSymbol), Basic.replaceFileSuffix(Basic.getFileNameWithoutPath(collectionTab.getFileName()), "-" + dSymbol.getNr1()));
+				final TilingEditorTab editorTab = new TilingEditorTab(new DSymbol(dSymbol), FileUtils.replaceFileSuffix(FileUtils.getFileNameWithoutPath(collectionTab.getFileName()), "-" + dSymbol.getNr1()));
                 collectionTab.getMainWindow().getMainTabPane().getTabs().add(editorTab);
             }
         });

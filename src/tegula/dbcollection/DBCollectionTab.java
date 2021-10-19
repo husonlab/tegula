@@ -34,7 +34,7 @@ import jloda.fx.util.ExtendedFXMLLoader;
 import jloda.fx.util.Printable;
 import jloda.fx.util.ProgramExecutorService;
 import jloda.fx.window.NotificationManager;
-import jloda.util.Basic;
+import jloda.util.FileUtils;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.OrbifoldGroupName;
 import tegula.main.MainWindow;
@@ -85,21 +85,21 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
      * @param dbCollection
      */
     public DBCollectionTab(MainWindow mainWindow, DBCollection dbCollection) {
-        this.mainWindow = mainWindow;
-        this.dbCollection = dbCollection;
+		this.mainWindow = mainWindow;
+		this.dbCollection = dbCollection;
 
-        setText(Basic.getFileNameWithoutPath(dbCollection.getFileName()));
-        dbCollection.fileNameProperty().addListener((c, o, n) -> setText(Basic.getFileNameWithoutPath(n)));
+		setText(FileUtils.getFileNameWithoutPath(dbCollection.getFileName()));
+		dbCollection.fileNameProperty().addListener((c, o, n) -> setText(FileUtils.getFileNameWithoutPath(n)));
 
-        final ExtendedFXMLLoader<DBCollectionTabController> extendedFXMLLoader = new ExtendedFXMLLoader<>(this.getClass());
-        root = extendedFXMLLoader.getRoot();
-        controller = extendedFXMLLoader.getController();
+		final ExtendedFXMLLoader<DBCollectionTabController> extendedFXMLLoader = new ExtendedFXMLLoader<>(this.getClass());
+		root = extendedFXMLLoader.getRoot();
+		controller = extendedFXMLLoader.getController();
 
-        setContent(root);
+		setContent(root);
 
-        this.tilingStyle = new TilingStyle();
-        tilingStyle.setShowEdges(true);
-        tilingStyle.setBandCapFineness(0);
+		this.tilingStyle = new TilingStyle();
+		tilingStyle.setShowEdges(true);
+		tilingStyle.setBandCapFineness(0);
         tilingStyle.setBandWidth(4);
         tilingStyle.setShowFaces(false);
         tilingStyle.setTileOpacity(0.8);

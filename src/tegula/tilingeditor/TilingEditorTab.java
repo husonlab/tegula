@@ -30,7 +30,7 @@ import jloda.fx.undo.UndoManager;
 import jloda.fx.util.ExtendedFXMLLoader;
 import jloda.fx.util.Printable;
 import jloda.fx.util.RecentFilesManager;
-import jloda.util.Basic;
+import jloda.util.FileUtils;
 import tegula.core.dsymbols.*;
 import tegula.fdomaineditor.FDomainEditor;
 import tegula.main.TilingStyle;
@@ -226,7 +226,7 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
     }
 
     public String getTitle() {
-        return Basic.replaceFileSuffix(Basic.getFileNameWithoutPath(fileName.get()), "");
+		return FileUtils.replaceFileSuffix(FileUtils.getFileNameWithoutPath(fileName.get()), "");
     }
 
     public TilingStyle getTilingStyle() {
