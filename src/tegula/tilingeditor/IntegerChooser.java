@@ -25,7 +25,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
-import jloda.util.Basic;
+import jloda.util.NumberUtils;
 
 /**
  * simple integer value control
@@ -76,8 +76,8 @@ public class IntegerChooser extends HBox {
                 textField.setText("0");
         });
         textField.setOnAction((e) -> {
-            if (Basic.isInteger(textField.getText()))
-                setValue(Basic.parseInt(textField.getText()));
+            if (NumberUtils.isInteger(textField.getText()))
+                setValue(NumberUtils.parseInt(textField.getText()));
             else Platform.runLater(() -> textField.setText("" + getValue()));
         });
     }

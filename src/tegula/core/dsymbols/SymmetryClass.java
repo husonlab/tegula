@@ -19,7 +19,7 @@
 
 package tegula.core.dsymbols;
 
-import jloda.util.Basic;
+import jloda.util.NumberUtils;
 
 import java.util.ArrayList;
 
@@ -45,20 +45,20 @@ public enum SymmetryClass {
         int cones = 0;
         boolean inLeading = true;
         for (String part : list) {
-            if (part.startsWith("(") && part.endsWith(")"))
-                part = part.substring(1, part.length() - 1);
-            if (Basic.isInteger(part)) {
-                if (Basic.parseInt(part) > 1) {
-                    if (inLeading)
-                        cones++;
-                }
-            } else if (inLeading)
-                inLeading = false;
-            if (part.equals("*"))
-                stars++;
-            if (part.equals("o"))
-                circles++;
-            if (part.equals("x"))
+			if (part.startsWith("(") && part.endsWith(")"))
+				part = part.substring(1, part.length() - 1);
+			if (NumberUtils.isInteger(part)) {
+				if (NumberUtils.parseInt(part) > 1) {
+					if (inLeading)
+						cones++;
+				}
+			} else if (inLeading)
+				inLeading = false;
+			if (part.equals("*"))
+				stars++;
+			if (part.equals("o"))
+				circles++;
+			if (part.equals("x"))
                 crosses++;
         }
 

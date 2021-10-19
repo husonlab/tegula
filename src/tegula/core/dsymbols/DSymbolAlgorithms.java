@@ -755,7 +755,7 @@ public class DSymbolAlgorithms {
 
     private static String createRotatedString(ArrayList<Integer> degrees) {
         final Integer[] sorted1 = minLexRotation(degrees.toArray(new Integer[0]));
-        final Integer[] sorted2 = minLexRotation(Basic.reverse(degrees).toArray(new Integer[0]));
+		final Integer[] sorted2 = minLexRotation(CollectionUtils.reverse(degrees).toArray(new Integer[0]));
 
         final Integer[] array;
         if (Arrays.compare(sorted1, sorted2) <= 0) {

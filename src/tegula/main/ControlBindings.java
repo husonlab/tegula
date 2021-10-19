@@ -241,7 +241,7 @@ public class ControlBindings {
         controller.getOpenInEditorMenuItem().setOnAction((e) -> {
             if (selectedTab.get() instanceof ICollectionTab) {
                 final ICollectionTab tab = (ICollectionTab) selectedTab.get();
-                final Collection<DSymbol> symbols = Basic.reverse(tab.getSelectionModel().getSelectedItems());
+                final Collection<DSymbol> symbols = CollectionUtils.reverse(tab.getSelectionModel().getSelectedItems());
                 for (DSymbol dSymbol : symbols) {
 					final TilingEditorTab editorTab = new TilingEditorTab(new DSymbol(dSymbol), FileUtils.replaceFileSuffix(FileUtils.getFileNameWithoutPath(tab.getFileName()), "-" + dSymbol.getNr1()));
                     window.getMainTabPane().getTabs().add(editorTab);
@@ -428,8 +428,8 @@ public class ControlBindings {
 // Traditional way to get the response value.
             Optional<String> result = dialog.showAndWait();
             result.ifPresent(name -> {
-                if (Basic.isInteger(result.get())) {
-                    collectionTab.gotoPage(Basic.parseInt(result.get()));
+                if (NumberUtils.isInteger(result.get())) {
+                    collectionTab.gotoPage(NumberUtils.parseInt(result.get()));
                 }
             });
         });

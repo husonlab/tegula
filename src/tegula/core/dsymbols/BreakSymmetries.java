@@ -19,7 +19,7 @@
 
 package tegula.core.dsymbols;
 
-import jloda.util.Basic;
+import jloda.util.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -46,7 +46,7 @@ public class BreakSymmetries {
         while (stack.size() > 0) {
             final DSymbol ds = stack.pop();
 
-            final Set<Integer> vijs = OrbifoldGroupName.getGroupNameAsList(ds).stream().filter(Basic::isInteger).map(Basic::parseInt).collect(Collectors.toSet());
+			final Set<Integer> vijs = OrbifoldGroupName.getGroupNameAsList(ds).stream().filter(NumberUtils::isInteger).map(NumberUtils::parseInt).collect(Collectors.toSet());
 
             for (int[] ija : ds.orbitLabelsStream().filter(o -> ds.getVij(o[0], o[1], o[2]) > 1).sorted(Comparator.comparingInt(o -> ds.getVij(o[0], o[1], o[2]))).collect(Collectors.toList())) {
                 final int v = ds.getVij(ija[0], ija[1], ija[2]);
@@ -89,7 +89,7 @@ public class BreakSymmetries {
                         }
 
                         if (false && ok) {
-                            final Set<Integer> newVijs = OrbifoldGroupName.getGroupNameAsList(ds1).stream().filter(Basic::isInteger).map(Basic::parseInt).collect(Collectors.toSet());
+							final Set<Integer> newVijs = OrbifoldGroupName.getGroupNameAsList(ds1).stream().filter(NumberUtils::isInteger).map(NumberUtils::parseInt).collect(Collectors.toSet());
                             if (vijs.equals(newVijs))
                                 ok = false;
                         }

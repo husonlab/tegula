@@ -21,6 +21,7 @@ package tegula.db;
 
 import jloda.util.Basic;
 import jloda.util.FileUtils;
+import jloda.util.NumberUtils;
 import org.sqlite.SQLiteConfig;
 
 import java.io.Closeable;
@@ -130,7 +131,7 @@ public class DatabaseAccess implements Closeable {
      * @return size of the database or 0 if an error occurred
      */
     public long getDBDSize() throws SQLException {
-        return Basic.parseLong(executeQueryString("select info_String from info where id='size';", 1).get(0));
+		return NumberUtils.parseLong(executeQueryString("select info_String from info where id='size';", 1).get(0));
     }
 
     /**
@@ -140,7 +141,7 @@ public class DatabaseAccess implements Closeable {
      * @throws SQLException
      */
     public float getVersion() throws SQLException {
-        return Basic.parseFloat(executeQueryString("select info_String from info where id='version';", 1).get(0));
+		return NumberUtils.parseFloat(executeQueryString("select info_String from info where id='version';", 1).get(0));
     }
 
 

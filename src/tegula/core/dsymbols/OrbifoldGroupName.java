@@ -19,7 +19,7 @@
 
 package tegula.core.dsymbols;
 
-import jloda.util.Basic;
+import jloda.util.NumberUtils;
 import jloda.util.StringUtils;
 
 import java.util.ArrayList;
@@ -49,11 +49,11 @@ public class OrbifoldGroupName {
      * @return true, if invalid group
      */
     public static boolean isInvalidSphericalGroup(DSymbol dSymbol) {
-        final ArrayList<String> group = getGroupNameAsList(dSymbol);
-        return group.size() == 2 && group.get(0).equals("*") && Basic.isInteger(group.get(1)) ||
-                group.size() == 2 && Basic.isInteger(group.get(0)) && Basic.isInteger(group.get(1)) && Basic.parseInt(group.get(0)) != Basic.parseInt(group.get(1))
-                || group.size() == 3 && group.get(0).equals("*") && Basic.isInteger(group.get(1)) && Basic.isInteger(group.get(2)) && Basic.parseInt(group.get(1)) != Basic.parseInt(group.get(2));
-    }
+		final ArrayList<String> group = getGroupNameAsList(dSymbol);
+		return group.size() == 2 && group.get(0).equals("*") && NumberUtils.isInteger(group.get(1)) ||
+			   group.size() == 2 && NumberUtils.isInteger(group.get(0)) && NumberUtils.isInteger(group.get(1)) && NumberUtils.parseInt(group.get(0)) != NumberUtils.parseInt(group.get(1))
+			   || group.size() == 3 && group.get(0).equals("*") && NumberUtils.isInteger(group.get(1)) && NumberUtils.isInteger(group.get(2)) && NumberUtils.parseInt(group.get(1)) != NumberUtils.parseInt(group.get(2));
+	}
 
     /**
      * computes the orbifold group name
