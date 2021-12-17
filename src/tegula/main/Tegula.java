@@ -123,7 +123,6 @@ public class Tegula extends Application {
             NotificationManager.setShowNotifications(true);
 
             final MainWindow mainWindow = new MainWindow();
-            MainWindowManager.getInstance().addMainWindow(mainWindow);
 
             // todo: setup file opener
             //RecentFilesManager.getInstance().setFileOpener(FileOpenManager.fileOpener());
@@ -134,6 +133,8 @@ public class Tegula extends Application {
             for (String fileName : inputFilesAtStartup) {
                 //FileOpenManager.fileOpener().accept(fileName);
             }
+            MainWindowManager.getInstance().addMainWindow(mainWindow);
+
 
             // setup about and preferences menu for apple:
             if (false) {
