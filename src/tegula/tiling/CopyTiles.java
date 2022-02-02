@@ -42,7 +42,6 @@ public class CopyTiles {
     /**
      * copy a group of meshes, shapes and texts
      *
-     * @param group
      * @return copy of group
      */
     public static Group apply(Group group) {

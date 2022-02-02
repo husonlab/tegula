@@ -41,10 +41,7 @@ public class DatabaseAccess implements Closeable {
     /**
      * constructor
      *
-     * @param dbFile
-     * @throws IOException
-     * @throws SQLException
-     */
+	 */
     public DatabaseAccess(String dbFile) throws IOException, SQLException {
 		if (!FileUtils.fileExistsAndIsNonEmpty(dbFile))
 			throw new IOException("File not found or unreadable: " + dbFile);
@@ -69,11 +66,7 @@ public class DatabaseAccess implements Closeable {
     /**
      * gets all D-symbols that match the select expression
      *
-     * @param selectExpression
-     * @return
-     * @throws IOException
-     * @throws SQLException
-     */
+	 */
     public ArrayList<String> getDSymbols(String selectExpression) throws IOException, SQLException {
         selectExpression = selectExpression.trim();
         if (selectExpression.endsWith(";"))
@@ -93,11 +86,7 @@ public class DatabaseAccess implements Closeable {
     /**
      * gets all D-symbols that match the select expression
      *
-     * @param selectExpression
-     * @return
-     * @throws IOException
-     * @throws SQLException
-     */
+	 */
     public int countDSymbols(String selectExpression) throws IOException, SQLException {
         selectExpression = selectExpression.trim();
         if (selectExpression.endsWith(";"))
@@ -138,8 +127,7 @@ public class DatabaseAccess implements Closeable {
      * gets the database version
      *
      * @return version
-     * @throws SQLException
-     */
+	 */
     public float getVersion() throws SQLException {
 		return NumberUtils.parseFloat(executeQueryString("select info_String from info where id='version';", 1).get(0));
     }

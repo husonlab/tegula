@@ -40,8 +40,7 @@ public class GroupEditingControls {
     /**
      * update the group editing buttons
      *
-     * @param tilingEditorTab
-     */
+	 */
     public static void setup(TilingEditorTab tilingEditorTab) {
         final TilingPane tilingPane = tilingEditorTab.getTilingPane();
         final DSymbol ds = tilingPane.getTiling().getDSymbol();
@@ -113,11 +112,6 @@ public class GroupEditingControls {
     /**
      * determines whether it is ok to decrease Vij
      *
-     * @param ds
-     * @param a
-     * @param i
-     * @param j
-     * @param currentValue
      * @return true, if ok
      */
     private static boolean isOkDecreaseVij(DSymbol ds, int a, int i, int j, int currentValue) {
@@ -141,7 +135,6 @@ public class GroupEditingControls {
     /**
      * is this a spherical NN group?
      *
-     * @param ds
      * @return true, if spherical NN group
      */
     private static boolean isSphericalNN(DSymbol ds) {

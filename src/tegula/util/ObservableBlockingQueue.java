@@ -41,8 +41,7 @@ public class ObservableBlockingQueue<E> extends ObservableListBase<E> implements
      * Note that manipulations of the underlying queue will not result
      * in notification to listeners.
      *
-     * @param queue
-     */
+	 */
     public ObservableBlockingQueue(BlockingQueue<E> queue) {
         this.queue = queue;
     }

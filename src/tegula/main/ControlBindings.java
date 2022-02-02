@@ -60,8 +60,7 @@ public class ControlBindings {
     /**
      * setup all menu item bindings
      *
-     * @param window
-     */
+	 */
     public static void setup(final MainWindow window) {
         final MainWindowController controller = window.getController();
         final ReadOnlyObjectProperty<Tab> selectedTab = window.getMainTabPane().getSelectionModel().selectedItemProperty();
@@ -251,10 +250,8 @@ public class ControlBindings {
         });
         controller.getOpenInEditorMenuItem().disableProperty().bind(selectionInCollection.isEqualTo(0));
 
-        controller.getFullScreenMenuItem().setOnAction((e) -> {
-            window.getStage().setFullScreen(!window.getStage().isFullScreen());
-        });
-        window.getStage().fullScreenProperty().addListener((c, o, n) -> controller.getFullScreenMenuItem().setText(n ? "Exit Fullscreen" : "Enter Fullscreen"));
+		controller.getFullScreenMenuItem().setOnAction((e) -> window.getStage().setFullScreen(!window.getStage().isFullScreen()));
+		window.getStage().fullScreenProperty().addListener((c, o, n) -> controller.getFullScreenMenuItem().setText(n ? "Exit Fullscreen" : "Enter Fullscreen"));
 
         controller.getShowLabelsMenuItem().setOnAction((e) -> {
             if (selectedTab.get() instanceof ICollectionTab) {

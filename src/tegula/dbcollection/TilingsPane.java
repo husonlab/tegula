@@ -73,9 +73,7 @@ public class TilingsPane extends FlowPane {
     /**
      * populate with tilings
      *
-     * @param dSymbols
-     * @param dbCollectionTab
-     */
+	 */
     public void addTilings(Collection<DSymbol> dSymbols, ICollectionTab dbCollectionTab, Slider sizeSlider) {
         for (DSymbol dSymbol : dSymbols) {
             getChildren().add(setupTiling(dSymbol, dbCollectionTab, sizeSlider));
@@ -118,32 +116,30 @@ public class TilingsPane extends FlowPane {
         vBox.setUserData(dSymbol);
 
         executorService.submit(() -> {
-            final TilingStyle tilingStyle = new TilingStyle(collectionTab.getTilingStyle());
+			final TilingStyle tilingStyle = new TilingStyle(collectionTab.getTilingStyle());
 
-            final TilingPane tilingPane = new TilingPane(dSymbol, tilingStyle, true, false);
-            tilingPane.getTilingStyle().setBendAnEdge(!DSymbolAlgorithms.isMaximalSymmetry(dSymbol));
-            tilingPane.getTilingStyle().setBandWidth(tilingPane.getGeometry() == Geometry.Spherical ? 4 : 8);
-            tilingPane.setPrefWidth(0.5 * sizeSlider.getMax());
-            tilingPane.setPrefHeight(0.5 * sizeSlider.getMax());
-            new Scene(tilingPane);
+			final TilingPane tilingPane = new TilingPane(dSymbol, tilingStyle, true, false);
+			tilingPane.getTilingStyle().setBendAnEdge(!DSymbolAlgorithms.isMaximalSymmetry(dSymbol));
+			tilingPane.getTilingStyle().setBandWidth(tilingPane.getGeometry() == Geometry.Spherical ? 4 : 8);
+			tilingPane.setPrefWidth(0.5 * sizeSlider.getMax());
+			tilingPane.setPrefHeight(0.5 * sizeSlider.getMax());
+			new Scene(tilingPane);
 
-            // need to wait a short while before making a snapshot (otherwise some hyperbolic tilings will not appear)
-            Executors.newSingleThreadScheduledExecutor().schedule(() -> {
-                Platform.runLater(() -> {
-                    final ImageView imageView = new ImageView(tilingPane.snapshot(null, null));
-                    imageView.setPreserveRatio(true);
-                    imageView.setFitWidth(sizeSlider.getValue());
-                    imageView.fitWidthProperty().bind(sizeSlider.valueProperty());
-                    imageView.fitWidthProperty().addListener((c, o, n) -> {
-                        if (n.doubleValue() < 150)
-                            vBox.getChildren().set(1, shortLabel);
-                        else
-                            vBox.getChildren().set(1, label);
-                    });
-                    vBox.getChildren().set(0, imageView);
-                });
-            }, tilingPane.getGeometry() == Geometry.Hyperbolic ? 600 : 100, TimeUnit.MILLISECONDS);
-        });
+			// need to wait a short while before making a snapshot (otherwise some hyperbolic tilings will not appear)
+			Executors.newSingleThreadScheduledExecutor().schedule(() -> Platform.runLater(() -> {
+				final ImageView imageView = new ImageView(tilingPane.snapshot(null, null));
+				imageView.setPreserveRatio(true);
+				imageView.setFitWidth(sizeSlider.getValue());
+				imageView.fitWidthProperty().bind(sizeSlider.valueProperty());
+				imageView.fitWidthProperty().addListener((c, o, n) -> {
+					if (n.doubleValue() < 150)
+						vBox.getChildren().set(1, shortLabel);
+					else
+						vBox.getChildren().set(1, label);
+				});
+				vBox.getChildren().set(0, imageView);
+			}), tilingPane.getGeometry() == Geometry.Hyperbolic ? 600 : 100, TimeUnit.MILLISECONDS);
+		});
 
         final AMultipleSelectionModel<DSymbol> selectionModel = collectionTab.getSelectionModel();
         vBox.setOnMouseClicked((e) -> {

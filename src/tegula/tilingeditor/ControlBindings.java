@@ -278,34 +278,29 @@ public class ControlBindings {
         controller.getShowNodesToggleButton().setSelected(tilingStyle.isShowVertices());
         controller.getShowNodesToggleButton().setOnAction((e) -> {
             if (!undoManager.isPerformingUndoOrRedo())
-                undoManager.doAndAdd(new UndoableChangeProperty<>("show nodes",
-                        tilingStyle.showVerticesProperty(), !controller.getShowNodesToggleButton().isSelected(),
-                        controller.getShowNodesToggleButton().isSelected(),
-                        (v) -> {
-                            tilingPane.update();
-                            controller.getShowNodesToggleButton().setSelected(v);
-                        }));
-        });
+				undoManager.doAndAdd(new UndoableChangeProperty<>("show nodes",
+						tilingStyle.showVerticesProperty(), !controller.getShowNodesToggleButton().isSelected(),
+						controller.getShowNodesToggleButton().isSelected(),
+						(v) -> {
+							tilingPane.update();
+							controller.getShowNodesToggleButton().setSelected(v);
+						}));
+		});
 
 
-        controller.getPointLightRadioButton().selectedProperty().addListener((c, o, n) -> {
-            undoManager.doAndAdd(new UndoableChangeProperty<>("point lighting",
-                    tilingStyle.sphericalUsePointLightProperty(), !n, n,
-                    (v) -> {
-                        tilingPane.update();
-                    }));
+		controller.getPointLightRadioButton().selectedProperty().addListener((c, o, n) -> undoManager.doAndAdd(new UndoableChangeProperty<>("point lighting",
+				tilingStyle.sphericalUsePointLightProperty(), !n, n,
+				(v) -> tilingPane.update())));
 
-        });
-
-        controller.getShowBackNodesToggleButton().setSelected(tilingStyle.isShowBackVertices());
-        controller.getShowBackNodesToggleButton().setOnAction((e) -> {
-            if (!undoManager.isPerformingUndoOrRedo())
-                undoManager.doAndAdd(new UndoableChangeProperty<>("show back nodes",
-                        tilingStyle.showBackVerticesProperty(), !controller.getShowBackNodesToggleButton().isSelected(),
-                        controller.getShowBackNodesToggleButton().isSelected(),
-                        (v) -> {
-                            tilingPane.update();
-                            controller.getShowBackNodesToggleButton().setSelected(v);
+		controller.getShowBackNodesToggleButton().setSelected(tilingStyle.isShowBackVertices());
+		controller.getShowBackNodesToggleButton().setOnAction((e) -> {
+			if (!undoManager.isPerformingUndoOrRedo())
+				undoManager.doAndAdd(new UndoableChangeProperty<>("show back nodes",
+						tilingStyle.showBackVerticesProperty(), !controller.getShowBackNodesToggleButton().isSelected(),
+						controller.getShowBackNodesToggleButton().isSelected(),
+						(v) -> {
+							tilingPane.update();
+							controller.getShowBackNodesToggleButton().setSelected(v);
                         }));
         });
         controller.getShowBackNodesToggleButton().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));

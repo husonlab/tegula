@@ -340,8 +340,7 @@ public class DelaneySymbolWithGeometry {
     /**
      * scale all coordinates
      *
-     * @param factor
-     */
+	 */
     public void scale(double factor) {
         DelaneySymbolWithGeometry d = this;
 

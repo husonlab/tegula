@@ -84,9 +84,7 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
     /**
      * constructor
      *
-     * @param dSymbol0
-     * @param name
-     */
+	 */
     public TilingEditorTab(DSymbol dSymbol0, String name) {
         setFileName(name);
         setText(getTitle());
@@ -206,8 +204,7 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
     /**
      * constructor from a file
      *
-     * @param file
-     */
+	 */
     public TilingEditorTab(File file) {
         this(null, file.getPath());
     }

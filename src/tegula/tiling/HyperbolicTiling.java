@@ -58,8 +58,7 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
     /**
      * constructor
      *
-     * @param ds
-     */
+	 */
     public HyperbolicTiling(DSymbol ds, TilingStyle tilingStyle) {
         super(ds, tilingStyle);
     }
@@ -183,10 +182,7 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
     /**
      * translate the tiling
      *
-     * @param dx
-     * @param dy
-     * @param tiles
-     */
+	 */
     public void translateTiling(double dx, double dy, Group tiles) {
         changeDirection = false;
 
@@ -393,8 +389,6 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
     /**
      * provides a copy of the fundamental domain, using the recycler, if possible
      *
-     * @param transform
-     * @param fund
      * @return copy
      */
     private Node provideCopy(Transform transform, Group fund) {
@@ -423,7 +417,6 @@ public class HyperbolicTiling extends TilingBase implements TilingCreator {
     /**
      * attempt to insert point to oct tree of covered points
      *
-     * @param p
      * @return false, if point is already covered
      */
     private boolean insertCoveredPoint(Point3D p) {

@@ -95,9 +95,7 @@ public class TilingPane extends StackPane implements Updateable {
     /**
      * constructor
      *
-     * @param showSphereAsDisk
-     * @param allowMouseInteraction
-     */
+	 */
     public TilingPane(DSymbol dSymbol, TilingStyle tilingStyle, boolean showSphereAsDisk, boolean allowMouseInteraction) {
         this.tilingStyle = tilingStyle;
 
@@ -178,8 +176,7 @@ public class TilingPane extends StackPane implements Updateable {
     /**
      * set the Delaney-Dress symbol
      *
-     * @param dSymbol
-     */
+	 */
     public void computTiling(DSymbol dSymbol) {
         geometry.set(dSymbol.computeGeometry());
         tiling.set(TilingCreator.create(dSymbol, tilingStyle, this));
@@ -245,9 +242,7 @@ public class TilingPane extends StackPane implements Updateable {
                     if (!universe.getChildren().contains(ambientLight))
                         universe.getChildren().add(ambientLight);
                 }
-                Platform.runLater(() -> {
-                    CameraSettings.setupSphericalCamera(getCamera());
-                });
+				Platform.runLater(() -> CameraSettings.setupSphericalCamera(getCamera()));
                 break;
             }
             case Hyperbolic: {
@@ -255,20 +250,16 @@ public class TilingPane extends StackPane implements Updateable {
                 if (!universe.getChildren().contains(ambientLight))
                     universe.getChildren().add(ambientLight);
 
-                Platform.runLater(() -> {
-                            CameraSettings.setupHyperbolicCamera(getCamera(), hyperbolicModel.get(), false);
-                        }
-                );
+				Platform.runLater(() -> CameraSettings.setupHyperbolicCamera(getCamera(), hyperbolicModel.get(), false)
+				);
                 break;
             }
             case Euclidean: {
                 universe.getChildren().remove(pointLight);
                 if (!universe.getChildren().contains(ambientLight))
                     universe.getChildren().add(ambientLight);
-                Platform.runLater(() -> {
-                            CameraSettings.setupEuclideanCamera(getCamera());
-                        }
-                );
+				Platform.runLater(() -> CameraSettings.setupEuclideanCamera(getCamera())
+				);
                 if (false) {
                     System.err.println("Width: " + getWidth());
                     System.err.println("tiling width: " + ((EuclideanTiling) getTiling()).getWidth());
@@ -295,9 +286,7 @@ public class TilingPane extends StackPane implements Updateable {
     /**
      * translate a euclidean or hyperbolic tiling
      *
-     * @param dx
-     * @param dy
-     */
+	 */
     public void translateTiling(double dx, double dy) {
         if (getTiling() instanceof EuclideanTiling) {
             final EuclideanTiling tiling = (EuclideanTiling) getTiling();

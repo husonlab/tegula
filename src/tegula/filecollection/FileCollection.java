@@ -26,8 +26,6 @@ import tegula.core.dsymbols.DSymbol;
 import tegula.util.IFileBased;
 
 import java.io.Closeable;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
@@ -44,10 +42,7 @@ public class FileCollection implements Closeable, IFileBased {
     /**
      * constructor
      *
-     * @param inputFile
-     * @throws IOException
-     * @throws SQLException
-     */
+	 */
     public FileCollection(String inputFile) {
         fileName.set(inputFile);
     }
@@ -70,9 +65,7 @@ public class FileCollection implements Closeable, IFileBased {
      *
      * @param pageNumber 1-based
      * @return D-symbols
-     * @throws IOException
-     * @throws SQLException
-     */
+	 */
     public ArrayList<DSymbol> getPageOfDSymbols(int pageNumber) {
         final ArrayList<DSymbol> result = new ArrayList<>();
         if (pageNumber >= 0 && pageNumber < getNumberOfPages()) {

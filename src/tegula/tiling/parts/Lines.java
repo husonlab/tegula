@@ -42,10 +42,6 @@ public class Lines {
      * a 3D line connecting two points
      * Slightly modified code from Rahel Lüthy (http://netzwerg.ch/blog/2015/03/22/javafx-3d-line/).
      *
-     * @param origin
-     * @param target
-     * @param color
-     * @param width
      * @return line
      */
     public static Node createLine3D(Point3D origin, Point3D target, Color color, double width) {
@@ -73,9 +69,6 @@ public class Lines {
     /**
      * a 3D poly line connecting points
      *
-     * @param points
-     * @param color
-     * @param width
      * @return line
      */
     public static Node createPolyLine3D(List<Point3D> points, Color color, double width) {
@@ -89,12 +82,6 @@ public class Lines {
     /**
      * make a 2D or3D line from a to b to c
      *
-     * @param geometry
-     * @param a
-     * @param b
-     * @param c
-     * @param color
-     * @param width
      * @return line
      */
     public static Node createLine(Geometry geometry, Point3D a, Point3D b, Point3D c, Color color, float width) {

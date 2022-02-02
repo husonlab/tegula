@@ -52,9 +52,6 @@ public class OctTree {
     /**
      * Returns true if point b is added to the tree structure.
      *
-     * @param geom
-     * @param point
-     * @param tolerance
      * @return true, if inserted
      */
     public boolean insert(Geometry geom, Point3D point, double tolerance) {

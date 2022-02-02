@@ -97,15 +97,13 @@ public class ContractEdge {
 
         DSymbolUtils.removeUnused(toDelete, ds);
 
-        System.err.println(ds.toString());
+        System.err.println(ds);
         return ds;
     }
 
     /**
      * determines whether the given edge is contractible
      *
-     * @param edge
-     * @param ds
      * @return 0, if not contractible, otherwise flag to apply contraction to
      */
     public static int getContractEdge(int edge, DSymbol ds) {

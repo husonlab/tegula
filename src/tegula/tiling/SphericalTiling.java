@@ -40,8 +40,7 @@ public class SphericalTiling extends TilingBase implements TilingCreator {
     /**
      * constructor
      *
-     * @param ds
-     */
+	 */
     public SphericalTiling(DSymbol ds, TilingStyle tilingStyle) {
         super(ds, tilingStyle);
     }

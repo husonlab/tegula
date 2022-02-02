@@ -44,14 +44,7 @@ public class ReshapeUtilities {
     /**
      * reshape fundamental domain after translation of point of given type
      *
-     * @param fDomain
-     * @param deltaX
-     * @param deltaY
-     * @param type
-     * @param k
-     * @param a
-     * @return
-     */
+	 */
     public static Point2D resetShape(FDomain fDomain, double deltaX, double deltaY, Type type, int k, int a, double factor, boolean constrain) {
         final DSymbol ds = fDomain.getDSymbol();
         final Generators generators = fDomain.getGenerators();
@@ -150,13 +143,7 @@ public class ReshapeUtilities {
     /**
      * Add restrictions to translation in case that handle lies on exactly one mirror axis
      *
-     * @param deltaX
-     * @param deltaY
-     * @param orbitLength
-     * @param k
-     * @param a
-     * @return
-     */
+	 */
     private static Point2D addMirrorRestriction(final FDomain fDomain, double deltaX, double deltaY, int orbitLength, int k, int a) {
         final DSymbol ds = fDomain.getDSymbol();
 
@@ -211,9 +198,6 @@ public class ReshapeUtilities {
     /**
      * Add restrictions for mouse movement to prevent overlaps
      *
-     * @param deltaX
-     * @param deltaY
-     * @param a
      * @return new direction
      */
     private static Point2D add2Restriction(final FDomain fDomain, double deltaX, double deltaY, int a, double factor) {
@@ -362,12 +346,6 @@ public class ReshapeUtilities {
     /**
      * Change direction of mouse movement for handle when restrictions are broken
      *
-     * @param transVec
-     * @param R
-     * @param N
-     * @param c
-     * @param firstPos
-     * @param oldPos
      * @return new direction
      */
     private static Point2D checkRestriction(Point2D transVec, Point3D[] R, Point3D[] N, Point3D[] Q, double[] c, Point3D firstPos, Point3D oldPos) {

@@ -39,8 +39,7 @@ public class TileColorControls {
     /**
      * setup controllers for color
      *
-     * @param tilingEditorTab
-     */
+	 */
     public static void setup(TilingEditorTab tilingEditorTab) {
         final TilingEditorTabController controller = tilingEditorTab.getController();
         final TilingPane tilingPane = tilingEditorTab.getTilingPane();

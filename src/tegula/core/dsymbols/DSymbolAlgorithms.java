@@ -31,7 +31,6 @@ public class DSymbolAlgorithms {
     /**
      * computes the dual Delaney symbol
      *
-     * @param dSymbol
      * @return dual
      */
     public static DSymbol dualize(DSymbol dSymbol) {
@@ -52,7 +51,6 @@ public class DSymbolAlgorithms {
     /**
      * computes the Delaney symbol with maximal symmetry
      *
-     * @param ds
      * @return maximal symmetry
      */
     public static DSymbol maxSymmetry(DSymbol ds) {
@@ -93,10 +91,7 @@ public class DSymbolAlgorithms {
     /**
      * computes symbol with higher symmetry
      *
-     * @param map
-     * @param ds1
-     * @param ds2
-     */
+	 */
     private static void highersym(int[] map, DSymbol ds1, DSymbol ds2) {
         final int size1 = ds1.size();
 
@@ -128,10 +123,7 @@ public class DSymbolAlgorithms {
     /**
      * computes the cardinality of the map
      *
-     * @param map
-     * @param n
-     * @return
-     */
+	 */
     private static int cardinality(int[] map, int n) {
         int count = 0;
         while (count < map.length && n > 0) {
@@ -146,7 +138,6 @@ public class DSymbolAlgorithms {
     /**
      * does the given Delaney symbol have maximal symmetry?
      *
-     * @param ds
      * @return true, if has maximal symmetry
      */
     public static boolean isMaximalSymmetry(DSymbol ds) {
@@ -168,11 +159,7 @@ public class DSymbolAlgorithms {
     /**
      * checks whether given map leads to a homomorphism onto a smaller symbol
      *
-     * @param a
-     * @param map
-     * @param ds
-     * @return
-     */
+	 */
     private static boolean mcheck(int a, int[] map, DSymbol ds) {
         final int size = ds.size();
 
@@ -202,7 +189,6 @@ public class DSymbolAlgorithms {
     /**
      * computes the corresponding orientated Delaney symbol
      *
-     * @param ds1
      * @return orientated
      */
     public static DSymbol orientate(DSymbol ds1) {
@@ -309,7 +295,6 @@ public class DSymbolAlgorithms {
     /**
      * compute the branching numbers v_ij
      *
-     * @param ds
      * @return branching numbers
      */
     public static int[][][] computeV(DSymbol ds) {
@@ -337,7 +322,6 @@ public class DSymbolAlgorithms {
     /**
      * compute the branching numbers v_ij
      *
-     * @param ds
      * @return branching numbers
      */
     public static int[] computeVij(int i, int j, DSymbol ds) {
@@ -364,7 +348,6 @@ public class DSymbolAlgorithms {
      * single point or a single line segment.
      * todo: this is mathematically incorrect and Olaf is working on a correct algorithm
      *
-     * @param ds
      * @return true, if simple
      */
     public static boolean isNormal(DSymbol ds) {
@@ -404,14 +387,6 @@ public class DSymbolAlgorithms {
     /**
      * determine whether the four flags completely surround an "island"
      *
-     * @param a1
-     * @param a2
-     * @param b1
-     * @param b2
-     * @param tile
-     * @param vertex
-     * @param v
-     * @param ds
      * @return true, if island
      */
     private static boolean hasCapturedIsland(int a1, int a2, int b1, int b2, int[] tile, int[] vertex, int[][][] v, DSymbol ds) {
@@ -696,9 +671,7 @@ public class DSymbolAlgorithms {
      * computes the signature of the corresponding tiling.
      * This is of the form (a_1 a_2 a_3 ...)(b_1 b_2 b_3 ...)..., where a_1, a_2 etc are the vertex degrees of the first tile etc
      *
-     * @param dSymbol
-     * @return
-     */
+	 */
     public static String computeSignature(DSymbol dSymbol) {
         final ArrayList<Pair<Integer, String>> cycles = new ArrayList<>();
         final BitSet visited = new BitSet();
@@ -795,7 +768,6 @@ public class DSymbolAlgorithms {
     /**
      * is the tiling colorable, ie, no two equivalent tiles share an edge
      *
-     * @param ds
      * @return is colorable
      */
     public static boolean isColorable(DSymbol ds) {

@@ -63,8 +63,7 @@ public class StraightenEdges {
     /**
      * straighten a specific edge
      *
-     * @param edgeFlag
-     */
+	 */
     public static void straightenEdge(FDomain fDomain, int edgeFlag) {
         final Generators generators = fDomain.getGenerators();
         final DSymbol ds = fDomain.getDSymbol();

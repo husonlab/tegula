@@ -39,7 +39,6 @@ public class MeshUtils {
     /**
      * produce a copy with a reverse orientation
      *
-     * @param mesh
      * @return copy with reverse orientation
      */
     public static TriangleMesh reverseOrientation(TriangleMesh mesh) {

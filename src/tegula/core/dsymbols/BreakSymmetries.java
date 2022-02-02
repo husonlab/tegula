@@ -33,7 +33,6 @@ public class BreakSymmetries {
     /**
      * greedily remove rotations
      *
-     * @param ds0
      * @param task one, some or all - only some returns more than one symbol
      * @return all tilings with some rotations removed
      */

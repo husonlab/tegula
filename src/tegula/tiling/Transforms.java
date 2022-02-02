@@ -34,8 +34,7 @@ public class Transforms {
     /**
      * constructor
      *
-     * @param size
-     */
+	 */
     public Transforms(int size) {
         map = new int[3][size + 1];
         transforms = new ArrayList<>();
@@ -44,10 +43,7 @@ public class Transforms {
     /**
      * set a transform
      *
-     * @param k
-     * @param a
-     * @param transform
-     */
+	 */
     public void set(int k, int a, Transform transform) {
         transforms.add(transform);
         map[k][a] = transforms.size(); // save transform index as 1, 2
@@ -56,9 +52,7 @@ public class Transforms {
     /**
      * set the same transform again
      *
-     * @param k
-     * @param a
-     */
+	 */
     public void setAgain(int k, int a) {
         if (transforms.size() > 0)
             map[k][a] = transforms.size(); // save transform index as 1, 2
@@ -67,8 +61,6 @@ public class Transforms {
     /**
      * access a transform
      *
-     * @param k
-     * @param a
      * @return transform
      */
     public Transform get(int k, int a) {

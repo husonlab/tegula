@@ -58,8 +58,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
     /**
      * constructor
      *
-     * @param ds
-     */
+	 */
     public EuclideanTiling(DSymbol ds, TilingStyle tilingStyle, Updateable doc) {
         super(ds, tilingStyle);
         this.doc = doc;
@@ -182,10 +181,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
     /**
      * translate the tiling
      *
-     * @param dx
-     * @param dy
-     * @param tiles
-     */
+	 */
     public void translateTiling(double dx, double dy, Group tiles) {
         // QuadTree is used for saving copies which are kept under translation
         coveredPoints.clear();
@@ -241,8 +237,6 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
     /**
      * Euclidean case: Shifts back fundamental domain if out of bounds
      *
-     * @param height
-     * @param width
      * @return transform
      */
     public Transform calculateBackShiftEuclidean(double width, double height) {
@@ -315,11 +309,7 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
     /**
      * Euclidean case: Checks whether "point" is in visible window
      *
-     * @param point
-     * @param width
-     * @param height
-     * @return
-     */
+	 */
     public boolean isInWindowEuclidean(Point3D point, double width, double height, double margin) {
         return -margin < point.getX() && point.getX() < width + margin && -margin < point.getY() && point.getY() < height + margin;
     }
@@ -327,8 +317,6 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
     /**
      * provides a copy of the fundamental domain, using the recycler, if possible
      *
-     * @param transform
-     * @param fund
      * @return copy
      */
     private Node provideCopy(Transform transform, Group fund) {
@@ -350,7 +338,6 @@ public class EuclideanTiling extends TilingBase implements TilingCreator {
     /**
      * attempt to insert point to quad tree of covered points
      *
-     * @param p
      * @return false, if point is already covered
      */
     private boolean insertCoveredPoint(Point3D p) {

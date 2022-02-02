@@ -21,11 +21,6 @@ package tegula.core.funtiles.utils;
 
 /**
  * wrap a object to be passed by reference
- * Created by huson on 3/28/16.
- */
-
-/**
- * wrap a object to be passed by reference
  *
  * @param <T>
  */

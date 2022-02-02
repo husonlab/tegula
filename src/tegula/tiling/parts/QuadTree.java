@@ -42,9 +42,6 @@ public class QuadTree {
     /**
      * attempts to add (x,y) to quad tree, using the given tolerance
      *
-     * @param x
-     * @param y
-     * @param tolerance
      * @return true, if inserted
      */
     public boolean insert(double x, double y, double tolerance) {

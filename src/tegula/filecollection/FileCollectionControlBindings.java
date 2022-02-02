@@ -30,8 +30,7 @@ public class FileCollectionControlBindings {
     /**
      * constructor
      *
-     * @param fileCollectionTab
-     */
+	 */
     public static void setup(FileCollectionTab fileCollectionTab) {
         FileCollection fileCollection = fileCollectionTab.getFileCollection();
         FileCollectionTabController controller = fileCollectionTab.getController();

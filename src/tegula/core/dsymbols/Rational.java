@@ -43,9 +43,7 @@ public class Rational implements Comparable<Rational> {
     /**
      * constructor
      *
-     * @param n
-     * @param d
-     */
+	 */
     public Rational(long n, long d) {
         if (d <= 0)
             throw new IllegalArgumentException("divisor must be positive: " + d);

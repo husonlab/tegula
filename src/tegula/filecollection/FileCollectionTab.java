@@ -84,9 +84,7 @@ public class FileCollectionTab extends Tab implements ICollectionTab, Closeable,
     /**
      * setup collection tab
      *
-     * @param mainWindow
-     * @param fileCollection
-     */
+	 */
     public FileCollectionTab(MainWindow mainWindow, FileCollection fileCollection) {
 		this.mainWindow = mainWindow;
 		this.fileCollection = fileCollection;

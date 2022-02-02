@@ -53,8 +53,7 @@ public class FDomainEditor {
     /**
      * constructor
      *
-     * @param tilingEditorTab
-     */
+	 */
     public FDomainEditor(TilingEditorTab tilingEditorTab) {
         this.tilingStyle = tilingEditorTab.getTilingStyle();
         final TilingEditorTabController controller = tilingEditorTab.getController();

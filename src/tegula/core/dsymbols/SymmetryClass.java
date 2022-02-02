@@ -33,7 +33,6 @@ public enum SymmetryClass {
     /**
      * computes the symmetry class as defined in doi:10.1107/S205327331400549X
      *
-     * @param dSymbol
      * @return group
      */
     public static SymmetryClass valueOf(DSymbol dSymbol) {

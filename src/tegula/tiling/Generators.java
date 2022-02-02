@@ -38,8 +38,7 @@ public class Generators {
     /**
      * constructor
      *
-     * @param size
-     */
+	 */
     public Generators(int size) {
         setSize(size);
     }
@@ -52,10 +51,8 @@ public class Generators {
     /**
      * set a transform
      *
-     * @param k
      * @param a         1-based
-     * @param transform
-     */
+	 */
     public void set(int k, int a, Transform transform) {
         transforms.add(transform);
         map[k][a] = transforms.size(); // save transform index as 1, 2
@@ -64,7 +61,6 @@ public class Generators {
     /**
      * set the same transform again
      *
-     * @param k
      * @param a 1-based
      */
     public void setAgain(int k, int a) {
@@ -75,7 +71,6 @@ public class Generators {
     /**
      * access a transform
      *
-     * @param k
      * @param a 1-based
      * @return transform
      */

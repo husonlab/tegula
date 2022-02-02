@@ -67,8 +67,6 @@ public class DSymbol {
     /**
      * is D-symbol or D-set isomorphic to one in the given collection
      *
-     * @param dSymbol
-     * @param collection
      * @param setOnly    ignore Mij
      * @return true, if isomorphic to member of collection
      */
@@ -90,8 +88,7 @@ public class DSymbol {
     /**
      * copy a Delaney symbol
      *
-     * @param src
-     */
+	 */
     public void copy(DSymbol src) {
         nr1 = src.nr1;
         nr2 = src.nr2;
@@ -110,7 +107,6 @@ public class DSymbol {
     /**
      * append a Delaney symbol
      *
-     * @param src
      */
     public void append(DSymbol src) {
         final int offset = set.length;
@@ -143,7 +139,6 @@ public class DSymbol {
     /**
      * resize, maintaining previous data
      *
-     * @param newSize
      */
     public void resize(int newSize) {
         final int[][] tmpSet = new int[newSize + 1][3];
@@ -262,9 +257,6 @@ public class DSymbol {
     /**
      * marks the i,j-orbit containing a and returns the next flag not contained in that orbit
      *
-     * @param i
-     * @param j
-     * @param a
      * @param visited if a==1, the  set is cleared
      * @return smallest node in next orbit
      */
@@ -278,11 +270,7 @@ public class DSymbol {
     /**
      * marks the i,j-orbit containing a and returns the next flag not contained in that orbit
      *
-     * @param i
-     * @param j
-     * @param a
      * @param array we set array[b]=mark for all b contained in the same i,j-orbit as a
-     * @param mark
      * @return smallest node in next orbit
      */
     public int nextOrbit(final int i, final int j, int a, final int[] array, int mark) {
@@ -295,8 +283,6 @@ public class DSymbol {
     /**
      * iterates over smallest node in each i,j orbit
      *
-     * @param i
-     * @param j
      * @return all orbits
      */
     public Iterable<Integer> orbits(int i, int j) {
@@ -354,9 +340,6 @@ public class DSymbol {
     /**
      * visit all flags contained in the i,j-orbit containing flag a
      *
-     * @param i
-     * @param j
-     * @param a
      * @param visitor accept this before moving to next orbit
      */
     public void visitOrbit(final int i, final int j, final int a, final Consumer<Integer> visitor) {
@@ -385,10 +368,6 @@ public class DSymbol {
     /**
      * marks all flags contain in the i,j-orbit of a
      *
-     * @param i
-     * @param j
-     * @param a
-     * @param visited
      */
     public void markOrbit(final int i, final int j, final int a, final BitSet visited) {
         int b = a;
@@ -407,11 +386,6 @@ public class DSymbol {
     /**
      * marks all flags contain in the i,j-orbit of a
      *
-     * @param i
-     * @param j
-     * @param a
-     * @param visited
-     * @param mark
      */
     public void markOrbit(final int i, final int j, final int a, final int[] visited, final int mark) {
         if (mark == 0)
@@ -429,11 +403,6 @@ public class DSymbol {
     /**
      * marks all flags contain in the i,j-orbit of a. Unmark all others
      *
-     * @param i
-     * @param j
-     * @param a
-     * @param visited
-     * @param mark
      */
     public void markOrbitX(final int i, final int j, final int a, final int[] visited, final int mark) {
         Arrays.fill(visited, 0);
@@ -443,9 +412,6 @@ public class DSymbol {
     /**
      * computes the orbit length (number si*sj operations required to get from a to a)
      *
-     * @param i
-     * @param j
-     * @param a
      * @return length
      */
     public int computeOrbitLength(final int i, final int j, final int a) {
@@ -487,10 +453,6 @@ public class DSymbol {
     /**
      * set Mij on all flags contained in the i,j-orbit containing a
      *
-     * @param i
-     * @param j
-     * @param a
-     * @param value
      */
     public void setMij(int i, int j, int a, int value) {
         int b = a;
@@ -527,9 +489,6 @@ public class DSymbol {
     /**
      * gets the type of the i,j-orbit that contains a
      *
-     * @param i
-     * @param j
-     * @param a
      * @return 2 for chain and 1 for cycle
      */
     public int getOrbitType(int i, int j, int a) {
@@ -555,9 +514,6 @@ public class DSymbol {
     /**
      * is i,j-orbit containing flag a a cycle?
      *
-     * @param i
-     * @param j
-     * @param a
      * @return true, iff cycle
      */
     public boolean isCycle(int i, int j, int a) {
@@ -655,9 +611,6 @@ public class DSymbol {
     /**
      * computes the other end of a i,j-chain
      *
-     * @param i
-     * @param j
-     * @param a
      * @return other end of chain
      */
     public int[] computeOtherChainEnd(int i, int j, int a) {
@@ -680,8 +633,6 @@ public class DSymbol {
     /**
      * read a 2D Delaney symbol
      *
-     * @param r0
-     * @throws IOException
      */
     public boolean read(final Reader r0) throws IOException {
         boolean debug = false;
@@ -697,7 +648,7 @@ public class DSymbol {
         }
         final String line = buf.toString();
 
-        if (line.length() > 0 && line.startsWith("<")) {
+        if (line.startsWith("<")) {
             final Scanner scanner = new Scanner(line.substring(1)).useDelimiter(fullDelimiters);
 
             nr1 = scanner.nextLong();
@@ -865,11 +816,6 @@ public class DSymbol {
     /**
      * determines whether flags 'a' and 'b' are in the same i,j-orbit
      *
-     * @param i
-     * @param j
-     * @param a
-     * @param b
-     * @return
      */
     public boolean inSameOrbit(int i, int j, int a, int b) {
         if (a == b)

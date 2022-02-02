@@ -97,10 +97,6 @@ public class HalfBand3D {
      * shift points p1 and p2 orthogonally to p1-p2 by distance d and copies of p2 and p3 similarly, returns the intersection
      * of the two shifted lines
      *
-     * @param p1
-     * @param p2
-     * @param q2
-     * @param d
      * @return intersection point
      */
     public static Point3D shiftAndIntersect(Point3D p1, Point3D p2, Point3D q2, double d) {

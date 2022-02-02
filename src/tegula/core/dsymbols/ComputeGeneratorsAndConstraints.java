@@ -38,10 +38,7 @@ public class ComputeGeneratorsAndConstraints {
     /**
      * compute all generators and constraints for the given fundamental domain
      *
-     * @param fDomain
-     * @param generators
-     * @param constraints
-     */
+	 */
     public static void apply(FDomain fDomain, Generators generators, Constraints constraints) {
         final DSymbol ds = fDomain.getDSymbol();
         generators.setSize(ds.size());
@@ -165,12 +162,7 @@ public class ComputeGeneratorsAndConstraints {
     /**
      * set a constraint on all vertices in the appropriate i,j-orbit
      *
-     * @param kind
-     * @param k
-     * @param a
-     * @param constraints
-     * @param type
-     */
+	 */
     private static void setConstraint(final DSymbol ds, int kind, int k, int a, Constraints constraints, Constraints.ConstraintType type) {
         final int i = DSymbol.i(k);
         final int j = DSymbol.j(k);
@@ -189,9 +181,6 @@ public class ComputeGeneratorsAndConstraints {
     /**
      * is this orbit split into multiple pieces?
      *
-     * @param i
-     * @param j
-     * @param a
      * @return true, if split
      */
     private static boolean isSplitOrbit(final FDomain fDomain, int i, int j, int a) {
@@ -213,10 +202,6 @@ public class ComputeGeneratorsAndConstraints {
     /**
      * finds the next boundary edge
      *
-     * @param i0
-     * @param j0
-     * @param k0
-     * @param a0
      * @return i, j, k and a for next boundary edge
      */
     private static int[] nextBoundaryEdge(final FDomain fDomain, final int i0, final int j0, final int k0, final int a0) {
@@ -247,12 +232,6 @@ public class ComputeGeneratorsAndConstraints {
     /**
      * get the transform that maps a1-b1 to a2-b2, keeping orientation, if desired
      *
-     * @param geom
-     * @param a1
-     * @param b1
-     * @param a2
-     * @param b2
-     * @param keepOrientation
      * @return transform
      */
     public static Transform getTransform(Geometry geom, Point3D a1, Point3D b1, Point3D a2, Point3D b2, boolean keepOrientation) {

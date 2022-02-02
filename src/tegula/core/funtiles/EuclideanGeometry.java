@@ -96,8 +96,8 @@ public class EuclideanGeometry {
             CutM.set(Math.sqrt(Mid2 - Dis2) / Del);
             CutMX.set(MidX + CenX - CutM.get() * DelX);
             CutMY.set(MidY + CenY - CutM.get() * DelY);
-            CutL.set(+Math.sqrt(Rad2 - Dis2) / Del);
-            CutLX.set(CutMX.get() + CutL.get() * DelX);
+			CutL.set(Math.sqrt(Rad2 - Dis2) / Del);
+			CutLX.set(CutMX.get() + CutL.get() * DelX);
             CutLY.set(CutMY.get() + CutL.get() * DelY);
             CutR.set(-Math.sqrt(Rad2 - Dis2) / Del);
             CutRX.set(CutMX.get() + CutR.get() * DelX);

@@ -32,22 +32,19 @@ import tegula.core.dsymbols.Geometry;
  * Ruediger Zeller, 2017
  */
 public class Tools {
-    public static Point3D xAxis = new Point3D(1d, 0d, 0d);
-    public static Point3D yAxis = new Point3D(0d, 1d, 0d);
-    public static Point3D zAxis = new Point3D(0d, 0d, 1d);
+	public static final Point3D xAxis = new Point3D(1d, 0d, 0d);
+	public static final Point3D yAxis = new Point3D(0d, 1d, 0d);
+	public static final Point3D zAxis = new Point3D(0d, 0d, 1d);
 
-    /**
-     * Distance of points a,b. In hyperbolic case: Hyperbolic distance between
-     * normalized points on z^2=x^2+y^2+1). In spherical and Euclidean case:
-     * Euclidean distance between points.
-     *
-     * @param geom
-     * @param a
-     * @param b
-     * @return distance
-     */
-    public static double distance(Geometry geom, Point3D a, Point3D b) {
-        if (geom == Geometry.Hyperbolic) {
+	/**
+	 * Distance of points a,b. In hyperbolic case: Hyperbolic distance between
+	 * normalized points on z^2=x^2+y^2+1). In spherical and Euclidean case:
+	 * Euclidean distance between points.
+	 *
+	 * @return distance
+	 */
+	public static double distance(Geometry geom, Point3D a, Point3D b) {
+		if (geom == Geometry.Hyperbolic) {
             double scalar = a.getZ() * b.getZ() - a.getX() * b.getX() - a.getY() * b.getY();
             return Math.log(Math.abs(scalar + Math.sqrt(Math.abs(scalar * scalar - 1))));
         } else {
@@ -59,9 +56,6 @@ public class Tools {
      * returns geometric distance for two points and given geometry by Cornelius
      * 21.11.18
      *
-     * @param geom
-     * @param a
-     * @param b
      * @return distance
      */
     public static double geometricDistance(Geometry geom, Point3D a, Point3D b) {
@@ -86,9 +80,6 @@ public class Tools {
     /**
      * Calculates midpoint between points a and b on 3d-models
      *
-     * @param geometry
-     * @param a
-     * @param b
      * @return midpoint between a and b
      */
     public static Point3D midpoint3D(Geometry geometry, Point3D a, Point3D b) {
@@ -106,9 +97,6 @@ public class Tools {
      * Calculates interpolated point with respect to 0 <= pos <= 1 between points a
      * and b on 3d-hyperboloid.
      *
-     * @param a
-     * @param b
-     * @param pos
      * @return midpoint between a and b
      */
     public static Point3D interpolateHyperbolicPoints(Point3D a, Point3D b, double pos) {
@@ -151,9 +139,6 @@ public class Tools {
     /**
      * by Cornelius calculates two points of equal hyperbolic distance to point
      *
-     * @param point1
-     * @param point2
-     * @param distance
      * @return two points of equal hyperbolic distance perpendicular to direction of
      * second point
      */
@@ -208,10 +193,6 @@ public class Tools {
      * * by Cornelius calculates circle coordinates as an n sided polygon to a given
      * center point on hyperboloid with a given orientation
      *
-     * @param point0
-     * @param orientation
-     * @param radius
-     * @param fine
      * @return circle coordinates
      */
     public static Point3D[] hyperbolicCircleCoordinates(Point3D point0, Point3D orientation, double radius, int fine) {
@@ -269,11 +250,7 @@ public class Tools {
      * Calculates interpolated point with respect to 0 <= pos <= 1 between points a
      * and b on 3d-sphere
      *
-     * @param pointA
-     * @param pointB
-     * @param pos
-     * @return
-     */
+	 */
     public static Point3D interpolateSpherePoints(Point3D pointA, Point3D pointB, double pos) {
         final double rotAngle1 = xAxis.angle(new Point3D(pointA.getX(), pointA.getY(), 0));
 
@@ -328,8 +305,6 @@ public class Tools {
     /**
      * Calculate hyperbolic translation along vector (dx,dy)
      *
-     * @param dx
-     * @param dy
      * @return transform
      */
     public static Transform hyperbolicTranslation(double dx, double dy) {
@@ -361,8 +336,6 @@ public class Tools {
     /**
      * calculates spherical midpoint by Cornelius 21.11.18
      *
-     * @param point0
-     * @param point1
      * @return 3D point
      */
     public static Point3D sphericalMidpoint(Point3D point0, Point3D point1) {
@@ -376,8 +349,6 @@ public class Tools {
      * interpolates spherical points with recursive midpoint method by Cornelius
      * 21.11.18
      *
-     * @param a
-     * @param b
      * @return 3D point
      */
     public static Point3D interpolateSpherePoints2(Point3D a, Point3D b, double pos, double intlength, double intupperbound) {
@@ -402,7 +373,6 @@ public class Tools {
      * map 2D point (unit model) to 3D point (scaled with 100), depending on set
      * geometry
      *
-     * @param apt
      * @return 3D point
      */
     public static Point3D map2Dto3D(Geometry geometry, Point2D apt) {
@@ -448,9 +418,7 @@ public class Tools {
      * hyperboloid model (scaled with factor 100) to Poincare disk model (open unit
      * disk).
      *
-     * @param bpt
-     * @return
-     */
+	 */
 
     public static Point2D map3Dto2D(Geometry geometry, Point3D bpt) {
         bpt = bpt.multiply(0.01); // scale by 0.01

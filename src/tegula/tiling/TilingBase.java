@@ -61,8 +61,7 @@ abstract public class TilingBase {
     /**
      * constructor
      *
-     * @param ds
-     */
+	 */
     public TilingBase(DSymbol ds, TilingStyle tilingStyle) {
         this.ds = ds;
         this.groupName = OrbifoldGroupName.getGroupName(ds);

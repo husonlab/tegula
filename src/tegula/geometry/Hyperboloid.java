@@ -25,11 +25,6 @@ import javafx.scene.shape.TriangleMesh;
  * sets up a hyberboloid in Z direction
  * Created by huson on 4/25/16.
  */
-
-/**
- * sets up a hyberboloid in Z direction
- * Created by huson on 4/25/16.
- */
 public class Hyperboloid extends TriangleMesh {
     /**
      * constructor

@@ -98,9 +98,6 @@ public class Constraints {
     /**
      * set constraint
      *
-     * @param kind
-     * @param i
-     * @param a
      * @param type if type is line, then use last set line
      */
     public void setConstraint(int kind, int i, int a, ConstraintType type) {
@@ -115,10 +112,7 @@ public class Constraints {
     /**
      * set a line constraint (indicating that vertex must lie on given line)
      *
-     * @param kind
-     * @param i
-     * @param a
-     */
+	 */
     public void setLineConstraint(int kind, int i, int a, Pair<Point2D, Point2D> line) {
         lines.add(line);
         constraints[kind][i][a] = lines.size(); // lines are saved as 1, 2, 3...
@@ -127,9 +121,6 @@ public class Constraints {
     /**
      * get the type of constraint
      *
-     * @param kind
-     * @param i
-     * @param a
      * @return constraint type
      */
     public ConstraintType getType(int kind, int i, int a) {

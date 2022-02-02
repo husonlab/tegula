@@ -47,7 +47,6 @@ public class MapImageToGeometry {
     /**
      * maps all items onto the desired geometry
      *
-     * @param items
      * @return mapped items
      */
     public static Group apply(Geometry geometry, Group items) {
@@ -109,9 +108,6 @@ public class MapImageToGeometry {
     /**
      * compute a triangle mesh for the given four points
      *
-     * @param geometry
-     * @param maxSideLength
-     * @param points3D
      * @return mesh
      */
     private static TriangleMesh computeTriangleMesh(Geometry geometry, double maxSideLength, Point3D[] points3D) {
@@ -131,9 +127,7 @@ public class MapImageToGeometry {
     /**
      * refine a mesh
      *
-     * @param geometry
-     * @param mesh
-     */
+	 */
     public static void refine(Geometry geometry, TriangleMesh mesh) {
 
         final Map<Pair<Integer, Integer>, Integer> pair2point = new HashMap<>(); // each pair of ordered faces is mapped to a new  point in mesh
@@ -207,9 +201,7 @@ public class MapImageToGeometry {
     /**
      * move mesh slightly above the tiling
      *
-     * @param geometry
-     * @param mesh
-     */
+	 */
     private static void moveSlightlyAbove(Geometry geometry, TriangleMesh mesh) {
         final ObservableFloatArray points = mesh.getPoints();
         for (int i = 0; i < mesh.getPoints().size(); i += 3) {
@@ -223,7 +215,6 @@ public class MapImageToGeometry {
     /**
      * Setup triangle mesh on four points
      *
-     * @param points3D
      * @return mesh
      */
     private static TriangleMesh computeMeshOnFourPoints(Point3D[] points3D) {

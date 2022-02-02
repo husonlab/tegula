@@ -35,7 +35,6 @@ public class OrbifoldGroupName {
     /**
      * computes the orbifold group name
      *
-     * @param dSymbol
      * @return orbifold group name
      */
     public static String getGroupName(DSymbol dSymbol) {
@@ -45,7 +44,6 @@ public class OrbifoldGroupName {
     /**
      * is the group pq or *pw with p!=q, or *p
      *
-     * @param dSymbol
      * @return true, if invalid group
      */
     public static boolean isInvalidSphericalGroup(DSymbol dSymbol) {
@@ -58,7 +56,6 @@ public class OrbifoldGroupName {
     /**
      * computes the orbifold group name
      *
-     * @param dSymbol
      * @return orbifold group name
      */
     public static ArrayList<String> getGroupNameAsList(DSymbol dSymbol) {
@@ -152,11 +149,6 @@ public class OrbifoldGroupName {
     /**
      * compute a boundary component
      *
-     * @param i
-     * @param j
-     * @param a
-     * @param mark
-     * @param dSymbol
      * @return boundary component
      */
     static private ArrayList<Integer> computeBoundaryComponent(int i, int j, int a, BitSet[] mark, DSymbol dSymbol) {
@@ -191,7 +183,6 @@ public class OrbifoldGroupName {
     /**
      * compute largest cyclic ordering of a boundary component
      *
-     * @param in
      * @return largest cyclic ordering
      */
     static private ArrayList<Integer> computeLargestCyclicOrdering(ArrayList<Integer> in) {
@@ -227,9 +218,7 @@ public class OrbifoldGroupName {
     /**
      * write array of ints as string
      *
-     * @param in
-     * @return string
-     */
+	 */
     static private void addInts(ArrayList<Integer> in, ArrayList<String> list) {
         for (Integer n : in) {
             if (n >= 0 && n < 10)

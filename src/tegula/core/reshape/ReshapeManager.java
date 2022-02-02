@@ -56,8 +56,7 @@ public class ReshapeManager {
     /**
      * constructor
      *
-     * @param updateable
-     */
+	 */
     public ReshapeManager(TilingBase tiling, Updateable updateable) {
         this.updateable = updateable;
         fDomain = tiling.getfDomain();
@@ -110,8 +109,6 @@ public class ReshapeManager {
     /**
      * make a reshape handle
      *
-     * @param v
-     * @param color
      * @return reshape handle
      */
     private static Shape makeReshapeHandle(Point3D v, Color color) {
@@ -126,9 +123,7 @@ public class ReshapeManager {
     /**
      * Reset shape of tiles
      *
-     * @param deltaX
-     * @param deltaY
-     */
+	 */
     public Point2D resetShape(double deltaX, double deltaY, int type, int a) {
         // Reset Point in fundamental domain
         Point2D transVector = new Point2D(deltaX, deltaY);
@@ -195,13 +190,7 @@ public class ReshapeManager {
     /**
      * Add restrictions to translation in case that handle lies on exactly one mirror axis
      *
-     * @param deltaX
-     * @param deltaY
-     * @param orbitLength
-     * @param type
-     * @param flag
-     * @return
-     */
+	 */
     private Point2D addMirrorRestriction(double deltaX, double deltaY, int orbitLength, int type, int flag) {
         Point3D r = new Point3D(0, 0, 0);
         Point3D n = new Point3D(0, 0, 0);
@@ -265,9 +254,6 @@ public class ReshapeManager {
     /**
      * Add restrictions for mouse movement to prevent overlaps
      *
-     * @param deltaX
-     * @param deltaY
-     * @param flag
      * @return new direction
      */
     private Point2D add2Restriction(Generators generators, double deltaX, double deltaY, int flag) {
@@ -409,12 +395,6 @@ public class ReshapeManager {
     /**
      * Change direction of mouse movement for handle when restrictions are broken
      *
-     * @param transVec
-     * @param R
-     * @param N
-     * @param c
-     * @param firstPos
-     * @param oldPos
      * @return new direction
      */
     private Point2D checkRestriction(Point2D transVec, Point3D[] R, Point3D[] N, Point3D[] Q, double[] c, Point3D firstPos, Point3D oldPos) {

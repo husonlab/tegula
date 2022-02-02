@@ -60,8 +60,7 @@ public class Tegula extends Application {
     /**
      * main
      *
-     * @param args
-     */
+	 */
     public static void main(String[] args) throws CanceledException, UsageException {
         ResourceManagerFX.addResourceRoot(Tegula.class, "tegula/resources");
         ProgramProperties.setProgramName(Version.NAME);

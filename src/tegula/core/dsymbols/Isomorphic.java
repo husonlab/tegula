@@ -27,11 +27,7 @@ public class Isomorphic {
     /**
      * determines whether Delaney symbols ds1 and ds2 are isomorphic
      *
-     * @param ds1
-     * @param ds2
-     * @param compareSetsOnly
-     * @return
-     */
+	 */
     public static boolean isomorphic(DSymbol ds1, DSymbol ds2, boolean compareSetsOnly) {
         if (ds1.size() != ds2.size())
             return false;

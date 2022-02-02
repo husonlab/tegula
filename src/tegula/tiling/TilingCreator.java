@@ -34,9 +34,6 @@ public interface TilingCreator {
     /**
      * create a tiling
      *
-     * @param dSymbol
-     * @param tilingStyle
-     * @param doc
      * @return tiling
      */
     static TilingBase create(DSymbol dSymbol, TilingStyle tilingStyle, Updateable doc) {

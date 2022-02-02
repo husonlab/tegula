@@ -81,9 +81,7 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
     /**
      * setup collection tab
      *
-     * @param mainWindow
-     * @param dbCollection
-     */
+	 */
     public DBCollectionTab(MainWindow mainWindow, DBCollection dbCollection) {
 		this.mainWindow = mainWindow;
 		this.dbCollection = dbCollection;
@@ -145,8 +143,7 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
     /**
      * process a DB select statement
      *
-     * @param select
-     */
+	 */
     public void processDBSelect(String select, int currentPageIndex) {
         previousQuery.set(select);
 

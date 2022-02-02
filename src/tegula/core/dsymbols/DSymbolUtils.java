@@ -63,9 +63,7 @@ public class DSymbolUtils {
     /**
      * remove unused flags from D-symbol
      *
-     * @param unused
-     * @param ds
-     */
+	 */
     static void removeUnused(BitSet unused, DSymbol ds) {
         if (true) {
             final int n_new = ds.size() - unused.cardinality();
@@ -82,11 +80,11 @@ public class DSymbolUtils {
             if (false)
                 for (int a = 1; a <= ds.size(); a++) {
                     for (int i = 0; i <= 2; i++) {
-                        if (ds.getSi(i, a) < 1)
-                            System.err.println("S(" + i + "," + a + ")=" + ds.getSi(i, a));
-                        if (ds.getSi(i, a) != ds.getSi(i, ds.getSi(i, ds.getSi(i, a))))
-                            System.err.println(String.format("ds.getSi(%d,%d)=%d !=%d=ds.getSi(%d,ds.getSi(%d,%d))",
-                                    i, a, ds.getSi(i, a), ds.getSi(i, ds.getSi(i, ds.getSi(i, a))), i, i, ds.getSi(i, a)));
+						if (ds.getSi(i, a) < 1)
+							System.err.println("S(" + i + "," + a + ")=" + ds.getSi(i, a));
+						if (ds.getSi(i, a) != ds.getSi(i, ds.getSi(i, ds.getSi(i, a))))
+							System.err.printf("ds.getSi(%d,%d)=%d !=%d=ds.getSi(%d,ds.getSi(%d,%d))%n",
+									i, a, ds.getSi(i, a), ds.getSi(i, ds.getSi(i, ds.getSi(i, a))), i, i, ds.getSi(i, a));
                     }
                 }
 
@@ -108,11 +106,11 @@ public class DSymbolUtils {
             if (false)
                 for (int a = 1; a <= n_new; a++) {
                     for (int i = 0; i <= 2; i++) {
-                        if (ds.getSi(i, a) < 1 || ds.getSi(i, a) > n_new)
-                            System.err.println("S(" + i + "," + a + ")=" + ds.getSi(i, a));
-                        if (ds.getSi(i, a) != ds.getSi(i, ds.getSi(i, ds.getSi(i, a))))
-                            System.err.println(String.format("ds.getSi(%d,%d)=%d !=%d=ds.getSi(%d,ds.getSi(%d,%d))",
-                                    i, a, ds.getSi(i, a), ds.getSi(i, ds.getSi(i, ds.getSi(i, a))), i, i, ds.getSi(i, a)));
+						if (ds.getSi(i, a) < 1 || ds.getSi(i, a) > n_new)
+							System.err.println("S(" + i + "," + a + ")=" + ds.getSi(i, a));
+						if (ds.getSi(i, a) != ds.getSi(i, ds.getSi(i, ds.getSi(i, a))))
+							System.err.printf("ds.getSi(%d,%d)=%d !=%d=ds.getSi(%d,ds.getSi(%d,%d))%n",
+									i, a, ds.getSi(i, a), ds.getSi(i, ds.getSi(i, ds.getSi(i, a))), i, i, ds.getSi(i, a));
                     }
                 }
             ds.resize(n_new);
@@ -120,11 +118,11 @@ public class DSymbolUtils {
             if (false)
                 for (int a = 1; a <= ds.size(); a++) {
                     for (int i = 0; i <= 2; i++) {
-                        if (ds.getSi(i, a) < 1 || ds.getSi(i, a) > ds.size())
-                            System.err.println("S(" + i + "," + a + ")=" + ds.getSi(i, a));
-                        if (ds.getSi(i, a) != ds.getSi(i, ds.getSi(i, ds.getSi(i, a))))
-                            System.err.println(String.format("ds.getSi(%d,%d)=%d !=%d=ds.getSi(%d,ds.getSi(%d,%d))",
-                                    i, a, ds.getSi(i, a), ds.getSi(i, ds.getSi(i, ds.getSi(i, a))), i, i, ds.getSi(i, a)));
+						if (ds.getSi(i, a) < 1 || ds.getSi(i, a) > ds.size())
+							System.err.println("S(" + i + "," + a + ")=" + ds.getSi(i, a));
+						if (ds.getSi(i, a) != ds.getSi(i, ds.getSi(i, ds.getSi(i, a))))
+							System.err.printf("ds.getSi(%d,%d)=%d !=%d=ds.getSi(%d,ds.getSi(%d,%d))%n",
+									i, a, ds.getSi(i, a), ds.getSi(i, ds.getSi(i, ds.getSi(i, a))), i, i, ds.getSi(i, a));
                     }
                 }
         }
@@ -148,8 +146,6 @@ public class DSymbolUtils {
     /**
      * detach a 1,2-orbit corresponding to a vertex of degree 2 and return the set of flags that need to be removed
      *
-     * @param p
-     * @param ds
      * @return flags to be removed
      */
     public static BitSet detachDiVertex(int p, DSymbol ds) {

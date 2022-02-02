@@ -43,8 +43,7 @@ public class ColorSchemeDialog {
     /**
      * setup and show the color scheme dialog
      *
-     * @throws IOException
-     */
+	 */
     public ColorSchemeDialog(Object mainViewController) throws IOException {
         final FXMLLoader fxmlLoader = new FXMLLoader();
         Pane root = fxmlLoader.load(getClass().getResource("ColorSchemeDialog.fxml").openStream());

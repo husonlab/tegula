@@ -55,8 +55,7 @@ public class FDomain {
     /**
      * constructor
      *
-     * @param dSymbol
-     */
+	 */
     public FDomain(DSymbol dSymbol, boolean addBendToAnEdge) {
         this.dSymbol = dSymbol;
         this.d = new DelaneySymbolWithGeometry();
@@ -115,9 +114,7 @@ public class FDomain {
     /**
      * copy DSymbol to DelaneySymbol
      *
-     * @param ds
-     * @param d
-     */
+	 */
     private static void symbol2delaney(DSymbol ds, DelaneySymbolWithGeometry d) {
         for (int i = 0; i <= 2; i++)
             for (int a = 1; a <= ds.size(); a++)
@@ -192,8 +189,7 @@ public class FDomain {
     /**
      * Transformation t maps fDomain to a copy of itself (for Euclidean and hyperbolic case).
      *
-     * @param t
-     */
+	 */
     public void recenterFDomain(Transform t) {
         if (geometry == Geometry.Euclidean) {
             for (int z = 0; z < d.getNumberOfNodeCoordinates(); z++) {
@@ -255,9 +251,7 @@ public class FDomain {
     /**
      * Translates fDomain (in Euclidean and hyperbolic case).
      *
-     * @param dx
-     * @param dy
-     */
+	 */
     public void translate(double dx, double dy) {
         if (geometry == Geometry.Euclidean) {
             dx /= 100;
@@ -367,10 +361,6 @@ public class FDomain {
     /**
      * Hyperbolic translation of fundamental domain in Poincare model
      *
-     * @param dx
-     * @param dy
-     * @param posX
-     * @param posY
      * @return Point2D
      */
     private Point2D HyperbolicTranslation(double dx, double dy, double posX, double posY) {
@@ -530,17 +520,16 @@ public class FDomain {
     /**
      * set all coordinates (previously saved using getCoordinates)
      *
-     * @param table
-     */
+	 */
     public static void reportCoordinates(Point2D[][] table) {
         for (int a = 1; a < table.length; a++) {
             for (int i = 0; i <= 2; i++) {
-                System.err.println(String.format("Vertex(%d,%d): %.6f,%.6f", a, i, table[a][i].getX(), table[a][i].getY()));
+				System.err.printf("Vertex(%d,%d): %.6f,%.6f%n", a, i, table[a][i].getX(), table[a][i].getY());
             }
             for (int i = 0; i <= 2; i++) {
-                System.err.println(String.format("EdgeCr(%d,%d): %.6f,%.6f", a, i, table[a][i + 3].getX(), table[a][i + 3].getY()));
+				System.err.printf("EdgeCr(%d,%d): %.6f,%.6f%n", a, i, table[a][i + 3].getX(), table[a][i + 3].getY());
             }
-            System.err.println(String.format("ChamberCr(%d): %.6f,%.6f", a, table[a][6].getX(), table[a][6].getY()));
+			System.err.printf("ChamberCr(%d): %.6f,%.6f%n", a, table[a][6].getX(), table[a][6].getY());
         }
     }
 }

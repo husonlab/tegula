@@ -206,9 +206,9 @@ public class Glue {
         int op;
         int opt_o, min_i, max_m, min_b;
         opt_o = -1;
-        min_i = +Integer.MAX_VALUE;    /*	Rotation * Mirror	*/
-        max_m = -Integer.MAX_VALUE;    /*	Size		*/
-        min_b = +Integer.MAX_VALUE;    /*	Remaining	*/
+		min_i = Integer.MAX_VALUE;    /*	Rotation * Mirror	*/
+		max_m = -Integer.MAX_VALUE;    /*	Size		*/
+		min_b = Integer.MAX_VALUE;    /*	Remaining	*/
         for (op = 0; op < d.getNumberOfOrbits(); ++op) {
             if (orb_is_glued(op)) {
                 continue;
@@ -243,9 +243,9 @@ public class Glue {
         int p;
         int opt_e, max_i, min_m, max_b;
         opt_e = -1;
-        max_i = -Integer.MAX_VALUE;    /*	Rotation * Mirror	*/
-        min_m = +Integer.MAX_VALUE;    /*	Size		*/
-        max_b = -Integer.MAX_VALUE;    /*	Remaining	*/
+		max_i = -Integer.MAX_VALUE;    /*	Rotation * Mirror	*/
+		min_m = Integer.MAX_VALUE;    /*	Size		*/
+		max_b = -Integer.MAX_VALUE;    /*	Remaining	*/
         for (p = 0; p < d.getOrb(oq).getEps(); ++p) {
             ep = d.getOrb(oq).getEp()[p];
             if (edg_is_glued(ep)) {

@@ -482,8 +482,7 @@ public class FundamentalDomain {
     /**
      * reverse the order of points
      *
-     * @param list
-     */
+	 */
     private static void reverseOrderOfPoints(Point3D[] list) {
         for (int i = 0; i < list.length / 2; i++) {
             Point3D tmp = list[i];

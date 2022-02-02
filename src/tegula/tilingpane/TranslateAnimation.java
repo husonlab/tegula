@@ -41,8 +41,7 @@ public class TranslateAnimation {
     /**
      * setup animation
      *
-     * @param tilingPane
-     */
+	 */
     public TranslateAnimation(TilingPane tilingPane) {
         this.tilingPane = tilingPane;
         timeline = new Timeline();

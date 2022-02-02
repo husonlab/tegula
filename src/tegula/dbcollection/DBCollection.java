@@ -39,7 +39,7 @@ import java.util.ArrayList;
  * Daniel Huson, 10.2019
  */
 public class DBCollection implements Closeable, IFileBased {
-    public static float VERSION = 0.2f;
+    public static final float VERSION = 0.2f;
 
     private final DatabaseAccess databaseAccess;
     private final StringProperty fileName = new SimpleStringProperty();
@@ -56,10 +56,7 @@ public class DBCollection implements Closeable, IFileBased {
     /**
      * constructor
      *
-     * @param databaseFile
-     * @throws IOException
-     * @throws SQLException
-     */
+	 */
     public DBCollection(String databaseFile) throws IOException, SQLException {
         fileName.set(databaseFile);
         this.databaseAccess = new DatabaseAccess(databaseFile);
@@ -94,9 +91,7 @@ public class DBCollection implements Closeable, IFileBased {
      *
      * @param pageNumber 1-based
      * @return D-symbols
-     * @throws IOException
-     * @throws SQLException
-     */
+	 */
     public ArrayList<DSymbol> getPageOfDSymbols(int pageNumber) throws IOException, SQLException {
         if (pageNumber < 0 || pageNumber >= getNumberOfPages())
             return new ArrayList<>();

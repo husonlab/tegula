@@ -36,13 +36,7 @@ public class BandCap3D {
     /**
      * calculates coordinates for circle by Cornelius 21.11.18
      *
-     * @param center
-     * @param tangent
-     * @param radius
-     * @param N
-     * @param geom
-     * @return
-     */
+	 */
     public static Point3D[] circle(Point3D center, Point3D tangent, double radius, int N, Geometry geom) {
 
         final Point3D[] coordinates;
@@ -76,12 +70,7 @@ public class BandCap3D {
     /**
      * creates TriangleMesh for given coordinates of a circle by Cornelius 21.11.18
      *
-     * @param center
-     * @param coordinates
-     * @param geom
-     * @param above
-     * @return
-     */
+	 */
     public static TriangleMesh CircleMesh(Point3D center, Point3D[] coordinates, Geometry geom, double above, boolean flipOrientation) {
         final Point3D[] points3d = new Point3D[coordinates.length + 1];
         points3d[0] = center;

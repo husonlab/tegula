@@ -280,8 +280,6 @@ public class FDomainPane extends StackPane {
     /**
      * can we find a vertex node with the same coordinates?
      *
-     * @param vertexNode
-     * @param list
      * @return node with same coordinates or null
      */
     private static NGonShape find(NGonShape vertexNode, ObservableList<Node> list) {
