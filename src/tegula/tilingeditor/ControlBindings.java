@@ -344,9 +344,9 @@ public class ControlBindings {
 
         controller.getBackgroundColorPicker().setOnAction((e) -> {
             if (!undoManager.isPerformingUndoOrRedo())
-                undoManager.doAndAdd(new UndoableChangeProperty<>("background",
-                        tilingStyle.backgroundColorProperty(), tilingStyle.getBackgroundColor(), controller.getBackgroundColorPicker().getValue(),
-                        null));
+                undoManager.doAndAdd(new UndoableChangeProperty<>("viewer-background",
+						tilingStyle.backgroundColorProperty(), tilingStyle.getBackgroundColor(), controller.getBackgroundColorPicker().getValue(),
+						null));
         });
         tilingStyle.backgroundColorProperty().addListener((c, o, n) -> controller.getBackgroundColorPicker().setValue(n));
         //controller.getBackgroundColorPicker().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));
