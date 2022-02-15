@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="8.0.4" transformSequenceNumber="8">
+<install4j version="9.0.5" transformSequenceNumber="9">
   <directoryPresets config="../../javafx-jmods" />
-  <application name="Tegula" applicationId="8023-6339-7402-8800" mediaDir="../../../builds" shortName="tegula" publisher="Daniel Huson and Ruediger Zeller" publisherWeb="www-ab.informatik.uni-tuebingen.de" version="0.0.0" allPathsRelative="true" macVolumeId="b8c0a1154e563a9a" javaMinVersion="13">
+  <application name="Tegula" applicationId="8023-6339-7402-8800" mediaDir="../../../builds" shortName="tegula" publisher="Daniel Huson and Ruediger Zeller" publisherWeb="http://ab.inf.uni-tuebingen.de" version="0.0.0" allPathsRelative="true" macVolumeId="b8c0a1154e563a9a" javaMinVersion="13">
     <codeSigning macEnabled="true" macPkcs12File="../../../../etc/application.p12">
       <macSearchedJars>
         <entry>jna-*</entry>
@@ -9,11 +9,11 @@
         <entry>sqlite-*</entry>
       </macSearchedJars>
     </codeSigning>
-    <jreBundles jdkProviderId="AdoptOpenJDK" release="openjdk14/jdk-14.0.1+7">
+    <jreBundles jdkProviderId="Zulu" release="17/17.0.2">
       <modules />
     </jreBundles>
   </application>
-  <files>
+  <files preserveSymlinks="false">
     <mountPoints>
       <mountPoint id="1691243033" location="Tilings" />
       <mountPoint id="1691242167" location="jars" />
@@ -632,8 +632,8 @@ return console.askYesNo(message, true);
 }
 return true;</validation>
                 <postActivation>WizardContext wizardContext = context.getWizardContext();
-wizardContext.setNextButtonVisible(false);
-wizardContext.setCancelButtonVisible(false);</postActivation>
+wizardContext.setControlButtonEnabled(ControlButtonType.NEXT, false);
+wizardContext.setControlButtonEnabled(ControlButtonType.CANCEL, false);</postActivation>
                 <formComponents>
                   <formComponent id="1691242582" beanClass="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent" useExternalParametrization="true" externalParametrizationName="Header" externalParametrizationMode="include">
                     <serializedBean>
@@ -934,11 +934,19 @@ return true;</property>
           <group id="1691242655" beanClass="com.install4j.runtime.beans.groups.VerticalFormComponentGroup" useExternalParametrization="true" externalParametrizationName="Customize banner image" externalParametrizationMode="include">
             <serializedBean>
               <property name="backgroundColor">
-                <object class="java.awt.Color">
-                  <int>255</int>
-                  <int>255</int>
-                  <int>255</int>
-                  <int>255</int>
+                <object class="com.install4j.runtime.beans.LightOrDarkColor">
+                  <object class="java.awt.Color">
+                    <int>255</int>
+                    <int>255</int>
+                    <int>255</int>
+                    <int>255</int>
+                  </object>
+                  <object class="java.awt.Color">
+                    <int>49</int>
+                    <int>52</int>
+                    <int>53</int>
+                    <int>255</int>
+                  </object>
                 </object>
               </property>
               <property name="borderSides">
@@ -947,11 +955,19 @@ return true;</property>
                 </object>
               </property>
               <property name="imageEdgeBackgroundColor">
-                <object class="java.awt.Color">
-                  <int>25</int>
-                  <int>143</int>
-                  <int>220</int>
-                  <int>255</int>
+                <object class="com.install4j.runtime.beans.LightOrDarkColor">
+                  <object class="java.awt.Color">
+                    <int>25</int>
+                    <int>143</int>
+                    <int>220</int>
+                    <int>255</int>
+                  </object>
+                  <object class="java.awt.Color">
+                    <int>0</int>
+                    <int>74</int>
+                    <int>151</int>
+                    <int>255</int>
+                  </object>
                 </object>
               </property>
               <property name="imageEdgeBorder" type="boolean" value="true" />
@@ -1005,11 +1021,19 @@ return true;</property>
               <group id="1691242662" beanClass="com.install4j.runtime.beans.groups.VerticalFormComponentGroup" useExternalParametrization="true" externalParametrizationName="Customize title bar" externalParametrizationMode="include">
                 <serializedBean>
                   <property name="backgroundColor">
-                    <object class="java.awt.Color">
-                      <int>255</int>
-                      <int>255</int>
-                      <int>255</int>
-                      <int>255</int>
+                    <object class="com.install4j.runtime.beans.LightOrDarkColor">
+                      <object class="java.awt.Color">
+                        <int>255</int>
+                        <int>255</int>
+                        <int>255</int>
+                        <int>255</int>
+                      </object>
+                      <object class="java.awt.Color">
+                        <int>49</int>
+                        <int>52</int>
+                        <int>53</int>
+                        <int>255</int>
+                      </object>
                     </object>
                   </property>
                   <property name="borderSides">
@@ -1112,7 +1136,7 @@ return true;</property>
     </styles>
   </installerGui>
   <mediaSets>
-    <unixInstaller name="Unix Installer" id="1691242146" installDir="tegula" overridePrincipalLanguage="true">
+    <unixInstaller name="Unix Installer" id="1691242146" installDir="tegula" overridePrincipalLanguage="true" require64BitVm="true">
       <exclude>
         <entry location="openjfx/macos" />
         <entry location="openjfx/windows-x64" />
@@ -1120,13 +1144,8 @@ return true;</property>
       <variables>
         <variable name="jfxlib" value="openjfx/linux/lib" />
       </variables>
-      <jreBundle jreBundleSource="generated">
-        <modules>
-          <jmodDirectory location="../../javafx-jmods/unix" />
-        </modules>
-      </jreBundle>
     </unixInstaller>
-    <macosFolder name="Mac OS X Folder" id="1691242165" installDir="Tegula" overridePrincipalLanguage="true" compressDmg="true" signLaunchers="true">
+    <macosFolder name="Mac OS X Folder" id="1691242165" installDir="Tegula" overridePrincipalLanguage="true" architecture="universal" compressDmg="true" signLaunchers="true">
       <exclude>
         <entry location="openjfx/unix" />
         <entry location="openjfx/windows-x64" />
@@ -1134,11 +1153,7 @@ return true;</property>
       <variables>
         <variable name="jfxlib" value="openjfx/osx/lib" />
       </variables>
-      <jreBundle jreBundleSource="generated" includedJre="macosx-amd64-12.0.1">
-        <modules>
-          <jmodDirectory location="../../javafx-jmods/macos" />
-        </modules>
-      </jreBundle>
+      <jreBundle includedJre="macosx-amd64-12.0.1" />
     </macosFolder>
     <windows name="Windows64bit" id="1691242288" installDir="Tegula" overridePrincipalLanguage="true">
       <overriddenPrincipalLanguage id="409" />
@@ -1150,11 +1165,7 @@ return true;</property>
       <variables>
         <variable name="jfxlib" value="openjfx/windows/lib" />
       </variables>
-      <jreBundle jreBundleSource="generated" includedJre="windows-amd64-12.0.1" installOnlyIfNecessary="true">
-        <modules>
-          <jmodDirectory location="../../javafx-jmods/windows" />
-        </modules>
-      </jreBundle>
+      <jreBundle includedJre="windows-amd64-12.0.1" installOnlyIfNecessary="true" />
     </windows>
   </mediaSets>
   <buildIds>
