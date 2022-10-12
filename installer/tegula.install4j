@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="9.0.5" transformSequenceNumber="9">
+<install4j version="9.0.7" transformSequenceNumber="9">
   <directoryPresets config="../../javafx-jmods" />
   <application name="Tegula" applicationId="8023-6339-7402-8800" mediaDir="../../../builds" shortName="tegula" publisher="Daniel Huson and Ruediger Zeller" publisherWeb="http://ab.inf.uni-tuebingen.de" version="0.0.0" allPathsRelative="true" macVolumeId="b8c0a1154e563a9a" javaMinVersion="13">
+    <variables>
+      <variable name="renderingVMOption" />
+    </variables>
     <codeSigning macEnabled="true" macPkcs12File="../../../../etc/application.p12">
       <macSearchedJars>
         <entry>jna-*</entry>
@@ -9,8 +12,10 @@
         <entry>sqlite-*</entry>
       </macSearchedJars>
     </codeSigning>
-    <jreBundles jdkProviderId="Zulu" release="17/17.0.2">
-      <modules />
+    <jreBundles jdkProviderId="Liberica" release="18/18.0.2.1+1">
+      <modules>
+        <defaultModules set="all" />
+      </modules>
     </jreBundles>
   </application>
   <files preserveSymlinks="false">
@@ -42,7 +47,6 @@
           <entry location="jars" />
           <entry location="tools" />
           <entry location="License.txt" />
-          <entry location="openjfx" />
           <entry location="Tegula" fileType="launcher" />
         </include>
       </component>
@@ -59,10 +63,9 @@
       <executable name="Tegula" iconSet="true" executableMode="gui" changeWorkingDirectory="false" singleInstance="true" dpiAware="false">
         <versionInfo include="true" fileDescription="Tegula mathematical tiling program" legalCopyright="Copyright 2019 Daniel Huson" internalName="Tegula" />
       </executable>
-      <java mainClass="tegula/tegula.main.Tegula" mainMode="module" vmParameters="-server -Duser.language=en -Duser.region=US --module-path=jars:openjfx/linux/lib  --add-modules=tegula">
+      <java mainClass="tegula/tegula.main.Tegula" mainMode="module" vmParameters="-server -Duser.language=en -Duser.region=US --add-modules=tegula ${compiler:renderingVMOption}">
         <modulePath>
           <directory location="jars" failOnError="false" />
-          <directory location="openjfx/${compiler:sys.platform}/lib" failOnError="false" />
         </modulePath>
       </java>
       <macStaticAssociationActions mode="selected" />
@@ -1137,39 +1140,15 @@ return true;</property>
   </installerGui>
   <mediaSets>
     <unixInstaller name="Unix Installer" id="1691242146" installDir="tegula" overridePrincipalLanguage="true" require64BitVm="true">
-      <exclude>
-        <entry location="openjfx/macos" />
-        <entry location="openjfx/windows-x64" />
-      </exclude>
-      <variables>
-        <variable name="jfxlib" value="openjfx/linux/lib" />
-      </variables>
     </unixInstaller>
     <macosFolder name="Mac OS X Folder" id="1691242165" installDir="Tegula" overridePrincipalLanguage="true" architecture="universal" compressDmg="true" signLaunchers="true">
-      <exclude>
-        <entry location="openjfx/unix" />
-        <entry location="openjfx/windows-x64" />
-      </exclude>
-      <variables>
-        <variable name="jfxlib" value="openjfx/osx/lib" />
-      </variables>
-      <jreBundle includedJre="macosx-amd64-12.0.1" />
     </macosFolder>
     <windows name="Windows64bit" id="1691242288" installDir="Tegula" overridePrincipalLanguage="true">
       <overriddenPrincipalLanguage id="409" />
-      <exclude>
-        <entry location="tools" />
-        <entry location="openjfx/macos" />
-        <entry location="openjfx/unix" />
-      </exclude>
-      <variables>
-        <variable name="jfxlib" value="openjfx/windows/lib" />
-      </variables>
-      <jreBundle includedJre="windows-amd64-12.0.1" installOnlyIfNecessary="true" />
     </windows>
   </mediaSets>
-  <buildIds>
-    <mediaSet refId="1691242165" />
+  <buildIds buildAll="false">
+    <mediaSet refId="1691242146" />
   </buildIds>
   <buildOptions disableSigning="true" disableNotarization="true" />
 </install4j>
