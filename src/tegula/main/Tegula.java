@@ -23,6 +23,7 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import jloda.fx.util.ArgsOptions;
 import jloda.fx.util.ColorSchemeManager;
+import jloda.fx.util.ProgramProperties;
 import jloda.fx.util.ResourceManagerFX;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.NotificationManager;
@@ -30,7 +31,6 @@ import jloda.fx.window.SplashScreen;
 import jloda.fx.window.WindowGeometry;
 import jloda.util.Basic;
 import jloda.util.CanceledException;
-import jloda.util.ProgramProperties;
 import jloda.util.UsageException;
 
 import java.io.File;
