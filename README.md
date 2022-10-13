@@ -8,9 +8,10 @@ We provide three databases of tilings, containing all periodic tilings with Dres
 
 We have computed 2.4 billion tilings in total, but that file is too big to put online.
 
-A paper describing the underlying math, algorithms and the software is in preparation.
-
-
 <img src="https://github.com/husonlab/tegula/blob/master/images/greens-2.png" width="250"><img src="https://github.com/husonlab/tegula/blob/master/images/greens-3.png" width="250"><img src="https://github.com/husonlab/tegula/blob/master/images/greens-1.png" width="250">
 Image credits: Daniel Huson
 
+The underlying mathematics, algorithms and sofware are described in this paper:
+
+Rüdiger Zeller, Olaf Delgado-Friedrichs, Daniel H. Huson, Tegula – exploring a galaxy of two-dimensional periodic tilings, Computer Aided Geometric Design,
+90 (2021) https://doi.org/10.1016/j.cagd.2021.102027.
