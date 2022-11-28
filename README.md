@@ -4,7 +4,7 @@ Tegula is a program for displaying and exploring two-dimensional periodic tiling
 symbols. Tegula was written by Daniel Huson and Rüdiger Zeller, using code by Klaus Westphal. Tegula is written in
 Java (12) and uses JavaFX.
 
-Installers for Tegula can be found here: https://oftware-ab.cs.uni-tuebingen.de/download/tegula
+Installers for Tegula can be found here: https://software-ab.cs.uni-tuebingen.de/download/tegula
 
 We provide three databases of tilings, containing all periodic tilings with Dress complexity ≤ 18 and all euclidean and
 spherical tilings with Dress complexity ≤ 24. These were computed using genDSyms, available

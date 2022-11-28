@@ -355,7 +355,7 @@
                                   maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefColumnCount="35"
                                   prefRowCount="9"
                                   style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-image-width: 0; -fx-text-box-border: transparent; -fx-background-insets: 0;"
-                                  text="&#10;To get started, download and unzip a database of tilings from:&#10;&#10;https://oftware-ab.cs.uni-tuebingen.de/download/tegula&#10;&#10;Then open the file using the File-&gt;Open menu item.&#10;&#10;"
+                                  text="&#10;To get started, download and unzip a database of tilings from:&#10;&#10;https://software-ab.cs.uni-tuebingen.de/download/tegula&#10;&#10;Then open the file using the File-&gt;Open menu item.&#10;&#10;"
                                   wrapText="true"/>
                     </children>
                 </StackPane>
