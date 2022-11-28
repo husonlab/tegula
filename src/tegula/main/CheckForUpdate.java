@@ -35,8 +35,8 @@ import java.util.concurrent.Executors;
  * Daniel Huson, 5.2018
  */
 public class CheckForUpdate {
-    public static String programURL = "https://software-ab.informatik.uni-tuebingen.de/download/tegula";
-	public static String applicationId = "1691242391";
+    public static String programURL = "https://oftware-ab.cs.uni-tuebingen.de/download/tegula";
+    public static String applicationId = "1691242391";
 
     /**
      * check for update, download and install, if present
