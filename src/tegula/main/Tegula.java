@@ -41,7 +41,7 @@ import java.time.Duration;
  * Daniel Huson, 4.2019
  */
 public class Tegula extends Application {
-    private static String[] inputFilesAtStartup;
+    protected static String[] inputFilesAtStartup;
 
     @Override
     public void init() {
@@ -63,6 +63,7 @@ public class Tegula extends Application {
 	 */
     public static void main(String[] args) throws CanceledException, UsageException {
         ResourceManagerFX.addResourceRoot(Tegula.class, "tegula/resources");
+        ProgramProperties.setAuthors("Daniel H. Huson, with contributions from Klaus Westphal, Ruediger Zeller, Julius Vetter and Cornelius Wiehl.");
         ProgramProperties.setProgramName(Version.NAME);
         ProgramProperties.setProgramVersion(Version.SHORT_DESCRIPTION);
         ProgramProperties.setProgramLicence("Tegula is licensed under the GNU GENERAL PUBLIC LICENSE. Source files are available at http:github.com/husonlab/tegula.");
@@ -80,7 +81,7 @@ public class Tegula extends Application {
         Basic.startCollectionStdErr();
 
         final ArgsOptions options = new ArgsOptions(args, Tegula.class, Version.NAME + " - Interactive periodic tilings");
-        options.setAuthors("Daniel H. Huson and Rüdiger Zeller, based on code by Klaus Westphal, with contributions from Julius Vetter and Cornelius Wiehl.");
+        options.setAuthors(ProgramProperties.getAuthors());
         options.setLicense(ProgramProperties.getProgramLicence());
         options.setVersion(ProgramProperties.getProgramVersion());
 
