@@ -1,5 +1,5 @@
 /*
- * DSymbol.java Copyright (C) 2022 Daniel H. Huson
+ * DSymbol.java Copyright (C) 2023 Daniel H. Huson
  *
  * (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -141,10 +141,21 @@ public class DSymbol {
      *
      */
     public void resize(int newSize) {
-        final int[][] tmpSet = new int[newSize + 1][3];
-        final int[][] tmpMatrix = new int[newSize + 1][3];
-        final int top = Math.min(size(), newSize);
-        for (int i = 0; i <= top; i++) {
+        final var tmpSet = new int[newSize + 1][3];
+        final var tmpMatrix = new int[newSize + 1][3];
+        final var top = Math.min(size(), newSize);
+        for (var i = 0; i <= top; i++) {
+            System.arraycopy(set[i], 0, tmpSet[i], 0, 3);
+            System.arraycopy(matrix[i], 0, tmpMatrix[i], 0, 3);
+        }
+        set = tmpSet;
+        matrix = tmpMatrix;
+    }
+
+    public void shrink(int newSize) {
+        final var tmpSet = new int[newSize + 1][3];
+        final var tmpMatrix = new int[newSize + 1][3];
+        for (var i = 0; i <= newSize; i++) {
             System.arraycopy(set[i], 0, tmpSet[i], 0, 3);
             System.arraycopy(matrix[i], 0, tmpMatrix[i], 0, 3);
         }
@@ -717,11 +728,11 @@ public class DSymbol {
     }
 
     public String toString() {
-        final StringWriter w = new StringWriter();
+        var w = new StringWriter();
         try {
             write(w);
         } catch (IOException e) {
-            e.printStackTrace();
+            Basic.caught(e);
         }
         return w.toString();
     }

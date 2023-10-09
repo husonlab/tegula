@@ -1,5 +1,5 @@
 /*
- * TilingStyle.java Copyright (C) 2022 Daniel H. Huson
+ * TilingStyle.java Copyright (C) 2023 Daniel H. Huson
  *
  * (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -25,6 +25,9 @@ import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import jloda.fx.util.ColorSchemeManager;
+import jloda.util.BitSetUtils;
+
+import java.util.BitSet;
 
 /**
  * class representing styling choices for tiling
@@ -71,6 +74,8 @@ public class TilingStyle {
     public static final int minLimitHyperbolicGroup = 5;
     private final IntegerProperty hyperbolicLimit = new SimpleIntegerProperty(minLimitHyperbolicGroup);
 
+	private final ObjectProperty<BitSet> invisibleEdges = new SimpleObjectProperty<>();
+
     public TilingStyle() {
         tileColorsScheme.addListener((c, o, n) -> tileColors.setAll(ColorSchemeManager.getInstance().getColorScheme(n)));
         setTileColorsScheme(ColorSchemeManager.getInstance().getLastColorScheme());
@@ -110,6 +115,8 @@ public class TilingStyle {
         setShowHandles(src.isShowHandles());
         setShowSymmetryIcons(src.isShowSymmetryIcons());
         setShowDecorations(src.getShowDecorations());
+
+		setInvisibleEdges(src.getInvisibleEdges() == null ? null : BitSetUtils.copy(src.getInvisibleEdges()));
 
         setSphericalUsePointLight(src.isSphericalUsePointLight());
     }
@@ -413,4 +420,16 @@ public class TilingStyle {
     public Group getDecorations() {
         return decorations;
     }
+
+	public BitSet getInvisibleEdges() {
+		return invisibleEdges.get();
+	}
+
+	public ObjectProperty<BitSet> invisibleEdgesProperty() {
+		return invisibleEdges;
+	}
+
+	public void setInvisibleEdges(BitSet invisibleEdges) {
+		this.invisibleEdges.set(invisibleEdges);
+	}
 }

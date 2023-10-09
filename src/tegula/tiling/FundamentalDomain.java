@@ -1,5 +1,5 @@
 /*
- * FundamentalDomain.java Copyright (C) 2022 Daniel H. Huson
+ * FundamentalDomain.java Copyright (C) 2023 Daniel H. Huson
  *
  * (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -319,6 +319,8 @@ public class FundamentalDomain {
             final double linesAbove = (geom == Geometry.Euclidean ? -1 : 0);
 
             for (int a0 : dsymbol.orbits(0, 2)) {
+                if (tilingStyle.getInvisibleEdges() != null && tilingStyle.getInvisibleEdges().get(a0))
+                    continue;
                 final ArrayList<TriangleMesh> meshes = new ArrayList<>();
 
                 for (int a : dsymbol.orbitMembers(0, 2, a0)) {

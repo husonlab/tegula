@@ -1,5 +1,5 @@
 /*
- * ChangeDSymbolCommand.java Copyright (C) 2022 Daniel H. Huson
+ * ChangeDSymbolCommand.java Copyright (C) 2023 Daniel H. Huson
  *
  * (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -34,9 +34,11 @@ public class ChangeDSymbolCommand extends UndoableRedoableCommand {
     private final Runnable undo;
     private final Runnable redo;
 
+    private final DSymbol newDsCopy;
+
     public ChangeDSymbolCommand(String name, DSymbol dsOld, DSymbol dsNew, Consumer<DSymbol> replaceDSymbol, Point2D[][] oldCoordinates, Consumer<Point2D[][]> coordinatesSetter) {
         super(name);
-        final DSymbol newDsCopy = new DSymbol(dsNew);
+        newDsCopy = new DSymbol(dsNew);
 
         undo = () -> {
             replaceDSymbol.accept(dsOld);
@@ -55,5 +57,9 @@ public class ChangeDSymbolCommand extends UndoableRedoableCommand {
     @Override
     public void redo() {
         redo.run();
+    }
+
+    public DSymbol getNewSymbol() {
+        return newDsCopy;
     }
 }

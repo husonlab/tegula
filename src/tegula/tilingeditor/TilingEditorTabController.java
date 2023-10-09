@@ -1,5 +1,5 @@
 /*
- * TilingEditorTabController.java Copyright (C) 2022 Daniel H. Huson
+ * TilingEditorTabController.java Copyright (C) 2023 Daniel H. Huson
  *
  * (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -167,49 +167,12 @@ public class TilingEditorTabController {
     @FXML
     private Button resetButton;
 
+	@FXML
+	private VBox editButtonsVBox;
+
     @FXML
     void initialize() {
-        assert borderPane != null : "fx:id=\"borderPane\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert mainToolBar != null : "fx:id=\"mainToolBar\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert mainPane != null : "fx:id=\"mainPane\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert infoTextField != null : "fx:id=\"infoTextField\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert symmetiesVBox != null : "fx:id=\"symmetiesVBox\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert groupTextField != null : "fx:id=\"groupTextField\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert hyperbolicModelTitledPane != null : "fx:id=\"hyperbolicModelTitledPane\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert modelChoiceBox != null : "fx:id=\"modelChoiceBox\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert showLessTilesButton != null : "fx:id=\"showLessTilesButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert showMoreTilesButton != null : "fx:id=\"showMoreTilesButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert sphericalLightingTitledPane != null : "fx:id=\"sphericalLightingTitledPane\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert pointLightRadioButton != null : "fx:id=\"pointLightRadioButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert ambientLightRadioButton != null : "fx:id=\"ambientLightRadioButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert appearanceVBox != null : "fx:id=\"appearanceVBox\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert colorSchemeChoiceBox != null : "fx:id=\"colorSchemeChoiceBox\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert showFacesToggleButton != null : "fx:id=\"showFacesToggleButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert showBackFacesToggleButton != null : "fx:id=\"showBackFacesToggleButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert tile1ColorPicker != null : "fx:id=\"tile1ColorPicker\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert tilesOpacitySlider != null : "fx:id=\"tilesOpacitySlider\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert showEdgesToggleButton != null : "fx:id=\"showEdgesToggleButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert showBackEdgesToggleButton != null : "fx:id=\"showBackEdgesToggleButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert showVerticesToggleButton != null : "fx:id=\"showNodesToggleButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert showBackVerticesToggleButton != null : "fx:id=\"showBackNodesToggleButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert bandWidthSpinner != null : "fx:id=\"bandWidthSpinner\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert bandsColorPicker != null : "fx:id=\"bandsColorPicker\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert bandsOpacitySlider != null : "fx:id=\"bandsOpacitySlider\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert smoothEdgesCheckBox != null : "fx:id=\"smoothEdgesCheckBox\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert backgroundColorPicker != null : "fx:id=\"backgroundColorPicker\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert fundamentalDomainTitledPane != null : "fx:id=\"fundamentalDomainTitledPane\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert fdomainAnchorPane != null : "fx:id=\"fdomainAnchorPane\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert fdomainToolBar != null : "fx:id=\"fdomainToolBar\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert resizeButton != null : "fx:id=\"resizeButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert straightenEdgesButton != null : "fx:id=\"straightenEdgesButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert dualizeButton != null : "fx:id=\"dualizeButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert orientateButton != null : "fx:id=\"orientateButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert removeRotationsButton != null : "fx:id=\"removeRotationsButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert maximizeButton != null : "fx:id=\"maximizeButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert stopAnimationButton != null : "fx:id=\"stopAnimationButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-        assert resetButton != null : "fx:id=\"resetButton\" was not injected: check your FXML file 'TilingEditorTab.fxml'.";
-
-        final ToggleGroup group = new ToggleGroup();
+		final ToggleGroup group = new ToggleGroup();
         group.getToggles().addAll(pointLightRadioButton, ambientLightRadioButton);
         pointLightRadioButton.setSelected(true);
     }
@@ -386,4 +349,8 @@ public class TilingEditorTabController {
     public Button getResetButton() {
         return resetButton;
     }
+
+	public VBox getEditButtonsVBox() {
+		return editButtonsVBox;
+	}
 }

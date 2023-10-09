@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ TilingEditorTab.fxml Copyright (C) 2022 Daniel H. Huson
+  ~ TilingEditorTab.fxml Copyright (C) 2023 Daniel H. Huson
   ~
   ~ (Some files contain contributions from other authors, who are then mentioned separately.)
   ~
@@ -240,7 +240,7 @@
         </TitledPane>
         <TitledPane expanded="false" maxWidth="130.0" prefWidth="130.0" style="-fx-font-size: 12;" text="Algorithms" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
             <content>
-                <VBox alignment="TOP_CENTER" prefWidth="150.0" spacing="5.0">
+                <VBox fx:id="editButtonsVBox" alignment="TOP_CENTER" prefWidth="150.0" spacing="5.0">
                     <children>
                         <Button fx:id="straightenEdgesButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-font-size: 12;" text="Straighten">
                             <tooltip>
