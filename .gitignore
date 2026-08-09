@@ -25,9 +25,8 @@ hs_err_pid*
 #Mac:
 .DS_Store
 
-# antbuild:
-antbuild/
-!antbuild/build.xml
+# maven:
+target/
 
 # intellij
 *.iml
