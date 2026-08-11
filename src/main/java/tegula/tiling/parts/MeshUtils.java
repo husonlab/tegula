@@ -67,6 +67,53 @@ public class MeshUtils {
     }
 
     /**
+     * returns a copy of a spherical mesh with explicit per-vertex normals for smooth shading.
+     * The mesh is assumed to lie on a sphere centered at the origin, so the outward normal at a
+     * vertex is simply its normalized position (negated when {@code inward} is true, e.g. for a
+     * reversed-orientation back-face mesh).
+     *
+     * @return copy in POINT_NORMAL_TEXCOORD format with radial normals
+     */
+    public static TriangleMesh withRadialNormals(TriangleMesh src, boolean inward) {
+        if (src.getVertexFormat() != VertexFormat.POINT_TEXCOORD)
+            throw new RuntimeException("Unsupported vertex format");
+
+        final TriangleMesh result = new TriangleMesh(VertexFormat.POINT_NORMAL_TEXCOORD);
+        final ObservableFloatArray points = src.getPoints();
+        result.getPoints().addAll(points);
+        result.getTexCoords().addAll(src.getTexCoords());
+
+        // one normal per point: the radial direction, since the sphere is centered at the origin
+        final float sign = inward ? -1f : 1f;
+        final float[] normals = new float[points.size()];
+        for (int i = 0; i < points.size(); i += 3) {
+            final float x = points.get(i), y = points.get(i + 1), z = points.get(i + 2);
+            final double len = Math.sqrt(x * x + y * y + z * z);
+            if (len > 0) {
+                normals[i] = (float) (sign * x / len);
+                normals[i + 1] = (float) (sign * y / len);
+                normals[i + 2] = (float) (sign * z / len);
+            } else {
+                normals[i + 2] = sign;
+            }
+        }
+        result.getNormals().addAll(normals);
+
+        // rebuild faces: each (point,texCoord) pair becomes (point,normal,texCoord), reusing the point index for the normal
+        final ObservableFaceArray srcFaces = src.getFaces();
+        final int[] faces = new int[srcFaces.size() / 2 * 3];
+        int j = 0;
+        for (int i = 0; i < srcFaces.size(); i += 2) {
+            final int p = srcFaces.get(i);
+            faces[j++] = p;
+            faces[j++] = p;
+            faces[j++] = srcFaces.get(i + 1);
+        }
+        result.getFaces().addAll(faces);
+        return result;
+    }
+
+    /**
      * combine a collection of triangle meshes
      *
      * @return combined mesh

@@ -142,6 +142,9 @@ public class SelectionSupport {
                             } else {
                                 scaleFactor = 1.0;
                                 material = new PhongMaterial(tilingStyle.getTileColor(id));
+								// A non-null specular color is required, otherwise JavaFX's point-light shader
+								// renders spherical tile faces black at grazing angles (the "dark ring" bug).
+								material.setSpecularColor(Color.WHITE);
                                 drawMode = DrawMode.FILL;
                             }
                             break;

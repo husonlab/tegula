@@ -24,7 +24,6 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.WeakInvalidationListener;
 import javafx.beans.property.*;
 import javafx.geometry.Point2D;
-import javafx.geometry.Point3D;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.layout.Background;
@@ -409,7 +408,11 @@ public class TilingPane extends StackPane implements Updateable {
         final Consumer<Node> update = (node) -> {
             final Pair<Character, Integer> pair = SelectionSupport.getTypeAndId(node);
             if (pair != null && pair.getFirst() == 't') {
-                ((MeshView) node).setMaterial(new PhongMaterial(tilingStyle.getTileColor(pair.getSecond())));
+				final PhongMaterial material = new PhongMaterial(tilingStyle.getTileColor(pair.getSecond()));
+				// A non-null specular color is required: with a null specular color, JavaFX's point-light
+				// shader renders spherical tile faces black at grazing angles (the "dark ring" bug).
+				material.setSpecularColor(Color.WHITE);
+				((MeshView) node).setMaterial(material);
             }
         };
 
