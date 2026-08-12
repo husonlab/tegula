@@ -315,7 +315,7 @@ public class FundamentalDomain {
 
                 if (tilingStyle.isShowFaces()) {
 					final MeshView meshView = new MeshView(geom == Geometry.Spherical ? MeshUtils.withRadialNormals(mesh, false) : mesh);
-                    material.setSpecularColor(Color.WHITE);
+					TilingStyle.applyTileSpecular(material);
                     meshView.setId("t=" + a2tile[a0]);
                     meshView.setMaterial(material);
                     meshes.add(mesh);
@@ -323,7 +323,7 @@ public class FundamentalDomain {
                 }
                 if (tilingStyle.isShowBackFaces()) {
 					final MeshView meshView = new MeshView(geom == Geometry.Spherical ? MeshUtils.withRadialNormals(MeshUtils.reverseOrientation(mesh), true) : MeshUtils.reverseOrientation(mesh));
-                    material.setSpecularColor(Color.WHITE);
+					TilingStyle.applyTileSpecular(material);
                     meshView.setId("t=" + a2tile[a0]);
                     meshView.setMaterial(material);
                     meshes.add(mesh);

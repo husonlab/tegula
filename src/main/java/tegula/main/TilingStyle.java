@@ -24,16 +24,32 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
 import jloda.fx.util.ColorSchemeManager;
-import jloda.util.BitSetUtils;
-
-import java.util.BitSet;
 
 /**
  * class representing styling choices for tiling
  * Daniel Huson, 11.18
  */
 public class TilingStyle {
+    /**
+     * Subtle specular highlight applied to all tile-face materials. IMPORTANT: the specular color must be
+     * non-null. With a null specular color, JavaFX's point-light shader renders spherical tile faces black at
+     * grazing angles (the "dark ring" bug that made point-light mode look broken). Keep this applied wherever a
+     * tile-face PhongMaterial is created.
+     */
+    public static final Color TILE_SPECULAR_COLOR = Color.gray(0.2);
+    public static final double TILE_SPECULAR_POWER = 128;
+
+    /**
+     * Applies the standard, subtle tile specular highlight to the given material. Always use this for tile-face
+     * materials so the specular color is never left null (see {@link #TILE_SPECULAR_COLOR}).
+     */
+    public static void applyTileSpecular(PhongMaterial material) {
+        material.setSpecularColor(TILE_SPECULAR_COLOR);
+        material.setSpecularPower(TILE_SPECULAR_POWER);
+    }
+
     private final Group decorations = new Group();
 
     private final IntegerProperty bandWidth = new SimpleIntegerProperty(4);

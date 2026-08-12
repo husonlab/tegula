@@ -409,9 +409,7 @@ public class TilingPane extends StackPane implements Updateable {
             final Pair<Character, Integer> pair = SelectionSupport.getTypeAndId(node);
             if (pair != null && pair.getFirst() == 't') {
 				final PhongMaterial material = new PhongMaterial(tilingStyle.getTileColor(pair.getSecond()));
-				// A non-null specular color is required: with a null specular color, JavaFX's point-light
-				// shader renders spherical tile faces black at grazing angles (the "dark ring" bug).
-				material.setSpecularColor(Color.WHITE);
+				TilingStyle.applyTileSpecular(material);
 				((MeshView) node).setMaterial(material);
             }
         };
