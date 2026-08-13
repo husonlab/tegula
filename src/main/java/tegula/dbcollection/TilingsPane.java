@@ -33,15 +33,15 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import jloda.fx.control.AMultipleSelectionModel;
-import jloda.util.ProgramExecutorService;
 import jloda.fx.util.SelectionEffect;
 import jloda.util.FileUtils;
+import jloda.util.ProgramExecutorService;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.DSymbolAlgorithms;
 import tegula.core.dsymbols.Geometry;
-import tegula.window.TilingStyle;
 import tegula.tilingeditor.TilingEditorTab;
 import tegula.tilingpane.TilingPane;
+import tegula.window.TilingStyle;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;

@@ -28,8 +28,8 @@ import javafx.scene.paint.Color;
 import jloda.fx.undo.UndoManager;
 import jloda.fx.undo.UndoableChangeProperty;
 import jloda.fx.util.ColorSchemeManager;
-import tegula.window.TilingStyle;
 import tegula.tilingpane.TilingPane;
+import tegula.window.TilingStyle;
 
 /**
  * setup tile color controls

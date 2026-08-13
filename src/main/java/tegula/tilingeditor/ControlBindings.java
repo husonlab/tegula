@@ -27,10 +27,10 @@ import jloda.fx.undo.UndoableChangeProperty;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.ColorSchemeManager;
 import tegula.core.dsymbols.*;
-import tegula.window.CameraSettings;
-import tegula.window.TilingStyle;
 import tegula.tilingpane.TilingPane;
 import tegula.undoable.ChangeDSymbolCommand;
+import tegula.window.CameraSettings;
+import tegula.window.TilingStyle;
 
 import java.util.ArrayList;
 

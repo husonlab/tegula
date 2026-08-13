@@ -42,14 +42,14 @@ import jloda.util.Pair;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
 import tegula.core.dsymbols.Geometry;
-import tegula.window.CameraSettings;
-import tegula.window.TilingStyle;
 import tegula.tiling.EuclideanTiling;
 import tegula.tiling.HyperbolicTiling;
 import tegula.tiling.TilingBase;
 import tegula.tiling.TilingCreator;
 import tegula.tilingeditor.SelectionSupport;
 import tegula.util.Updateable;
+import tegula.window.CameraSettings;
+import tegula.window.TilingStyle;
 
 import java.util.function.Consumer;
 

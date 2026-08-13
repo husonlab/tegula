@@ -28,15 +28,15 @@ import javafx.scene.control.Tab;
 import jloda.fx.control.AnotherMultipleSelectionModel;
 import jloda.fx.undo.UndoManager;
 import jloda.fx.util.ExtendedFXMLLoader;
-import tegula.util.Printable;
 import jloda.fx.util.RecentFilesManager;
 import jloda.util.FileUtils;
 import tegula.core.dsymbols.*;
 import tegula.fdomaineditor.FDomainEditor;
-import tegula.window.TilingStyle;
 import tegula.tiling.TilingBase;
 import tegula.tilingpane.TilingPane;
 import tegula.util.IFileBased;
+import tegula.util.Printable;
+import tegula.window.TilingStyle;
 
 import java.io.Closeable;
 import java.io.File;

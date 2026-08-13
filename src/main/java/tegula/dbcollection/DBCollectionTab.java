@@ -31,15 +31,15 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import jloda.fx.control.AMultipleSelectionModel;
 import jloda.fx.util.ExtendedFXMLLoader;
-import jloda.util.ProgramExecutorService;
-import tegula.util.Printable;
 import jloda.fx.window.NotificationManager;
 import jloda.util.FileUtils;
+import jloda.util.ProgramExecutorService;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.OrbifoldGroupName;
+import tegula.util.IFileBased;
+import tegula.util.Printable;
 import tegula.window.MainWindow;
 import tegula.window.TilingStyle;
-import tegula.util.IFileBased;
 
 import java.io.Closeable;
 import java.io.IOException;

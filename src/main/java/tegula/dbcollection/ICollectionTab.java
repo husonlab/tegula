@@ -21,11 +21,11 @@ package tegula.dbcollection;
 
 import javafx.beans.property.BooleanProperty;
 import jloda.fx.control.AMultipleSelectionModel;
-import tegula.util.Printable;
 import tegula.core.dsymbols.DSymbol;
+import tegula.util.IFileBased;
+import tegula.util.Printable;
 import tegula.window.MainWindow;
 import tegula.window.TilingStyle;
-import tegula.util.IFileBased;
 
 import java.io.Closeable;
 import java.util.function.Function;

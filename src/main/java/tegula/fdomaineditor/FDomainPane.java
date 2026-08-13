@@ -39,9 +39,9 @@ import jloda.util.BitSetUtils;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
 import tegula.geometry.Tools;
-import tegula.window.TilingStyle;
 import tegula.tilingeditor.TilingEditorTab;
 import tegula.undoable.ChangeCoordinatesCommand;
+import tegula.window.TilingStyle;
 
 import java.util.Arrays;
 import java.util.BitSet;

@@ -21,8 +21,8 @@ package tegula.tiling;
 
 import javafx.scene.Group;
 import tegula.core.dsymbols.DSymbol;
-import tegula.window.TilingStyle;
 import tegula.util.Updateable;
+import tegula.window.TilingStyle;
 
 /**
  * creates a tiling

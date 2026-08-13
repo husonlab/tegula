@@ -25,10 +25,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import jloda.fx.undo.UndoManager;
 import jloda.util.Single;
-import tegula.window.TilingStyle;
 import tegula.tilingeditor.TilingEditorTab;
 import tegula.tilingeditor.TilingEditorTabController;
 import tegula.undoable.ChangeDSymbolCommand;
+import tegula.window.TilingStyle;
 
 /**
  * the fundamental domain editor
