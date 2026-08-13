@@ -33,7 +33,7 @@ import jloda.util.NumberUtils;
 import jloda.util.Pair;
 import jloda.util.StringUtils;
 import tegula.core.dsymbols.DSymbol;
-import tegula.main.TilingStyle;
+import tegula.window.TilingStyle;
 
 import java.util.function.Consumer;
 

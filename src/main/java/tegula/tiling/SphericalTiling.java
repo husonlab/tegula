@@ -25,7 +25,7 @@ import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import jloda.fx.window.NotificationManager;
 import tegula.core.dsymbols.DSymbol;
-import tegula.main.TilingStyle;
+import tegula.window.TilingStyle;
 import tegula.tiling.parts.OctTree;
 
 import java.util.LinkedList;

@@ -31,6 +31,7 @@ import jloda.fx.window.WindowGeometry;
 import jloda.util.Basic;
 import jloda.util.CanceledException;
 import jloda.util.UsageException;
+import tegula.window.MainWindow;
 
 import java.io.File;
 import java.time.Duration;

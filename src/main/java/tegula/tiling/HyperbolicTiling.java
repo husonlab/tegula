@@ -30,7 +30,7 @@ import jloda.fx.window.NotificationManager;
 import jloda.util.ProgramProperties;
 import tegula.core.dsymbols.DSymbol;
 import tegula.geometry.Tools;
-import tegula.main.TilingStyle;
+import tegula.window.TilingStyle;
 import tegula.tiling.parts.OctTree;
 
 import java.util.ArrayList;

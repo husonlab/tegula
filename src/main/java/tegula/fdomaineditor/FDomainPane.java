@@ -39,7 +39,7 @@ import jloda.util.BitSetUtils;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.FDomain;
 import tegula.geometry.Tools;
-import tegula.main.TilingStyle;
+import tegula.window.TilingStyle;
 import tegula.tilingeditor.TilingEditorTab;
 import tegula.undoable.ChangeCoordinatesCommand;
 

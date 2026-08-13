@@ -30,7 +30,7 @@ import jloda.fx.window.NotificationManager;
 import jloda.util.ProgramProperties;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.reshape.ReshapeManager;
-import tegula.main.TilingStyle;
+import tegula.window.TilingStyle;
 import tegula.tiling.parts.QuadTree;
 import tegula.util.Updateable;
 

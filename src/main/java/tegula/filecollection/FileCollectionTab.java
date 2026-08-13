@@ -41,8 +41,8 @@ import tegula.core.dsymbols.DSymbolAlgorithms;
 import tegula.core.dsymbols.OrbifoldGroupName;
 import tegula.dbcollection.ICollectionTab;
 import tegula.dbcollection.TilingsPane;
-import tegula.main.MainWindow;
-import tegula.main.TilingStyle;
+import tegula.window.MainWindow;
+import tegula.window.TilingStyle;
 import tegula.util.IFileBased;
 
 import java.io.Closeable;

@@ -33,7 +33,7 @@ import jloda.fx.util.RecentFilesManager;
 import jloda.util.FileUtils;
 import tegula.core.dsymbols.*;
 import tegula.fdomaineditor.FDomainEditor;
-import tegula.main.TilingStyle;
+import tegula.window.TilingStyle;
 import tegula.tiling.TilingBase;
 import tegula.tilingpane.TilingPane;
 import tegula.util.IFileBased;

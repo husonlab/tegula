@@ -21,7 +21,7 @@ package tegula.tiling;
 
 import javafx.scene.Group;
 import tegula.core.dsymbols.DSymbol;
-import tegula.main.TilingStyle;
+import tegula.window.TilingStyle;
 import tegula.util.Updateable;
 
 /**

@@ -37,8 +37,8 @@ import jloda.fx.window.NotificationManager;
 import jloda.util.FileUtils;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.OrbifoldGroupName;
-import tegula.main.MainWindow;
-import tegula.main.TilingStyle;
+import tegula.window.MainWindow;
+import tegula.window.TilingStyle;
 import tegula.util.IFileBased;
 
 import java.io.Closeable;

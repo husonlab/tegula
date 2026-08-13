@@ -39,7 +39,7 @@ import tegula.core.dsymbols.FDomain;
 import tegula.core.dsymbols.Geometry;
 import tegula.core.funtiles.utils.WrapInt;
 import tegula.geometry.Tools;
-import tegula.main.TilingStyle;
+import tegula.window.TilingStyle;
 import tegula.tiling.parts.*;
 
 import java.util.ArrayList;

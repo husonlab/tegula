@@ -35,4 +35,6 @@ module tegula {
     opens tegula.dbcollection;
     opens tegula.filecollection;
     opens tegula.tilingeditor;
+	exports tegula.window;
+	opens tegula.window;
 }

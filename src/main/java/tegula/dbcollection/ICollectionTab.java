@@ -23,8 +23,8 @@ import javafx.beans.property.BooleanProperty;
 import jloda.fx.control.AMultipleSelectionModel;
 import tegula.util.Printable;
 import tegula.core.dsymbols.DSymbol;
-import tegula.main.MainWindow;
-import tegula.main.TilingStyle;
+import tegula.window.MainWindow;
+import tegula.window.TilingStyle;
 import tegula.util.IFileBased;
 
 import java.io.Closeable;

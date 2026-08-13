@@ -1,5 +1,5 @@
 /*
- * ControlBindings.java Copyright (C) 2023 Daniel H. Huson
+ * MainWindowPresenter.java Copyright (C) 2026 Daniel H. Huson
  *
  * (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.main;
+package tegula.window;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
@@ -32,6 +32,7 @@ import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.FileOpenManager;
 import jloda.fx.print.Print;
 import tegula.util.Printable;
+import tegula.main.Version;
 import jloda.fx.util.RecentFilesManager;
 import jloda.fx.window.MainWindowManager;
 import jloda.fx.window.NotificationManager;
@@ -55,7 +56,7 @@ import java.util.Optional;
  * sets up menu item bindings
  * Daniel Huson, 4.2019
  */
-public class ControlBindings {
+public class MainWindowPresenter {
     private static int windowsCreated = 1;
 
     /**

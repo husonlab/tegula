@@ -1,5 +1,5 @@
 /*
- * FileOpener.java Copyright (C) 2023 Daniel H. Huson
+ * FileOpener.java Copyright (C) 2026 Daniel H. Huson
  *
  * (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.main;
+package tegula.window;
 
 import jloda.fx.util.RecentFilesManager;
 import jloda.fx.window.MainWindowManager;

@@ -39,7 +39,7 @@ import jloda.util.FileUtils;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.DSymbolAlgorithms;
 import tegula.core.dsymbols.Geometry;
-import tegula.main.TilingStyle;
+import tegula.window.TilingStyle;
 import tegula.tilingeditor.TilingEditorTab;
 import tegula.tilingpane.TilingPane;
 

@@ -1,5 +1,5 @@
 /*
- * MainWindow.java Copyright (C) 2023 Daniel H. Huson
+ * MainWindow.java Copyright (C) 2026 Daniel H. Huson
  *
  * (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tegula.main;
+package tegula.window;
 
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -84,7 +84,7 @@ public class MainWindow implements IMainWindow {
         stage.setWidth(width);
         stage.setHeight(height);
 
-        ControlBindings.setup(this);
+        MainWindowPresenter.setup(this);
 
         final MemoryUsage memoryUsage = MemoryUsage.getInstance();
         controller.getMemoryUsageLabel().textProperty().bind(memoryUsage.memoryUsageStringProperty());

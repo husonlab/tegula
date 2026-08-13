@@ -20,7 +20,7 @@
 package tegula.undoable;
 
 import jloda.fx.undo.UndoableRedoableCommand;
-import tegula.main.TilingStyle;
+import tegula.window.TilingStyle;
 
 public class ChangeTilingStyleCommand extends UndoableRedoableCommand {
     private final TilingStyle oldTilingStyle;

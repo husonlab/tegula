@@ -1,5 +1,5 @@
 /*
- * ControlBindings.java Copyright (C) 2023 Daniel H. Huson
+ * MainWindowPresenter.java Copyright (C) 2023 Daniel H. Huson
  *
  * (Some files contain contributions from other authors, who are then mentioned separately.)
  *
@@ -27,8 +27,8 @@ import jloda.fx.undo.UndoableChangeProperty;
 import jloda.fx.undo.UndoableRedoableCommand;
 import jloda.fx.util.ColorSchemeManager;
 import tegula.core.dsymbols.*;
-import tegula.main.CameraSettings;
-import tegula.main.TilingStyle;
+import tegula.window.CameraSettings;
+import tegula.window.TilingStyle;
 import tegula.tilingpane.TilingPane;
 import tegula.undoable.ChangeDSymbolCommand;
 
