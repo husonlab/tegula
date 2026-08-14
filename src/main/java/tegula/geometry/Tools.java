@@ -86,8 +86,10 @@ public class Tools {
         if (geometry == Geometry.Euclidean) {
             return a.midpoint(b);
         } else if (geometry == Geometry.Spherical) {
-            // return (a.midpoint(b)).normalize().multiply(100);
-            return interpolateSpherePoints(a, b, 0.5);
+            // interpolateSpherePoints returns a unit-length direction; scale it back to the sphere radius (100),
+            // matching map2Dto3D/sphericalMidpoint. Without this, map3Dto2D collapses the result toward the
+            // origin, which made mirror-constrained fundamental-domain nodes jump to the middle when dragged.
+            return interpolateSpherePoints(a, b, 0.5).multiply(100);
         } else {
             return interpolateHyperbolicPoints(a, b, 0.5);
         }
