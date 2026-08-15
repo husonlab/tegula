@@ -24,6 +24,7 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.WeakInvalidationListener;
 import javafx.beans.property.*;
 import javafx.geometry.Point2D;
+import javafx.geometry.Point3D;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.layout.Background;
@@ -51,6 +52,10 @@ import tegula.util.Updateable;
 import tegula.window.CameraSettings;
 import tegula.window.TilingStyle;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -69,6 +74,12 @@ public class TilingPane extends StackPane implements Updateable {
     private final Scale worldScale = new Scale(1, 1);
 
     private final Group tiles = new Group();
+
+	// Depth sorting for semi-transparent spherical tilings: JavaFX draws 3D nodes in scene-graph order and
+	// lets transparent geometry write depth, so a near tile drawn first simply rejects the tiles behind it,
+	// which then vanish instead of showing through. Drawing the copies back to front fixes that.
+	private final List<Node> sphericalCopies = new ArrayList<>();
+	private final List<Point3D> sphericalCopyCenters = new ArrayList<>();
     private final Group world = new Group();
     private final Group universe = new Group(world);
 
@@ -153,6 +164,7 @@ public class TilingPane extends StackPane implements Updateable {
         worldRotate.addListener((observable, oldValue, newValue) -> {
             int indexOf = world.getTransforms().indexOf(oldValue);
             world.getTransforms().set(indexOf, newValue);
+			sortCopiesBackToFront();
         });
 
 
@@ -284,6 +296,7 @@ public class TilingPane extends StackPane implements Updateable {
         tiles.getChildren().setAll(getTiling().update().getChildren());
 
         getWorld().getChildren().addAll(tiles, additionalStuff);
+		setupDepthSorting();
         incrementLastWorldUpdate();
     }
 
@@ -314,6 +327,47 @@ public class TilingPane extends StackPane implements Updateable {
             tiling.increaseTiling(tiles);
         }
     }
+
+	/**
+	 * records the copies of the fundamental domain and their centers, so that they can be depth sorted
+	 */
+	private void setupDepthSorting() {
+		sphericalCopies.clear();
+		sphericalCopyCenters.clear();
+		if (getGeometry() != Geometry.Spherical)
+			return;
+		for (Node copy : tiles.getChildren()) {
+			final var bounds = copy.getBoundsInParent();
+			if (bounds.isEmpty())
+				continue;
+			sphericalCopies.add(copy);
+			sphericalCopyCenters.add(new Point3D(0.5 * (bounds.getMinX() + bounds.getMaxX()),
+					0.5 * (bounds.getMinY() + bounds.getMaxY()), 0.5 * (bounds.getMinZ() + bounds.getMaxZ())));
+		}
+		sortCopiesBackToFront();
+	}
+
+	/**
+	 * draws the copies of the fundamental domain from back to front. Only semi-transparent tilings need this:
+	 * when everything is opaque the depth buffer sorts the copies correctly by itself, whatever the order.
+	 */
+	private void sortCopiesBackToFront() {
+		if (sphericalCopies.size() < 2 || getGeometry() != Geometry.Spherical)
+			return;
+		if (getTilingStyle().getTileOpacity() >= 1 && getTilingStyle().getBandOpacity() >= 1)
+			return;
+		final Transform rotate = getWorldRotate();
+		final Map<Node, Double> depth = new HashMap<>();
+		for (int i = 0; i < sphericalCopies.size(); i++)
+			depth.put(sphericalCopies.get(i), rotate.transform(sphericalCopyCenters.get(i)).getZ());
+		// the camera looks along +z, so the largest z is the furthest away and must be drawn first.
+		// Sort a copy and then setAll: sorting the children list in place would momentarily hold a node
+		// twice, which JavaFX rejects as a duplicate child
+		final List<Node> sorted = new ArrayList<>(tiles.getChildren());
+		sorted.sort((a, b) -> Double.compare(depth.getOrDefault(b, 0.0), depth.getOrDefault(a, 0.0)));
+		if (!sorted.equals(tiles.getChildren()))
+			tiles.getChildren().setAll(sorted);
+	}
 
     public Group getWorld() {
         return world;

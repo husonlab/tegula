@@ -71,6 +71,13 @@ public class TilingStyle {
 
     private final BooleanProperty smoothEdges = new SimpleBooleanProperty(true);
 
+	// tiles in relief: delineate tiles by a gap (and optionally a lip bending into the surface),
+	// as an alternative to drawing bands along the edges. Both are in 3D units, where the sphere has radius 100.
+	private final DoubleProperty tileGap = new SimpleDoubleProperty(0);
+	private final DoubleProperty tileLipDepth = new SimpleDoubleProperty(0);
+	// draw a substrate ("grout") just below the tiles, so that the gaps do not show through the surface
+	private final BooleanProperty showTileSubstrate = new SimpleBooleanProperty(false);
+
     private final ObservableList<Color> tileColors = FXCollections.observableArrayList();
 
     private final DoubleProperty tileOpacity = new SimpleDoubleProperty(0.8);
@@ -121,6 +128,10 @@ public class TilingStyle {
         setShowBackVertices(src.isShowBackVertices());
 
         setSmoothEdges(src.isSmoothEdges());
+
+		setTileGap(src.getTileGap());
+		setTileLipDepth(src.getTileLipDepth());
+		setShowTileSubstrate(src.isShowTileSubstrate());
 
         tileColors.setAll(src.getTileColors());
         setTileOpacity(src.getTileOpacity());
@@ -254,6 +265,53 @@ public class TilingStyle {
     public void setSmoothEdges(boolean smoothEdges) {
         this.smoothEdges.set(smoothEdges);
     }
+
+	/**
+	 * amount by which each tile is inset from its true boundary; neighbouring tiles are thus separated by a
+	 * gap of twice this amount. 0 means no gap (tiles meet, as delineated by the bands)
+	 */
+	public double getTileGap() {
+		return tileGap.get();
+	}
+
+	public DoubleProperty tileGapProperty() {
+		return tileGap;
+	}
+
+	public void setTileGap(double tileGap) {
+		this.tileGap.set(tileGap);
+	}
+
+	/**
+	 * depth of the lip that runs along the tile boundary, bending down into the surface. 0 means no lip
+	 */
+	public double getTileLipDepth() {
+		return tileLipDepth.get();
+	}
+
+	public DoubleProperty tileLipDepthProperty() {
+		return tileLipDepth;
+	}
+
+	public void setTileLipDepth(double tileLipDepth) {
+		this.tileLipDepth.set(tileLipDepth);
+	}
+
+	/**
+	 * draw a substrate just below the tiles, in the band color, so that the gaps between tiles show "grout"
+	 * rather than letting one see through the surface
+	 */
+	public boolean isShowTileSubstrate() {
+		return showTileSubstrate.get();
+	}
+
+	public BooleanProperty showTileSubstrateProperty() {
+		return showTileSubstrate;
+	}
+
+	public void setShowTileSubstrate(boolean showTileSubstrate) {
+		this.showTileSubstrate.set(showTileSubstrate);
+	}
 
     public boolean isShowBackFaces() {
         return showBackFaces.get();

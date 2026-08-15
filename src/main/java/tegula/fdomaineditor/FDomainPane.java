@@ -124,7 +124,7 @@ public class FDomainPane extends StackPane {
                                 if (ds.isCycle(i, j, b)) // can be freely moved
                                     color = Color.GREEN;
                                 else
-                                    color = Color.YELLOW; // we are having problems with these
+                                    color = Color.YELLOW; // restricted to a mirror line
                                 vertexHandle.setSize(12, 12);
                             } else {
                                 color = Color.GRAY; // not moveable

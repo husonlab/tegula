@@ -164,7 +164,8 @@ public class MainWindowPresenter {
 
                 final FileChooser fileChooser = new FileChooser();
                 fileChooser.setInitialDirectory(previousFile.getParentFile());
-                fileChooser.setInitialFileName(previousFile.getName());
+                // strip the suffix; the extension filter adds it back, so the dialog shows a single suffix (macOS appends the filter's extension even when it already matches, otherwise producing e.g. "foo.tgs.tgs")
+                fileChooser.setInitialFileName(FileUtils.replaceFileSuffix(previousFile.getName(), ""));
                 fileChooser.setTitle("Append to File - " + ProgramProperties.getProgramVersion());
                 fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Tilings file", "*.tgs+", "*.tgs"));
                 File selectedFile = fileChooser.showSaveDialog(window.getStage());

@@ -26,10 +26,7 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Material;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.MeshView;
-import javafx.scene.shape.Sphere;
-import javafx.scene.shape.StrokeLineCap;
-import javafx.scene.shape.TriangleMesh;
+import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Translate;
@@ -122,6 +119,30 @@ public class FundamentalDomain {
         final Point3D[] a2VertexPoints3D = new Point3D[dsymbol.size() + 1];
         final int[][] a2ChamberFaces = new int[dsymbol.size() + 1][];
 
+		// tiles in relief: inset each tile from its true boundary (gap) and optionally run a lip along the boundary
+		final double tileGap = tilingStyle.getTileGap();
+		final double tileLipDepth = tilingStyle.getTileLipDepth();
+		final boolean tileSubstrate = tilingStyle.isShowTileSubstrate();
+		// the substrate sits just below the bottom of the lip, so that lips visually rest on it, but never
+		// closer to the tiles than MIN_SUBSTRATE_DEPTH, as otherwise it z-fights with them
+		final double substrateDepth = Math.max(tileLipDepth, TileRelief.MIN_SUBSTRATE_DEPTH);
+		// with a substrate the lip becomes the side wall of the tile and must reach all the way down to the
+		// grout floor, so that the groove is closed; without one it is a free-standing skirt
+		final double wallDepth = (tileSubstrate ? substrateDepth : tileLipDepth);
+		final boolean buildWall = tileSubstrate || tileLipDepth >= TileRelief.MIN_LIP_DEPTH;
+		final int[] boundaryIndices = TileRelief.boundaryIndices(geom, tilingStyle.isSmoothEdges());
+		final Point3D[][] a2LipBoundary = new Point3D[dsymbol.size() + 1][];
+		final Point3D[][] a2OuterBoundary = new Point3D[dsymbol.size() + 1][];
+		final Point3D[] a2TileCenter = new Point3D[dsymbol.size() + 1];
+		final Point3D[][] a2ChamberPoints = new Point3D[dsymbol.size() + 1][];
+		final double[][] a2CornerSines = new double[dsymbol.size() + 1][];
+		// a small scaling applied to all chamber points to reduce rendering problems, after any insetting
+		final double postScale = switch (geom) {
+			case Spherical -> 0.995;
+			case Hyperbolic -> 1.0125;
+			default -> 1;
+		};
+
         // compute all coordinates for each chamber:
         for (int a = 1; a <= dsymbol.size(); a++) {
             final Point3D[] chamberPoints; // points that create the triangles
@@ -197,9 +218,6 @@ public class FundamentalDomain {
                         edgePoints3D = new Point3D[]{chamberPoints[0], chamberPoints[5], chamberPoints[5], chamberPoints[1]};
                     }
                     a2VertexPoints3D[a] = chamberPoints[0];
-                    for (int i = 0; i < chamberPoints.length; i++) {
-                        chamberPoints[i] = chamberPoints[i].multiply(0.995);
-                    }
                     break;
                 }
                 case Euclidean: {
@@ -261,14 +279,51 @@ public class FundamentalDomain {
                     for (int i = 0; i < 9; i++) {
                         edgePoints3D[i] = chamberPoints[pointsOf2EdgeSorted[i]];
                     }
-                    for (int i = 0; i < chamberPoints.length; i++) {
-                        chamberPoints[i] = chamberPoints[i].multiply(1.0125);
-                    }
                     break;
                 }
                 default:
                     throw new RuntimeException("Invalid case");
             }
+
+			a2ChamberPoints[a] = chamberPoints;
+			// the angles at the two ends of the boundary are needed before any chamber is inset, because each
+			// end is shared with a neighbouring chamber and both must agree on where to move it
+			a2CornerSines[a] = TileRelief.cornerSines(chamberPoints, chamberPoints[2], boundaryIndices);
+			a2edgePoints[a] = edgePoints3D;
+			a2ChamberFaces[a] = chamberFaces;
+		}
+
+		// inset the chambers and record the resulting tile boundaries:
+		for (int a = 1; a <= dsymbol.size(); a++) {
+			final Point3D[] chamberPoints = a2ChamberPoints[a];
+
+			// The first point of the boundary is a vertex of the tiling, shared with chamber s1(a) of this same
+			// tile, and the last is an edge center, shared with chamber s0(a). The spoke from the tile center to
+			// such a point does not in general bisect the angle there, so the two chambers see the boundary
+			// leave at different angles and would offset the shared point by different amounts, leaving the tile
+			// torn open along the spoke. Both therefore use the smaller of the two sines, i.e. the larger of the
+			// two offsets, which insets the boundary by at least the requested amount on either side.
+			final double[] cornerSines = {
+					Math.min(a2CornerSines[a][0], a2CornerSines[dsymbol.getS1(a)][0]),
+					Math.min(a2CornerSines[a][1], a2CornerSines[dsymbol.getS0(a)][1])};
+
+			// un-inset copy, used to build the gap-free substrate
+			final Point3D[] preInsetPoints = TileRelief.insetTowardsCenter(geom, chamberPoints, chamberPoints[2],
+					boundaryIndices, tileGap, tileSubstrate, cornerSines);
+
+			if (postScale != 1) {
+				for (int i = 0; i < chamberPoints.length; i++) {
+					chamberPoints[i] = chamberPoints[i].multiply(postScale);
+				}
+			}
+
+			if (preInsetPoints != null) // the true tile boundary, i.e. the outer rim of the grout floor
+				a2OuterBoundary[a] = TileRelief.extractBoundary(preInsetPoints, boundaryIndices);
+
+			if (buildWall) { // record the (inset) tile boundary running through this chamber
+				a2LipBoundary[a] = TileRelief.extractBoundary(chamberPoints, boundaryIndices);
+				a2TileCenter[a] = chamberPoints[2];
+			}
 
             final float[] chamberCoordinates = new float[3 * chamberPoints.length];
 
@@ -279,8 +334,6 @@ public class FundamentalDomain {
             }
 
             a2ChamberCoordinates[a] = chamberCoordinates;
-            a2edgePoints[a] = edgePoints3D;
-            a2ChamberFaces[a] = chamberFaces;
         }
 
         if (tilingStyle.isShowFaces() || tilingStyle.isShowBackFaces()) { // construct triangles. All triangles belonging to flags of the same 0,1-orbit are put into a single mesh
@@ -329,6 +382,39 @@ public class FundamentalDomain {
                     meshes.add(mesh);
                     facesGroup.getChildren().add(meshView);
                 }
+				if (buildWall && (tilingStyle.isShowFaces() || tilingStyle.isShowBackFaces())) {
+					// the lip / side wall of the tile, running along the boundary of all of its chambers
+					final ArrayList<Point3D[]> insetBoundaries = new ArrayList<>();
+					final ArrayList<Point3D[]> outerBoundaries = new ArrayList<>();
+					Point3D tileCenter = null;
+					for (int a : dsymbol.orbitMembers(0, 1, a0)) {
+						if (a2LipBoundary[a] != null) {
+							insetBoundaries.add(a2LipBoundary[a]);
+							outerBoundaries.add(a2OuterBoundary[a]);
+							tileCenter = a2TileCenter[a];
+						}
+					}
+					if (tileCenter != null) {
+						final MeshView lipView = new MeshView(TileRelief.createLip(geom, insetBoundaries, tileCenter, wallDepth));
+						TilingStyle.applyTileSpecular(material);
+						lipView.setId("t=" + a2tile[a0]);
+						lipView.setMaterial(material);
+						// two-sided, like the grout floor: the winding of these walls comes out reversed for
+						// mirrored chambers, so back-face culling would drop the lip along some tile edges
+						lipView.setCullFace(CullFace.NONE);
+						facesGroup.getChildren().add(lipView);
+
+						if (tileSubstrate && !outerBoundaries.contains(null)) {
+							// the grout floor, filling the gap only, in the band color
+							final PhongMaterial floorMaterial = new PhongMaterial(tilingStyle.getBandColor());
+							TilingStyle.applyTileSpecular(floorMaterial);
+							final MeshView floorView = new MeshView(TileRelief.createFloorRing(geom, insetBoundaries, outerBoundaries, substrateDepth));
+							floorView.setMaterial(floorMaterial);
+							floorView.setCullFace(CullFace.NONE);
+							facesGroup.getChildren().add(floorView);
+						}
+					}
+				}
             }
         }
         if (tilingStyle.isShowEdges() || tilingStyle.isShowBackEdges()) {

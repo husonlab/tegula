@@ -56,6 +56,7 @@ public class CopyTiles {
                 target.setId(src.getId());
                 target.setUserData(src.getUserData());
                 target.setDrawMode(src.getDrawMode());
+				target.setCullFace(src.getCullFace()); // must be copied, too, or a non-default culling is lost
                 result.getChildren().add(target);
 
                 if (node.getOnMouseClicked() != null)
