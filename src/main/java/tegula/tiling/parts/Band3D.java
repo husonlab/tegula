@@ -238,15 +238,24 @@ public class Band3D {
         // sliver at every joint wherever the band turns, and the strip then reads as a dashed line.
         final Point3D[][] inner = new Point3D[n][], outer = new Point3D[n][];
         for (int i = 0; i < n; i++) {
-            double nudge = nudgeAboveAt[i];
-            if (geom == Geometry.Hyperbolic) // as in connect: hyperbolic bands ride a fixed amount above
-                nudge += 0.1;
+            final double nudge = nudgeAt(nudgeAboveAt, geom, i);
             final Point3D tangent = corners[Math.min(n - 1, i + 1)].subtract(corners[Math.max(0, i - 1)]);
             inner[i] = sideCorners(geom, corners[i], tangent, bandWidth, nudge);
             outer[i] = sideCorners(geom, corners[i], tangent, bandWidth + borderWidth, nudge);
         }
 
         final ArrayList<TriangleMesh> meshes = new ArrayList<>();
+
+        // A ring at either end, to round the join off. Two strips that meet at an angle leave a wedge open on
+        // the outside of the bend, and the strap then reads as a dashed line: the band rounds its own bend off
+        // with a disc, and this is that disc's rim. The bend is real at a vertex, where the strap turns, and
+        // comes from the curvature at the center of an edge, where the tangent of one strip is taken from its
+        // last segment and the next one's from its first. It is why the breaks show on the sphere and on the
+        // hyperboloid, whose boundary polylines curve, and not in the plane, whose refined polylines are straight.
+        addJoin(geom, corners[0], corners[1].subtract(corners[0]), bandWidth, borderWidth, nudgeAt(nudgeAboveAt, geom, 0), meshes);
+        addJoin(geom, corners[n - 1], corners[n - 1].subtract(corners[n - 2]), bandWidth, borderWidth,
+                nudgeAt(nudgeAboveAt, geom, n - 1), meshes);
+
         for (int i = 0; i + 1 < n; i++) {
             if (inner[i] == null || outer[i] == null || inner[i + 1] == null || outer[i + 1] == null)
                 continue;
@@ -274,6 +283,78 @@ public class Band3D {
             meshes.add(mesh);
         }
         return MeshUtils.combineTriangleMeshes(meshes);
+    }
+
+    /** height of the band at one of its corners, including the fixed lift that hyperbolic bands ride at */
+    private static double nudgeAt(double[] nudgeAboveAt, Geometry geom, int i) {
+        return nudgeAboveAt[i] + (geom == Geometry.Hyperbolic ? 0.1 : 0);
+    }
+
+    /**
+     * how far to either side of the outline a join reaches, as a fraction of a quarter turn. A wedge only ever
+     * opens to the side of a strap, never along it, and a join that ran the whole way round would lay a dark
+     * arc across the band that carries on through the joint.
+     */
+    private static final double JOIN_REACH = 0.3;
+
+    /**
+     * adds the arcs that round one end of an outline off, running from the edge of the band to the edge of the
+     * outline to either side of it, so that no wedge is left open whatever angle the next strip leaves at
+     */
+    private static void addJoin(Geometry geom, Point3D center, Point3D tangent, double bandWidth, double borderWidth,
+                                double nudgeAbove, ArrayList<TriangleMesh> meshes) {
+        final int steps = 24;
+        if (!(tangent.magnitude() > 0))
+            return;
+        final Point3D up = (geom == Geometry.Euclidean ? new Point3D(0, 0, 1)
+                : Tools.getNormalVector(center, geom).normalize());
+        final Point3D[] inner = BandCap3D.circle(center, tangent, bandWidth, steps, geom);
+        final Point3D[] outer = BandCap3D.circle(center, tangent, bandWidth + borderWidth, steps, geom);
+        if (inner == null || outer == null || inner.length != steps || outer.length != steps)
+            return;
+        final Point3D lift = (geom == Geometry.Euclidean ? new Point3D(0, 0, nudgeAbove) : up.multiply(nudgeAbove));
+
+        final float[] points = new float[2 * steps * 3];
+        for (int i = 0; i < steps; i++) {
+            final Point3D in = inner[i].add(lift), out = outer[i].add(lift);
+            points[6 * i] = (float) in.getX();
+            points[6 * i + 1] = (float) in.getY();
+            points[6 * i + 2] = (float) in.getZ();
+            points[6 * i + 3] = (float) out.getX();
+            points[6 * i + 4] = (float) out.getY();
+            points[6 * i + 5] = (float) out.getZ();
+        }
+        // only the quads that lie to one side or the other of the band, see JOIN_REACH
+        final java.util.List<Integer> wanted = new ArrayList<>();
+        for (int i = 0; i < steps; i++) {
+            final double turns = (i + 0.5) / steps; // 0 is along the band, 1/4 and 3/4 are to either side
+            if (Math.abs(turns - 0.25) <= 0.25 * JOIN_REACH || Math.abs(turns - 0.75) <= 0.25 * JOIN_REACH)
+                wanted.add(i);
+        }
+        final int[] faces = new int[wanted.size() * 12];
+        for (int q = 0; q < wanted.size(); q++) {
+            final int i = wanted.get(q);
+            final int in0 = 2 * i, out0 = in0 + 1, in1 = 2 * ((i + 1) % steps), out1 = in1 + 1;
+            // wind so that the front side faces out of the surface, as the rest of the band does
+            final boolean flip = outer[i].subtract(inner[i])
+                    .crossProduct(outer[(i + 1) % steps].subtract(inner[i])).dotProduct(up) < 0;
+            final int at = 12 * q;
+            if (!flip) {
+                faces[at] = in0; faces[at + 2] = out0; faces[at + 4] = out1;
+                faces[at + 6] = in0; faces[at + 8] = out1; faces[at + 10] = in1;
+            } else {
+                faces[at] = in0; faces[at + 2] = out1; faces[at + 4] = out0;
+                faces[at + 6] = in0; faces[at + 8] = in1; faces[at + 10] = out1;
+            }
+        }
+        final TriangleMesh mesh = new TriangleMesh();
+        mesh.getPoints().addAll(points);
+        mesh.getTexCoords().addAll(0.5f, 0, 0, 0, 1, 1);
+        mesh.getFaces().addAll(faces);
+        final int[] smoothing = new int[faces.length / 6];
+        Arrays.fill(smoothing, 1);
+        mesh.getFaceSmoothingGroups().addAll(smoothing);
+        meshes.add(mesh);
     }
 
     /**
