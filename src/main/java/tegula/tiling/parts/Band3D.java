@@ -291,53 +291,62 @@ public class Band3D {
     }
 
     /**
-     * how far to either side of the outline a join reaches, as a fraction of a quarter turn. A wedge only ever
-     * opens to the side of a strap, never along it, and a join that ran the whole way round would lay a dark
-     * arc across the band that carries on through the joint.
-     */
-    private static final double JOIN_REACH = 0.3;
-
-    /**
-     * adds the arcs that round one end of an outline off, running from the edge of the band to the edge of the
-     * outline to either side of it, so that no wedge is left open whatever angle the next strip leaves at
+     * adds the wedge that rounds one end of an outline off.
+     * <p>
+     * Two strips that meet at an angle leave a wedge open on the outside of the bend, and the strap then reads
+     * as a dashed line. The wedge is bounded on the inside by the edge of the band, which carries on through the
+     * joint, and on the outside by the edge of the outline. Bounding it by the band rather than by a circle
+     * matters: a circle of the band's own width cuts a little way inside the band wherever it is not exactly
+     * across it, and those slivers show as dark flecks on the band. It also decides the reach of the wedge for
+     * itself, since it closes where the edge of the band meets the edge of the outline, so there is no arbitrary
+     * angle to choose.
      */
     private static void addJoin(Geometry geom, Point3D center, Point3D tangent, double bandWidth, double borderWidth,
                                 double nudgeAbove, ArrayList<TriangleMesh> meshes) {
-        final int steps = 24;
-        if (!(tangent.magnitude() > 0))
+        final int steps = 64;
+        if (!(tangent.magnitude() > 0) || !(borderWidth > 0))
             return;
         final Point3D up = (geom == Geometry.Euclidean ? new Point3D(0, 0, 1)
                 : Tools.getNormalVector(center, geom).normalize());
-        final Point3D[] inner = BandCap3D.circle(center, tangent, bandWidth, steps, geom);
-        final Point3D[] outer = BandCap3D.circle(center, tangent, bandWidth + borderWidth, steps, geom);
-        if (inner == null || outer == null || inner.length != steps || outer.length != steps)
+        final Point3D along = tangent.normalize();
+        final Point3D across = up.crossProduct(along);
+        if (!(across.magnitude() > 0))
             return;
         final Point3D lift = (geom == Geometry.Euclidean ? new Point3D(0, 0, nudgeAbove) : up.multiply(nudgeAbove));
+        final double outer = bandWidth + borderWidth;
+        // the wedge exists only where the edge of the band still lies inside the edge of the outline
+        final double sineNeeded = bandWidth / outer;
 
-        final float[] points = new float[2 * steps * 3];
+        final ArrayList<Point3D> points = new ArrayList<>();
+        final ArrayList<int[]> quads = new ArrayList<>();
         for (int i = 0; i < steps; i++) {
-            final Point3D in = inner[i].add(lift), out = outer[i].add(lift);
-            points[6 * i] = (float) in.getX();
-            points[6 * i + 1] = (float) in.getY();
-            points[6 * i + 2] = (float) in.getZ();
-            points[6 * i + 3] = (float) out.getX();
-            points[6 * i + 4] = (float) out.getY();
-            points[6 * i + 5] = (float) out.getZ();
+            final double from = 2 * Math.PI * i / steps, to = 2 * Math.PI * (i + 1) / steps;
+            if (Math.abs(Math.sin(from)) <= sineNeeded || Math.abs(Math.sin(to)) <= sineNeeded)
+                continue;
+            final int first = points.size();
+            for (double angle : new double[]{from, to}) {
+                final Point3D direction = along.multiply(Math.cos(angle)).add(across.multiply(Math.sin(angle)));
+                points.add(center.add(direction.multiply(bandWidth / Math.abs(Math.sin(angle)))).add(lift));
+                points.add(center.add(direction.multiply(outer)).add(lift));
+            }
+            quads.add(new int[]{first, first + 1, first + 2, first + 3}); // inner, outer, next inner, next outer
         }
-        // only the quads that lie to one side or the other of the band, see JOIN_REACH
-        final java.util.List<Integer> wanted = new ArrayList<>();
-        for (int i = 0; i < steps; i++) {
-            final double turns = (i + 0.5) / steps; // 0 is along the band, 1/4 and 3/4 are to either side
-            if (Math.abs(turns - 0.25) <= 0.25 * JOIN_REACH || Math.abs(turns - 0.75) <= 0.25 * JOIN_REACH)
-                wanted.add(i);
+        if (quads.isEmpty())
+            return;
+
+        final float[] coordinates = new float[3 * points.size()];
+        for (int i = 0; i < points.size(); i++) {
+            coordinates[3 * i] = (float) points.get(i).getX();
+            coordinates[3 * i + 1] = (float) points.get(i).getY();
+            coordinates[3 * i + 2] = (float) points.get(i).getZ();
         }
-        final int[] faces = new int[wanted.size() * 12];
-        for (int q = 0; q < wanted.size(); q++) {
-            final int i = wanted.get(q);
-            final int in0 = 2 * i, out0 = in0 + 1, in1 = 2 * ((i + 1) % steps), out1 = in1 + 1;
+        final int[] faces = new int[quads.size() * 12];
+        for (int q = 0; q < quads.size(); q++) {
+            final int[] corner = quads.get(q);
+            final int in0 = corner[0], out0 = corner[1], in1 = corner[2], out1 = corner[3];
             // wind so that the front side faces out of the surface, as the rest of the band does
-            final boolean flip = outer[i].subtract(inner[i])
-                    .crossProduct(outer[(i + 1) % steps].subtract(inner[i])).dotProduct(up) < 0;
+            final boolean flip = points.get(out0).subtract(points.get(in0))
+                    .crossProduct(points.get(out1).subtract(points.get(in0))).dotProduct(up) < 0;
             final int at = 12 * q;
             if (!flip) {
                 faces[at] = in0; faces[at + 2] = out0; faces[at + 4] = out1;
@@ -348,7 +357,7 @@ public class Band3D {
             }
         }
         final TriangleMesh mesh = new TriangleMesh();
-        mesh.getPoints().addAll(points);
+        mesh.getPoints().addAll(coordinates);
         mesh.getTexCoords().addAll(0.5f, 0, 0, 0, 1, 1);
         mesh.getFaces().addAll(faces);
         final int[] smoothing = new int[faces.length / 6];
