@@ -484,7 +484,12 @@ public class TilingPane extends StackPane implements Updateable {
         final Consumer<Node> update = (node) -> {
             final Pair<Character, Integer> pair = SelectionSupport.getTypeAndId(node);
             if (pair != null && (pair.getFirst() == 'e' || pair.getFirst() == 'v')) {
-                ((MeshView) node).setMaterial(new PhongMaterial(getTilingStyle().getBandColor()));
+                // the outline of a woven band shares the edge's id but is not painted in the band color
+                final boolean outline = tegula.tiling.parts.Weave.OUTLINE.equals(node.getUserData());
+                final PhongMaterial material = new PhongMaterial(outline ? getTilingStyle().getWeaveBorderColor()
+                        : getTilingStyle().getBandColor());
+                TilingStyle.applyBandSpecular(material);
+                ((MeshView) node).setMaterial(material);
             }
         };
 

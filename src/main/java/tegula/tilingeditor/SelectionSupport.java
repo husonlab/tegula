@@ -33,6 +33,7 @@ import jloda.util.NumberUtils;
 import jloda.util.Pair;
 import jloda.util.StringUtils;
 import tegula.core.dsymbols.DSymbol;
+import tegula.tiling.parts.Weave;
 import tegula.window.TilingStyle;
 
 import java.util.function.Consumer;
@@ -120,6 +121,7 @@ public class SelectionSupport {
                             } else {
                                 scaleFactor = 1.0;
                                 material = new PhongMaterial(tilingStyle.getBandColor());
+                                TilingStyle.applyBandSpecular(material);
                                 drawMode = DrawMode.FILL;
                             }
                             break;
@@ -130,7 +132,11 @@ public class SelectionSupport {
                                 drawMode = DrawMode.LINE;
                             } else {
                                 scaleFactor = 1.0;
-                                material = new PhongMaterial(tilingStyle.getBandColor());
+                                // the outline of a woven band carries the id of its edge, so that clicking it
+                                // still selects the edge, but it is painted in the outline color, not the band's
+                                material = new PhongMaterial(Weave.OUTLINE.equals(node.getUserData())
+                                        ? tilingStyle.getWeaveBorderColor() : tilingStyle.getBandColor());
+                                TilingStyle.applyBandSpecular(material);
                                 drawMode = DrawMode.FILL;
                             }
                             break;

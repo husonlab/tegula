@@ -50,6 +50,15 @@ public class TilingStyle {
         material.setSpecularPower(TILE_SPECULAR_POWER);
     }
 
+    /**
+     * bands, their caps and the outlines of woven bands need exactly the same treatment as tiles: a material
+     * whose specular color is left null renders black wherever the surface turns away from the viewer, which
+     * on a sphere blackens every band towards the rim while those in the middle keep their color
+     */
+    public static void applyBandSpecular(PhongMaterial material) {
+        applyTileSpecular(material);
+    }
+
     private final Group decorations = new Group();
 
     private final IntegerProperty bandWidth = new SimpleIntegerProperty(4);
@@ -77,6 +86,15 @@ public class TilingStyle {
 	private final DoubleProperty tileLipDepth = new SimpleDoubleProperty(0);
 	// draw a substrate ("grout") just below the tiles, so that the gaps do not show through the surface
 	private final BooleanProperty showTileSubstrate = new SimpleBooleanProperty(false);
+
+	// interlaced bands, as in Moorish tilings: at a vertex the bands pass alternately over and under one
+	// another, and each band is outlined, so that it reads as a strap
+	private final BooleanProperty weaveEdges = new SimpleBooleanProperty(false);
+	// how far over and under the strands are displaced, in 3D units, where the sphere has radius 100
+	private final DoubleProperty weaveDepth = new SimpleDoubleProperty(1);
+	private final SimpleObjectProperty<Color> weaveBorderColor = new SimpleObjectProperty<>(Color.BLACK);
+	// width of the outline, as a fraction of the width of the band
+	private final DoubleProperty weaveBorderWidth = new SimpleDoubleProperty(0.25);
 
     private final ObservableList<Color> tileColors = FXCollections.observableArrayList();
 
@@ -132,6 +150,11 @@ public class TilingStyle {
 		setTileGap(src.getTileGap());
 		setTileLipDepth(src.getTileLipDepth());
 		setShowTileSubstrate(src.isShowTileSubstrate());
+
+		setWeaveEdges(src.isWeaveEdges());
+		setWeaveDepth(src.getWeaveDepth());
+		setWeaveBorderColor(src.getWeaveBorderColor());
+		setWeaveBorderWidth(src.getWeaveBorderWidth());
 
         tileColors.setAll(src.getTileColors());
         setTileOpacity(src.getTileOpacity());
@@ -311,6 +334,67 @@ public class TilingStyle {
 
 	public void setShowTileSubstrate(boolean showTileSubstrate) {
 		this.showTileSubstrate.set(showTileSubstrate);
+	}
+
+	/**
+	 * draw the bands along the edges as interlaced straps: wherever a vertex allows it, the bands there pass
+	 * alternately over and under one another, and every band is outlined in the border color
+	 */
+	public boolean isWeaveEdges() {
+		return weaveEdges.get();
+	}
+
+	public BooleanProperty weaveEdgesProperty() {
+		return weaveEdges;
+	}
+
+	public void setWeaveEdges(boolean weaveEdges) {
+		this.weaveEdges.set(weaveEdges);
+	}
+
+	/**
+	 * how far the strands of the weave are displaced over and under one another
+	 */
+	public double getWeaveDepth() {
+		return weaveDepth.get();
+	}
+
+	public DoubleProperty weaveDepthProperty() {
+		return weaveDepth;
+	}
+
+	public void setWeaveDepth(double weaveDepth) {
+		this.weaveDepth.set(weaveDepth);
+	}
+
+	/**
+	 * color of the thin outline drawn along both sides of each woven band
+	 */
+	public Color getWeaveBorderColor() {
+		return weaveBorderColor.get();
+	}
+
+	public SimpleObjectProperty<Color> weaveBorderColorProperty() {
+		return weaveBorderColor;
+	}
+
+	public void setWeaveBorderColor(Color weaveBorderColor) {
+		this.weaveBorderColor.set(weaveBorderColor);
+	}
+
+	/**
+	 * width of the outline of a woven band, as a fraction of the width of the band itself
+	 */
+	public double getWeaveBorderWidth() {
+		return weaveBorderWidth.get();
+	}
+
+	public DoubleProperty weaveBorderWidthProperty() {
+		return weaveBorderWidth;
+	}
+
+	public void setWeaveBorderWidth(double weaveBorderWidth) {
+		this.weaveBorderWidth.set(weaveBorderWidth);
 	}
 
     public boolean isShowBackFaces() {

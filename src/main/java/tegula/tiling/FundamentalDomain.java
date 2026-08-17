@@ -87,7 +87,9 @@ public class FundamentalDomain {
         // todo: support different colors for different edges
         {
             for (int e = 1; e < edge2material.length; e++) {
-                edge2material[e] = new PhongMaterial(tilingStyle.getBandColor());
+                final PhongMaterial material = new PhongMaterial(tilingStyle.getBandColor());
+                TilingStyle.applyBandSpecular(material);
+                edge2material[e] = material;
                 edgeWidth[e] = bandWidth;
             }
         }
@@ -97,7 +99,9 @@ public class FundamentalDomain {
         // todo: support different colors for different vertices
         {
             for (int v = 1; v < vertex2material.length; v++) {
-                vertex2material[v] = new PhongMaterial(tilingStyle.getBandColor());
+                final PhongMaterial material = new PhongMaterial(tilingStyle.getBandColor());
+                TilingStyle.applyBandSpecular(material);
+                vertex2material[v] = material;
                 vertexDiameter[v] = bandWidth;
             }
         }
@@ -420,11 +424,23 @@ public class FundamentalDomain {
         if (tilingStyle.isShowEdges() || tilingStyle.isShowBackEdges()) {
             final double linesAbove = (geom == Geometry.Euclidean ? -1 : 0);
 
+            // interlaced bands: each band rises where its strand passes over a vertex and sinks where it passes
+            // under, and the depth buffer then hides the one below. In the euclidean case the viewer looks down
+            // the z axis, so "above the surface" is towards smaller z, hence the sign
+            final boolean weave = tilingStyle.isWeaveEdges();
+            final double aboveSign = (geom == Geometry.Euclidean ? -1 : 1);
+            final int[] dartLabels = (weave ? Weave.computeDartLabels(dsymbol) : null);
+            final double weaveDepth = tilingStyle.getWeaveDepth();
+            final PhongMaterial borderMaterial = new PhongMaterial(tilingStyle.getWeaveBorderColor());
+            TilingStyle.applyBandSpecular(borderMaterial);
+            final double borderWidth = tilingStyle.getWeaveBorderWidth();
+
             for (int a0 : dsymbol.orbits(0, 2)) {
                 if (invisibleEdgeFlags!=null && invisibleEdgeFlags.get(a0))
                     continue;
 
                 final ArrayList<TriangleMesh> meshes = new ArrayList<>();
+                final ArrayList<TriangleMesh> borderMeshes = new ArrayList<>();
 
                 for (int a : dsymbol.orbitMembers(0, 2, a0)) {
                     final Point3D[] edgePoints = a2edgePoints[a];
@@ -436,11 +452,42 @@ public class FundamentalDomain {
                         meshes.add(HalfBand3D.createEuclidean(edgePoints, edgeWidth[a2edge[a]], StrokeLineCap.ROUND, null)); // todo: this is broken!
 
                     } else if (dsymbol.getS2(a) > a || fDomain.isBoundaryEdge(2, a)) {
-                        if (fDomain.getOrientation(a) != orientation) {
+                        final boolean reversed = (fDomain.getOrientation(a) != orientation);
+                        if (reversed) {
                             reverseOrderOfPoints(edgePoints);
                         }
-                        meshes.add(Band3D.connect(geom, edgePoints, edgeWidth[a2edge[a]], linesAbove, tilingStyle.getBandCapFineness() > 0 ? StrokeLineCap.ROUND : StrokeLineCap.BUTT));
+                        final StrokeLineCap cap = (tilingStyle.getBandCapFineness() > 0 ? StrokeLineCap.ROUND : StrokeLineCap.BUTT);
+                        final double width = edgeWidth[a2edge[a]];
+                        if (weave) {
+                            // these points run from the tiling vertex to the center of the edge, unless reversed
+                            final Point3D[] wovenPoints = Weave.refine(geom, edgePoints);
+                            final double[] height = Weave.heightProfile(dsymbol, dartLabels, a, wovenPoints.length, reversed, weaveDepth);
+                            final double[] nudge = new double[height.length];
+                            final double[] outlineNudge = new double[height.length];
+                            for (int i = 0; i < height.length; i++) {
+                                nudge[i] = linesAbove + aboveSign * height[i];
+                                // The outline runs beside its own band, not beneath it, so this bias is not what
+                                // makes it visible. It only settles the ties where straps meet flat at a vertex
+                                // that cannot be woven: there one strap's outline meets another's band at the
+                                // very same height, and without it the two speckle each other.
+                                outlineNudge[i] = linesAbove + aboveSign * (height[i] - 0.05 * width);
+                            }
+                            meshes.add(Band3D.connect(geom, wovenPoints, width, nudge, cap));
+                            borderMeshes.add(Band3D.outline(geom, wovenPoints, width, width * borderWidth, outlineNudge));
+                        } else {
+                            meshes.add(Band3D.connect(geom, edgePoints, width, linesAbove, cap));
+                        }
                     }
+                }
+                if (!borderMeshes.isEmpty() && tilingStyle.isShowEdges()) {
+                    // a thin strip along either side of each strap
+                    final TriangleMesh mesh = MeshUtils.combineTriangleMeshes(borderMeshes.toArray(new TriangleMesh[0]));
+                    mesh.getTexCoords().addAll(0.5f, 0, 0, 0, 1, 1);
+                    final MeshView meshView = new MeshView(mesh);
+                    meshView.setId("e=" + a2edge[a0]);
+                    meshView.setUserData(Weave.OUTLINE); // so that the band colors are not applied to it
+                    meshView.setMaterial(borderMaterial);
+                    edgesGroup.getChildren().add(meshView);
                 }
                 if (tilingStyle.isShowEdges()) {
                     final ArrayList<TriangleMesh> list = new ArrayList<>(meshes);
