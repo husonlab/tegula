@@ -252,29 +252,20 @@ public class TilingPane extends StackPane implements Updateable {
 
 		switch (getGeometry()) {
 			case Spherical -> {
-				if (tilingStyle.isSphericalUsePointLight()) {
-					if (!universe.getChildren().contains(pointLight))
-						universe.getChildren().add(pointLight);
-					universe.getChildren().remove(ambientLight);
-				} else {
-					universe.getChildren().remove(pointLight);
-					if (!universe.getChildren().contains(ambientLight))
-						universe.getChildren().add(ambientLight);
-				}
+				setupLighting(tilingStyle.isUsePointLight());
 				Platform.runLater(() -> CameraSettings.setupSphericalCamera(getCamera()));
 			}
 			case Hyperbolic -> {
-				universe.getChildren().remove(pointLight);
-				if (!universe.getChildren().contains(ambientLight))
-					universe.getChildren().add(ambientLight);
-
+				// the hyperboloid is a curved surface in its own right, and is already viewed through a
+				// perspective camera, so a point light gives it real shading just as it does the sphere
+				setupLighting(tilingStyle.isUsePointLight());
 				Platform.runLater(() -> CameraSettings.setupHyperbolicCamera(getCamera(), hyperbolicModel.get(), false)
 				);
 			}
 			case Euclidean -> {
-				universe.getChildren().remove(pointLight);
-				if (!universe.getChildren().contains(ambientLight))
-					universe.getChildren().add(ambientLight);
+				// the euclidean plane is flat, so every normal points the same way and a point light only
+				// washes it evenly: nothing is gained, and the ambient light is what it wants
+				setupLighting(false);
 				Platform.runLater(() -> CameraSettings.setupEuclideanCamera(getCamera())
 				);
 				if (false) {
@@ -327,6 +318,23 @@ public class TilingPane extends StackPane implements Updateable {
             tiling.increaseTiling(tiles);
         }
     }
+
+	/**
+	 * lights the scene either by the point light, which shades a surface by how it is turned and so brings out
+	 * its relief, or by the ambient light, which lights everything alike. The two are exclusive: were the ambient
+	 * light left on, it would flood the shading that the point light is there to give.
+	 */
+	private void setupLighting(boolean usePointLight) {
+		if (usePointLight) {
+			if (!universe.getChildren().contains(pointLight))
+				universe.getChildren().add(pointLight);
+			universe.getChildren().remove(ambientLight);
+		} else {
+			universe.getChildren().remove(pointLight);
+			if (!universe.getChildren().contains(ambientLight))
+				universe.getChildren().add(ambientLight);
+		}
+	}
 
 	/**
 	 * records the copies of the fundamental domain and their centers, so that they can be depth sorted

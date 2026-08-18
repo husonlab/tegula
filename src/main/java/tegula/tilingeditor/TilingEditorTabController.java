@@ -68,7 +68,7 @@ public class TilingEditorTabController {
     private Button showMoreTilesButton;
 
     @FXML
-    private TitledPane sphericalLightingTitledPane;
+    private TitledPane lightingTitledPane;
 
     @FXML
     private RadioButton pointLightRadioButton;
@@ -294,8 +294,8 @@ public class TilingEditorTabController {
         return hyperbolicModelTitledPane;
     }
 
-    public TitledPane getSphericalLightingTitledPane() {
-        return sphericalLightingTitledPane;
+    public TitledPane getLightingTitledPane() {
+        return lightingTitledPane;
     }
 
     public RadioButton getPointLightRadioButton() {

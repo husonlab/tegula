@@ -76,7 +76,7 @@ public class TilingStyle {
     private final BooleanProperty showVertices = new SimpleBooleanProperty(false);
     private final BooleanProperty showBackVertices = new SimpleBooleanProperty(false);
 
-    private final BooleanProperty sphericalUsePointLight = new SimpleBooleanProperty(true);
+    private final BooleanProperty usePointLight = new SimpleBooleanProperty(true);
 
     private final BooleanProperty smoothEdges = new SimpleBooleanProperty(true);
 
@@ -170,7 +170,7 @@ public class TilingStyle {
 
         setHideFirstTile(src.isHideFirstTile());
 
-        setSphericalUsePointLight(src.isSphericalUsePointLight());
+        setUsePointLight(src.isUsePointLight());
     }
 
     public void setTileColorsScheme(String colorSchemeName) {
@@ -445,16 +445,16 @@ public class TilingStyle {
         this.showBackVertices.set(showBackVertices);
     }
 
-    public boolean isSphericalUsePointLight() {
-        return sphericalUsePointLight.get();
+    public boolean isUsePointLight() {
+        return usePointLight.get();
     }
 
-    public BooleanProperty sphericalUsePointLightProperty() {
-        return sphericalUsePointLight;
+    public BooleanProperty usePointLightProperty() {
+        return usePointLight;
     }
 
-    public void setSphericalUsePointLight(boolean sphericalUsePointLight) {
-        this.sphericalUsePointLight.set(sphericalUsePointLight);
+    public void setUsePointLight(boolean usePointLight) {
+        this.usePointLight.set(usePointLight);
     }
 
     public boolean isBendAnEdge() {

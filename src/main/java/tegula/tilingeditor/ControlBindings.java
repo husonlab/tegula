@@ -289,7 +289,7 @@ public class ControlBindings {
 
 
 		controller.getPointLightRadioButton().selectedProperty().addListener((c, o, n) -> undoManager.doAndAdd(new UndoableChangeProperty<>("point lighting",
-				tilingStyle.sphericalUsePointLightProperty(), !n, n,
+				tilingStyle.usePointLightProperty(), !n, n,
 				(v) -> tilingPane.update())));
 
 		controller.getShowBackNodesToggleButton().setSelected(tilingStyle.isShowBackVertices());
@@ -398,10 +398,12 @@ public class ControlBindings {
                 controller.getHyperbolicModelTitledPane().setExpanded(false);
         });
 
-        controller.getSphericalLightingTitledPane().disableProperty().bind(tilingPane.geometryProperty().isNotEqualTo(Geometry.Spherical));
+        // the sphere and the hyperboloid are both curved, so both have something for a point light to shade;
+        // the euclidean plane has not, see TilingPane.setupLighting
+        controller.getLightingTitledPane().disableProperty().bind(tilingPane.geometryProperty().isEqualTo(Geometry.Euclidean));
         tilingPane.geometryProperty().addListener((c, o, n) -> {
-            if (n != Geometry.Spherical)
-                controller.getSphericalLightingTitledPane().setExpanded(false);
+            if (n == Geometry.Euclidean)
+                controller.getLightingTitledPane().setExpanded(false);
         });
     }
 }

@@ -108,7 +108,7 @@ public class FileCollectionTab extends Tab implements ICollectionTab, Closeable,
         tilingStyle.setBandColor(Color.BLACK);
         tilingStyle.setBackgroundColor(Color.GHOSTWHITE);
         tilingStyle.setTileColorsScheme("Alhambra");
-        tilingStyle.setSphericalUsePointLight(false);
+        tilingStyle.setUsePointLight(false);
 
         colorPreview.addListener((c, o, n) -> {
             tilingStyle.setShowFaces(n);
