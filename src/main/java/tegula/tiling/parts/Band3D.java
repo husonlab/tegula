@@ -306,7 +306,9 @@ public class Band3D {
         final int steps = 64;
         if (!(tangent.magnitude() > 0) || !(borderWidth > 0))
             return;
-        final Point3D up = (geom == Geometry.Euclidean ? new Point3D(0, 0, 1)
+        // out of the surface, which the euclidean case reaches by decreasing z: the viewer looks along +z, so
+        // taking +z here would wind the wedge away from the viewer and it would be culled away unseen
+        final Point3D up = (geom == Geometry.Euclidean ? new Point3D(0, 0, -1)
                 : Tools.getNormalVector(center, geom).normalize());
         final Point3D along = tangent.normalize();
         final Point3D across = up.crossProduct(along);
