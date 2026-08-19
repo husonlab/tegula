@@ -21,6 +21,9 @@ package tegula.core.dsymbols;
 
 import jloda.util.*;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
@@ -837,6 +840,235 @@ public class DSymbolAlgorithms {
             return 0;
         });
         return array[0];
+    }
+
+    /**
+     * the Crockford base-32 alphabet, which omits I, L, O and U so that keys cannot be misread
+     */
+    private static final String CROCKFORD_BASE32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+
+    /**
+     * default number of hash bits used in a canonical key
+     */
+    public static final int DEFAULT_KEY_BITS = 60;
+
+    /**
+     * computes the canonical form of a Delaney symbol.
+     * <p>
+     * For a connected symbol, consider for each flag a the relabeling obtained by giving a the new label 1
+     * and then, for each new label 1,2,3,... in turn, giving the next free new labels to the not-yet-labeled
+     * images of that flag under s0, s1 and s2, in this order. The canonical form is the relabeling whose
+     * string representation (with symbol number 0.0) is smallest in ASCII order.
+     * <p>
+     * If the symbol is not connected, then each connected component is canonicalized on its own and the
+     * components are concatenated in increasing order of their canonical form.
+     * <p>
+     * Two Delaney symbols are isomorphic if and only if they have the same canonical form, so the canonical
+     * form is a complete invariant and can be used as a permanent identifier for the corresponding tiling.
+     * The symbol number is set to 0.0, as it is not part of the tiling.
+     *
+     * @return canonical form
+     */
+    public static DSymbol canonicalForm(DSymbol ds) {
+        if (ds.size() == 0)
+            return new DSymbol(0);
+
+        final ArrayList<BitSet> components = connectedComponents(ds);
+        if (components.size() == 1)
+            return canonicalFormConnected(ds);
+
+        final ArrayList<DSymbol> parts = new ArrayList<>();
+        for (BitSet component : components)
+            parts.add(canonicalFormConnected(extractComponent(ds, component)));
+        parts.sort(Comparator.comparing(DSymbol::toString));
+
+        final DSymbol result = new DSymbol(0);
+        for (DSymbol part : parts)
+            result.append(part);
+        return result;
+    }
+
+    /**
+     * computes the canonical form of a Delaney symbol, as a string.
+     * This is the string that a canonical key is computed from
+     *
+     * @return canonical form as string
+     */
+    public static String canonicalString(DSymbol ds) {
+        return canonicalForm(ds).toString();
+    }
+
+    /**
+     * determines whether a Delaney symbol is already canonically labeled
+     *
+     * @return true, if canonically labeled
+     */
+    public static boolean isCanonical(DSymbol ds) {
+        final DSymbol copy = new DSymbol(ds);
+        copy.setNr1(0);
+        copy.setNr2(0);
+        copy.setComment(null);
+        return copy.toString().equals(canonicalString(ds));
+    }
+
+    /**
+     * computes the canonical key of a Delaney symbol, using the default number of hash bits
+     *
+     * @return canonical key
+     */
+    public static String canonicalKey(DSymbol ds) {
+        return canonicalKey(ds, DEFAULT_KEY_BITS);
+    }
+
+    /**
+     * computes the canonical key of a Delaney symbol.
+     * This is the size of the symbol, followed by the leading bits of the SHA-256 hash of its canonical form,
+     * written in Crockford base 32 and grouped in fours, for example DS07-K3QF-2M7V-XB4T.
+     * Isomorphic Delaney symbols have the same key. Different symbols of the same size have different keys,
+     * unless their hashes collide; because the size is part of the key, only symbols of the same size can collide
+     *
+     * @param bits number of hash bits to use, a multiple of 5 between 20 and 255
+     * @return canonical key
+     */
+    public static String canonicalKey(DSymbol ds, int bits) {
+        if (bits < 20 || bits > 255 || bits % 5 != 0)
+            throw new IllegalArgumentException("canonicalKey(): bits must be a multiple of 5 between 20 and 255, got: " + bits);
+
+        final byte[] digest;
+        try {
+            digest = MessageDigest.getInstance("SHA-256").digest(canonicalString(ds).getBytes(StandardCharsets.UTF_8));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e); // every Java platform is required to provide SHA-256
+        }
+
+        final StringBuilder buf = new StringBuilder(String.format("DS%02d", ds.size()));
+        for (int i = 0; i < bits / 5; i++) {
+            if (i % 4 == 0)
+                buf.append("-");
+            int value = 0;
+            for (int bit = 5 * i; bit < 5 * i + 5; bit++)
+                value = (value << 1) | ((digest[bit >> 3] >> (7 - (bit & 7))) & 1);
+            buf.append(CROCKFORD_BASE32.charAt(value));
+        }
+        return buf.toString();
+    }
+
+    /**
+     * canonicalizes a connected Delaney symbol
+     *
+     * @return canonical form
+     */
+    private static DSymbol canonicalFormConnected(DSymbol ds) {
+        DSymbol best = null;
+        String bestString = null;
+        for (int a = 1; a <= ds.size(); a++) {
+            final DSymbol candidate = relabelFrom(ds, a);
+            final String string = candidate.toString();
+            if (bestString == null || string.compareTo(bestString) < 0) {
+                best = candidate;
+                bestString = string;
+            }
+        }
+        return best;
+    }
+
+    /**
+     * relabels a connected Delaney symbol, giving the new label 1 to the given flag and then labeling
+     * the s0-, s1- and s2-images of each flag in turn
+     *
+     * @return relabeled symbol, with symbol number 0.0
+     */
+    private static DSymbol relabelFrom(DSymbol ds, int first) {
+        final int size = ds.size();
+        final int[] old2new = new int[size + 1];
+        final int[] new2old = new int[size + 1];
+
+        int count = 1;
+        old2new[first] = 1;
+        new2old[1] = first;
+        for (int label = 1; label <= count; label++) {
+            final int a = new2old[label];
+            for (int i = 0; i <= 2; i++) {
+                final int b = ds.getSi(i, a);
+                if (b >= 1 && b <= size && old2new[b] == 0) {
+                    old2new[b] = ++count;
+                    new2old[count] = b;
+                }
+            }
+        }
+
+        final DSymbol result = new DSymbol(size);
+        for (int a = 1; a <= size; a++) {
+            for (int i = 0; i <= 2; i++)
+                result.setSi(i, a, old2new[ds.getSi(i, new2old[a])]);
+        }
+        for (int a = 1; a <= size; a++) {
+            result.setMatrixIJ(0, 1, a, ds.getM01(new2old[a]));
+            result.setMatrixIJ(1, 2, a, ds.getM12(new2old[a]));
+            result.setMatrixIJ(0, 2, a, ds.getM02(new2old[a]));
+        }
+        return result;
+    }
+
+    /**
+     * computes the connected components of a Delaney symbol
+     *
+     * @return components, each as the set of flags that it contains
+     */
+    private static ArrayList<BitSet> connectedComponents(DSymbol ds) {
+        final ArrayList<BitSet> result = new ArrayList<>();
+        final BitSet seen = new BitSet();
+        for (int a = 1; a <= ds.size(); a++) {
+            if (!seen.get(a)) {
+                final BitSet component = new BitSet();
+                final ArrayDeque<Integer> stack = new ArrayDeque<>();
+                component.set(a);
+                seen.set(a);
+                stack.push(a);
+                while (!stack.isEmpty()) {
+                    final int b = stack.pop();
+                    for (int i = 0; i <= 2; i++) {
+                        final int c = ds.getSi(i, b);
+                        if (c >= 1 && c <= ds.size() && !component.get(c)) {
+                            component.set(c);
+                            seen.set(c);
+                            stack.push(c);
+                        }
+                    }
+                }
+                result.add(component);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * extracts the given set of flags as a Delaney symbol in its own right.
+     * The set must be closed under s0, s1 and s2
+     *
+     * @return component
+     */
+    private static DSymbol extractComponent(DSymbol ds, BitSet component) {
+        final int[] old2new = new int[ds.size() + 1];
+        final int[] new2old = new int[component.cardinality() + 1];
+
+        int count = 0;
+        for (int a = component.nextSetBit(1); a != -1; a = component.nextSetBit(a + 1)) {
+            old2new[a] = ++count;
+            new2old[count] = a;
+        }
+
+        final DSymbol result = new DSymbol(count);
+        for (int a = 1; a <= count; a++) {
+            for (int i = 0; i <= 2; i++)
+                result.setSi(i, a, old2new[ds.getSi(i, new2old[a])]);
+        }
+        for (int a = 1; a <= count; a++) {
+            result.setMatrixIJ(0, 1, a, ds.getM01(new2old[a]));
+            result.setMatrixIJ(1, 2, a, ds.getM12(new2old[a]));
+            result.setMatrixIJ(0, 2, a, ds.getM02(new2old[a]));
+        }
+        return result;
     }
 
     public static void main(String[] args) {

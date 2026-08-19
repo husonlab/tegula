@@ -37,6 +37,7 @@ import java.util.stream.StreamSupport;
 public class DSymbol {
     private long nr1;
     private int nr2;
+    private String comment;
 
     private int[][] set;
     private int[][] matrix;
@@ -81,6 +82,7 @@ public class DSymbol {
     public void clear() {
         nr1 = 0;
         nr2 = 0;
+        comment = null;
         set = new int[1][3];
         matrix = new int[1][3];
     }
@@ -92,6 +94,7 @@ public class DSymbol {
     public void copy(DSymbol src) {
         nr1 = src.nr1;
         nr2 = src.nr2;
+        comment = src.comment;
 
         set = new int[src.set.length][3];
         for (int i = 0; i < src.set.length; i++) {
@@ -181,6 +184,24 @@ public class DSymbol {
 
     public void setNr2(int nr2) {
         this.nr2 = nr2;
+    }
+
+    /**
+     * the free text that follows the symbol on its line, if any. This is where a nickname for the
+     * tiling lives. It is not part of the tiling and does not take part in comparison or canonicalization
+     *
+     * @return comment, or null
+     */
+    public String getComment() {
+        return comment;
+    }
+
+    /**
+     * sets the comment. Runs of whitespace are collapsed to single spaces, because the format is line-based,
+     * and blank text is stored as null
+     */
+    public void setComment(String comment) {
+        this.comment = (comment == null || comment.isBlank() ? null : comment.replaceAll("\\s+", " ").strip());
     }
 
     public int dim() {
@@ -660,7 +681,19 @@ public class DSymbol {
         final String line = buf.toString();
 
         if (line.startsWith("<")) {
-            final Scanner scanner = new Scanner(line.substring(1)).useDelimiter(fullDelimiters);
+            // a symbol ends at its closing '>'. Anything after that on the line is a comment,
+            // optionally introduced by a '#', and is where a nickname for the tiling lives
+            final int closing = line.indexOf('>');
+            final String symbol;
+            if (closing == -1) {
+                symbol = line;
+                setComment(null);
+            } else {
+                symbol = line.substring(0, closing + 1);
+                final String trailing = line.substring(closing + 1).strip();
+                setComment(trailing.startsWith("#") ? trailing.substring(1) : trailing);
+            }
+            final Scanner scanner = new Scanner(symbol.substring(1)).useDelimiter(fullDelimiters);
 
             nr1 = scanner.nextLong();
             nr2 = scanner.nextInt();
@@ -766,6 +799,8 @@ public class DSymbol {
                 w.write(",");
         }
         w.write(">");
+        if (comment != null)
+            w.write(" # " + comment);
     }
 
     public Rational computeCurvature() {

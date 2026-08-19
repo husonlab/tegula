@@ -55,9 +55,19 @@ public class FileCollection implements Closeable, IFileBased {
         return pageNumber < getNumberOfPages() ? getPageSize() : getTotalCount() - pageNumber * getPageSize();
     }
 
+    /**
+     * sets the lines of the file, keeping only those that hold a Delaney symbol.
+     * Anything else, such as a comment or a blank line, would otherwise be parsed into an empty
+     * symbol and shown as a blank tiling
+     */
     public void setLines(ArrayList<String> lines) {
-        this.lines.addAll(lines);
-        totalCount.set(lines.size());
+        this.lines.clear();
+        for (String line : lines) {
+            final String symbol = line.strip();
+            if (symbol.startsWith("<"))
+                this.lines.add(symbol);
+        }
+        totalCount.set(this.lines.size());
     }
 
     /**
