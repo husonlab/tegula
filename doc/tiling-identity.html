@@ -499,6 +499,44 @@
     <p>Publish the current catalogs at 60 bits. If the 2.4 billion tilings are ever released, use 80 bits for that catalog and say so in its header — the size prefix means the two schemes cannot be confused for one another.</p>
   </div>
 
+  <h3>A self-contained alternative</h3>
+
+  <p>A hash is a one-way handle: it identifies a tiling but cannot produce it, so resolving one needs a catalog. A canonical form can instead be written directly, packed into the same alphabet, and the result is a name that <em>is</em> the tiling. <code>DSymbolCode</code> does that, and the format is specified in full in its documentation.</p>
+
+  <div class="anatomy">
+    <div class="line"><span class="tok-a">DS18</span><span class="tok-c">-</span><span class="tok-b">9ANA-NANA-M040-0ANA-K14</span></div>
+    <ul class="legend">
+      <li><span class="swatch" style="background:var(--accent)"></span><span>Size of the symbol, for people; it is in the bits as well</span></li>
+      <li><span class="swatch" style="background:var(--warn)"></span><span>The canonical form itself, bit-packed, in the same Crockford base 32</span></li>
+    </ul>
+  </div>
+
+  <p>The packing spends one bit where the next flag pairs with the one after it, and short codes on the m values 3 and 4. Both are cheap because of the traversal in section 3: numbering a tile's flags consecutively is exactly what makes s_i(a) almost always the next unpaired flag. 83% of the pair-ranks come out 0 or 1, and 62% of m values are 3 or 4. The readability choice and the compression turn out to be the same choice.</p>
+
+  <div class="wide">
+    <div class="table-wrap">
+      <table>
+        <caption>What the two forms cost</caption>
+        <thead>
+          <tr><th>Symbol size</th><th>Hash key</th><th>Self-contained code</th><th>Example</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="num">1</td><td class="num">19</td><td class="num yes">9</td><td class="mono">DS01-0TH8</td></tr>
+          <tr><td class="num">7</td><td class="num">19</td><td class="num yes">16</td><td class="mono">DS07-3R55-E1RJ-G</td></tr>
+          <tr><td class="num">16</td><td class="num">19</td><td class="num">24</td><td class="mono">DS16-8AMM-MN02-5550-NDH8</td></tr>
+          <tr><td class="num">18</td><td class="num">19</td><td class="num">28</td><td class="mono">DS18-9ANA-NANA-M040-0ANA-K14</td></tr>
+          <tr><td class="num">24</td><td class="num">19</td><td class="num">38</td><td class="mono">DS24-CAN9-8GJ0-…-EM0</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p>Roughly ten characters more at the sizes that fill the catalog, in exchange for needing no registry to resolve a name, no collision analysis at all — it is a bijection, so section 4's bit budget simply does not arise — and the ability to name a tiling nobody has enumerated. That last case is not hypothetical: a reader who reshapes a tiling in Tegula has something no catalog contains, and a hash of it resolves to nothing.</p>
+
+  <p>Reading a code is deliberately forgiving of transcription: case is ignored, hyphens are optional, I and L read as 1 and O as 0, and the prefix may be left off. Decoding also re-encodes and compares, so a code that has been damaged is refused rather than silently yielding a different tiling. That catches 90.3% of single-character corruptions; the remaining 9.7% land on another valid tiling of the same size, which one extra check character would reduce roughly thirty-fold if codes are ever meant to be typed by hand rather than scanned or pasted.</p>
+
+  <p>Every character of a code is in the QR alphanumeric set, which packs 5.5 bits per character, so a code of any size we hold fits in a 25&nbsp;×&nbsp;25 module QR code at medium error correction — small enough to sit in the corner of a rendered tiling. Scanning one reconstructs the tiling offline, with no server and no catalog, which is only true because the name is reversible.</p>
+
   <h2><span class="num">5</span> The catalog number</h2>
 
   <p>Mathematicians want to write &ldquo;tiling 937&rdquo;, not a hash. A number is fine — the mistake was deriving it from the enumeration order instead of from the tilings themselves.</p>
