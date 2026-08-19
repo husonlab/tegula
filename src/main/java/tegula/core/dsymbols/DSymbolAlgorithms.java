@@ -855,13 +855,12 @@ public class DSymbolAlgorithms {
     /**
      * computes the canonical form of a Delaney symbol.
      * <p>
-     * For a connected symbol, consider for each flag a the relabeling obtained by giving a the new label 1
-     * and then, for each new label 1,2,3,... in turn, giving the next free new labels to the not-yet-labeled
-     * images of that flag under s0, s1 and s2, in this order. The canonical form is the relabeling whose
-     * string representation (with symbol number 0.0) is smallest in ASCII order.
+     * For a connected symbol, consider the relabeling obtained from each flag in turn as described in
+     * {@link #canonicalOrder}, and take the one whose protocol, see {@link #canonicalProtocol}, is
+     * smallest as a sequence of integers.
      * <p>
      * If the symbol is not connected, then each connected component is canonicalized on its own and the
-     * components are concatenated in increasing order of their canonical form.
+     * components are concatenated in increasing order of their protocol.
      * <p>
      * Two Delaney symbols are isomorphic if and only if they have the same canonical form, so the canonical
      * form is a complete invariant and can be used as a permanent identifier for the corresponding tiling.
@@ -880,7 +879,7 @@ public class DSymbolAlgorithms {
         final ArrayList<DSymbol> parts = new ArrayList<>();
         for (BitSet component : components)
             parts.add(canonicalFormConnected(extractComponent(ds, component)));
-        parts.sort(Comparator.comparing(DSymbol::toString));
+        parts.sort((a, b) -> Arrays.compare(protocol(a), protocol(b)));
 
         final DSymbol result = new DSymbol(0);
         for (DSymbol part : parts)
@@ -890,12 +889,83 @@ public class DSymbolAlgorithms {
 
     /**
      * computes the canonical form of a Delaney symbol, as a string.
-     * This is the string that a canonical key is computed from
+     * This is a valid Delaney symbol string with symbol number 0.0, so it can be read back in
      *
      * @return canonical form as string
      */
     public static String canonicalString(DSymbol ds) {
         return canonicalForm(ds).toString();
+    }
+
+    /**
+     * computes the protocol of the canonical form of a Delaney symbol.
+     * The protocol of a symbol of size n is the sequence of 5n numbers
+     * s0(1)..s0(n), s1(1)..s1(n), s2(1)..s2(n), m01(1)..m01(n), m12(1)..m12(n).
+     * It holds everything except m02, which is always 2, so a symbol can be rebuilt from it, see
+     * {@link #fromProtocol}. It is what canonical forms are compared by and what keys are computed from,
+     * so that neither depends on how a symbol happens to be written as text
+     *
+     * @return protocol of the canonical form
+     */
+    public static int[] canonicalProtocol(DSymbol ds) {
+        return protocol(canonicalForm(ds));
+    }
+
+    /**
+     * the protocol of a Delaney symbol, as written
+     *
+     * @return protocol
+     */
+    public static int[] protocol(DSymbol ds) {
+        final int size = ds.size();
+        final int[] result = new int[5 * size];
+        int k = 0;
+        for (int i = 0; i <= 2; i++) {
+            for (int a = 1; a <= size; a++)
+                result[k++] = ds.getSi(i, a);
+        }
+        for (int a = 1; a <= size; a++)
+            result[k++] = ds.getM01(a);
+        for (int a = 1; a <= size; a++)
+            result[k++] = ds.getM12(a);
+        return result;
+    }
+
+    /**
+     * the protocol, written as space-separated numbers. This is what a canonical key hashes
+     *
+     * @return protocol as string
+     */
+    public static String protocolString(int[] protocol) {
+        final StringBuilder buf = new StringBuilder();
+        for (int value : protocol) {
+            if (buf.length() > 0)
+                buf.append(" ");
+            buf.append(value);
+        }
+        return buf.toString();
+    }
+
+    /**
+     * rebuilds a Delaney symbol from its protocol. The symbol number is set to 0.0
+     *
+     * @return symbol
+     */
+    public static DSymbol fromProtocol(int[] protocol) {
+        final int size = protocol.length / 5;
+        final DSymbol result = new DSymbol(size);
+        int k = 0;
+        for (int i = 0; i <= 2; i++) {
+            for (int a = 1; a <= size; a++)
+                result.setSi(i, a, protocol[k++]);
+        }
+        for (int a = 1; a <= size; a++)
+            result.setMatrixIJ(0, 1, a, protocol[k++]);
+        for (int a = 1; a <= size; a++)
+            result.setMatrixIJ(1, 2, a, protocol[k++]);
+        for (int a = 1; a <= size; a++)
+            result.setMatrixIJ(0, 2, a, 2);
+        return result;
     }
 
     /**
@@ -922,8 +992,8 @@ public class DSymbolAlgorithms {
 
     /**
      * computes the canonical key of a Delaney symbol.
-     * This is the size of the symbol, followed by the leading bits of the SHA-256 hash of its canonical form,
-     * written in Crockford base 32 and grouped in fours, for example DS07-K3QF-2M7V-XB4T.
+     * This is the size of the symbol, followed by the leading bits of the SHA-256 hash of the protocol of
+     * its canonical form, written in Crockford base 32 and grouped in fours, for example DS07-K3QF-2M7V-XB4T.
      * Isomorphic Delaney symbols have the same key. Different symbols of the same size have different keys,
      * unless their hashes collide; because the size is part of the key, only symbols of the same size can collide
      *
@@ -931,17 +1001,36 @@ public class DSymbolAlgorithms {
      * @return canonical key
      */
     public static String canonicalKey(DSymbol ds, int bits) {
-        if (bits < 20 || bits > 255 || bits % 5 != 0)
-            throw new IllegalArgumentException("canonicalKey(): bits must be a multiple of 5 between 20 and 255, got: " + bits);
+        return keyForProtocol(canonicalProtocol(ds), bits);
+    }
 
+    /**
+     * computes the key for a protocol that is already in hand, without canonicalizing again
+     *
+     * @return key
+     */
+    public static String keyForProtocol(int[] protocol, int bits) {
         final byte[] digest;
         try {
-            digest = MessageDigest.getInstance("SHA-256").digest(canonicalString(ds).getBytes(StandardCharsets.UTF_8));
+            digest = MessageDigest.getInstance("SHA-256")
+                    .digest(protocolString(protocol).getBytes(StandardCharsets.UTF_8));
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e); // every Java platform is required to provide SHA-256
         }
+        return formatKey(protocol.length / 5, digest, bits);
+    }
 
-        final StringBuilder buf = new StringBuilder(String.format("DS%02d", ds.size()));
+    /**
+     * renders the leading bits of a hash as a key: the size of the symbol, then the bits in Crockford
+     * base 32, grouped in fours
+     *
+     * @return key
+     */
+    static String formatKey(int size, byte[] digest, int bits) {
+        if (bits < 20 || bits > 255 || bits % 5 != 0)
+            throw new IllegalArgumentException("formatKey(): bits must be a multiple of 5 between 20 and 255, got: " + bits);
+
+        final StringBuilder buf = new StringBuilder(String.format("DS%02d", size));
         for (int i = 0; i < bits / 5; i++) {
             if (i % 4 == 0)
                 buf.append("-");
@@ -959,43 +1048,110 @@ public class DSymbolAlgorithms {
      * @return canonical form
      */
     private static DSymbol canonicalFormConnected(DSymbol ds) {
-        DSymbol best = null;
-        String bestString = null;
-        for (int a = 1; a <= ds.size(); a++) {
-            final DSymbol candidate = relabelFrom(ds, a);
-            final String string = candidate.toString();
-            if (bestString == null || string.compareTo(bestString) < 0) {
+        int[] best = null;
+        int[] bestOrder = null;
+        for (int seed = 1; seed <= ds.size(); seed++) {
+            final int[] order = canonicalOrder(ds, seed);
+            if (order == null)
+                continue; // not reachable from this seed, so the symbol is not connected
+            final int[] candidate = protocolFor(ds, order);
+            if (best == null || Arrays.compare(candidate, best) < 0) {
                 best = candidate;
-                bestString = string;
+                bestOrder = order;
             }
         }
-        return best;
+        return relabel(ds, bestOrder);
     }
 
     /**
-     * relabels a connected Delaney symbol, giving the new label 1 to the given flag and then labeling
-     * the s0-, s1- and s2-images of each flag in turn
+     * the order in which a traversal from the given flag reaches the flags of a connected Delaney symbol.
+     * <p>
+     * The traversal keeps one queue per index and always draws from the lowest-index non-empty queue,
+     * taking from the back for indices 0 and 1 and from the front for index 2. Taking from the back for
+     * 0 and 1 exhausts a tile before moving to the next one, so the flags of a tile come out consecutively
+     * numbered, which makes a canonical form much easier to read. This is the traversal used by Gavrog
+     * (O. Delgado-Friedrichs, Data structures and algorithms for tilings I, Theoretical Computer
+     * Science 303 (2003) 431-445, and https://github.com/odf/gavrog)
+     *
+     * @return new2old, where new2old[k] is the flag that receives the new label k, or null if the symbol
+     * is not connected
+     */
+    private static int[] canonicalOrder(DSymbol ds, int seed) {
+        final int size = ds.size();
+        final ArrayList<ArrayDeque<Integer>> queues = new ArrayList<>();
+        for (int i = 0; i <= 2; i++)
+            queues.add(new ArrayDeque<>());
+
+        final int[] new2old = new int[size + 1];
+        final boolean[] seen = new boolean[size + 1];
+        int count = 1;
+        seen[seed] = true;
+        new2old[1] = seed;
+        for (int i = 0; i <= 2; i++)
+            queues.get(i).addLast(ds.getSi(i, seed));
+
+        while (count < size) {
+            int found = 0;
+            int via = -1;
+            scan:
+            for (int i = 0; i <= 2; i++) {
+                final ArrayDeque<Integer> queue = queues.get(i);
+                while (!queue.isEmpty()) {
+                    final int b = (i < 2 ? queue.removeLast() : queue.removeFirst());
+                    if (b >= 1 && b <= size && !seen[b]) {
+                        found = b;
+                        via = i;
+                        break scan;
+                    }
+                }
+            }
+            if (found == 0)
+                return null;
+            seen[found] = true;
+            new2old[++count] = found;
+            for (int j = 0; j <= 2; j++) {
+                if (j != via)
+                    queues.get(j).addLast(ds.getSi(j, found));
+            }
+        }
+        return new2old;
+    }
+
+    /**
+     * the protocol that the given relabeling of a Delaney symbol would have, computed without building
+     * the relabeled symbol
+     *
+     * @return protocol
+     */
+    private static int[] protocolFor(DSymbol ds, int[] new2old) {
+        final int size = ds.size();
+        final int[] old2new = new int[size + 1];
+        for (int a = 1; a <= size; a++)
+            old2new[new2old[a]] = a;
+
+        final int[] result = new int[5 * size];
+        int k = 0;
+        for (int i = 0; i <= 2; i++) {
+            for (int a = 1; a <= size; a++)
+                result[k++] = old2new[ds.getSi(i, new2old[a])];
+        }
+        for (int a = 1; a <= size; a++)
+            result[k++] = ds.getM01(new2old[a]);
+        for (int a = 1; a <= size; a++)
+            result[k++] = ds.getM12(new2old[a]);
+        return result;
+    }
+
+    /**
+     * relabels a Delaney symbol, giving the flag new2old[a] the new label a
      *
      * @return relabeled symbol, with symbol number 0.0
      */
-    private static DSymbol relabelFrom(DSymbol ds, int first) {
+    private static DSymbol relabel(DSymbol ds, int[] new2old) {
         final int size = ds.size();
         final int[] old2new = new int[size + 1];
-        final int[] new2old = new int[size + 1];
-
-        int count = 1;
-        old2new[first] = 1;
-        new2old[1] = first;
-        for (int label = 1; label <= count; label++) {
-            final int a = new2old[label];
-            for (int i = 0; i <= 2; i++) {
-                final int b = ds.getSi(i, a);
-                if (b >= 1 && b <= size && old2new[b] == 0) {
-                    old2new[b] = ++count;
-                    new2old[count] = b;
-                }
-            }
-        }
+        for (int a = 1; a <= size; a++)
+            old2new[new2old[a]] = a;
 
         final DSymbol result = new DSymbol(size);
         for (int a = 1; a <= size; a++) {
@@ -1015,7 +1171,7 @@ public class DSymbolAlgorithms {
      *
      * @return components, each as the set of flags that it contains
      */
-    private static ArrayList<BitSet> connectedComponents(DSymbol ds) {
+    static ArrayList<BitSet> connectedComponents(DSymbol ds) {
         final ArrayList<BitSet> result = new ArrayList<>();
         final BitSet seen = new BitSet();
         for (int a = 1; a <= ds.size(); a++) {
@@ -1048,7 +1204,7 @@ public class DSymbolAlgorithms {
      *
      * @return component
      */
-    private static DSymbol extractComponent(DSymbol ds, BitSet component) {
+    static DSymbol extractComponent(DSymbol ds, BitSet component) {
         final int[] old2new = new int[ds.size() + 1];
         final int[] new2old = new int[component.cardinality() + 1];
 

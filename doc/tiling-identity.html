@@ -398,7 +398,7 @@
         <tbody>
           <tr>
             <td><b>Canonical key</b><br><span style="color:var(--muted)">the identity</span></td>
-            <td class="mono">DS07-MT9P-AK0C-GB37</td>
+            <td class="mono">DS07-80VG-B42W-4N1Y</td>
             <td>Nobody — computed from the symbol</td>
             <td class="yes">Never</td>
           </tr>
@@ -433,17 +433,23 @@
 
   <h3>Specification</h3>
 
-  <p>For a connected symbol of size <i>n</i>:</p>
+  <p>For a connected symbol of size <i>n</i>, take each flag in turn as a starting point and build a relabeling:</p>
 
   <ol>
-    <li>For each flag <i>a</i> in turn, build a relabeling: give <i>a</i> the new label 1; then for each new label 1, 2, 3, … in order, give the next unused new labels to the not-yet-labeled images of that flag under s0, s1 and s2, in that order.</li>
-    <li>Write each relabeled symbol in the usual format with symbol number <code>0.0</code>.</li>
-    <li>The canonical form is the smallest of those <i>n</i> strings in ASCII byte order.</li>
+    <li>Give the starting flag the new label 1, and put its s0-, s1- and s2-images into three queues, one per index.</li>
+    <li>Repeatedly draw from the lowest-numbered non-empty queue — from the <em>back</em> for indices 0 and 1, from the <em>front</em> for index 2 — discarding flags that already have a label. Give the first unlabeled flag drawn the next new label, and put its images under the other two indices into their queues. Stop when every flag has a label.</li>
+    <li>Write down the <b>protocol</b> of that relabeling: the 5<i>n</i> numbers s0(1)…s0(n), s1(1)…s1(n), s2(1)…s2(n), m01(1)…m01(n), m12(1)…m12(n). Together with m02, which is always 2, that is the whole symbol, so a protocol can be read back.</li>
   </ol>
 
-  <p>If the symbol is not connected, canonicalize each connected component this way and concatenate the components in increasing order of their canonical form.</p>
+  <p>The canonical form is the relabeling whose protocol is smallest as a sequence of numbers. If the symbol is not connected, canonicalize each component this way and concatenate the components in increasing order of protocol.</p>
 
-  <p>Byte order is an arbitrary choice, but it is a <em>total</em> order, which is all correctness needs: isomorphic symbols produce the same set of <i>n</i> candidate strings, so they select the same minimum. It is also trivial to specify and to reimplement in any language, which matters more than elegance for something meant to be a standard.</p>
+  <h3>Why those two choices</h3>
+
+  <p>The queue discipline is Olaf Delgado-Friedrichs', used in Gavrog, and his reason for it is readability: drawing indices 0 and 1 from the back exhausts a tile before moving on, so the flags of a tile come out consecutively numbered. Across 5,000 symbols drawn from the databases this holds for <em>every</em> tile; the obvious breadth-first alternative manages it for 46%. For a catalog people are going to read, that is worth having.</p>
+
+  <p>Comparing protocols rather than written symbols matters more than it looks. A rule that compares the <em>text</em> of a symbol makes the canonical form depend on how symbols are printed — spacing, separators, digit widths — so a later change to the output format would silently change every identifier in the catalog. A sequence of numbers has no such coupling. It is also what makes the computation cheap, since candidates can be compared without ever being rendered.</p>
+
+  <p>The shape of the algorithm is Algorithm 8 of <a href="https://www.sciencedirect.com/science/article/pii/S0304397502005005">Delgado-Friedrichs (2003)</a> — try every seed, relabel, keep the smallest — which deliberately leaves the comparison open: <i>"The particular choice of comparison function is irrelevant here as long as it is used consistently."</i> Asked whether his own implementation should be treated as the standard, he replied that the queue discipline is a readability choice he has not applied consistently, and that we should use whatever works best for us. The protocol above is that choice, made once and fixed here.</p>
 
   <div class="anatomy">
     <div class="line"><span class="tok-c">&lt;0.0:</span><span class="tok-a">7</span><span class="tok-c">:</span><span class="tok-b">1 3 5 7,2 3 4 6 7,1 4 5 7</span><span class="tok-c">:</span><span class="tok-a">3 4,9 4</span><span class="tok-c">&gt;</span></div>
@@ -456,13 +462,13 @@
 
   <h2><span class="num">4</span> The canonical key</h2>
 
-  <p>The canonical form is the true identity, but it runs to a hundred-odd characters and cannot be read aloud. The key is a short stand-in: the size of the symbol, then the leading bits of the SHA-256 hash of the canonical form, written in Crockford base 32 and grouped in fours.</p>
+  <p>The canonical form is the true identity, but it runs to a hundred-odd characters and cannot be read aloud. The key is a short stand-in: the size of the symbol, then the leading bits of the SHA-256 hash of the protocol, written in Crockford base 32 and grouped in fours.</p>
 
   <div class="anatomy">
-    <div class="line"><span class="tok-a">DS07</span><span class="tok-c">-</span><span class="tok-b">MT9P-AK0C-GB37</span></div>
+    <div class="line"><span class="tok-a">DS07</span><span class="tok-c">-</span><span class="tok-b">80VG-B42W-4N1Y</span></div>
     <ul class="legend">
       <li><span class="swatch" style="background:var(--accent)"></span><span>Size of the Delaney–Dress symbol</span></li>
-      <li><span class="swatch" style="background:var(--warn)"></span><span>60 bits of SHA-256, Crockford base 32 (no I, L, O or U, so it cannot be misread)</span></li>
+      <li><span class="swatch" style="background:var(--warn)"></span><span>60 bits of SHA-256 of the protocol, Crockford base 32 (no I, L, O or U, so it cannot be misread)</span></li>
     </ul>
   </div>
 
@@ -499,7 +505,7 @@
 
   <h3>Ordering rule</h3>
 
-  <p>Sort by size, and within one size by canonical form in ASCII order. Number the result 1, 2, 3, …</p>
+  <p>Sort by size, and within one size by protocol as a sequence of numbers. Number the result 1, 2, 3, …</p>
 
   <p>This has two consequences that the current numbering lacks. Anyone holding the same set of symbols recomputes the same numbers, without needing our software or our enumeration order. And because size is the primary key, extending the catalog to larger symbols <b>appends</b> to it: every number already published keeps its meaning.</p>
 
@@ -514,10 +520,10 @@
   <h3>Publishing</h3>
 
   <ul>
-    <li><b>Deposit for a DOI.</b> Zenodo handles these sizes easily; the compressed catalogs run from 19 to 127 MB.</li>
+    <li><b>Deposit for a DOI.</b> Zenodo handles these sizes easily; the compressed catalogs run from 18 to 125 MB.</li>
     <li><b>Include a plain-text listing</b> of canonical forms, one per line, alongside the SQLite files. That is what makes the catalog definitive rather than Tegula's — anyone can regenerate the numbering from it with no dependency on our code.</li>
     <li><b>Include the canonicalization specification</b> (section 3) as prose, plus the reference implementation.</li>
-    <li><b>Make the keys resolvable.</b> <code>tegula.org/t/DS07-MT9P-AK0C-GB37</code> returning a page with a picture is what makes an identifier feel real. A number nobody can click stays theoretical.</li>
+    <li><b>Make the keys resolvable.</b> <code>tegula.org/t/DS07-80VG-B42W-4N1Y</code> returning a page with a picture is what makes an identifier feel real. A number nobody can click stays theoretical.</li>
   </ul>
 
   <h2><span class="num">6</span> A name a person can read</h2>
@@ -545,9 +551,9 @@ hyperbolic 2*32  2/3/2  [3,4]</code></pre>
           <tr><th>Key</th><th>Canonical form</th><th>Nickname</th></tr>
         </thead>
         <tbody>
-          <tr><td class="mono">DS01-XCS5-2MTA-3JS5</td><td class="mono">&lt;0.0:1:1,1,1:3,6&gt;</td><td>triangular tiling (3⁶)</td></tr>
-          <tr><td class="mono">DS01-M90V-X3VS-SRA0</td><td class="mono">&lt;0.0:1:1,1,1:4,4&gt;</td><td>square tiling (4⁴)</td></tr>
-          <tr><td class="mono">DS01-BFGZ-GPHS-VGGZ</td><td class="mono">&lt;0.0:1:1,1,1:6,3&gt;</td><td>hexagonal tiling (6³)</td></tr>
+          <tr><td class="mono">DS01-B4Y4-SSXD-74HE</td><td class="mono">&lt;0.0:1:1,1,1:3,6&gt;</td><td>triangular tiling (3⁶)</td></tr>
+          <tr><td class="mono">DS01-55FG-YB12-D4DN</td><td class="mono">&lt;0.0:1:1,1,1:4,4&gt;</td><td>square tiling (4⁴)</td></tr>
+          <tr><td class="mono">DS01-6PVJ-6MT6-MZWT</td><td class="mono">&lt;0.0:1:1,1,1:6,3&gt;</td><td>hexagonal tiling (6³)</td></tr>
         </tbody>
       </table>
     </div>
@@ -572,12 +578,12 @@ hyperbolic 2*32  2/3/2  [3,4]</code></pre>
           <tr>
             <td><b>Isomorphism invariance</b></td>
             <td>5,000 symbols drawn from <code>tilings-1-16</code> and <code>euclidean-1-24</code>, each randomly relabeled 40 ways</td>
-            <td><span class="yes">200,000 relabelings, zero disagreements.</span> Every canonical form also isomorphic to its input, and idempotent</td>
+            <td><span class="yes">200,000 relabelings, zero disagreements.</span> Every canonical form also isomorphic to its input, and idempotent; every protocol reads back to its own form</td>
           </tr>
           <tr>
             <td><b>Independent of the enumeration</b></td>
             <td>Full catalogs built from <code>tilings-1-18</code> and <code>tilings-1-19</code> — same 5,214,516 tilings, numbered differently in the two files</td>
-            <td><span class="yes">Byte-identical catalogs</span> over all 5,214,516 rows (md5 <code>63bd9d19…</code>)</td>
+            <td><span class="yes">Byte-identical catalogs</span> over all 5,214,516 rows (md5 <code>74d21512…</code>)</td>
           </tr>
           <tr>
             <td><b>Extension appends</b></td>
@@ -588,6 +594,16 @@ hyperbolic 2*32  2/3/2  [3,4]</code></pre>
             <td><b>Keys cross databases</b></td>
             <td>All 1,157 euclidean tilings of size ≤ 10 present in both <code>euclidean-1-24</code> and <code>tilings-1-19</code></td>
             <td><span class="yes">Zero key disagreements</span>, while catalog numbers correctly differ</td>
+          </tr>
+          <tr>
+            <td><b>Readable labelling</b></td>
+            <td>Are the flags of a tile consecutively numbered in the canonical form?</td>
+            <td><span class="yes">100% of tiles</span> across 5,000 symbols, against 46% for a breadth-first traversal</td>
+          </tr>
+          <tr>
+            <td><b>Agrees with Gavrog on classes</b></td>
+            <td>Our canonical form against a port of Gavrog's <code>invariant()</code>, over every symbol of size ≤ 12</td>
+            <td><span class="yes">Same partition</span> — 30,759 symbols, 30,759 distinct values under both</td>
           </tr>
           <tr>
             <td><b>No collisions</b></td>
@@ -607,11 +623,16 @@ hyperbolic 2*32  2/3/2  [3,4]</code></pre>
 
   <pre><code>canonicalForm(ds)        → DSymbol   the canonical representative
 canonicalString(ds)      → String    that form, as a valid D-symbol string
-canonicalKey(ds)         → String    "DS07-MT9P-AK0C-GB37", 60 bits
+canonicalProtocol(ds)    → int[]     its protocol, the normative object
+canonicalKey(ds)         → String    "DS07-80VG-B42W-4N1Y", 60 bits
 canonicalKey(ds, bits)   → String    any multiple of 5 from 20 to 255
+keyForProtocol(p, bits)  → String    for a protocol already in hand
+protocol(ds) / fromProtocol(p)       protocol of any symbol, and back
 isCanonical(ds)          → boolean</code></pre>
 
-  <p>Canonicalization is O(<i>n</i>²) in the size of the symbol. Measured on this machine it costs about 50&nbsp;µs at size 12 and 170&nbsp;µs at size 24 — cheap enough to call in the interface, where a page of a hundred thumbnails stays under a fifth of a second, but not so cheap that a sweep over millions can skip being parallelized.</p>
+  <p>Canonicalization is O(<i>n</i>²) in the size of the symbol, measured at about 11&nbsp;µs per symbol over a mixed sample of sizes 4 to 24. That is cheap enough to call anywhere — per thumbnail, per redraw, in a sweep over millions.</p>
+
+  <p>Alongside it, <code>GavrogInvariant</code> is a port of <code>DelaneySymbol.invariant()</code> from Gavrog. It is not used to compute identifiers; it exists so the catalog can carry Gavrog's invariant as a cross-reference column, the way EPINET carries RCSR names beside its own. The two canonicalizations pick different representatives but induce exactly the same partition into isomorphism classes, checked over 30,759 symbols.</p>
 
   <h3>tegula.db.CatalogNumbering</h3>
 
@@ -619,7 +640,7 @@ isCanonical(ds)          → boolean</code></pre>
      tegula.db.CatalogNumbering -i tilings/tilings-1-19.tdb \
                                 -o catalog/tilings-1-19.catalog.tsv.gz</code></pre>
 
-  <p>Reads a <code>.tdb</code>, canonicalizes in parallel, sorts, numbers, and writes <code>number, key, size, canonical_symbol, source_id</code>. It reports isomorphic duplicates and hash collisions on every run. <code>-k</code> sets the key width, <code>-m</code> restricts by size, and <code>-u</code> adds indexed <code>canonical_key</code> and <code>catalog_number</code> columns to the database in place. Throughput is about 30,000 symbols per second on sixteen cores, so each of the 5.2 million-tiling databases takes roughly three minutes end to end.</p>
+  <p>Reads a <code>.tdb</code>, canonicalizes in parallel, sorts, numbers, and writes <code>number, key, size, canonical_symbol, source_id</code>. It reports isomorphic duplicates and hash collisions on every run. <code>-k</code> sets the key width, <code>-m</code> restricts by size, and <code>-u</code> adds indexed <code>canonical_key</code> and <code>catalog_number</code> columns to the database in place. Throughput is about 80,000 symbols per second on sixteen cores; all five databases rebuild in about four minutes.</p>
 
   <p>Once a database carries the <code>canonical_key</code> column, Tegula's existing search box can already filter on it — the select expression is passed through to SQL unchanged.</p>
 
@@ -645,11 +666,11 @@ isCanonical(ds)          → boolean</code></pre>
           <tr><th>Catalog</th><th class="num">Tilings</th><th class="num">Sizes</th><th class="num">Compressed</th><th class="num">Duplicates</th><th class="num">Collisions</th></tr>
         </thead>
         <tbody>
-          <tr><td class="mono">tilings-1-16</td><td class="num">795,590</td><td class="num">1–16</td><td class="num">19 MB</td><td class="num">0</td><td class="num">0</td></tr>
-          <tr><td class="mono">tilings-1-18</td><td class="num">5,214,516</td><td class="num">1–18</td><td class="num">127 MB</td><td class="num">0</td><td class="num">0</td></tr>
-          <tr><td class="mono">tilings-1-19</td><td class="num">5,214,516</td><td class="num">1–18</td><td class="num">126 MB</td><td class="num">0</td><td class="num">0</td></tr>
-          <tr><td class="mono">euclidean-1-24</td><td class="num">1,728,488</td><td class="num">1–24</td><td class="num">44 MB</td><td class="num">0</td><td class="num">0</td></tr>
-          <tr><td class="mono">spherical-1-24</td><td class="num">2,155,818</td><td class="num">1–24</td><td class="num">50 MB</td><td class="num">0</td><td class="num">0</td></tr>
+          <tr><td class="mono">tilings-1-16</td><td class="num">795,590</td><td class="num">1–16</td><td class="num">18 MB</td><td class="num">0</td><td class="num">0</td></tr>
+          <tr><td class="mono">tilings-1-18</td><td class="num">5,214,516</td><td class="num">1–18</td><td class="num">125 MB</td><td class="num">0</td><td class="num">0</td></tr>
+          <tr><td class="mono">tilings-1-19</td><td class="num">5,214,516</td><td class="num">1–18</td><td class="num">124 MB</td><td class="num">0</td><td class="num">0</td></tr>
+          <tr><td class="mono">euclidean-1-24</td><td class="num">1,728,488</td><td class="num">1–24</td><td class="num">43 MB</td><td class="num">0</td><td class="num">0</td></tr>
+          <tr><td class="mono">spherical-1-24</td><td class="num">2,155,818</td><td class="num">1–24</td><td class="num">49 MB</td><td class="num">0</td><td class="num">0</td></tr>
         </tbody>
       </table>
     </div>

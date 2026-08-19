@@ -8,15 +8,18 @@ Each file is a gzipped, tab-separated table with a comment header and the column
 | column | meaning |
 | --- | --- |
 | `number` | catalog number: position in this catalog, counting from 1 |
-| `key` | canonical key, e.g. `DS07-MT9P-AK0C-GB37` |
+| `key` | canonical key, e.g. `DS07-80VG-B42W-4N1Y` |
 | `size` | size of the Delaney-Dress symbol |
 | `canonical_symbol` | the canonical form, a valid D-symbol string with number `0.0` |
 | `source_id` | the `id` this tiling happens to have in the source database |
 
-Tilings are ordered by increasing size, then by increasing canonical form in ASCII order. That
-order depends only on the set of tilings, so the numbering is reproducible from the canonical
-forms alone, and extending a catalog to larger symbols appends to it rather than renumbering it.
-The `source_id` is the only column that is specific to the source database.
+Tilings are ordered by increasing size, then by increasing protocol, where the protocol of a symbol
+of size n is the sequence of 5n numbers s0(1)..s0(n), s1(1)..s1(n), s2(1)..s2(n), m01(1)..m01(n),
+m12(1)..m12(n) of its canonical form. Comparing protocols rather than text means neither the
+ordering nor the keys depend on how a symbol happens to be printed. The order depends only on the
+set of tilings, so the numbering is reproducible from the canonical forms alone, and extending a
+catalog to larger symbols appends to it rather than renumbering it. The `source_id` is the only
+column that is specific to the source database.
 
 The scheme, the canonicalization algorithm and the verification results are described in
 [../doc/tiling-identity.html](../doc/tiling-identity.html).

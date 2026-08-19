@@ -48,9 +48,12 @@ public class CatalogNumbering {
     private static final int BATCH_SIZE = 1 << 16;
 
     /**
-     * one tiling of the catalog
+     * one tiling of the catalog, held as the protocol of its canonical form
      */
-    public record Entry(long sourceId, int size, String canonical) {
+    public record Entry(long sourceId, int[] protocol) {
+        public int size() {
+            return protocol.length / 5;
+        }
     }
 
     public static void main(String[] args) {
@@ -92,12 +95,12 @@ public class CatalogNumbering {
         }
         System.err.printf("Tilings read:      %,13d%n", entries.size());
 
-        entries.sort(Comparator.comparingInt(Entry::size).thenComparing(Entry::canonical));
+        entries.sort(Comparator.comparingInt(Entry::size).thenComparing(Entry::protocol, Arrays::compare));
         removeDuplicates(entries);
 
         final String[] keys = new String[entries.size()];
         IntStream.range(0, keys.length).parallel()
-                .forEach(i -> keys[i] = DSymbolAlgorithms.canonicalKey(new DSymbol(entries.get(i).canonical()), keyBits));
+                .forEach(i -> keys[i] = DSymbolAlgorithms.keyForProtocol(entries.get(i).protocol(), keyBits));
         final int collisions = reportCollisions(entries, keys, keyBits);
 
         try (Writer w = FileUtils.getOutputWriterPossiblyZIPorGZIP(outputFile)) {
@@ -153,7 +156,7 @@ public class CatalogNumbering {
         IntStream.range(0, array.length).parallel().forEach(i -> {
             final DSymbol ds = new DSymbol(symbols.get(i));
             if (maxSize == 0 || ds.size() <= maxSize)
-                array[i] = new Entry(ids.get(i), ds.size(), DSymbolAlgorithms.canonicalString(ds));
+                array[i] = new Entry(ids.get(i), DSymbolAlgorithms.canonicalProtocol(ds));
         });
         for (Entry entry : array) {
             if (entry != null)
@@ -171,10 +174,11 @@ public class CatalogNumbering {
         int keep = 0;
         int duplicates = 0;
         for (int i = 0; i < entries.size(); i++) {
-            if (i > 0 && entries.get(i).canonical().equals(entries.get(keep - 1).canonical())) {
+            if (i > 0 && Arrays.equals(entries.get(i).protocol(), entries.get(keep - 1).protocol())) {
                 if (++duplicates <= 10)
                     System.err.printf("Duplicate: source ids %d and %d are isomorphic: %s%n",
-                            entries.get(keep - 1).sourceId(), entries.get(i).sourceId(), entries.get(i).canonical());
+                            entries.get(keep - 1).sourceId(), entries.get(i).sourceId(),
+                            DSymbolAlgorithms.fromProtocol(entries.get(i).protocol()));
                 if (entries.get(i).sourceId() < entries.get(keep - 1).sourceId())
                     entries.set(keep - 1, entries.get(i));
             } else
@@ -202,7 +206,8 @@ public class CatalogNumbering {
             final TreeMap<String, List<String>> details = new TreeMap<>();
             for (int i = 0; i < keys.length; i++) {
                 if (colliding.contains(keys[i]))
-                    details.computeIfAbsent(keys[i], k -> new ArrayList<>()).add(entries.get(i).canonical());
+                    details.computeIfAbsent(keys[i], k -> new ArrayList<>())
+                            .add(DSymbolAlgorithms.fromProtocol(entries.get(i).protocol()).toString());
             }
             details.forEach((key, forms) -> System.err.printf("Collision: %s <- %s%n", key, String.join(" ", forms)));
         }
@@ -218,13 +223,14 @@ public class CatalogNumbering {
         w.write("# Tegula tiling catalog\n");
         w.write("# source: %s\n".formatted(FileUtils.getFileNameWithoutPath(inputFile)));
         w.write("# tilings: %d\n".formatted(entries.size()));
-        w.write("# key: size, then the leading %d bits of the SHA-256 hash of the canonical form, in Crockford base 32\n".formatted(keyBits));
-        w.write("# order: by increasing size, then by increasing canonical form in ASCII order\n");
+        w.write("# key: size, then the leading %d bits of the SHA-256 hash of the protocol, in Crockford base 32\n".formatted(keyBits));
+        w.write("# order: by increasing size, then by increasing protocol as a sequence of numbers\n");
         w.write("number\tkey\tsize\tcanonical_symbol\tsource_id\n");
 
         for (int i = 0; i < entries.size(); i++) {
             final Entry entry = entries.get(i);
-            w.write("%d\t%s\t%d\t%s\t%d\n".formatted(i + 1, keys[i], entry.size(), entry.canonical(), entry.sourceId()));
+            w.write("%d\t%s\t%d\t%s\t%d\n".formatted(i + 1, keys[i], entry.size(),
+                    DSymbolAlgorithms.fromProtocol(entry.protocol()), entry.sourceId()));
         }
     }
 
