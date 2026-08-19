@@ -21,6 +21,11 @@ set of tilings, so the numbering is reproducible from the canonical forms alone,
 catalog to larger symbols appends to it rather than renumbering it. The `source_id` is the only
 column that is specific to the source database.
 
+Passing `-g` adds a sixth column holding Delgado-Friedrichs' invariant, as computed by Gavrog, for
+anyone who wants to join a catalog against Gavrog's own identifier for the same tiling. It is not
+stored here: it adds about half again to the size of a catalog, and it is easier to regenerate on
+demand than to carry for everybody.
+
 The scheme, the canonicalization algorithm and the verification results are described in
 [../doc/tiling-identity.html](../doc/tiling-identity.html).
 

@@ -26,6 +26,7 @@ import jloda.util.FileUtils;
 import org.sqlite.SQLiteConfig;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.DSymbolAlgorithms;
+import tegula.core.dsymbols.GavrogInvariant;
 
 import java.io.*;
 import java.sql.*;
@@ -84,6 +85,8 @@ public class CatalogNumbering {
         final int maxSize = options.getOption("-m", "maxSize", "Only consider symbols up to this size (0: all)", 0);
         final boolean updateDatabase = options.getOption("-u", "updateDatabase",
                 "Add canonical_key and catalog_number columns to the input database, modifying it in place", false);
+        final boolean gavrogInvariant = options.getOption("-g", "gavrogInvariant",
+                "Append Delgado-Friedrichs' invariant, as computed by Gavrog, as a last column", false);
         options.done();
 
         if (!FileUtils.fileExistsAndIsNonEmpty(inputFile))
@@ -104,7 +107,7 @@ public class CatalogNumbering {
         final int collisions = reportCollisions(entries, keys, keyBits);
 
         try (Writer w = FileUtils.getOutputWriterPossiblyZIPorGZIP(outputFile)) {
-            write(w, entries, keys, keyBits, inputFile);
+            write(w, entries, keys, keyBits, inputFile, gavrogInvariant);
         }
         if (!outputFile.toLowerCase().startsWith("std"))
             System.err.println("Catalog written to: " + outputFile);
@@ -219,18 +222,35 @@ public class CatalogNumbering {
     /**
      * writes the catalog
      */
-    private void write(Writer w, List<Entry> entries, String[] keys, int keyBits, String inputFile) throws IOException {
+    private void write(Writer w, List<Entry> entries, String[] keys, int keyBits, String inputFile,
+                       boolean gavrogInvariant) throws IOException {
         w.write("# Tegula tiling catalog\n");
         w.write("# source: %s\n".formatted(FileUtils.getFileNameWithoutPath(inputFile)));
         w.write("# tilings: %d\n".formatted(entries.size()));
         w.write("# key: size, then the leading %d bits of the SHA-256 hash of the protocol, in Crockford base 32\n".formatted(keyBits));
         w.write("# order: by increasing size, then by increasing protocol as a sequence of numbers\n");
-        w.write("number\tkey\tsize\tcanonical_symbol\tsource_id\n");
+        if (gavrogInvariant)
+            w.write("# gavrog_invariant: DelaneySymbol.invariant() of Gavrog, for cross-reference\n");
+        w.write("number\tkey\tsize\tcanonical_symbol\tsource_id%s\n".formatted(gavrogInvariant ? "\tgavrog_invariant" : ""));
 
-        for (int i = 0; i < entries.size(); i++) {
-            final Entry entry = entries.get(i);
-            w.write("%d\t%s\t%d\t%s\t%d\n".formatted(i + 1, keys[i], entry.size(),
-                    DSymbolAlgorithms.fromProtocol(entry.protocol()), entry.sourceId()));
+        // the symbol, and the invariant if it was asked for, are rendered in parallel batches, so that
+        // neither has to be held in memory for the whole catalog
+        for (int start = 0; start < entries.size(); start += BATCH_SIZE) {
+            final int stop = Math.min(start + BATCH_SIZE, entries.size());
+            final int base = start;
+            final String[] symbols = new String[stop - start];
+            final String[] invariants = new String[stop - start];
+            IntStream.range(0, stop - start).parallel().forEach(j -> {
+                final DSymbol ds = DSymbolAlgorithms.fromProtocol(entries.get(base + j).protocol());
+                symbols[j] = ds.toString();
+                if (gavrogInvariant)
+                    invariants[j] = GavrogInvariant.invariantString(ds);
+            });
+            for (int j = 0; j < stop - start; j++) {
+                final Entry entry = entries.get(base + j);
+                w.write("%d\t%s\t%d\t%s\t%d%s\n".formatted(base + j + 1, keys[base + j], entry.size(),
+                        symbols[j], entry.sourceId(), gavrogInvariant ? "\t" + invariants[j] : ""));
+            }
         }
     }
 

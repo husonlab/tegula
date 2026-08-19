@@ -632,7 +632,7 @@ isCanonical(ds)          → boolean</code></pre>
 
   <p>Canonicalization is O(<i>n</i>²) in the size of the symbol, measured at about 11&nbsp;µs per symbol over a mixed sample of sizes 4 to 24. That is cheap enough to call anywhere — per thumbnail, per redraw, in a sweep over millions.</p>
 
-  <p>Alongside it, <code>GavrogInvariant</code> is a port of <code>DelaneySymbol.invariant()</code> from Gavrog. It is not used to compute identifiers; it exists so the catalog can carry Gavrog's invariant as a cross-reference column, the way EPINET carries RCSR names beside its own. The two canonicalizations pick different representatives but induce exactly the same partition into isomorphism classes, checked over 30,759 symbols.</p>
+  <p>Alongside it, <code>GavrogInvariant</code> is a port of <code>DelaneySymbol.invariant()</code> from Gavrog. It computes no identifiers of ours; passing <code>-g</code> appends it as a sixth column, for anyone who wants to join a catalog against Gavrog's own identifier for the same tiling. It is not carried in the published catalogs — it would add about half again to their size, to serve a handful of readers who can regenerate it in a minute. The two canonicalizations pick different representatives but induce exactly the same partition into isomorphism classes, checked over 30,759 symbols.</p>
 
   <h3>tegula.db.CatalogNumbering</h3>
 
@@ -705,8 +705,8 @@ isCanonical(ds)          → boolean</code></pre>
     <li>
       <span class="mark">04</span>
       <span>
-        <span class="q">Do other tools tolerate a trailing comment?</span><br>
-        <span class="a">Tegula now reads and writes one, and the slot sits outside the D-symbol grammar, which is the smallest possible imposition on another reader. But whether Gavrog and genDSyms actually skip text after the <code>&gt;</code> has not been tested. Worth checking with a real file before putting comments in anything meant to be shared.</span>
+        <span class="q">Which cross-references should a published catalog carry?</span><br>
+        <span class="a">Gavrog's invariant can be generated on demand with <code>-g</code>, which is the right default for something only a few readers want. EPINET numbers its own D-symbol-defined hyperbolic tilings, as <code>QC164</code> and the like, and that corpus overlaps ours directly, so matching against it is the more valuable link. Both are worth settling when the published list is settled, not before.</span>
       </span>
     </li>
     <li>
