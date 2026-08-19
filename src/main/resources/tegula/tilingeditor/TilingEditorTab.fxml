@@ -42,6 +42,8 @@
                                 <CheckMenuItem fx:id="showQRCodeMenuItem" mnemonicParsing="false" text="Show QR Code" />
                             </items>
                         </MenuButton>
+                        <!-- the Appearance titled pane floats over the right 130 pixels of this bar -->
+                        <Region maxWidth="130.0" minWidth="130.0" prefWidth="130.0" />
                     </items>
                 </ToolBar>
             </top>
