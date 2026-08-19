@@ -27,11 +27,23 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <?import java.lang.String?>
-<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="500.0" prefWidth="550.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tegula.tilingeditor.TilingEditorTabController">
+<AnchorPane fx:id="anchorPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="500.0" prefWidth="550.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tegula.tilingeditor.TilingEditorTabController">
     <children>
         <BorderPane fx:id="borderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <top>
-                <ToolBar fx:id="mainToolBar" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="24.0" BorderPane.alignment="TOP_CENTER" />
+                <ToolBar fx:id="mainToolBar" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="24.0" BorderPane.alignment="TOP_CENTER">
+                    <items>
+                        <Region maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                        <MenuButton fx:id="exportMenuButton" mnemonicParsing="false" style="-fx-font-size: 12;" text="Export">
+                            <tooltip>
+                                <Tooltip text="Export this tiling" />
+                            </tooltip>
+                            <items>
+                                <CheckMenuItem fx:id="showQRCodeMenuItem" mnemonicParsing="false" text="Show QR Code" />
+                            </items>
+                        </MenuButton>
+                    </items>
+                </ToolBar>
             </top>
             <center>
                 <StackPane fx:id="mainPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" BorderPane.alignment="CENTER">

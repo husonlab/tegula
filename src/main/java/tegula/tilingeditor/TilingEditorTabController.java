@@ -38,7 +38,16 @@ public class TilingEditorTabController {
     private URL location;
 
     @FXML
+    private AnchorPane anchorPane;
+
+    @FXML
     private BorderPane borderPane;
+
+    @FXML
+    private MenuButton exportMenuButton;
+
+    @FXML
+    private CheckMenuItem showQRCodeMenuItem;
 
     @FXML
     private ToolBar mainToolBar;
@@ -177,6 +186,18 @@ public class TilingEditorTabController {
         pointLightRadioButton.setSelected(true);
     }
 
+
+    public AnchorPane getAnchorPane() {
+        return anchorPane;
+    }
+
+    public MenuButton getExportMenuButton() {
+        return exportMenuButton;
+    }
+
+    public CheckMenuItem getShowQRCodeMenuItem() {
+        return showQRCodeMenuItem;
+    }
 
     public BorderPane getBorderPane() {
         return borderPane;
