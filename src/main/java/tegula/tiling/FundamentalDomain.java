@@ -464,19 +464,13 @@ public class FundamentalDomain {
                             final double[] height = Weave.heightProfile(dsymbol, dartLabels, a, wovenPoints.length, reversed, weaveDepth);
                             final double[] nudge = new double[height.length];
                             final double[] outlineNudge = new double[height.length];
-                            // The outline is lifted a little above its own band rather than sunk beneath it. A
-                            // band hides whatever outline it covers, so where two straps meet at the same
-                            // height -- the two halves of one strap at a bend, or several straps at a vertex
-                            // that cannot be woven -- each band swallowed the other's outline and broke it into
-                            // pieces. The lift is capped at a quarter of the weave depth, so that an outline can
-                            // never rise above a strap passing over it and spoil the interlace. Where there is
-                            // no weave depth at all there is nothing to pass over, and the outline goes just
-                            // beneath its band instead, so that the two never fight for the same pixels.
-                            final double outlineLift = (weaveDepth > 0
-                                    ? Math.min(0.05 * width, 0.25 * weaveDepth) : -0.05 * width);
                             for (int i = 0; i < height.length; i++) {
                                 nudge[i] = linesAbove + aboveSign * height[i];
-                                outlineNudge[i] = linesAbove + aboveSign * (height[i] + outlineLift);
+                                // The outline runs beside its own band, not beneath it, so this bias is not what
+                                // makes it visible. It only settles the ties where straps meet flat at a vertex
+                                // that cannot be woven: there one strap's outline meets another's band at the
+                                // very same height, and without it the two speckle each other.
+                                outlineNudge[i] = linesAbove + aboveSign * (height[i] - 0.05 * width);
                             }
                             meshes.add(Band3D.connect(geom, wovenPoints, width, nudge, cap));
                             borderMeshes.add(Band3D.outline(geom, wovenPoints, width, width * borderWidth, outlineNudge));
