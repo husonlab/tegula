@@ -1,4 +1,4 @@
-<title>Delaney–Dress Keys</title>
+<title>Delaney–Dress Names</title>
 <style>
   :root {
     --ground: #F4F7F6;
@@ -343,7 +343,7 @@
   <header class="masthead">
     <div class="masthead-inner">
       <p class="eyebrow">Tegula · identity scheme</p>
-      <h1>Delaney–Dress Keys</h1>
+      <h1>Delaney–Dress Names</h1>
       <p class="standfirst">How to give every tiling a permanent identifier, a citable catalog number, and a name a person can read — and why the numbers we have today are none of those things.</p>
       <div class="byline">
         <span><b>Daniel H. Huson</b></span>
@@ -397,8 +397,8 @@
         </thead>
         <tbody>
           <tr>
-            <td><b>Canonical key</b><br><span style="color:var(--muted)">the identity</span></td>
-            <td class="mono">DS07-80VG-B42W-4N1Y</td>
+            <td><b>Name</b><br><span style="color:var(--muted)">the identity</span></td>
+            <td class="mono">DS07-3R55-E1RJ-G</td>
             <td>Nobody — computed from the symbol</td>
             <td class="yes">Never</td>
           </tr>
@@ -425,7 +425,7 @@
     </div>
   </div>
 
-  <p>The load-bearing rule is that the <b>key is the identity</b>. A catalog number is only meaningful once you say which catalog; a nickname is never authoritative. Everything that must survive — file formats, URLs, cross-references between papers — hangs off the key.</p>
+  <p>The load-bearing rule is that the <b>name is the identity</b>. A catalog number is only meaningful once you say which catalog; a nickname is never authoritative. Everything that must survive — file formats, URLs, cross-references between papers — hangs off the name.</p>
 
   <h2><span class="num">3</span> The canonical form</h2>
 
@@ -460,54 +460,15 @@
     </ul>
   </div>
 
-  <h2><span class="num">4</span> The canonical key</h2>
+  <h2><span class="num">4</span> The name</h2>
 
-  <p>The canonical form is the true identity, but it runs to a hundred-odd characters and cannot be read aloud. The key is a short stand-in: the size of the symbol, then the leading bits of the SHA-256 hash of the protocol, written in Crockford base 32 and grouped in fours.</p>
-
-  <div class="anatomy">
-    <div class="line"><span class="tok-a">DS07</span><span class="tok-c">-</span><span class="tok-b">80VG-B42W-4N1Y</span></div>
-    <ul class="legend">
-      <li><span class="swatch" style="background:var(--accent)"></span><span>Size of the Delaney–Dress symbol</span></li>
-      <li><span class="swatch" style="background:var(--warn)"></span><span>60 bits of SHA-256 of the protocol, Crockford base 32 (no I, L, O or U, so it cannot be misread)</span></li>
-    </ul>
-  </div>
-
-  <p>Putting the size in front partitions the hash space: only symbols of the <em>same size</em> can ever collide, and the biggest size class we have published holds 3,404,473 tilings. That makes 60 bits very comfortable now, and leaves an obvious upgrade path.</p>
-
-  <div class="wide">
-    <div class="table-wrap">
-      <table>
-        <caption>Choosing the key width</caption>
-        <thead>
-          <tr><th class="num">Bits</th><th class="num">Characters</th><th class="num">Tilings per size class</th><th class="num">Chance of any collision</th><th>Fits</th></tr>
-        </thead>
-        <tbody>
-          <tr><td class="num">60</td><td class="num">12</td><td class="num">3.4 × 10<sup>6</sup></td><td class="num">5 × 10<sup>−6</sup></td><td>The published databases</td></tr>
-          <tr><td class="num">60</td><td class="num">12</td><td class="num">10<sup>8</sup></td><td class="num">4 × 10<sup>−3</sup></td><td>Getting uncomfortable</td></tr>
-          <tr><td class="num">60</td><td class="num">12</td><td class="num">1.5 × 10<sup>9</sup></td><td class="num no">≈ 1</td><td>Too small</td></tr>
-          <tr><td class="num">80</td><td class="num">16</td><td class="num">2.4 × 10<sup>9</sup></td><td class="num">2 × 10<sup>−6</sup></td><td>The full 2.4 billion enumeration</td></tr>
-          <tr><td class="num">100</td><td class="num">20</td><td class="num">10<sup>12</sup></td><td class="num">4 × 10<sup>−7</sup></td><td>Anything we will ever compute</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <p>Because a published catalog is <em>complete and frozen</em>, this is not left to probability. Collisions can be checked exhaustively once, at publication time, and certified. The tool does that check on every run; across all five databases it reports zero at 60 bits.</p>
-
-  <div class="callout good">
-    <span class="label">Recommendation</span>
-    <p>Publish the current catalogs at 60 bits. If the 2.4 billion tilings are ever released, use 80 bits for that catalog and say so in its header — the size prefix means the two schemes cannot be confused for one another.</p>
-  </div>
-
-  <h3>A self-contained alternative</h3>
-
-  <p>A hash is a one-way handle: it identifies a tiling but cannot produce it, so resolving one needs a catalog. A canonical form can instead be written directly, packed into the same alphabet, and the result is a name that <em>is</em> the tiling. <code>DSymbolCode</code> does that, and the format is specified in full in its documentation.</p>
+  <p>The canonical form is the true identity, but it runs to a hundred-odd characters and cannot be read aloud. A name is that same form written compactly: the canonical form itself, bit-packed, prefixed by the size for people. It is not a handle that stands in for the tiling — it <em>is</em> the tiling, written down. <code>DSymbolCode</code> implements it, and the format is specified in full in its documentation.</p>
 
   <div class="anatomy">
     <div class="line"><span class="tok-a">DS18</span><span class="tok-c">-</span><span class="tok-b">9ANA-NANA-M040-0ANA-K14</span></div>
     <ul class="legend">
       <li><span class="swatch" style="background:var(--accent)"></span><span>Size of the symbol, for people; it is in the bits as well</span></li>
-      <li><span class="swatch" style="background:var(--warn)"></span><span>The canonical form itself, bit-packed, in the same Crockford base 32</span></li>
+      <li><span class="swatch" style="background:var(--warn)"></span><span>The canonical form itself, bit-packed, in Crockford base 32, which omits I, L, O and U so that it cannot be misread</span></li>
     </ul>
   </div>
 
@@ -516,42 +477,42 @@
   <div class="wide">
     <div class="table-wrap">
       <table>
-        <caption>What the two forms cost</caption>
+        <caption>What a name costs</caption>
         <thead>
-          <tr><th>Symbol size</th><th>Hash key</th><th>Self-contained code</th><th>Example</th></tr>
+          <tr><th>Symbol size</th><th class="num">Characters</th><th>Example</th></tr>
         </thead>
         <tbody>
-          <tr><td class="num">1</td><td class="num">19</td><td class="num yes">9</td><td class="mono">DS01-0TH8</td></tr>
-          <tr><td class="num">7</td><td class="num">19</td><td class="num yes">16</td><td class="mono">DS07-3R55-E1RJ-G</td></tr>
-          <tr><td class="num">16</td><td class="num">19</td><td class="num">24</td><td class="mono">DS16-8AMM-MN02-5550-NDH8</td></tr>
-          <tr><td class="num">18</td><td class="num">19</td><td class="num">28</td><td class="mono">DS18-9ANA-NANA-M040-0ANA-K14</td></tr>
-          <tr><td class="num">24</td><td class="num">19</td><td class="num">38</td><td class="mono">DS24-CAN9-8GJ0-…-EM0</td></tr>
+          <tr><td class="num">1</td><td class="num">9</td><td class="mono">DS01-0TH8</td></tr>
+          <tr><td class="num">7</td><td class="num">16</td><td class="mono">DS07-3R55-E1RJ-G</td></tr>
+          <tr><td class="num">16</td><td class="num">24</td><td class="mono">DS16-8AMM-MN02-5550-NDH8</td></tr>
+          <tr><td class="num">18</td><td class="num">28</td><td class="mono">DS18-9ANA-NANA-M040-0ANA-K14</td></tr>
+          <tr><td class="num">24</td><td class="num">38</td><td class="mono">DS24-CAN9-8GJ0-…-EM0</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <p>Roughly ten characters more at the sizes that fill the catalog, in exchange for needing no registry to resolve a name, no collision analysis at all — it is a bijection, so section 4's bit budget simply does not arise — and the ability to name a tiling nobody has enumerated. That last case is not hypothetical: a reader who reshapes a tiling in Tegula has something no catalog contains, and a hash of it resolves to nothing.</p>
+  <p>Twenty-six characters on average over the 795,590 tilings of <code>tilings-1-16</code>, and never more than 38 at the sizes we hold. In exchange: no registry is needed to resolve a name, no collision analysis arises at all because the map is a bijection, and a tiling nobody has enumerated can still be named. That last case is not hypothetical — a reader who reshapes a tiling in Tegula has something no catalog contains, and a handle into a catalog would resolve to nothing.</p>
 
-  <p>Reading a code is deliberately forgiving of transcription: case is ignored, hyphens are optional, I and L read as 1 and O as 0, and the prefix may be left off. Decoding also re-encodes and compares, so a code that has been damaged is refused rather than silently yielding a different tiling. That catches 90.3% of single-character corruptions; the remaining 9.7% land on another valid tiling of the same size, which one extra check character would reduce roughly thirty-fold if codes are ever meant to be typed by hand rather than scanned or pasted.</p>
+  <p>Reading a name is deliberately forgiving of transcription: case is ignored, hyphens are optional, I and L read as 1 and O as 0, and the prefix may be left off. Decoding also re-encodes and compares, so a name that has been damaged is refused rather than silently yielding a different tiling. That catches 90.3% of single-character corruptions; the remaining 9.7% land on another valid tiling of the same size, which one extra check character would reduce roughly thirty-fold if names are ever meant to be typed by hand rather than scanned or pasted.</p>
 
-  <p>Every character of a code is in the QR alphanumeric set, which packs 5.5 bits per character, so a code of any size we hold fits in a 25&nbsp;×&nbsp;25 module QR code at medium error correction — small enough to sit in the corner of a rendered tiling. Scanning one reconstructs the tiling offline, with no server and no catalog, which is only true because the name is reversible.</p>
+  <p>Every character of a name is in the QR alphanumeric set, which packs 5.5 bits per character, so a name of any size we hold fits in a 25&nbsp;×&nbsp;25 module QR code at medium error correction — small enough to sit in the corner of a rendered tiling. Scanning one reconstructs the tiling offline, with no server and no catalog, which is only true because the name is reversible.</p>
 
   <h2><span class="num">5</span> The catalog number</h2>
 
-  <p>Mathematicians want to write &ldquo;tiling 937&rdquo;, not a hash. A number is fine — the mistake was deriving it from the enumeration order instead of from the tilings themselves.</p>
+  <p>Mathematicians want to write &ldquo;tiling 937&rdquo;, not a string of base-32. A number is fine — the mistake was deriving it from the enumeration order instead of from the tilings themselves.</p>
 
   <h3>Ordering rule</h3>
 
   <p>Sort by size, and within one size by protocol as a sequence of numbers. Number the result 1, 2, 3, …</p>
 
-  <p>This has two consequences that the current numbering lacks. Anyone holding the same set of symbols recomputes the same numbers, without needing our software or our enumeration order. And because size is the primary key, extending the catalog to larger symbols <b>appends</b> to it: every number already published keeps its meaning.</p>
+  <p>This has two consequences that the current numbering lacks. Anyone holding the same set of symbols recomputes the same numbers, without needing our software or our enumeration order. And because size is what the ordering sorts on first, extending the catalog to larger symbols <b>appends</b> to it: every number already published keeps its meaning.</p>
 
-  <p>Note that the ordering depends only on the canonical form, not on the hash. Key width and even the hash function stay free parameters that can be changed later without renumbering anything.</p>
+  <p>Note that the ordering depends only on the canonical form, and on the protocol rather than on any rendering of it, so nothing about how a tiling is written down can disturb a number already published.</p>
 
   <h3>Pin down the universe first</h3>
 
-  <p>A catalog number means nothing until the set it indexes is fixed. The same tiling sits at #1 in <code>euclidean-1-24</code> and #4 in <code>tilings-1-19</code> — both correct, because they are different catalogs. The key is identical in both, which is exactly the division of labour we want.</p>
+  <p>A catalog number means nothing until the set it indexes is fixed. The same tiling sits at #1 in <code>euclidean-1-24</code> and #4 in <code>tilings-1-19</code> — both correct, because they are different catalogs. The name is identical in both, which is exactly the division of labour we want.</p>
 
   <p>So the catalog must state, and then never change: the dimension (2), the range of sizes, which geometries, and whether anything is filtered out. Our current files variously split by geometry and carry <code>normal</code>, <code>maximal</code> and <code>colorable</code> flags. <b>All 3-dimensional Delaney–Dress symbols of size ≤ N, unfiltered</b> is the only scope that will not need revision — filter in queries, not in the catalog.</p>
 
@@ -561,7 +522,7 @@
     <li><b>Deposit for a DOI.</b> Zenodo handles these sizes easily; the compressed catalogs run from 18 to 125 MB.</li>
     <li><b>Include a plain-text listing</b> of canonical forms, one per line, alongside the SQLite files. That is what makes the catalog definitive rather than Tegula's — anyone can regenerate the numbering from it with no dependency on our code.</li>
     <li><b>Include the canonicalization specification</b> (section 3) as prose, plus the reference implementation.</li>
-    <li><b>Make the keys resolvable.</b> <code>tegula.org/t/DS07-80VG-B42W-4N1Y</code> returning a page with a picture is what makes an identifier feel real. A number nobody can click stays theoretical.</li>
+    <li><b>Make the names resolvable.</b> <code>tegula.org/t/DS07-3R55-E1RJ-G</code> returning a page with a picture is what makes an identifier feel real. A number nobody can click stays theoretical.</li>
   </ul>
 
   <h2><span class="num">6</span> A name a person can read</h2>
@@ -579,27 +540,27 @@ hyperbolic 2*32  2/3/2  [3,4]</code></pre>
 
   <h3>Nicknames, kept strictly separate</h3>
 
-  <p>For the couple of hundred tilings that already have human names, ship a small table keyed by canonical key and fall back to the descriptive name for everything else:</p>
+  <p>For the couple of hundred tilings that already have human names, ship a small table keyed by name and fall back to the descriptive name for everything else:</p>
 
   <div class="wide">
     <div class="table-wrap">
       <table>
         <caption>The three regular euclidean tilings</caption>
         <thead>
-          <tr><th>Key</th><th>Canonical form</th><th>Nickname</th></tr>
+          <tr><th>Name</th><th>Canonical form</th><th>Nickname</th></tr>
         </thead>
         <tbody>
-          <tr><td class="mono">DS01-B4Y4-SSXD-74HE</td><td class="mono">&lt;0.0:1:1,1,1:3,6&gt;</td><td>triangular tiling (3⁶)</td></tr>
-          <tr><td class="mono">DS01-55FG-YB12-D4DN</td><td class="mono">&lt;0.0:1:1,1,1:4,4&gt;</td><td>square tiling (4⁴)</td></tr>
-          <tr><td class="mono">DS01-6PVJ-6MT6-MZWT</td><td class="mono">&lt;0.0:1:1,1,1:6,3&gt;</td><td>hexagonal tiling (6³)</td></tr>
+          <tr><td class="mono">DS01-0TH8</td><td class="mono">&lt;0.0:1:1,1,1:3,6&gt;</td><td>triangular tiling (3⁶)</td></tr>
+          <tr><td class="mono">DS01-0TJG</td><td class="mono">&lt;0.0:1:1,1,1:4,4&gt;</td><td>square tiling (4⁴)</td></tr>
+          <tr><td class="mono">DS01-0TN0</td><td class="mono">&lt;0.0:1:1,1,1:6,3&gt;</td><td>hexagonal tiling (6³)</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <p>This is also where the catalog connects to the existing literature instead of competing with it: the Grünbaum–Shephard isohedral types IH1–IH93, the Laves nets, the uniform tilings, the named nets in RCSR and EPINET. A community-extensible JSON file keyed by canonical key costs nothing and buys interoperability.</p>
+  <p>This is also where the catalog connects to the existing literature instead of competing with it: the Grünbaum–Shephard isohedral types IH1–IH93, the Laves nets, the uniform tilings, the named nets in RCSR and EPINET. A community-extensible JSON file keyed by name costs nothing and buys interoperability.</p>
 
-  <p>The same slot absorbs AI-suggested names. A user who reshapes and recolours a tiling has not changed its Delaney–Dress symbol, so its key and descriptive name are untouched; what they have made is a <em>rendering</em>, and giving that rendering an evocative name is a nickname operation. Useful, and firmly outside the identity system.</p>
+  <p>The same slot absorbs AI-suggested names. A user who reshapes and recolours a tiling has not changed its Delaney–Dress symbol, so its name and descriptive name are untouched; what they have made is a <em>rendering</em>, and giving that rendering an evocative name is a nickname operation. Useful, and firmly outside the identity system.</p>
 
   <h2><span class="num">7</span> What has been verified</h2>
 
@@ -621,7 +582,7 @@ hyperbolic 2*32  2/3/2  [3,4]</code></pre>
           <tr>
             <td><b>Independent of the enumeration</b></td>
             <td>Full catalogs built from <code>tilings-1-18</code> and <code>tilings-1-19</code> — same 5,214,516 tilings, numbered differently in the two files</td>
-            <td><span class="yes">Byte-identical catalogs</span> over all 5,214,516 rows (md5 <code>74d21512…</code>)</td>
+            <td><span class="yes">Identical in every column but <code>source_id</code></span> over all 5,214,516 rows, which is the one column that records the source database's own numbering</td>
           </tr>
           <tr>
             <td><b>Extension appends</b></td>
@@ -629,9 +590,9 @@ hyperbolic 2*32  2/3/2  [3,4]</code></pre>
             <td><span class="yes">Exact prefix</span> — every number in the smaller catalog kept its meaning in the larger one</td>
           </tr>
           <tr>
-            <td><b>Keys cross databases</b></td>
+            <td><b>Names cross databases</b></td>
             <td>All 1,157 euclidean tilings of size ≤ 10 present in both <code>euclidean-1-24</code> and <code>tilings-1-19</code></td>
-            <td><span class="yes">Zero key disagreements</span>, while catalog numbers correctly differ</td>
+            <td><span class="yes">Zero name disagreements</span>, while catalog numbers correctly differ</td>
           </tr>
           <tr>
             <td><b>Readable labelling</b></td>
@@ -644,9 +605,9 @@ hyperbolic 2*32  2/3/2  [3,4]</code></pre>
             <td><span class="yes">Same partition</span> — 30,759 symbols, 30,759 distinct values under both</td>
           </tr>
           <tr>
-            <td><b>No collisions</b></td>
-            <td>All five databases at 60 bits</td>
-            <td><span class="yes">Zero collisions, zero duplicates</span></td>
+            <td><b>Every name reads back</b></td>
+            <td>All 795,590 tilings of <code>tilings-1-16</code>, each name decoded and compared against the canonical form it was made from</td>
+            <td><span class="yes">Zero failures</span>, all 795,590 names distinct, none shared by two symbols, and zero duplicate tilings</td>
           </tr>
         </tbody>
       </table>
@@ -662,11 +623,15 @@ hyperbolic 2*32  2/3/2  [3,4]</code></pre>
   <pre><code>canonicalForm(ds)        → DSymbol   the canonical representative
 canonicalString(ds)      → String    that form, as a valid D-symbol string
 canonicalProtocol(ds)    → int[]     its protocol, the normative object
-canonicalKey(ds)         → String    "DS07-80VG-B42W-4N1Y", 60 bits
-canonicalKey(ds, bits)   → String    any multiple of 5 from 20 to 255
-keyForProtocol(p, bits)  → String    for a protocol already in hand
 protocol(ds) / fromProtocol(p)       protocol of any symbol, and back
 isCanonical(ds)          → boolean</code></pre>
+
+  <h3>tegula.core.dsymbols.DSymbolCode</h3>
+
+  <pre><code>encode(ds)               → String    "DS07-3R55-E1RJ-G", the name
+encodeCanonical(ds)      → String    for a canonical form already in hand
+decode(name)             → DSymbol   the symbol the name names
+isValid(name)            → boolean</code></pre>
 
   <p>Canonicalization is O(<i>n</i>²) in the size of the symbol, measured at about 11&nbsp;µs per symbol over a mixed sample of sizes 4 to 24. That is cheap enough to call anywhere — per thumbnail, per redraw, in a sweep over millions.</p>
 
@@ -678,9 +643,9 @@ isCanonical(ds)          → boolean</code></pre>
      tegula.db.CatalogNumbering -i tilings/tilings-1-19.tdb \
                                 -o catalog/tilings-1-19.catalog.tsv.gz</code></pre>
 
-  <p>Reads a <code>.tdb</code>, canonicalizes in parallel, sorts, numbers, and writes <code>number, key, size, canonical_symbol, source_id</code>. It reports isomorphic duplicates and hash collisions on every run. <code>-k</code> sets the key width, <code>-m</code> restricts by size, and <code>-u</code> adds indexed <code>canonical_key</code> and <code>catalog_number</code> columns to the database in place. Throughput is about 80,000 symbols per second on sixteen cores; all five databases rebuild in about four minutes.</p>
+  <p>Reads a <code>.tdb</code>, canonicalizes in parallel, sorts, numbers, and writes <code>number, size, canonical_symbol, source_id</code>. It reports isomorphic duplicates on every run. <code>-m</code> restricts by size, and <code>-u</code> adds indexed <code>name</code> and <code>catalog_number</code> columns to the database in place. Throughput is about 80,000 symbols per second on sixteen cores; all five databases rebuild in about four minutes.</p>
 
-  <p>Once a database carries the <code>canonical_key</code> column, Tegula's existing search box can already filter on it — the select expression is passed through to SQL unchanged.</p>
+  <p>The catalog carries the canonical form and not the name, because they are the same thing written two ways and the form is the one a reader can parse with anything to hand. A database is the other case: its <code>symbol</code> column is whatever was enumerated, not a canonical form, so <code>-u</code>'s <code>name</code> column is the only canonical identity it has — and once it carries one, Tegula's existing search box can already filter on it, since the select expression is passed through to SQL unchanged.</p>
 
   <h3>Names in files</h3>
 
@@ -688,7 +653,7 @@ isCanonical(ds)          → boolean</code></pre>
 
   <pre><code>&lt;1000.0:1:1,1,1:3,6&gt; # Alhambra star</code></pre>
 
-  <p>The comment sits outside the D-symbol grammar, so the symbol itself is untouched — which is why it does not disturb the identity: it takes no part in comparison, canonicalization or the key, and canonical forms never carry one. That is deliberate. Keys and descriptive names are derived and must never be stored; only a nickname, which cannot be computed, belongs in a file.</p>
+  <p>The comment sits outside the D-symbol grammar, so the symbol itself is untouched — which is why it does not disturb the identity: it takes no part in comparison, canonicalization or the name, and canonical forms never carry one. That is deliberate. Names and descriptive names are derived and must never be stored beside what they are derived from; only a nickname, which cannot be computed, belongs in a file.</p>
 
   <p>Reading a collection now keeps only lines that hold a symbol. Blank lines, whole-line comments and stray text were previously parsed into empty symbols and drawn as blank tilings.</p>
 
@@ -730,14 +695,14 @@ isCanonical(ds)          → boolean</code></pre>
       <span class="mark">02</span>
       <span>
         <span class="q">One catalog or several?</span><br>
-        <span class="a">Splitting by geometry, as the current files do, means a tiling has several catalog numbers. One combined catalog with geometry as a queryable column avoids that. Keys are unaffected either way.</span>
+        <span class="a">Splitting by geometry, as the current files do, means a tiling has several catalog numbers. One combined catalog with geometry as a queryable column avoids that. Names are unaffected either way.</span>
       </span>
     </li>
     <li>
       <span class="mark">03</span>
       <span>
         <span class="q">Should duals be cross-linked?</span><br>
-        <span class="a">Storing the dual's key next to each entry is nearly free and makes duality navigable. Duals should not be folded into a single key — they are different tilings.</span>
+        <span class="a">Storing the dual's name next to each entry is nearly free and makes duality navigable. Duals should not be folded into a single name — they are different tilings.</span>
       </span>
     </li>
     <li>
@@ -751,7 +716,7 @@ isCanonical(ds)          → boolean</code></pre>
       <span class="mark">05</span>
       <span>
         <span class="q">Where does the resolver live?</span><br>
-        <span class="a">A static site generated from the catalog is enough — one page per key, with a rendered picture, the invariants, and the nickname if there is one.</span>
+        <span class="a">A static site generated from the catalog is enough — one page per name, with a rendered picture, the invariants, and the nickname if there is one.</span>
       </span>
     </li>
   </ul>

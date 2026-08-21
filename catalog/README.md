@@ -8,15 +8,14 @@ Each file is a gzipped, tab-separated table with a comment header and the column
 | column | meaning |
 | --- | --- |
 | `number` | catalog number: position in this catalog, counting from 1 |
-| `name` | the self-contained name of the canonical form, e.g. `DS07-3R55-E1RJ-G` |
 | `size` | size of the Delaney-Dress symbol |
 | `canonical_symbol` | the canonical form, a valid D-symbol string with number `0.0` |
 | `source_id` | the `id` this tiling happens to have in the source database |
 
-The `name` is the self-contained, reversible name of the canonical form, see
-`tegula.core.dsymbols.DSymbolCode`. It holds the whole tiling, so it needs no registry, and two
-different tilings cannot share one: a name decodes back to the symbol it names. Names run from 8 to
-36 characters over the 795,590 tilings of `tilings-1-16`, mean 26.1.
+A tiling also has a *name* -- a compact, reversible rendering of the same canonical form, see
+`tegula.core.dsymbols.DSymbolCode`. A catalog does not carry it: the name and the canonical form are
+the same information written two ways, and the form is the one a reader can parse with anything to
+hand. `DSymbolCode.encode` turns a row into its name whenever one is wanted.
 
 Tilings are ordered by increasing size, then by increasing protocol, where the protocol of a symbol
 of size n is the sequence of 5n numbers s0(1)..s0(n), s1(1)..s1(n), s2(1)..s2(n), m01(1)..m01(n),
@@ -31,9 +30,8 @@ anyone who wants to join a catalog against Gavrog's own identifier for the same 
 stored here: it adds about half again to the size of a catalog, and it is easier to regenerate on
 demand than to carry for everybody.
 
-The canonicalization algorithm and the verification results are described in
-[../doc/tiling-identity.html](../doc/tiling-identity.html). That document still describes the
-60-bit hashed key this column used to hold, and its collision counts, which no longer apply.
+The naming scheme, the canonicalization algorithm and the verification results are described in
+[../doc/tiling-identity.html](../doc/tiling-identity.html).
 
 ## Rebuilding
 
@@ -54,5 +52,5 @@ java -Xmx8g -cp target/classes:'target/dependency/*' tegula.db.CatalogNumbering 
 
 `tilings-1-18` and `tilings-1-19` hold the same 5,214,516 tilings under different `id` numbering, so
 their catalogs agree in every column but `source_id`, which is the one column that is specific to the
-source database. Verified by diffing columns 1-4. The `tilings-1-16` catalog is an exact prefix of
+source database. Verified by diffing columns 1-3. The `tilings-1-16` catalog is an exact prefix of
 the `tilings-1-19` catalog, likewise verified.

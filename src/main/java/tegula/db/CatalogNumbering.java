@@ -39,8 +39,8 @@ import java.util.stream.IntStream;
  * <p>
  * The id column of a Tegula tilings database records the order in which the tilings happened to be enumerated and
  * so differs between databases that contain exactly the same tilings. This program computes, for each tiling, the
- * canonical form of its Delaney symbol and the name derived from it, see {@link DSymbolCode}, and then numbers the
- * tilings by increasing size and, within one size, by increasing canonical form. That numbering depends only on the set of
+ * canonical form of its Delaney symbol and then numbers the tilings by increasing size and, within one size, by
+ * increasing canonical form. That numbering depends only on the set of
  * tilings, so anybody can recompute it, and extending the catalog to larger symbols appends to it rather than
  * renumbering it.
  * <p>
@@ -190,31 +190,27 @@ public class CatalogNumbering {
         w.write("# Tegula tiling catalog\n");
         w.write("# source: %s\n".formatted(FileUtils.getFileNameWithoutPath(inputFile)));
         w.write("# tilings: %d\n".formatted(entries.size()));
-        w.write("# name: the self-contained, reversible name of the canonical form, see tegula.core.dsymbols.DSymbolCode\n");
         w.write("# order: by increasing size, then by increasing protocol as a sequence of numbers\n");
         if (gavrogInvariant)
             w.write("# gavrog_invariant: DelaneySymbol.invariant() of Gavrog, for cross-reference\n");
-        w.write("number\tname\tsize\tcanonical_symbol\tsource_id%s\n".formatted(gavrogInvariant ? "\tgavrog_invariant" : ""));
+        w.write("number\tsize\tcanonical_symbol\tsource_id%s\n".formatted(gavrogInvariant ? "\tgavrog_invariant" : ""));
 
         // the symbol, and the invariant if it was asked for, are rendered in parallel batches, so that
         // neither has to be held in memory for the whole catalog
         for (int start = 0; start < entries.size(); start += BATCH_SIZE) {
             final int stop = Math.min(start + BATCH_SIZE, entries.size());
             final int base = start;
-            final String[] names = new String[stop - start];
             final String[] symbols = new String[stop - start];
             final String[] invariants = new String[stop - start];
             IntStream.range(0, stop - start).parallel().forEach(j -> {
                 final DSymbol ds = DSymbolAlgorithms.fromProtocol(entries.get(base + j).protocol());
-                // the protocol is that of the canonical form, so the symbol is canonical already
-                names[j] = DSymbolCode.encodeCanonical(ds);
                 symbols[j] = ds.toString();
                 if (gavrogInvariant)
                     invariants[j] = GavrogInvariant.invariantString(ds);
             });
             for (int j = 0; j < stop - start; j++) {
                 final Entry entry = entries.get(base + j);
-                w.write("%d\t%s\t%d\t%s\t%d%s\n".formatted(base + j + 1, names[j], entry.size(),
+                w.write("%d\t%d\t%s\t%d%s\n".formatted(base + j + 1, entry.size(),
                         symbols[j], entry.sourceId(), gavrogInvariant ? "\t" + invariants[j] : ""));
             }
         }
