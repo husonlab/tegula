@@ -365,13 +365,12 @@ public class FundamentalDomain {
                 }
                 final TriangleMesh mesh = MeshUtils.combineTriangleMeshes(meshes.toArray(new TriangleMesh[0]));
                 mesh.getTexCoords().setAll(0.5f, 0, 0, 0, 1, 1);
-                {
-                    for (int i = 0; i < mesh.getFaces().size() / 6; i++)
-                        mesh.getFaceSmoothingGroups().addAll(i);
-                }
+                // no face smoothing groups: a curved surface gets explicit per-vertex normals below, and a
+                // flat one needs no smoothing. What stood here filled them with the face *index*, which is a
+                // bit mask, so face 3 shared bit 0 with face 1 and face 0 shared nothing with anything
 
                 if (tilingStyle.isShowFaces()) {
-					final MeshView meshView = new MeshView(geom == Geometry.Spherical ? MeshUtils.withRadialNormals(mesh, false) : mesh);
+					final MeshView meshView = new MeshView(MeshUtils.withSurfaceNormals(mesh, geom, false));
 					TilingStyle.applyTileSpecular(material);
                     meshView.setId("t=" + a2tile[a0]);
                     meshView.setMaterial(material);
@@ -379,7 +378,7 @@ public class FundamentalDomain {
                     facesGroup.getChildren().add(meshView);
                 }
                 if (tilingStyle.isShowBackFaces()) {
-					final MeshView meshView = new MeshView(geom == Geometry.Spherical ? MeshUtils.withRadialNormals(MeshUtils.reverseOrientation(mesh), true) : MeshUtils.reverseOrientation(mesh));
+					final MeshView meshView = new MeshView(MeshUtils.withSurfaceNormals(MeshUtils.reverseOrientation(mesh), geom, true));
 					TilingStyle.applyTileSpecular(material);
                     meshView.setId("t=" + a2tile[a0]);
                     meshView.setMaterial(material);
@@ -483,7 +482,7 @@ public class FundamentalDomain {
                     // a thin strip along either side of each strap
                     final TriangleMesh mesh = MeshUtils.combineTriangleMeshes(borderMeshes.toArray(new TriangleMesh[0]));
                     mesh.getTexCoords().addAll(0.5f, 0, 0, 0, 1, 1);
-                    final MeshView meshView = new MeshView(mesh);
+                    final MeshView meshView = new MeshView(MeshUtils.withSurfaceNormals(mesh, geom, false));
                     meshView.setId("e=" + a2edge[a0]);
                     meshView.setUserData(Weave.OUTLINE); // so that the band colors are not applied to it
                     meshView.setMaterial(borderMaterial);
@@ -494,7 +493,7 @@ public class FundamentalDomain {
                     final TriangleMesh mesh = MeshUtils.combineTriangleMeshes(list.toArray(new TriangleMesh[0]));
                     mesh.getTexCoords().addAll(0.5f, 0, 0, 0, 1, 1);
 
-                    final MeshView meshView = new MeshView(mesh);
+                    final MeshView meshView = new MeshView(MeshUtils.withSurfaceNormals(mesh, geom, false));
                     // material.setSpecularColor(Color.YELLOW);
                     meshView.setId("e=" + a2edge[a0]);
                     meshView.setMaterial(edge2material[a2edge[a0]]);
@@ -509,7 +508,7 @@ public class FundamentalDomain {
                     final TriangleMesh mesh = MeshUtils.combineTriangleMeshes(list.toArray(new TriangleMesh[0]));
                     mesh.getTexCoords().addAll(0.5f, 0, 0, 0, 1, 1);
 
-                    final MeshView meshView = new MeshView(MeshUtils.reverseOrientation(mesh));
+                    final MeshView meshView = new MeshView(MeshUtils.withSurfaceNormals(MeshUtils.reverseOrientation(mesh), geom, true));
                     // material.setSpecularColor(Color.YELLOW);
                     meshView.setId("e=" + a2edge[a0]);
                     meshView.setMaterial(edge2material[a2edge[a0]]);
@@ -531,14 +530,14 @@ public class FundamentalDomain {
                 MeshUtils.setDefaultTexCoordinates(mesh);
 
                 if (tilingStyle.isShowVertices()) {
-                    final MeshView meshView = new MeshView(mesh);
+                    final MeshView meshView = new MeshView(MeshUtils.withSurfaceNormals(mesh, geom, false));
                     // material.setSpecularColor(Color.YELLOW);
                     meshView.setId("v=" + a2vertex[a]);
                     meshView.setMaterial(vertex2material[a2vertex[a]]);
                     verticesGroup.getChildren().add(meshView);
                 }
                 if (tilingStyle.isShowBackVertices()) {
-                    final MeshView meshView = new MeshView(MeshUtils.reverseOrientation(mesh));
+                    final MeshView meshView = new MeshView(MeshUtils.withSurfaceNormals(MeshUtils.reverseOrientation(mesh), geom, true));
                     // material.setSpecularColor(Color.YELLOW);
                     meshView.setId("v=" + a2vertex[a]);
                     meshView.setMaterial(vertex2material[a2vertex[a]]);

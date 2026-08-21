@@ -25,6 +25,8 @@ import javafx.scene.shape.ObservableFaceArray;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.shape.VertexFormat;
 import jloda.util.Triplet;
+import tegula.core.dsymbols.Geometry;
+import tegula.geometry.Tools;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -67,14 +69,18 @@ public class MeshUtils {
     }
 
     /**
-     * returns a copy of a spherical mesh with explicit per-vertex normals for smooth shading.
-     * The mesh is assumed to lie on a sphere centered at the origin, so the outward normal at a
-     * vertex is simply its normalized position (negated when {@code inward} is true, e.g. for a
-     * reversed-orientation back-face mesh).
+     * returns a copy of a mesh with explicit per-vertex normals for smooth shading, taken from the surface
+     * the points are known to lie on rather than from the triangles: the sphere of radius 100, or the
+     * hyperboloid of the same radius, both centred on the origin, see {@link Tools#getNormalVector}. Without
+     * this a curved surface is shaded per triangle and reads as a set of facets. The euclidean plane is flat,
+     * so its mesh is returned unchanged.
      *
-     * @return copy in POINT_NORMAL_TEXCOORD format with radial normals
+     * @param inward negate the normals, for a reversed-orientation back-face mesh
+     * @return copy in POINT_NORMAL_TEXCOORD format, or src itself in the euclidean case
      */
-    public static TriangleMesh withRadialNormals(TriangleMesh src, boolean inward) {
+    public static TriangleMesh withSurfaceNormals(TriangleMesh src, Geometry geom, boolean inward) {
+        if (geom != Geometry.Spherical && geom != Geometry.Hyperbolic)
+            return src;
         if (src.getVertexFormat() != VertexFormat.POINT_TEXCOORD)
             throw new RuntimeException("Unsupported vertex format");
 
@@ -83,19 +89,14 @@ public class MeshUtils {
         result.getPoints().addAll(points);
         result.getTexCoords().addAll(src.getTexCoords());
 
-        // one normal per point: the radial direction, since the sphere is centered at the origin
+        // one normal per point: the normal of the surface there, so that neighbouring triangles agree
         final float sign = inward ? -1f : 1f;
         final float[] normals = new float[points.size()];
         for (int i = 0; i < points.size(); i += 3) {
-            final float x = points.get(i), y = points.get(i + 1), z = points.get(i + 2);
-            final double len = Math.sqrt(x * x + y * y + z * z);
-            if (len > 0) {
-                normals[i] = (float) (sign * x / len);
-                normals[i + 1] = (float) (sign * y / len);
-                normals[i + 2] = (float) (sign * z / len);
-            } else {
-                normals[i + 2] = sign;
-            }
+            final Point3D normal = Tools.getNormalVector(new Point3D(points.get(i), points.get(i + 1), points.get(i + 2)), geom);
+            normals[i] = (float) (sign * normal.getX());
+            normals[i + 1] = (float) (sign * normal.getY());
+            normals[i + 2] = (float) (sign * normal.getZ());
         }
         result.getNormals().addAll(normals);
 
