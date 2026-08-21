@@ -214,7 +214,7 @@ public class CatalogNumbering {
             });
             for (int j = 0; j < stop - start; j++) {
                 final Entry entry = entries.get(base + j);
-                w.write("%d\t%s\t%d\t%s\t%d%s\n".formatted(base + j + 1, names[base + j], entry.size(),
+                w.write("%d\t%s\t%d\t%s\t%d%s\n".formatted(base + j + 1, names[j], entry.size(),
                         symbols[j], entry.sourceId(), gavrogInvariant ? "\t" + invariants[j] : ""));
             }
         }
