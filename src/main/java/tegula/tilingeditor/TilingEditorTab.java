@@ -142,7 +142,7 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
                     // DSymbolAlgorithms.computeSignature(getTiling().getDSymbol())+
                     (isMaximalTiling() ? " max" : "") + (isOrientableTiling() ? " orient." : "") + (isDiskTiling() ? "" : " non-disks"))
                     + (DSymbolAlgorithms.isNormal(getTiling().getDSymbol()) ? " normal" : "")
-                    + " " + DSymbolAlgorithms.canonicalKey(dSymbol)
+                    + " " + DSymbolCode.encode(dSymbol)
                     + String.format(" (objects: %,d)", computeSize(tilingPane.getWorld())));
 
             canDualizeTiling.set(!Isomorphic.isomorphic(dSymbol, DSymbolAlgorithms.dualize(dSymbol)));

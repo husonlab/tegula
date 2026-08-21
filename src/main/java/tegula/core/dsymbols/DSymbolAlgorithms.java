@@ -21,9 +21,6 @@ package tegula.core.dsymbols;
 
 import jloda.util.*;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
@@ -843,16 +840,6 @@ public class DSymbolAlgorithms {
     }
 
     /**
-     * the Crockford base-32 alphabet, which omits I, L, O and U so that keys cannot be misread
-     */
-    private static final String CROCKFORD_BASE32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
-
-    /**
-     * default number of hash bits used in a canonical key
-     */
-    public static final int DEFAULT_KEY_BITS = 60;
-
-    /**
      * computes the canonical form of a Delaney symbol.
      * <p>
      * For a connected symbol, consider the relabeling obtained from each flag in turn as described in
@@ -979,67 +966,6 @@ public class DSymbolAlgorithms {
         copy.setNr2(0);
         copy.setComment(null);
         return copy.toString().equals(canonicalString(ds));
-    }
-
-    /**
-     * computes the canonical key of a Delaney symbol, using the default number of hash bits
-     *
-     * @return canonical key
-     */
-    public static String canonicalKey(DSymbol ds) {
-        return canonicalKey(ds, DEFAULT_KEY_BITS);
-    }
-
-    /**
-     * computes the canonical key of a Delaney symbol.
-     * This is the size of the symbol, followed by the leading bits of the SHA-256 hash of the protocol of
-     * its canonical form, written in Crockford base 32 and grouped in fours, for example DS07-K3QF-2M7V-XB4T.
-     * Isomorphic Delaney symbols have the same key. Different symbols of the same size have different keys,
-     * unless their hashes collide; because the size is part of the key, only symbols of the same size can collide
-     *
-     * @param bits number of hash bits to use, a multiple of 5 between 20 and 255
-     * @return canonical key
-     */
-    public static String canonicalKey(DSymbol ds, int bits) {
-        return keyForProtocol(canonicalProtocol(ds), bits);
-    }
-
-    /**
-     * computes the key for a protocol that is already in hand, without canonicalizing again
-     *
-     * @return key
-     */
-    public static String keyForProtocol(int[] protocol, int bits) {
-        final byte[] digest;
-        try {
-            digest = MessageDigest.getInstance("SHA-256")
-                    .digest(protocolString(protocol).getBytes(StandardCharsets.UTF_8));
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e); // every Java platform is required to provide SHA-256
-        }
-        return formatKey(protocol.length / 5, digest, bits);
-    }
-
-    /**
-     * renders the leading bits of a hash as a key: the size of the symbol, then the bits in Crockford
-     * base 32, grouped in fours
-     *
-     * @return key
-     */
-    static String formatKey(int size, byte[] digest, int bits) {
-        if (bits < 20 || bits > 255 || bits % 5 != 0)
-            throw new IllegalArgumentException("formatKey(): bits must be a multiple of 5 between 20 and 255, got: " + bits);
-
-        final StringBuilder buf = new StringBuilder(String.format("DS%02d", size));
-        for (int i = 0; i < bits / 5; i++) {
-            if (i % 4 == 0)
-                buf.append("-");
-            int value = 0;
-            for (int bit = 5 * i; bit < 5 * i + 5; bit++)
-                value = (value << 1) | ((digest[bit >> 3] >> (7 - (bit & 7))) & 1);
-            buf.append(CROCKFORD_BASE32.charAt(value));
-        }
-        return buf.toString();
     }
 
     /**

@@ -75,8 +75,19 @@ public class DSymbolCode {
      * @return code, for example DS07-3R55-E1RJ-G
      */
     public static String encode(DSymbol ds) {
-        final String payload = encodeBare(ds);
-        final StringBuilder buf = new StringBuilder(String.format("DS%02d", ds.size()));
+        return encodeCanonical(DSymbolAlgorithms.canonicalForm(ds));
+    }
+
+    /**
+     * the name of a symbol that is already in canonical form, in display form. Canonicalizing is by far the
+     * expensive part, so anything that holds a canonical form already - a catalog, for one - should say so
+     * rather than have it recomputed
+     *
+     * @return name, for example DS07-3R55-E1RJ-G
+     */
+    public static String encodeCanonical(DSymbol canonical) {
+        final String payload = encodeCanonicalBare(canonical);
+        final StringBuilder buf = new StringBuilder(String.format("DS%02d", canonical.size()));
         for (int i = 0; i < payload.length(); i += 4)
             buf.append("-").append(payload, i, Math.min(i + 4, payload.length()));
         return buf.toString();
@@ -88,7 +99,15 @@ public class DSymbolCode {
      * @return code
      */
     public static String encodeBare(DSymbol ds) {
-        final DSymbol canonical = DSymbolAlgorithms.canonicalForm(ds);
+        return encodeCanonicalBare(DSymbolAlgorithms.canonicalForm(ds));
+    }
+
+    /**
+     * the name of a symbol that is already in canonical form, without the prefix and the grouping
+     *
+     * @return name
+     */
+    public static String encodeCanonicalBare(DSymbol canonical) {
         final int size = canonical.size();
         final BitWriter out = new BitWriter();
 

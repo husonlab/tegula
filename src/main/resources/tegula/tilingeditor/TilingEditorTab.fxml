@@ -37,7 +37,7 @@
                                 <Tooltip text="Export this tiling" />
                             </tooltip>
                             <items>
-                                <MenuItem fx:id="copySymbolMenuItem" mnemonicParsing="false" text="Copy Symbol" />
+                                <MenuItem fx:id="copyNameMenuItem" mnemonicParsing="false" text="Copy Name" />
                                 <MenuItem fx:id="copyImageMenuItem" mnemonicParsing="false" text="Copy Image" />
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <CheckMenuItem fx:id="showNameMenuItem" mnemonicParsing="false" text="Show Name" />

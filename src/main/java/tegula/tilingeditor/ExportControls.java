@@ -63,7 +63,7 @@ public class ExportControls {
                 () -> name(tilingEditorTab), new SimpleObjectProperty<>(),
                 controller.getShowQRCodeMenuItem().selectedProperty());
 
-        controller.getCopySymbolMenuItem().setOnAction(e -> ClipboardUtils.putString(name(tilingEditorTab)));
+        controller.getCopyNameMenuItem().setOnAction(e -> ClipboardUtils.putString(name(tilingEditorTab)));
         controller.getCopyImageMenuItem().setOnAction(e -> ClipboardUtils.putImage(controller.getMainPane()));
     }
 

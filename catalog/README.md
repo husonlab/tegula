@@ -8,15 +8,20 @@ Each file is a gzipped, tab-separated table with a comment header and the column
 | column | meaning |
 | --- | --- |
 | `number` | catalog number: position in this catalog, counting from 1 |
-| `key` | canonical key, e.g. `DS07-80VG-B42W-4N1Y` |
+| `name` | the self-contained name of the canonical form, e.g. `DS07-3R55-E1RJ-G` |
 | `size` | size of the Delaney-Dress symbol |
 | `canonical_symbol` | the canonical form, a valid D-symbol string with number `0.0` |
 | `source_id` | the `id` this tiling happens to have in the source database |
 
+The `name` is the self-contained, reversible name of the canonical form, see
+`tegula.core.dsymbols.DSymbolCode`. It holds the whole tiling, so it needs no registry, and two
+different tilings cannot share one: a name decodes back to the symbol it names. Names run from 8 to
+28 characters over the tilings of size 1-12, mean 20.5.
+
 Tilings are ordered by increasing size, then by increasing protocol, where the protocol of a symbol
 of size n is the sequence of 5n numbers s0(1)..s0(n), s1(1)..s1(n), s2(1)..s2(n), m01(1)..m01(n),
-m12(1)..m12(n) of its canonical form. Comparing protocols rather than text means neither the
-ordering nor the keys depend on how a symbol happens to be printed. The order depends only on the
+m12(1)..m12(n) of its canonical form. Comparing protocols rather than text means the ordering does
+not depend on how a symbol happens to be printed. The order depends only on the
 set of tilings, so the numbering is reproducible from the canonical forms alone, and extending a
 catalog to larger symbols appends to it rather than renumbering it. The `source_id` is the only
 column that is specific to the source database.
@@ -26,8 +31,9 @@ anyone who wants to join a catalog against Gavrog's own identifier for the same 
 stored here: it adds about half again to the size of a catalog, and it is easier to regenerate on
 demand than to carry for everybody.
 
-The scheme, the canonicalization algorithm and the verification results are described in
-[../doc/tiling-identity.html](../doc/tiling-identity.html).
+The canonicalization algorithm and the verification results are described in
+[../doc/tiling-identity.html](../doc/tiling-identity.html). That document still describes the
+60-bit hashed key this column used to hold, and its collision counts, which no longer apply.
 
 ## Rebuilding
 
@@ -38,13 +44,15 @@ java -Xmx8g -cp target/classes:'target/dependency/*' tegula.db.CatalogNumbering 
 
 ## Contents
 
-| catalog | tilings | sizes | duplicates | key collisions at 60 bits |
-| --- | ---: | ---: | ---: | ---: |
-| `tilings-1-16` | 795,590 | 1-16 | 0 | 0 |
-| `tilings-1-18` | 5,214,516 | 1-18 | 0 | 0 |
-| `tilings-1-19` | 5,214,516 | 1-18 | 0 | 0 |
-| `euclidean-1-24` | 1,728,488 | 1-24 | 0 | 0 |
-| `spherical-1-24` | 2,155,818 | 1-24 | 0 | 0 |
+| catalog | tilings | sizes | duplicates |
+| --- | ---: | ---: | ---: |
+| `tilings-1-16` | 795,590 | 1-16 | 0 |
+| `tilings-1-18` | 5,214,516 | 1-18 | 0 |
+| `tilings-1-19` | 5,214,516 | 1-18 | 0 |
+| `euclidean-1-24` | 1,728,488 | 1-24 | 0 |
+| `spherical-1-24` | 2,155,818 | 1-24 | 0 |
+
+Any catalog file generated before the `key` column became `name` is stale and wants rebuilding.
 
 `tilings-1-18` and `tilings-1-19` hold the same 5,214,516 tilings under different `id` numbering,
 and produce byte-identical catalogs. The `tilings-1-16` catalog is an exact prefix of the

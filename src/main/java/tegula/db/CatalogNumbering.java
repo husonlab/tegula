@@ -26,6 +26,7 @@ import jloda.util.FileUtils;
 import org.sqlite.SQLiteConfig;
 import tegula.core.dsymbols.DSymbol;
 import tegula.core.dsymbols.DSymbolAlgorithms;
+import tegula.core.dsymbols.DSymbolCode;
 import tegula.core.dsymbols.GavrogInvariant;
 
 import java.io.*;
@@ -38,8 +39,8 @@ import java.util.stream.IntStream;
  * <p>
  * The id column of a Tegula tilings database records the order in which the tilings happened to be enumerated and
  * so differs between databases that contain exactly the same tilings. This program computes, for each tiling, the
- * canonical form of its Delaney symbol and the canonical key derived from it, and then numbers the tilings by
- * increasing size and, within one size, by increasing canonical form. That numbering depends only on the set of
+ * canonical form of its Delaney symbol and the name derived from it, see {@link DSymbolCode}, and then numbers the
+ * tilings by increasing size and, within one size, by increasing canonical form. That numbering depends only on the set of
  * tilings, so anybody can recompute it, and extending the catalog to larger symbols appends to it rather than
  * renumbering it.
  * <p>
@@ -80,11 +81,9 @@ public class CatalogNumbering {
         final String outputFile = options.getOption("-o", "output", "Output catalog file (.tsv, .gz and stdout ok)", "stdout");
 
         options.comment("Options:");
-        final int keyBits = options.getOption("-k", "keyBits", "Number of hash bits in a canonical key, a multiple of 5",
-                DSymbolAlgorithms.DEFAULT_KEY_BITS);
         final int maxSize = options.getOption("-m", "maxSize", "Only consider symbols up to this size (0: all)", 0);
         final boolean updateDatabase = options.getOption("-u", "updateDatabase",
-                "Add canonical_key and catalog_number columns to the input database, modifying it in place", false);
+                "Add name and catalog_number columns to the input database, modifying it in place", false);
         final boolean gavrogInvariant = options.getOption("-g", "gavrogInvariant",
                 "Append Delgado-Friedrichs' invariant, as computed by Gavrog, as a last column", false);
         options.done();
@@ -101,22 +100,15 @@ public class CatalogNumbering {
         entries.sort(Comparator.comparingInt(Entry::size).thenComparing(Entry::protocol, Arrays::compare));
         removeDuplicates(entries);
 
-        final String[] keys = new String[entries.size()];
-        IntStream.range(0, keys.length).parallel()
-                .forEach(i -> keys[i] = DSymbolAlgorithms.keyForProtocol(entries.get(i).protocol(), keyBits));
-        final int collisions = reportCollisions(entries, keys, keyBits);
-
         try (Writer w = FileUtils.getOutputWriterPossiblyZIPorGZIP(outputFile)) {
-            write(w, entries, keys, keyBits, inputFile, gavrogInvariant);
+            write(w, entries, inputFile, gavrogInvariant);
         }
         if (!outputFile.toLowerCase().startsWith("std"))
             System.err.println("Catalog written to: " + outputFile);
 
         if (updateDatabase) {
-            if (collisions > 0)
-                throw new IOException("Refusing to update the database: %d key collisions, use a larger -k".formatted(collisions));
             try (Connection connection = new SQLiteConfig().createConnection("jdbc:sqlite:" + inputFile)) {
-                updateDatabase(connection, entries, keys);
+                updateDatabase(connection, entries);
             }
         }
     }
@@ -192,75 +184,49 @@ public class CatalogNumbering {
     }
 
     /**
-     * reports any two distinct tilings that receive the same canonical key
-     *
-     * @return number of colliding keys
-     */
-    private int reportCollisions(List<Entry> entries, String[] keys, int keyBits) {
-        final String[] sorted = keys.clone();
-        Arrays.parallelSort(sorted);
-        final Set<String> colliding = new HashSet<>();
-        for (int i = 1; i < sorted.length; i++) {
-            if (sorted[i].equals(sorted[i - 1]))
-                colliding.add(sorted[i]);
-        }
-
-        if (!colliding.isEmpty()) {
-            final TreeMap<String, List<String>> details = new TreeMap<>();
-            for (int i = 0; i < keys.length; i++) {
-                if (colliding.contains(keys[i]))
-                    details.computeIfAbsent(keys[i], k -> new ArrayList<>())
-                            .add(DSymbolAlgorithms.fromProtocol(entries.get(i).protocol()).toString());
-            }
-            details.forEach((key, forms) -> System.err.printf("Collision: %s <- %s%n", key, String.join(" ", forms)));
-        }
-        System.err.printf("Key collisions:    %,13d at %d bits%s%n", colliding.size(), keyBits,
-                (colliding.isEmpty() ? "" : ", use a larger -k"));
-        return colliding.size();
-    }
-
-    /**
      * writes the catalog
      */
-    private void write(Writer w, List<Entry> entries, String[] keys, int keyBits, String inputFile,
-                       boolean gavrogInvariant) throws IOException {
+    private void write(Writer w, List<Entry> entries, String inputFile, boolean gavrogInvariant) throws IOException {
         w.write("# Tegula tiling catalog\n");
         w.write("# source: %s\n".formatted(FileUtils.getFileNameWithoutPath(inputFile)));
         w.write("# tilings: %d\n".formatted(entries.size()));
-        w.write("# key: size, then the leading %d bits of the SHA-256 hash of the protocol, in Crockford base 32\n".formatted(keyBits));
+        w.write("# name: the self-contained, reversible name of the canonical form, see tegula.core.dsymbols.DSymbolCode\n");
         w.write("# order: by increasing size, then by increasing protocol as a sequence of numbers\n");
         if (gavrogInvariant)
             w.write("# gavrog_invariant: DelaneySymbol.invariant() of Gavrog, for cross-reference\n");
-        w.write("number\tkey\tsize\tcanonical_symbol\tsource_id%s\n".formatted(gavrogInvariant ? "\tgavrog_invariant" : ""));
+        w.write("number\tname\tsize\tcanonical_symbol\tsource_id%s\n".formatted(gavrogInvariant ? "\tgavrog_invariant" : ""));
 
         // the symbol, and the invariant if it was asked for, are rendered in parallel batches, so that
         // neither has to be held in memory for the whole catalog
         for (int start = 0; start < entries.size(); start += BATCH_SIZE) {
             final int stop = Math.min(start + BATCH_SIZE, entries.size());
             final int base = start;
+            final String[] names = new String[stop - start];
             final String[] symbols = new String[stop - start];
             final String[] invariants = new String[stop - start];
             IntStream.range(0, stop - start).parallel().forEach(j -> {
                 final DSymbol ds = DSymbolAlgorithms.fromProtocol(entries.get(base + j).protocol());
+                // the protocol is that of the canonical form, so the symbol is canonical already
+                names[j] = DSymbolCode.encodeCanonical(ds);
                 symbols[j] = ds.toString();
                 if (gavrogInvariant)
                     invariants[j] = GavrogInvariant.invariantString(ds);
             });
             for (int j = 0; j < stop - start; j++) {
                 final Entry entry = entries.get(base + j);
-                w.write("%d\t%s\t%d\t%s\t%d%s\n".formatted(base + j + 1, keys[base + j], entry.size(),
+                w.write("%d\t%s\t%d\t%s\t%d%s\n".formatted(base + j + 1, names[base + j], entry.size(),
                         symbols[j], entry.sourceId(), gavrogInvariant ? "\t" + invariants[j] : ""));
             }
         }
     }
 
     /**
-     * adds the canonical key and catalog number to the database
+     * adds the name and catalog number to the database
      */
-    private void updateDatabase(Connection connection, List<Entry> entries, String[] keys) throws SQLException {
+    private void updateDatabase(Connection connection, List<Entry> entries) throws SQLException {
         System.err.println("Updating database (this modifies the input file)...");
         try (Statement statement = connection.createStatement()) {
-            for (String column : List.of("canonical_key TEXT", "catalog_number INTEGER")) {
+            for (String column : List.of("name TEXT", "catalog_number INTEGER")) {
                 try {
                     statement.execute("alter table tilings add column " + column + ";");
                 } catch (SQLException ignored) {
@@ -270,9 +236,9 @@ public class CatalogNumbering {
         }
         connection.setAutoCommit(false);
         try (PreparedStatement statement = connection.prepareStatement(
-                "update tilings set canonical_key=?, catalog_number=? where id=?;")) {
+                "update tilings set name=?, catalog_number=? where id=?;")) {
             for (int i = 0; i < entries.size(); i++) {
-                statement.setString(1, keys[i]);
+                statement.setString(1, DSymbolCode.encodeCanonical(DSymbolAlgorithms.fromProtocol(entries.get(i).protocol())));
                 statement.setLong(2, i + 1);
                 statement.setLong(3, entries.get(i).sourceId());
                 statement.addBatch();
@@ -287,7 +253,7 @@ public class CatalogNumbering {
         connection.commit();
         connection.setAutoCommit(true);
         try (Statement statement = connection.createStatement()) {
-            statement.execute("create index if not exists idx_canonical_key on tilings(canonical_key);");
+            statement.execute("create index if not exists idx_name on tilings(name);");
             statement.execute("create index if not exists idx_catalog_number on tilings(catalog_number);");
         }
         System.err.println("Database updated");

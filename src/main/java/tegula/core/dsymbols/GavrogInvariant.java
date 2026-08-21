@@ -19,9 +19,6 @@
 
 package tegula.core.dsymbols;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -152,26 +149,6 @@ public class GavrogInvariant {
      */
     public static String canonicalString(DSymbol ds) {
         return canonicalForm(ds).toString();
-    }
-
-    /**
-     * computes a key from the Gavrog invariant, in the same shape as
-     * {@link DSymbolAlgorithms#canonicalKey(DSymbol)}, so that the two schemes can be compared
-     *
-     * @return key
-     */
-    public static String canonicalKey(DSymbol ds) {
-        return canonicalKey(ds, DSymbolAlgorithms.DEFAULT_KEY_BITS);
-    }
-
-    public static String canonicalKey(DSymbol ds, int bits) {
-        final byte[] digest;
-        try {
-            digest = MessageDigest.getInstance("SHA-256").digest(invariantString(ds).getBytes(StandardCharsets.UTF_8));
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e); // every Java platform is required to provide SHA-256
-        }
-        return DSymbolAlgorithms.formatKey(ds.size(), digest, bits);
     }
 
     /**

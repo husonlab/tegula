@@ -48,7 +48,7 @@ public class TilingEditorTabController {
     private MenuButton exportMenuButton;
 
     @FXML
-    private MenuItem copySymbolMenuItem;
+    private MenuItem copyNameMenuItem;
 
     @FXML
     private MenuItem copyImageMenuItem;
@@ -210,8 +210,8 @@ public class TilingEditorTabController {
         return exportMenuButton;
     }
 
-    public MenuItem getCopySymbolMenuItem() {
-        return copySymbolMenuItem;
+    public MenuItem getCopyNameMenuItem() {
+        return copyNameMenuItem;
     }
 
     public MenuItem getCopyImageMenuItem() {
