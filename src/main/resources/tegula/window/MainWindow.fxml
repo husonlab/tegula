@@ -21,7 +21,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
 <AnchorPane fx:id="anchorPane" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1"
@@ -264,14 +263,6 @@
                             <items>
                                 <Button fx:id="openButton" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false"
                                         text="Open">
-                                    <graphic>
-                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
-                                                   preserveRatio="true">
-                                            <image>
-                                                <Image url="@/jloda/resources/icons/sun/Open16.gif"/>
-                                            </image>
-                                        </ImageView>
-                                    </graphic>
                                     <tooltip>
                                         <Tooltip text="Open"/>
                                     </tooltip>
@@ -279,14 +270,6 @@
                                 <Separator layoutX="86.0" layoutY="10.0" orientation="VERTICAL" prefHeight="200.0"/>
                                 <Button fx:id="printButton" contentDisplay="GRAPHIC_ONLY" layoutX="48.0" layoutY="9.0"
                                         mnemonicParsing="false" text="Print">
-                                    <graphic>
-                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
-                                                   preserveRatio="true">
-                                            <image>
-                                                <Image url="@/jloda/resources/icons/sun/Print16.gif"/>
-                                            </image>
-                                        </ImageView>
-                                    </graphic>
                                     <tooltip>
                                         <Tooltip text="Print"/>
                                     </tooltip>
@@ -294,51 +277,25 @@
                                 <Separator orientation="VERTICAL" prefHeight="200.0"/>
                                 <Button fx:id="zoomInButton" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false"
                                         text="Zoom in">
-                                    <graphic>
-                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
-                                                   preserveRatio="true">
-                                            <image>
-                                                <Image url="@/jloda/resources/icons/sun/ZoomIn16.gif"/>
-                                            </image>
-                                        </ImageView>
-                                    </graphic>
+                                    <tooltip>
+                                        <Tooltip text="Zoom in"/>
+                                    </tooltip>
                                 </Button>
                                 <Button fx:id="zoomOutButton" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false"
                                         text="Zoom out">
-                                    <graphic>
-                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
-                                                   preserveRatio="true">
-                                            <image>
-                                                <Image url="@/jloda/resources/icons/sun/ZoomOut16.gif"/>
-                                            </image>
-                                        </ImageView>
-                                    </graphic>
+                                    <tooltip>
+                                        <Tooltip text="Zoom out"/>
+                                    </tooltip>
                                 </Button>
                                 <Separator orientation="VERTICAL" prefHeight="200.0"/>
                                 <Button fx:id="undoButton" contentDisplay="GRAPHIC_ONLY" layoutX="96.0" layoutY="9.0"
                                         mnemonicParsing="false" text="Undo">
-                                    <graphic>
-                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
-                                                   preserveRatio="true">
-                                            <image>
-                                                <Image url="@/jloda/resources/icons/sun/Undo16.gif"/>
-                                            </image>
-                                        </ImageView>
-                                    </graphic>
                                     <tooltip>
                                         <Tooltip text="Undo"/>
                                     </tooltip>
                                 </Button>
                                 <Button fx:id="redoButton" contentDisplay="GRAPHIC_ONLY" layoutX="144.0" layoutY="9.0"
                                         mnemonicParsing="false" text="Redo">
-                                    <graphic>
-                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
-                                                   preserveRatio="true">
-                                            <image>
-                                                <Image url="@/jloda/resources/icons/sun/Redo16.gif"/>
-                                            </image>
-                                        </ImageView>
-                                    </graphic>
                                     <tooltip>
                                         <Tooltip text="Redo"/>
                                     </tooltip>

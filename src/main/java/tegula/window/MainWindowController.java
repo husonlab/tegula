@@ -24,6 +24,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
+import jloda.fx.icons.MaterialIcons;
 import jloda.fx.window.SplashScreen;
 import jloda.util.ProgramProperties;
 
@@ -211,6 +212,13 @@ public class MainWindowController {
 
     @FXML
     void initialize() {
+        MaterialIcons.setIcon(openButton, MaterialIcons.file_open);
+        MaterialIcons.setIcon(printButton, MaterialIcons.print);
+        MaterialIcons.setIcon(zoomInButton, MaterialIcons.zoom_in);
+        MaterialIcons.setIcon(zoomOutButton, MaterialIcons.zoom_out);
+        MaterialIcons.setIcon(undoButton, MaterialIcons.undo);
+        MaterialIcons.setIcon(redoButton, MaterialIcons.redo);
+
         // if we are running on MacOS, put the specific menu items in the right places
         if (ProgramProperties.isMacOS()) {
             getMenuBar().setUseSystemMenuBar(true);

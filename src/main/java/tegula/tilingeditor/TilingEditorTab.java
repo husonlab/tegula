@@ -26,7 +26,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tab;
 import jloda.fx.control.AnotherMultipleSelectionModel;
-import jloda.fx.qr.QRViewUtils;
 import jloda.fx.undo.UndoManager;
 import jloda.fx.util.ExtendedFXMLLoader;
 import jloda.fx.util.RecentFilesManager;
@@ -109,10 +108,8 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
 
         controller.getMainPane().getChildren().add(tilingPane);
 
-        // a QR code holding the tiling's self-contained name, floating over the main pane
-        QRViewUtils.setup(controller.getAnchorPane(), tilingPane.lastDSymbolUpdateProperty(),
-                () -> getTiling() == null ? null : DSymbolCode.encode(getTiling().getDSymbol()),
-                new SimpleObjectProperty<>(), controller.getShowQRCodeMenuItem().selectedProperty());
+        // the Export menu button, and the name and QR code that float over the main pane
+        ExportControls.setup(this);
 
         ControlBindings.setup(this);
 

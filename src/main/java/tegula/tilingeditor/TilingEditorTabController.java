@@ -25,6 +25,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import jloda.fx.icons.MaterialIcons;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -45,6 +46,15 @@ public class TilingEditorTabController {
 
     @FXML
     private MenuButton exportMenuButton;
+
+    @FXML
+    private MenuItem copySymbolMenuItem;
+
+    @FXML
+    private MenuItem copyImageMenuItem;
+
+    @FXML
+    private CheckMenuItem showNameMenuItem;
 
     @FXML
     private CheckMenuItem showQRCodeMenuItem;
@@ -181,6 +191,11 @@ public class TilingEditorTabController {
 
     @FXML
     void initialize() {
+        MaterialIcons.setIcon(exportMenuButton, MaterialIcons.ios_share);
+        // these two keep their button chrome, so set only the graphic
+        resizeButton.setGraphic(MaterialIcons.graphic(MaterialIcons.open_in_full, "-fx-font-size: 8;"));
+        stopAnimationButton.setGraphic(MaterialIcons.graphic(MaterialIcons.close, "-fx-font-size: 14;"));
+
 		final ToggleGroup group = new ToggleGroup();
         group.getToggles().addAll(pointLightRadioButton, ambientLightRadioButton);
         pointLightRadioButton.setSelected(true);
@@ -193,6 +208,18 @@ public class TilingEditorTabController {
 
     public MenuButton getExportMenuButton() {
         return exportMenuButton;
+    }
+
+    public MenuItem getCopySymbolMenuItem() {
+        return copySymbolMenuItem;
+    }
+
+    public MenuItem getCopyImageMenuItem() {
+        return copyImageMenuItem;
+    }
+
+    public CheckMenuItem getShowNameMenuItem() {
+        return showNameMenuItem;
     }
 
     public CheckMenuItem getShowQRCodeMenuItem() {
