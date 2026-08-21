@@ -16,7 +16,7 @@ Each file is a gzipped, tab-separated table with a comment header and the column
 The `name` is the self-contained, reversible name of the canonical form, see
 `tegula.core.dsymbols.DSymbolCode`. It holds the whole tiling, so it needs no registry, and two
 different tilings cannot share one: a name decodes back to the symbol it names. Names run from 8 to
-28 characters over the tilings of size 1-12, mean 20.5.
+36 characters over the 795,590 tilings of `tilings-1-16`, mean 26.1.
 
 Tilings are ordered by increasing size, then by increasing protocol, where the protocol of a symbol
 of size n is the sequence of 5n numbers s0(1)..s0(n), s1(1)..s1(n), s2(1)..s2(n), m01(1)..m01(n),
@@ -52,8 +52,7 @@ java -Xmx8g -cp target/classes:'target/dependency/*' tegula.db.CatalogNumbering 
 | `euclidean-1-24` | 1,728,488 | 1-24 | 0 |
 | `spherical-1-24` | 2,155,818 | 1-24 | 0 |
 
-Any catalog file generated before the `key` column became `name` is stale and wants rebuilding.
-
-`tilings-1-18` and `tilings-1-19` hold the same 5,214,516 tilings under different `id` numbering,
-and produce byte-identical catalogs. The `tilings-1-16` catalog is an exact prefix of the
-`tilings-1-19` catalog.
+`tilings-1-18` and `tilings-1-19` hold the same 5,214,516 tilings under different `id` numbering, so
+their catalogs agree in every column but `source_id`, which is the one column that is specific to the
+source database. Verified by diffing columns 1-4. The `tilings-1-16` catalog is an exact prefix of
+the `tilings-1-19` catalog, likewise verified.
