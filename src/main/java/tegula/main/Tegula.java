@@ -20,6 +20,7 @@ package tegula.main;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import jloda.fx.print.ImageCropper;
 import jloda.fx.util.ArgsOptions;
 import jloda.fx.util.ColorSchemeManager;
 import jloda.fx.util.ProgramProperties;
@@ -62,6 +63,10 @@ public class Tegula extends Application {
      *
 	 */
     public static void main(String[] args) throws CanceledException, UsageException {
+        // a tiling is drawn on its own background colour, so trim an exported image against that
+        // colour rather than against white, which crops a spherical tiling to the sphere
+        ImageCropper.CROP_TO_BACKGROUND = true;
+
         ResourceManagerFX.addResourceRoot(Tegula.class, "tegula/resources");
         ProgramProperties.setProgramName(Version.NAME);
         ProgramProperties.setProgramVersion(Version.SHORT_DESCRIPTION);
