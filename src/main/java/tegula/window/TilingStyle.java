@@ -26,6 +26,7 @@ import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import jloda.fx.util.ColorSchemeManager;
+import tegula.core.dsymbols.Geometry;
 
 /**
  * class representing styling choices for tiling
@@ -43,10 +44,11 @@ public class TilingStyle {
 
     /**
      * Applies the standard, subtle tile specular highlight to the given material. Always use this for tile-face
-     * materials so the specular color is never left null (see {@link #TILE_SPECULAR_COLOR}).
+     * materials so the specular color is never left null (see {@link #TILE_SPECULAR_COLOR}). The geometry has
+     * to be passed in rather than defaulted, so that no call site can quietly get it wrong.
      */
-    public static void applyTileSpecular(PhongMaterial material) {
-        material.setSpecularColor(TILE_SPECULAR_COLOR);
+    public static void applyTileSpecular(PhongMaterial material, Geometry geometry) {
+        material.setSpecularColor(hasSpecularHighlight(geometry) ? TILE_SPECULAR_COLOR : Color.BLACK);
         material.setSpecularPower(TILE_SPECULAR_POWER);
     }
 
@@ -55,8 +57,19 @@ public class TilingStyle {
      * whose specular color is left null renders black wherever the surface turns away from the viewer, which
      * on a sphere blackens every band towards the rim while those in the middle keep their color
      */
-    public static void applyBandSpecular(PhongMaterial material) {
-        applyTileSpecular(material);
+    public static void applyBandSpecular(PhongMaterial material, Geometry geometry) {
+        applyTileSpecular(material, geometry);
+    }
+
+    /**
+     * A hyperbolic tiling is shaded as the flat disk it looks like, rather than from the hyperboloid its points
+     * lie on, see MeshUtils.withSurfaceNormals. A flat surface facing the viewer offers no curvature for a
+     * highlight to play over, so all a highlight does there is show up how coarsely the light is interpolated
+     * across chamber triangles that are enormous in three dimensions: it spreads into a bright patch with
+     * straight edges. Black is a color, so this still keeps the specular color away from null.
+     */
+    private static boolean hasSpecularHighlight(Geometry geometry) {
+        return geometry != Geometry.Hyperbolic;
     }
 
     private final Group decorations = new Group();

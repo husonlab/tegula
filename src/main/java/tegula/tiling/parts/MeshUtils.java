@@ -70,14 +70,27 @@ public class MeshUtils {
 
     /**
      * returns a copy of a mesh with explicit per-vertex normals for smooth shading, taken from the surface
-     * the points are known to lie on rather than from the triangles: the sphere of radius 100, or the
-     * hyperboloid of the same radius, both centred on the origin, see {@link Tools#getNormalVector}. Without
-     * this a curved surface is shaded per triangle and reads as a set of facets. The euclidean plane is flat,
-     * so its mesh is returned unchanged.
+     * the points are known to lie on rather than from the triangles: the sphere of radius 100, see
+     * {@link Tools#getNormalVector}. Without this a curved surface is shaded per triangle and reads as a set
+     * of facets. The euclidean plane is flat, so its mesh is returned unchanged.
+     * <p>
+     * A hyperbolic tiling is shaded as the flat disk it looks like, rather than from the hyperboloid its
+     * points actually lie on. The hyperboloid is unbounded: the Poincare disk one sees is that surface drawn
+     * in perspective from just in front of it, and its rim is the surface at infinity. Lighting it as it
+     * really is therefore darkens the picture from the middle outwards, since the surface turns edge-on and
+     * runs away from the light: the normal is already tilted by 39 degrees a quarter of the way out, and
+     * tends to 45 degrees, which reads as a spotlight lying on top of the pattern rather than as
+     * illumination. Shading it flat keeps the light on the thing one is actually looking at.
      *
      * @param inward negate the normals, for a reversed-orientation back-face mesh
      * @return copy in POINT_NORMAL_TEXCOORD format, or src itself in the euclidean case
      */
+    /**
+     * what a hyperbolic tiling is shaded as: a disk facing the viewer. The hyperbolic normal at the center of
+     * the disk is this same direction, so the two agree there and differ only in how fast they turn away
+     */
+    private static final Point3D FLAT_DISK_NORMAL = new Point3D(0, 0, -1);
+
     public static TriangleMesh withSurfaceNormals(TriangleMesh src, Geometry geom, boolean inward) {
         if (geom != Geometry.Spherical && geom != Geometry.Hyperbolic)
             return src;
@@ -91,9 +104,11 @@ public class MeshUtils {
 
         // one normal per point: the normal of the surface there, so that neighbouring triangles agree
         final float sign = inward ? -1f : 1f;
+        final boolean asFlatDisk = (geom == Geometry.Hyperbolic);
         final float[] normals = new float[points.size()];
         for (int i = 0; i < points.size(); i += 3) {
-            final Point3D normal = Tools.getNormalVector(new Point3D(points.get(i), points.get(i + 1), points.get(i + 2)), geom);
+            final Point3D normal = (asFlatDisk ? FLAT_DISK_NORMAL
+                    : Tools.getNormalVector(new Point3D(points.get(i), points.get(i + 1), points.get(i + 2)), geom));
             normals[i] = (float) (sign * normal.getX());
             normals[i + 1] = (float) (sign * normal.getY());
             normals[i + 2] = (float) (sign * normal.getZ());

@@ -369,7 +369,7 @@ public class TilingEditorTab extends Tab implements IFileBased, Closeable, Print
     }
 
     public void highlightSelections(Character type) {
-        SelectionSupport.highlightSelection(tilingPane.getWorld(), vertexSelection, edgeSelection, tileSelection, tilingStyle, type);
+        SelectionSupport.highlightSelection(tilingPane.getWorld(), vertexSelection, edgeSelection, tileSelection, tilingStyle, tilingPane.getGeometry(), type);
     }
 
     public void selectAll(boolean select) {

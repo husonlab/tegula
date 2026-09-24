@@ -88,7 +88,7 @@ public class FundamentalDomain {
         {
             for (int e = 1; e < edge2material.length; e++) {
                 final PhongMaterial material = new PhongMaterial(tilingStyle.getBandColor());
-                TilingStyle.applyBandSpecular(material);
+                TilingStyle.applyBandSpecular(material, geom);
                 edge2material[e] = material;
                 edgeWidth[e] = bandWidth;
             }
@@ -100,7 +100,7 @@ public class FundamentalDomain {
         {
             for (int v = 1; v < vertex2material.length; v++) {
                 final PhongMaterial material = new PhongMaterial(tilingStyle.getBandColor());
-                TilingStyle.applyBandSpecular(material);
+                TilingStyle.applyBandSpecular(material, geom);
                 vertex2material[v] = material;
                 vertexDiameter[v] = bandWidth;
             }
@@ -371,7 +371,7 @@ public class FundamentalDomain {
 
                 if (tilingStyle.isShowFaces()) {
 					final MeshView meshView = new MeshView(MeshUtils.withSurfaceNormals(mesh, geom, false));
-					TilingStyle.applyTileSpecular(material);
+					TilingStyle.applyTileSpecular(material, geom);
                     meshView.setId("t=" + a2tile[a0]);
                     meshView.setMaterial(material);
                     meshes.add(mesh);
@@ -379,7 +379,7 @@ public class FundamentalDomain {
                 }
                 if (tilingStyle.isShowBackFaces()) {
 					final MeshView meshView = new MeshView(MeshUtils.withSurfaceNormals(MeshUtils.reverseOrientation(mesh), geom, true));
-					TilingStyle.applyTileSpecular(material);
+					TilingStyle.applyTileSpecular(material, geom);
                     meshView.setId("t=" + a2tile[a0]);
                     meshView.setMaterial(material);
                     meshes.add(mesh);
@@ -399,7 +399,7 @@ public class FundamentalDomain {
 					}
 					if (tileCenter != null) {
 						final MeshView lipView = new MeshView(TileRelief.createLip(geom, insetBoundaries, tileCenter, wallDepth));
-						TilingStyle.applyTileSpecular(material);
+						TilingStyle.applyTileSpecular(material, geom);
 						lipView.setId("t=" + a2tile[a0]);
 						lipView.setMaterial(material);
 						// two-sided, like the grout floor: the winding of these walls comes out reversed for
@@ -410,7 +410,7 @@ public class FundamentalDomain {
 						if (tileSubstrate && !outerBoundaries.contains(null)) {
 							// the grout floor, filling the gap only, in the band color
 							final PhongMaterial floorMaterial = new PhongMaterial(tilingStyle.getBandColor());
-							TilingStyle.applyTileSpecular(floorMaterial);
+							TilingStyle.applyTileSpecular(floorMaterial, geom);
 							final MeshView floorView = new MeshView(TileRelief.createFloorRing(geom, insetBoundaries, outerBoundaries, substrateDepth));
 							floorView.setMaterial(floorMaterial);
 							floorView.setCullFace(CullFace.NONE);
@@ -431,7 +431,7 @@ public class FundamentalDomain {
             final int[] dartLabels = (weave ? Weave.computeDartLabels(dsymbol) : null);
             final double weaveDepth = tilingStyle.getWeaveDepth();
             final PhongMaterial borderMaterial = new PhongMaterial(tilingStyle.getWeaveBorderColor());
-            TilingStyle.applyBandSpecular(borderMaterial);
+            TilingStyle.applyBandSpecular(borderMaterial, geom);
             final double borderWidth = tilingStyle.getWeaveBorderWidth();
 
             for (int a0 : dsymbol.orbits(0, 2)) {

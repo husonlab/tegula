@@ -33,6 +33,7 @@ import jloda.util.NumberUtils;
 import jloda.util.Pair;
 import jloda.util.StringUtils;
 import tegula.core.dsymbols.DSymbol;
+import tegula.core.dsymbols.Geometry;
 import tegula.tiling.parts.Weave;
 import tegula.window.TilingStyle;
 
@@ -99,7 +100,7 @@ public class SelectionSupport {
 
     public static void highlightSelection(Group group, AnotherMultipleSelectionModel<Integer> vertexSelection,
                                           AnotherMultipleSelectionModel<Integer> edgeSelection, AnotherMultipleSelectionModel<Integer> tileSelection,
-                                          final TilingStyle tilingStyle, Character type) {
+                                          final TilingStyle tilingStyle, Geometry geometry, Character type) {
 
         SelectionSupport.visitAllNodes(group, (node) -> {
             final Pair<Character, Integer> pair = getTypeAndId(node);
@@ -121,7 +122,7 @@ public class SelectionSupport {
                             } else {
                                 scaleFactor = 1.0;
                                 material = new PhongMaterial(tilingStyle.getBandColor());
-                                TilingStyle.applyBandSpecular(material);
+                                TilingStyle.applyBandSpecular(material, geometry);
                                 drawMode = DrawMode.FILL;
                             }
                             break;
@@ -136,7 +137,7 @@ public class SelectionSupport {
                                 // still selects the edge, but it is painted in the outline color, not the band's
                                 material = new PhongMaterial(Weave.OUTLINE.equals(node.getUserData())
                                         ? tilingStyle.getWeaveBorderColor() : tilingStyle.getBandColor());
-                                TilingStyle.applyBandSpecular(material);
+                                TilingStyle.applyBandSpecular(material, geometry);
                                 drawMode = DrawMode.FILL;
                             }
                             break;
@@ -148,7 +149,7 @@ public class SelectionSupport {
                             } else {
                                 scaleFactor = 1.0;
                                 material = new PhongMaterial(tilingStyle.getTileColor(id));
-								TilingStyle.applyTileSpecular(material);
+								TilingStyle.applyTileSpecular(material, geometry);
                                 drawMode = DrawMode.FILL;
                             }
                             break;

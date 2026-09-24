@@ -471,7 +471,7 @@ public class TilingPane extends StackPane implements Updateable {
             final Pair<Character, Integer> pair = SelectionSupport.getTypeAndId(node);
             if (pair != null && pair.getFirst() == 't') {
 				final PhongMaterial material = new PhongMaterial(tilingStyle.getTileColor(pair.getSecond()));
-				TilingStyle.applyTileSpecular(material);
+				TilingStyle.applyTileSpecular(material, getGeometry());
 				((MeshView) node).setMaterial(material);
             }
         };
@@ -496,7 +496,7 @@ public class TilingPane extends StackPane implements Updateable {
                 final boolean outline = tegula.tiling.parts.Weave.OUTLINE.equals(node.getUserData());
                 final PhongMaterial material = new PhongMaterial(outline ? getTilingStyle().getWeaveBorderColor()
                         : getTilingStyle().getBandColor());
-                TilingStyle.applyBandSpecular(material);
+                TilingStyle.applyBandSpecular(material, getGeometry());
                 ((MeshView) node).setMaterial(material);
             }
         };
