@@ -400,4 +400,100 @@ public class ReshapeUtilities {
         return a >= b;
     }
 
+    /**
+     * carries the shape of a reshaped fundamental domain over to a freshly computed one, after the rotational
+     * degrees of the Delaney symbol have been changed.
+     * <p>
+     * Changing a rotational degree changes only the m-values of the symbol, not its size or its involutions,
+     * so the chambers of the two domains correspond one-to-one. The vertices cannot be carried over: where
+     * they lie is dictated by the new angles, and possibly in a different geometry altogether, so they are
+     * left as computed. What is carried over is how far the user had pulled each edge center and each chamber
+     * center away from where the program itself puts them, which is what one sees as the shape of the domain.
+     * <p>
+     * That displacement is measured against an unreshaped domain for the old symbol, rather than against a
+     * formula for where an edge center "should" sit: in a curved geometry the domain is solved for, and its
+     * edge centers land neither at the midpoint of their two vertices' coordinates nor at the geodesic
+     * midpoint. Measuring canonical-to-canonical keeps an unreshaped domain exactly as computed, so that the
+     * triangulation of the chambers stays where it belongs. The displacement is expressed as a multiple of
+     * the length of the edge it belongs to, so that it also survives the change of scale that comes with a
+     * change of geometry.
+     *
+     * @param reshaped coordinates of the reshaped domain, as returned by FDomain.getCoordinates()
+     * @param straight coordinates of an unreshaped domain for the same, old, Delaney symbol
+     * @param target   the freshly computed domain for the new symbol, reshaped in place
+     * @return true if the shape was carried over
+     */
+    public static boolean transferShape(Point2D[][] reshaped, Point2D[][] straight, FDomain target) {
+        if (reshaped == null || straight == null || target == null)
+            return false;
+        final int size = target.getDSymbol().size();
+        if (reshaped.length != size + 1 || straight.length != size + 1)
+            return false; // not the same chambers, so there is nothing to map onto
+
+        // the positions to measure the new shape against, taken before anything is moved: the two chambers
+        // either side of an edge share the one stored edge center, so moving it for the first of them would
+        // otherwise leave the second measuring against a point that has already been moved
+        final Point2D[][] canonical = target.getCoordinates();
+
+        for (int a = 1; a <= size; a++) {
+            final Point2D[] was = reshaped[a], is = straight[a];
+            if (was == null || is == null)
+                continue;
+
+            for (int i = 0; i <= 2; i++) {
+                // the i-edge runs between the two vertices other than i. It is shared with the neighbouring
+                // chamber, which spans it by those very same two vertices, so both chambers place its center
+                // at the same point and the domain does not tear open along the edge
+                final int j = (i == 0 ? 1 : 0);
+                final int k = (i == 2 ? 1 : 2);
+                final double[] bend = relativeToEdge(is[j], is[k], is[3 + i], was[3 + i]);
+                if (bend != null) {
+                    final Point2D point = alongEdge(canonical[a][j], canonical[a][k], canonical[a][3 + i], bend);
+                    if (point != null && isFinite(point))
+                        target.setEdgeCenter(point, i, a);
+                }
+            }
+
+            final double[] offset = relativeToEdge(is[0], is[1], is[6], was[6]);
+            if (offset != null) {
+                final Point2D point = alongEdge(canonical[a][0], canonical[a][1], canonical[a][6], offset);
+                if (point != null && isFinite(point))
+                    target.setChamberCenter(point, a);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * where a point sits relative to a base point on the edge from a to b: how far it is displaced along the
+     * edge and how far off it, both as multiples of the edge's length so that they are free of any unit and
+     * of any scale
+     */
+    private static double[] relativeToEdge(Point2D a, Point2D b, Point2D base, Point2D point) {
+        if (a == null || b == null || base == null || point == null)
+            return null;
+        final Point2D along = b.subtract(a);
+        final double lengthSquared = along.dotProduct(along);
+        if (!(lengthSquared > 0))
+            return null;
+        final Point2D across = new Point2D(-along.getY(), along.getX());
+        final Point2D offset = point.subtract(base);
+        final double[] result = {offset.dotProduct(along) / lengthSquared, offset.dotProduct(across) / lengthSquared};
+        return (Double.isFinite(result[0]) && Double.isFinite(result[1]) ? result : null);
+    }
+
+    /**
+     * the inverse of relativeToEdge: puts the point back, relative to a new edge and base point
+     */
+    private static Point2D alongEdge(Point2D a, Point2D b, Point2D base, double[] offset) {
+        if (a == null || b == null || base == null)
+            return null;
+        final Point2D along = b.subtract(a);
+        final Point2D across = new Point2D(-along.getY(), along.getX());
+        return base.add(along.multiply(offset[0])).add(across.multiply(offset[1]));
+    }
+
+    private static boolean isFinite(Point2D point) {
+        return Double.isFinite(point.getX()) && Double.isFinite(point.getY());
+    }
 }

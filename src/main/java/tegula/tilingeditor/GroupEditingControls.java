@@ -26,6 +26,8 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
 import jloda.fx.undo.UndoManager;
 import tegula.core.dsymbols.DSymbol;
+import tegula.core.dsymbols.FDomain;
+import tegula.fdomaineditor.ReshapeUtilities;
 import tegula.tilingpane.TilingPane;
 import tegula.undoable.ChangeDSymbolCommand;
 
@@ -68,12 +70,14 @@ public class GroupEditingControls {
                 final ChangeListener<Number> listener = ((c, o, n) -> {
                     final DSymbol dsOld = new DSymbol(ds);
                     final Point2D[][] oldCoordinates = tilingPane.getTiling().getfDomain().getCoordinates();
+                    // an unreshaped domain for the old symbol, to measure the user's reshaping against
+                    final Point2D[][] straightOld = new FDomain(dsOld, tilingPane.getTilingStyle().isBendAnEdge()).getCoordinates();
 
                     if (n.intValue() < o.intValue()) {
                         if (isOkDecreaseVij(ds, a, i, j, ds.getVij(i, j, a))) {
                             ds.setVij(i, j, a, n.intValue());
                             final boolean changed = ensureNNForSpherical(ds, n.intValue());
-                            tilingPane.computTiling(ds);
+                            computeKeepingShape(tilingPane, ds, oldCoordinates, straightOld);
                             tilingEditorTab.getTabPane().requestFocus();
                             if (changed) // had to adjust a second value, need to update all values to capture this
                                 Platform.runLater(() -> setup(tilingEditorTab));
@@ -83,13 +87,15 @@ public class GroupEditingControls {
                     } else if (n.intValue() > o.intValue()) {
                         ds.setVij(i, j, a, n.intValue());
                         final boolean changed = ensureNNForSpherical(ds, n.intValue());
-                        tilingPane.computTiling(ds);
+                        computeKeepingShape(tilingPane, ds, oldCoordinates, straightOld);
                         tilingEditorTab.getTabPane().requestFocus();
                         if (changed) // had to adjust a second value, need to update all values to capture this
                             Platform.runLater(() -> setup(tilingEditorTab));
                     }
                     if (!undoManager.isPerformingUndoOrRedo())
-                        undoManager.add(new ChangeDSymbolCommand("change rotation", dsOld, ds, tilingPane::computTiling, oldCoordinates, tilingPane::changeCoordinates));
+                        undoManager.add(new ChangeDSymbolCommand("change rotation", dsOld, ds,
+                                d -> computeKeepingShape(tilingPane, d, oldCoordinates, straightOld),
+                                oldCoordinates, tilingPane::changeCoordinates));
                 });
                 vChooser.valueProperty().addListener(listener);
                 vChooser.setUserData(listener);
@@ -188,5 +194,16 @@ public class GroupEditingControls {
             }
         }
         return false;
+    }
+
+    /**
+     * recomputes the tiling for a changed rotational degree, keeping whatever reshaping the user had done to
+     * the fundamental domain. Only the bends of the edges and the chamber centers can be kept: the vertices
+     * are where the new angles put them (see ReshapeUtilities.transferShape)
+     */
+    private static void computeKeepingShape(TilingPane tilingPane, DSymbol ds, Point2D[][] oldCoordinates, Point2D[][] straightOld) {
+        tilingPane.computTiling(ds);
+        if (ReshapeUtilities.transferShape(oldCoordinates, straightOld, tilingPane.getTiling().getfDomain()))
+            tilingPane.update();
     }
 }
