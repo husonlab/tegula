@@ -46,3 +46,9 @@ target/
 *.out
 *.toc
 
+# bulk tiling data: the uncompressed databases are gigabytes each, far over GitHub's
+# 100MB limit for a single file. Only the .bz2 archives belong in the repository
+tilings/*.tdb
+tilings/*.tgs
+tilings/tilings-1-18.tdb.bz2
+catalog/*.catalog.tsv.gz
