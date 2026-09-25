@@ -31,7 +31,7 @@ stored here: it adds about half again to the size of a catalog, and it is easier
 demand than to carry for everybody.
 
 The naming scheme, the canonicalization algorithm and the verification results are described in
-[../doc/tiling-identity.html](../doc/tiling-identity.html).
+[../doc/tiling-identity.html](../docs/tiling-identity.html).
 
 ## Rebuilding
 

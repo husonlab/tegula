@@ -1,0 +1,728 @@
+<title>Delaney–Dress Names</title>
+<style>
+  :root {
+    --ground: #F4F7F6;
+    --surface: #FFFFFF;
+    --ink: #101A1B;
+    --muted: #5C6E6F;
+    --rule: #D6E1E0;
+    --rule-strong: #B9CAC8;
+    --accent: #14655E;
+    --accent-soft: #E1EFEC;
+    --warn: #91512A;
+    --warn-soft: #F5EBE2;
+    --good: #2C6249;
+    --code-bg: #EBF2F1;
+
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+    --step-0: 1.0625rem;
+    --step-1: 1.3rem;
+    --step-2: 1.6rem;
+    --step-3: 2.1rem;
+    --step-4: 2.9rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0C1213;
+      --surface: #131B1C;
+      --ink: #E3ECEB;
+      --muted: #91A4A4;
+      --rule: #22302F;
+      --rule-strong: #33403F;
+      --accent: #5EC1B5;
+      --accent-soft: #10302D;
+      --warn: #D3956A;
+      --warn-soft: #292017;
+      --good: #6FBF97;
+      --code-bg: #0F1718;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #0C1213;
+    --surface: #131B1C;
+    --ink: #E3ECEB;
+    --muted: #91A4A4;
+    --rule: #22302F;
+    --rule-strong: #33403F;
+    --accent: #5EC1B5;
+    --accent-soft: #10302D;
+    --warn: #D3956A;
+    --warn-soft: #292017;
+    --good: #6FBF97;
+    --code-bg: #0F1718;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: var(--step-0);
+    line-height: 1.62;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .doc {
+    display: grid;
+    grid-template-columns: minmax(1.25rem, 1fr) minmax(0, 68ch) minmax(1.25rem, 1fr);
+    row-gap: 1.15rem;
+    padding: 0 0 6rem;
+  }
+  .doc > * { grid-column: 2; margin: 0; }
+  .doc > .wide {
+    grid-column: 1 / -1;
+    width: min(100% - 2.5rem, 1060px);
+    margin-inline: auto;
+  }
+
+  /* ---- masthead ---- */
+  .masthead {
+    grid-column: 1 / -1;
+    width: 100%;
+    border-bottom: 1px solid var(--rule);
+    background: var(--surface);
+    padding: 3.5rem 1.25rem 2.25rem;
+    margin-bottom: 2.5rem;
+  }
+  .masthead-inner {
+    max-width: 68ch;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .eyebrow {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: var(--step-4);
+    line-height: 1.08;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    margin: 0;
+  }
+  .standfirst {
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: var(--muted);
+    text-wrap: pretty;
+    margin: 0;
+    max-width: 54ch;
+  }
+  .byline {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.25rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--rule);
+  }
+  .byline b { font-weight: 600; color: var(--ink); }
+
+  /* ---- headings ---- */
+  h2 {
+    font-family: var(--serif);
+    font-size: var(--step-2);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    margin: 2.6rem 0 0;
+    padding-top: 1.5rem;
+    border-top: 2px solid var(--ink);
+    display: flex;
+    gap: 0.7rem;
+    align-items: baseline;
+  }
+  h2 .num {
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    flex: none;
+    transform: translateY(-0.15em);
+  }
+  h3 {
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    font-weight: 650;
+    letter-spacing: 0.005em;
+    margin: 1.6rem 0 0;
+    color: var(--ink);
+  }
+
+  p { text-wrap: pretty; }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  a:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  strong { font-weight: 650; }
+
+  ul, ol { margin: 0; padding-left: 1.4rem; display: flex; flex-direction: column; gap: 0.45rem; }
+  li::marker { color: var(--muted); }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.855em;
+    background: var(--code-bg);
+    padding: 0.12em 0.36em;
+    border-radius: 3px;
+    word-break: break-word;
+  }
+  pre {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    line-height: 1.62;
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+    margin: 0;
+    tab-size: 2;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+
+  /* ---- anatomy figures ---- */
+  .anatomy {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 1.4rem 1.25rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    overflow-x: auto;
+  }
+  .anatomy .line {
+    font-family: var(--mono);
+    font-size: 0.98rem;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .anatomy .line span { padding: 0.15em 0; border-bottom: 2px solid transparent; }
+  .tok-a { color: var(--accent); border-bottom-color: var(--accent) !important; }
+  .tok-b { color: var(--warn); border-bottom-color: var(--warn) !important; }
+  .tok-c { color: var(--muted); border-bottom-color: var(--rule-strong) !important; }
+  .anatomy .legend {
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--muted);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 0.35rem 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .anatomy .legend li { display: flex; gap: 0.5rem; align-items: baseline; }
+  .swatch { width: 0.7rem; height: 0.18rem; border-radius: 1px; flex: none; transform: translateY(-0.2em); }
+
+  /* ---- tables ---- */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 4px; background: var(--surface); }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-family: var(--sans);
+    font-size: 0.83rem;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.45;
+  }
+  caption {
+    caption-side: top;
+    text-align: left;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 0 0.55rem;
+  }
+  th, td { padding: 0.6rem 0.9rem; text-align: left; vertical-align: top; }
+  thead th {
+    font-weight: 650;
+    color: var(--muted);
+    font-size: 0.74rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--rule-strong);
+    white-space: nowrap;
+  }
+  tbody tr + tr td { border-top: 1px solid var(--rule); }
+  td.num, th.num { text-align: right; }
+  .mono { font-family: var(--mono); font-size: 0.94em; white-space: nowrap; }
+  .yes { color: var(--good); font-weight: 650; }
+  .no { color: var(--warn); font-weight: 650; }
+
+  /* ---- callout ---- */
+  .callout {
+    background: var(--warn-soft);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--warn);
+    border-radius: 4px;
+    padding: 1rem 1.15rem;
+    font-size: 0.97rem;
+  }
+  .callout.good { background: var(--accent-soft); border-left-color: var(--accent); }
+  .callout p + p { margin-top: 0.6rem; }
+  .callout .label {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--warn);
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+  .callout.good .label { color: var(--accent); }
+
+  /* ---- decisions ---- */
+  .decisions { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0; }
+  .decisions li {
+    border-top: 1px solid var(--rule);
+    padding: 0.95rem 0;
+    display: grid;
+    grid-template-columns: 1.6rem 1fr;
+    gap: 0 0.8rem;
+  }
+  .decisions li:last-child { border-bottom: 1px solid var(--rule); }
+  .decisions .mark {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    padding-top: 0.32em;
+  }
+  .decisions .q { font-weight: 650; }
+  .decisions .a { color: var(--muted); font-size: 0.95rem; }
+
+  footer {
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 1.2rem;
+    margin-top: 3rem;
+  }
+
+  @media (max-width: 640px) {
+    :root { --step-4: 2.1rem; --step-2: 1.4rem; }
+    .masthead { padding: 2.5rem 1.25rem 1.75rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="doc">
+
+  <header class="masthead">
+    <div class="masthead-inner">
+      <p class="eyebrow">Tegula · identity scheme</p>
+      <h1>Delaney–Dress Names</h1>
+      <p class="standfirst">How to give every tiling a permanent identifier, a citable catalog number, and a name a person can read — and why the numbers we have today are none of those things.</p>
+      <div class="byline">
+        <span><b>Daniel H. Huson</b></span>
+        <span>18 August 2026</span>
+        <span>Draft 1 · for discussion</span>
+      </div>
+    </div>
+  </header>
+
+  <p>Tegula ships five databases holding several million periodic tilings, each encoded as a Delaney–Dress symbol. Every tiling in them has a number. That number is the only handle we currently have for saying <em>this</em> tiling — in a paper, in a saved file, in a URL, in conversation.</p>
+
+  <p>It does not survive. This document shows why, and proposes a replacement built from three separate things that we have so far been asking one number to do at once.</p>
+
+  <h2><span class="num">1</span> The number is not a property of the tiling</h2>
+
+  <p>The <code>id</code> column of a <code>.tdb</code> file records the order in which the enumeration happened to emit each symbol. Two databases can hold precisely the same tilings and number them completely differently. Ours do.</p>
+
+  <div class="wide">
+    <div class="table-wrap">
+      <table>
+        <caption>The same tiling in three of our databases</caption>
+        <thead>
+          <tr><th>Database</th><th class="num">Tilings</th><th>Symbol <code>&lt;…:7:1 3 5 7,2 3 4 6 7,1 4 5 7:3 4,9 4&gt;</code></th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="mono">tilings-1-16</td><td class="num">795,590</td><td>id <b>1000</b></td></tr>
+          <tr><td class="mono">tilings-1-19</td><td class="num">5,214,516</td><td>id <b>1000</b></td></tr>
+          <tr><td class="mono">tilings-1-18</td><td class="num">5,214,516</td><td>id <b class="no">937</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p><code>tilings-1-18</code> and <code>tilings-1-19</code> hold identical content — same 5,214,516 symbols, same distribution across sizes 1 to 18 — under two different numberings. Restricting both to symbols of size ≤ 14 and lining them up tiling by tiling, <b>141,748 of 141,785 have different ids</b> in the two files. And <code>euclidean-1-24</code> and <code>spherical-1-24</code> each restart from 1, so four independent numbering spaces are already in circulation, all of whose members are called things like &ldquo;tiling 1000&rdquo;.</p>
+
+  <div class="callout">
+    <span class="label">This leaks into saved files</span>
+    <p>The number is written into the serialized symbol as its leading field — <code>&lt;1000.0:7:…&gt;</code>. A <code>.tgs</code> file therefore carries a number whose meaning depends on which database the reader happens to have. It looks like an identifier and behaves like a build artifact.</p>
+  </div>
+
+  <h2><span class="num">2</span> Three jobs, three layers</h2>
+
+  <p>Identity, citation and readability have different requirements, and no single string satisfies all of them. Splitting them makes each one easy.</p>
+
+  <div class="wide">
+    <div class="table-wrap">
+      <table>
+        <caption>The identity stack</caption>
+        <thead>
+          <tr><th>Layer</th><th>Example</th><th>Assigned by</th><th>Changes when</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Name</b><br><span style="color:var(--muted)">the identity</span></td>
+            <td class="mono">DS07-3R55-E1RJ-G</td>
+            <td>Nobody — computed from the symbol</td>
+            <td class="yes">Never</td>
+          </tr>
+          <tr>
+            <td><b>Catalog number</b><br><span style="color:var(--muted)">the citation</span></td>
+            <td class="mono">T-0000937</td>
+            <td>A published, frozen catalog</td>
+            <td>Only if the catalog's universe is redefined</td>
+          </tr>
+          <tr>
+            <td><b>Descriptive name</b><br><span style="color:var(--muted)">the reading</span></td>
+            <td class="mono">hyperbolic 2*32 2/3/2 [3,4]</td>
+            <td>Nobody — computed from the symbol</td>
+            <td class="yes">Never</td>
+          </tr>
+          <tr>
+            <td><b>Nickname</b><br><span style="color:var(--muted)">the decoration</span></td>
+            <td class="mono">Cairo pentagonal</td>
+            <td>People, or an AI suggestion</td>
+            <td>Whenever anyone likes</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p>The load-bearing rule is that the <b>name is the identity</b>. A catalog number is only meaningful once you say which catalog; a nickname is never authoritative. Everything that must survive — file formats, URLs, cross-references between papers — hangs off the name.</p>
+
+  <h2><span class="num">3</span> The canonical form</h2>
+
+  <p>Two Delaney–Dress symbols describe the same tiling exactly when they are isomorphic, that is, when one can be relabeled into the other. A canonical form picks one representative of each isomorphism class, so that isomorphic symbols become <em>literally the same string</em>.</p>
+
+  <h3>Specification</h3>
+
+  <p>For a connected symbol of size <i>n</i>, take each flag in turn as a starting point and build a relabeling:</p>
+
+  <ol>
+    <li>Give the starting flag the new label 1, and put its s0-, s1- and s2-images into three queues, one per index.</li>
+    <li>Repeatedly draw from the lowest-numbered non-empty queue — from the <em>back</em> for indices 0 and 1, from the <em>front</em> for index 2 — discarding flags that already have a label. Give the first unlabeled flag drawn the next new label, and put its images under the other two indices into their queues. Stop when every flag has a label.</li>
+    <li>Write down the <b>protocol</b> of that relabeling: the 5<i>n</i> numbers s0(1)…s0(n), s1(1)…s1(n), s2(1)…s2(n), m01(1)…m01(n), m12(1)…m12(n). Together with m02, which is always 2, that is the whole symbol, so a protocol can be read back.</li>
+  </ol>
+
+  <p>The canonical form is the relabeling whose protocol is smallest as a sequence of numbers. If the symbol is not connected, canonicalize each component this way and concatenate the components in increasing order of protocol.</p>
+
+  <h3>Why those two choices</h3>
+
+  <p>The queue discipline is Olaf Delgado-Friedrichs', used in Gavrog, and his reason for it is readability: drawing indices 0 and 1 from the back exhausts a tile before moving on, so the flags of a tile come out consecutively numbered. Across 5,000 symbols drawn from the databases this holds for <em>every</em> tile; the obvious breadth-first alternative manages it for 46%. For a catalog people are going to read, that is worth having.</p>
+
+  <p>Comparing protocols rather than written symbols matters more than it looks. A rule that compares the <em>text</em> of a symbol makes the canonical form depend on how symbols are printed — spacing, separators, digit widths — so a later change to the output format would silently change every identifier in the catalog. A sequence of numbers has no such coupling. It is also what makes the computation cheap, since candidates can be compared without ever being rendered.</p>
+
+  <p>The shape of the algorithm is Algorithm 8 of <a href="https://www.sciencedirect.com/science/article/pii/S0304397502005005">Delgado-Friedrichs (2003)</a> — try every seed, relabel, keep the smallest — which deliberately leaves the comparison open: <i>"The particular choice of comparison function is irrelevant here as long as it is used consistently."</i> Asked whether his own implementation should be treated as the standard, he replied that the queue discipline is a readability choice he has not applied consistently, and that we should use whatever works best for us. The protocol above is that choice, made once and fixed here.</p>
+
+  <div class="anatomy">
+    <div class="line"><span class="tok-c">&lt;0.0:</span><span class="tok-a">7</span><span class="tok-c">:</span><span class="tok-b">1 3 5 7,2 3 4 6 7,1 4 5 7</span><span class="tok-c">:</span><span class="tok-a">3 4,9 4</span><span class="tok-c">&gt;</span></div>
+    <ul class="legend">
+      <li><span class="swatch" style="background:var(--rule-strong)"></span><span>Symbol number, forced to <code>0.0</code> — it is not part of the tiling</span></li>
+      <li><span class="swatch" style="background:var(--warn)"></span><span>The three involutions s0, s1, s2 on the flags</span></li>
+      <li><span class="swatch" style="background:var(--accent)"></span><span>Size, and the m01 / m12 values per orbit</span></li>
+    </ul>
+  </div>
+
+  <h2><span class="num">4</span> The name</h2>
+
+  <p>The canonical form is the true identity, but it runs to a hundred-odd characters and cannot be read aloud. A name is that same form written compactly: the canonical form itself, bit-packed, prefixed by the size for people. It is not a handle that stands in for the tiling — it <em>is</em> the tiling, written down. <code>DSymbolCode</code> implements it, and the format is specified in full in its documentation.</p>
+
+  <div class="anatomy">
+    <div class="line"><span class="tok-a">DS18</span><span class="tok-c">-</span><span class="tok-b">9ANA-NANA-M040-0ANA-K14</span></div>
+    <ul class="legend">
+      <li><span class="swatch" style="background:var(--accent)"></span><span>Size of the symbol, for people; it is in the bits as well</span></li>
+      <li><span class="swatch" style="background:var(--warn)"></span><span>The canonical form itself, bit-packed, in Crockford base 32, which omits I, L, O and U so that it cannot be misread</span></li>
+    </ul>
+  </div>
+
+  <p>The packing spends one bit where the next flag pairs with the one after it, and short codes on the m values 3 and 4. Both are cheap because of the traversal in section 3: numbering a tile's flags consecutively is exactly what makes s_i(a) almost always the next unpaired flag. 83% of the pair-ranks come out 0 or 1, and 62% of m values are 3 or 4. The readability choice and the compression turn out to be the same choice.</p>
+
+  <div class="wide">
+    <div class="table-wrap">
+      <table>
+        <caption>What a name costs</caption>
+        <thead>
+          <tr><th>Symbol size</th><th class="num">Characters</th><th>Example</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="num">1</td><td class="num">9</td><td class="mono">DS01-0TH8</td></tr>
+          <tr><td class="num">7</td><td class="num">16</td><td class="mono">DS07-3R55-E1RJ-G</td></tr>
+          <tr><td class="num">16</td><td class="num">24</td><td class="mono">DS16-8AMM-MN02-5550-NDH8</td></tr>
+          <tr><td class="num">18</td><td class="num">28</td><td class="mono">DS18-9ANA-NANA-M040-0ANA-K14</td></tr>
+          <tr><td class="num">24</td><td class="num">38</td><td class="mono">DS24-CAN9-8GJ0-…-EM0</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p>Twenty-six characters on average over the 795,590 tilings of <code>tilings-1-16</code>, and never more than 38 at the sizes we hold. In exchange: no registry is needed to resolve a name, no collision analysis arises at all because the map is a bijection, and a tiling nobody has enumerated can still be named. That last case is not hypothetical — a reader who reshapes a tiling in Tegula has something no catalog contains, and a handle into a catalog would resolve to nothing.</p>
+
+  <p>Reading a name is deliberately forgiving of transcription: case is ignored, hyphens are optional, I and L read as 1 and O as 0, and the prefix may be left off. Decoding also re-encodes and compares, so a name that has been damaged is refused rather than silently yielding a different tiling. That catches 90.3% of single-character corruptions; the remaining 9.7% land on another valid tiling of the same size, which one extra check character would reduce roughly thirty-fold if names are ever meant to be typed by hand rather than scanned or pasted.</p>
+
+  <p>Every character of a name is in the QR alphanumeric set, which packs 5.5 bits per character, so a name of any size we hold fits in a 25&nbsp;×&nbsp;25 module QR code at medium error correction — small enough to sit in the corner of a rendered tiling. Scanning one reconstructs the tiling offline, with no server and no catalog, which is only true because the name is reversible.</p>
+
+  <h2><span class="num">5</span> The catalog number</h2>
+
+  <p>Mathematicians want to write &ldquo;tiling 937&rdquo;, not a string of base-32. A number is fine — the mistake was deriving it from the enumeration order instead of from the tilings themselves.</p>
+
+  <h3>Ordering rule</h3>
+
+  <p>Sort by size, and within one size by protocol as a sequence of numbers. Number the result 1, 2, 3, …</p>
+
+  <p>This has two consequences that the current numbering lacks. Anyone holding the same set of symbols recomputes the same numbers, without needing our software or our enumeration order. And because size is what the ordering sorts on first, extending the catalog to larger symbols <b>appends</b> to it: every number already published keeps its meaning.</p>
+
+  <p>Note that the ordering depends only on the canonical form, and on the protocol rather than on any rendering of it, so nothing about how a tiling is written down can disturb a number already published.</p>
+
+  <h3>Pin down the universe first</h3>
+
+  <p>A catalog number means nothing until the set it indexes is fixed. The same tiling sits at #1 in <code>euclidean-1-24</code> and #4 in <code>tilings-1-19</code> — both correct, because they are different catalogs. The name is identical in both, which is exactly the division of labour we want.</p>
+
+  <p>So the catalog must state, and then never change: the dimension (2), the range of sizes, which geometries, and whether anything is filtered out. Our current files variously split by geometry and carry <code>normal</code>, <code>maximal</code> and <code>colorable</code> flags. <b>All 3-dimensional Delaney–Dress symbols of size ≤ N, unfiltered</b> is the only scope that will not need revision — filter in queries, not in the catalog.</p>
+
+  <h3>Publishing</h3>
+
+  <ul>
+    <li><b>Deposit for a DOI.</b> Zenodo handles these sizes easily; the compressed catalogs run from 18 to 125 MB.</li>
+    <li><b>Include a plain-text listing</b> of canonical forms, one per line, alongside the SQLite files. That is what makes the catalog definitive rather than Tegula's — anyone can regenerate the numbering from it with no dependency on our code.</li>
+    <li><b>Include the canonicalization specification</b> (section 3) as prose, plus the reference implementation.</li>
+    <li><b>Make the names resolvable.</b> <code>tegula.org/t/DS07-3R55-E1RJ-G</code> returning a page with a picture is what makes an identifier feel real. A number nobody can click stays theoretical.</li>
+  </ul>
+
+  <h2><span class="num">6</span> A name a person can read</h2>
+
+  <p>Everything needed for a descriptive name is already computed and stored: orbifold symbol, geometry, transitivity counts, tile and vertex figures. A name is just a fixed way of reading those out.</p>
+
+  <pre><code>&lt;geometry&gt; &lt;orbifold&gt; &lt;tiles&gt;/&lt;edges&gt;/&lt;vertices&gt; [&lt;tile degrees&gt;]
+
+euclidean  *632  1/1/1  [3]        the triangular tiling
+euclidean  *632  1/1/1  [6]        the hexagonal tiling
+euclidean  *333  3/3/3  [3,3,12]
+hyperbolic 2*32  2/3/2  [3,4]</code></pre>
+
+  <p>A specialist reads that and knows what the tiling is without looking anything up, which is the whole point — it needs no registry and no lookup table, because it is regenerated from the symbol every time.</p>
+
+  <h3>Nicknames, kept strictly separate</h3>
+
+  <p>For the couple of hundred tilings that already have human names, ship a small table keyed by name and fall back to the descriptive name for everything else:</p>
+
+  <div class="wide">
+    <div class="table-wrap">
+      <table>
+        <caption>The three regular euclidean tilings</caption>
+        <thead>
+          <tr><th>Name</th><th>Canonical form</th><th>Nickname</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="mono">DS01-0TH8</td><td class="mono">&lt;0.0:1:1,1,1:3,6&gt;</td><td>triangular tiling (3⁶)</td></tr>
+          <tr><td class="mono">DS01-0TJG</td><td class="mono">&lt;0.0:1:1,1,1:4,4&gt;</td><td>square tiling (4⁴)</td></tr>
+          <tr><td class="mono">DS01-0TN0</td><td class="mono">&lt;0.0:1:1,1,1:6,3&gt;</td><td>hexagonal tiling (6³)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p>This is also where the catalog connects to the existing literature instead of competing with it: the Grünbaum–Shephard isohedral types IH1–IH93, the Laves nets, the uniform tilings, the named nets in RCSR and EPINET. A community-extensible JSON file keyed by name costs nothing and buys interoperability.</p>
+
+  <p>The same slot absorbs AI-suggested names. A user who reshapes and recolours a tiling has not changed its Delaney–Dress symbol, so its name and descriptive name are untouched; what they have made is a <em>rendering</em>, and giving that rendering an evocative name is a nickname operation. Useful, and firmly outside the identity system.</p>
+
+  <h2><span class="num">7</span> What has been verified</h2>
+
+  <p>The scheme is implemented and was checked against the actual databases, not against toy examples.</p>
+
+  <div class="wide">
+    <div class="table-wrap">
+      <table>
+        <caption>Results</caption>
+        <thead>
+          <tr><th>Check</th><th>Method</th><th>Result</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Isomorphism invariance</b></td>
+            <td>5,000 symbols drawn from <code>tilings-1-16</code> and <code>euclidean-1-24</code>, each randomly relabeled 40 ways</td>
+            <td><span class="yes">200,000 relabelings, zero disagreements.</span> Every canonical form also isomorphic to its input, and idempotent; every protocol reads back to its own form</td>
+          </tr>
+          <tr>
+            <td><b>Independent of the enumeration</b></td>
+            <td>Full catalogs built from <code>tilings-1-18</code> and <code>tilings-1-19</code> — same 5,214,516 tilings, numbered differently in the two files</td>
+            <td><span class="yes">Identical in every column but <code>source_id</code></span> over all 5,214,516 rows, which is the one column that records the source database's own numbering</td>
+          </tr>
+          <tr>
+            <td><b>Extension appends</b></td>
+            <td>The 795,590-tiling catalog from <code>tilings-1-16</code> against the 5,214,516-tiling catalog from the separate file <code>tilings-1-19</code></td>
+            <td><span class="yes">Exact prefix</span> — every number in the smaller catalog kept its meaning in the larger one</td>
+          </tr>
+          <tr>
+            <td><b>Names cross databases</b></td>
+            <td>All 1,157 euclidean tilings of size ≤ 10 present in both <code>euclidean-1-24</code> and <code>tilings-1-19</code></td>
+            <td><span class="yes">Zero name disagreements</span>, while catalog numbers correctly differ</td>
+          </tr>
+          <tr>
+            <td><b>Readable labelling</b></td>
+            <td>Are the flags of a tile consecutively numbered in the canonical form?</td>
+            <td><span class="yes">100% of tiles</span> across 5,000 symbols, against 46% for a breadth-first traversal</td>
+          </tr>
+          <tr>
+            <td><b>Agrees with Gavrog on classes</b></td>
+            <td>Our canonical form against a port of Gavrog's <code>invariant()</code>, over every symbol of size ≤ 12</td>
+            <td><span class="yes">Same partition</span> — 30,759 symbols, 30,759 distinct values under both</td>
+          </tr>
+          <tr>
+            <td><b>Every name reads back</b></td>
+            <td>All 795,590 tilings of <code>tilings-1-16</code>, each name decoded and compared against the canonical form it was made from</td>
+            <td><span class="yes">Zero failures</span>, all 795,590 names distinct, none shared by two symbols, and zero duplicate tilings</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2><span class="num">8</span> Implementation</h2>
+
+  <p>Two pieces, both in the Tegula source tree.</p>
+
+  <h3>tegula.core.dsymbols.DSymbolAlgorithms</h3>
+
+  <pre><code>canonicalForm(ds)        → DSymbol   the canonical representative
+canonicalString(ds)      → String    that form, as a valid D-symbol string
+canonicalProtocol(ds)    → int[]     its protocol, the normative object
+protocol(ds) / fromProtocol(p)       protocol of any symbol, and back
+isCanonical(ds)          → boolean</code></pre>
+
+  <h3>tegula.core.dsymbols.DSymbolCode</h3>
+
+  <pre><code>encode(ds)               → String    "DS07-3R55-E1RJ-G", the name
+encodeCanonical(ds)      → String    for a canonical form already in hand
+decode(name)             → DSymbol   the symbol the name names
+isValid(name)            → boolean</code></pre>
+
+  <p>Canonicalization is O(<i>n</i>²) in the size of the symbol, measured at about 11&nbsp;µs per symbol over a mixed sample of sizes 4 to 24. That is cheap enough to call anywhere — per thumbnail, per redraw, in a sweep over millions.</p>
+
+  <p>Alongside it, <code>GavrogInvariant</code> is a port of <code>DelaneySymbol.invariant()</code> from Gavrog. It computes no identifiers of ours; passing <code>-g</code> appends it as a sixth column, for anyone who wants to join a catalog against Gavrog's own identifier for the same tiling. It is not carried in the published catalogs — it would add about half again to their size, to serve a handful of readers who can regenerate it in a minute. The two canonicalizations pick different representatives but induce exactly the same partition into isomorphism classes, checked over 30,759 symbols.</p>
+
+  <h3>tegula.db.CatalogNumbering</h3>
+
+  <pre><code>java -Xmx8g -cp target/classes:'target/dependency/*' \
+     tegula.db.CatalogNumbering -i tilings/tilings-1-19.tdb \
+                                -o catalog/tilings-1-19.catalog.tsv.gz</code></pre>
+
+  <p>Reads a <code>.tdb</code>, canonicalizes in parallel, sorts, numbers, and writes <code>number, size, canonical_symbol, source_id</code>. It reports isomorphic duplicates on every run. <code>-m</code> restricts by size, and <code>-u</code> adds indexed <code>name</code> and <code>catalog_number</code> columns to the database in place. Throughput is about 80,000 symbols per second on sixteen cores; all five databases rebuild in about four minutes.</p>
+
+  <p>The catalog carries the canonical form and not the name, because they are the same thing written two ways and the form is the one a reader can parse with anything to hand. A database is the other case: its <code>symbol</code> column is whatever was enumerated, not a canonical form, so <code>-u</code>'s <code>name</code> column is the only canonical identity it has — and once it carries one, Tegula's existing search box can already filter on it, since the select expression is passed through to SQL unchanged.</p>
+
+  <h3>Names in files</h3>
+
+  <p>A Delaney symbol ends at its closing <code>&gt;</code>. Anything after that on the line is read as a comment, optionally introduced by a <code>#</code>, and is available as <code>getComment()</code> / <code>setComment()</code>. It is written back out on save, so a name given to a tiling survives a round trip through a <code>.tgs</code> file:</p>
+
+  <pre><code>&lt;1000.0:1:1,1,1:3,6&gt; # Alhambra star</code></pre>
+
+  <p>The comment sits outside the D-symbol grammar, so the symbol itself is untouched — which is why it does not disturb the identity: it takes no part in comparison, canonicalization or the name, and canonical forms never carry one. That is deliberate. Names and descriptive names are derived and must never be stored beside what they are derived from; only a nickname, which cannot be computed, belongs in a file.</p>
+
+  <p>Reading a collection now keeps only lines that hold a symbol. Blank lines, whole-line comments and stray text were previously parsed into empty symbols and drawn as blank tilings.</p>
+
+  <h3>The catalogs as built</h3>
+
+  <p>All five databases in <code>tilings/</code> have been run through the tool. The databases themselves were not modified; the catalogs are new files in <code>catalog/</code>.</p>
+
+  <div class="wide">
+    <div class="table-wrap">
+      <table>
+        <caption>catalog/*.catalog.tsv.gz</caption>
+        <thead>
+          <tr><th>Catalog</th><th class="num">Tilings</th><th class="num">Sizes</th><th class="num">Compressed</th><th class="num">Duplicates</th><th class="num">Collisions</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="mono">tilings-1-16</td><td class="num">795,590</td><td class="num">1–16</td><td class="num">18 MB</td><td class="num">0</td><td class="num">0</td></tr>
+          <tr><td class="mono">tilings-1-18</td><td class="num">5,214,516</td><td class="num">1–18</td><td class="num">125 MB</td><td class="num">0</td><td class="num">0</td></tr>
+          <tr><td class="mono">tilings-1-19</td><td class="num">5,214,516</td><td class="num">1–18</td><td class="num">124 MB</td><td class="num">0</td><td class="num">0</td></tr>
+          <tr><td class="mono">euclidean-1-24</td><td class="num">1,728,488</td><td class="num">1–24</td><td class="num">43 MB</td><td class="num">0</td><td class="num">0</td></tr>
+          <tr><td class="mono">spherical-1-24</td><td class="num">2,155,818</td><td class="num">1–24</td><td class="num">49 MB</td><td class="num">0</td><td class="num">0</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p>Note that <code>tilings-1-19</code> despite its name contains nothing of size 19; it holds the same tilings as <code>tilings-1-18</code>. Both produce the same catalog, which is the point.</p>
+
+  <h2><span class="num">9</span> Decisions still open</h2>
+
+  <ul class="decisions">
+    <li>
+      <span class="mark">01</span>
+      <span>
+        <span class="q">What is the universe of the published catalog?</span><br>
+        <span class="a">All 3-dimensional Delaney–Dress symbols of size ≤ N, unfiltered, is the recommendation. It has to be settled before any number is published, because it is the one thing that cannot be changed afterwards.</span>
+      </span>
+    </li>
+    <li>
+      <span class="mark">02</span>
+      <span>
+        <span class="q">One catalog or several?</span><br>
+        <span class="a">Splitting by geometry, as the current files do, means a tiling has several catalog numbers. One combined catalog with geometry as a queryable column avoids that. Names are unaffected either way.</span>
+      </span>
+    </li>
+    <li>
+      <span class="mark">03</span>
+      <span>
+        <span class="q">Should duals be cross-linked?</span><br>
+        <span class="a">Storing the dual's name next to each entry is nearly free and makes duality navigable. Duals should not be folded into a single name — they are different tilings.</span>
+      </span>
+    </li>
+    <li>
+      <span class="mark">04</span>
+      <span>
+        <span class="q">Which cross-references should a published catalog carry?</span><br>
+        <span class="a">Gavrog's invariant can be generated on demand with <code>-g</code>, which is the right default for something only a few readers want. EPINET numbers its own D-symbol-defined hyperbolic tilings, as <code>QC164</code> and the like, and that corpus overlaps ours directly, so matching against it is the more valuable link. Both are worth settling when the published list is settled, not before.</span>
+      </span>
+    </li>
+    <li>
+      <span class="mark">05</span>
+      <span>
+        <span class="q">Where does the resolver live?</span><br>
+        <span class="a">A static site generated from the catalog is enough — one page per name, with a rendered picture, the invariants, and the nickname if there is one.</span>
+      </span>
+    </li>
+  </ul>
+
+  <footer>
+    <p>Delaney–Dress symbols and the enumeration are described in Rüdiger Zeller, Olaf Delgado-Friedrichs and Daniel H. Huson, <a href="https://doi.org/10.1016/j.cagd.2021.102027">Tegula — exploring a galaxy of two-dimensional periodic tilings</a>, <i>Computer Aided Geometric Design</i> 90 (2021). The symbols were generated with <a href="https://github.com/odf/julia-dsymbols">genDSyms</a>.</p>
+  </footer>
+
+</div>
