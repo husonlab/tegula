@@ -250,10 +250,18 @@
                                 </Menu>
                                 <Menu fx:id="windowMenu" text="Window">
                                     <items>
-                                        <MenuItem fx:id="aboutMenuItem" text="About"/>
                                         <SeparatorMenuItem mnemonicParsing="false"/>
-                                        <MenuItem fx:id="checkForUpdatesMenuItem" text="Check for Updates..."/>
+                                    </items>
+                                </Menu>
+                                <Menu mnemonicParsing="false" text="Help">
+                                    <items>
+                                        <MenuItem fx:id="checkForUpdatesMenuItem" mnemonicParsing="false"
+                                                  text="Check for Updates..."/>
                                         <SeparatorMenuItem mnemonicParsing="false"/>
+                                        <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" text="About..."/>
+                                        <SeparatorMenuItem mnemonicParsing="false"/>
+                                        <MenuItem fx:id="openOnlineUserManualInBrowserMenuItem"
+                                                  mnemonicParsing="false" text="Open User Manual in Browser..."/>
                                     </items>
                                 </Menu>
                             </menus>

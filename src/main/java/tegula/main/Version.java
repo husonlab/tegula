@@ -30,7 +30,7 @@ public class Version {
 
     static public final String HOME_URL = "https://github.com/husonlab/tegula";
 
-    static public final String WEBSITE_URL = "https://husonlab.github.io/tegula";
+    static public final String WEBSITE_URL = "https://husonlab.github.io/tegula/manual.html";
 
     public static String resolveVersion() {
         var pkg = Version.class.getPackage();

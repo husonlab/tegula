@@ -121,6 +121,9 @@ public class Tegula extends Application {
     public void start(Stage primaryStage) throws Exception {
         SplashScreen.showSplash(Duration.ofSeconds(5));
 
+        // needed by the Help menu to open the user manual in the user's browser
+        jloda.fx.util.ProgramProperties.setHostServices(getHostServices());
+
         try {
             primaryStage.setTitle(ProgramProperties.getProgramName());
 

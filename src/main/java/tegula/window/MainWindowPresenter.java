@@ -487,6 +487,9 @@ public class MainWindowPresenter {
         controller.getCheckForUpdatesMenuItem().setOnAction((e) -> updateService.checkForUpdates(window.getStage(), Version.HOME_URL, Version.NAME, Version.VERSION));
         controller.getCheckForUpdatesMenuItem().disableProperty().bind(updateService.disabledProperty().or(MainWindowManager.getInstance().sizeProperty().greaterThan(1)));
 
+        // TegulaDesign points this at its own manual, see teguladesign's ModifyMenusAndControls
+        controller.getOpenOnlineUserManualInBrowserMenuItem().setOnAction(e -> openInBrowser(Version.WEBSITE_URL));
+
 
         controller.getAnchorPane().getChildren().remove(controller.getInfoTextArea());
         controller.getAnchorPane().getChildren().add(controller.getInfoTextArea());
@@ -496,5 +499,17 @@ public class MainWindowPresenter {
 
         controller.getUseDarkThemeCheckMenuItem().selectedProperty().bindBidirectional(MainWindowManager.useDarkThemeProperty());
         controller.getUseDarkThemeCheckMenuItem().setSelected(MainWindowManager.isUseDarkTheme());
+    }
+
+    /**
+     * opens a URL in the user's browser. TegulaDesign reuses this window, so it points the menu item at its
+     * own manual, see teguladesign's ModifyMenusAndControls
+     */
+    public static void openInBrowser(String url) {
+        final var hostServices = jloda.fx.util.ProgramProperties.getHostServices();
+        if (hostServices != null)
+            hostServices.showDocument(url);
+        else
+            NotificationManager.showError("Failed to open browser: " + url);
     }
 }

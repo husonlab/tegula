@@ -170,6 +170,9 @@ public class MainWindowController {
     private MenuItem checkForUpdatesMenuItem;
 
     @FXML
+    private MenuItem openOnlineUserManualInBrowserMenuItem;
+
+    @FXML
     private ToolBar mainToolBar;
 
     @FXML
@@ -407,6 +410,10 @@ public class MainWindowController {
 
     public MenuItem getCheckForUpdatesMenuItem() {
         return checkForUpdatesMenuItem;
+    }
+
+    public MenuItem getOpenOnlineUserManualInBrowserMenuItem() {
+        return openOnlineUserManualInBrowserMenuItem;
     }
 
     public ToolBar getMainToolBar() {
