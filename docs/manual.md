@@ -183,7 +183,57 @@ Unzip the download and open the file with **File → Open...**.
 
 ---
 
-## 5. Operations on a tiling
+## 5. Tiling names
+
+Every tiling carries a name such as **`DS02-1AM5-8`**, shown in the label beneath it and in the status
+line. The name is not an index into a catalogue and not a hash: it **is** the tiling, written out. It
+can be decoded back into the Delaney–Dress symbol it names, so it needs no database, no lookup and no
+registry to be meaningful.
+
+Three things follow from that, and they are the reason for the scheme:
+
+- **It cannot collide.** Two different tilings cannot share a name, because the name carries the whole
+  symbol rather than a digest of it.
+- **It names tilings nobody has enumerated.** A tiling you reach by raising a rotation order until it
+  leaves the databases still has a name, computed on the spot.
+- **It is the same name everywhere.** The symbol is put into a canonical form first, so two symbols
+  that describe the same tiling, written differently, get the same name.
+
+### 5.1 Reading a name
+
+```
+DS02-1AM5-8
+│  │  └──── the tiling itself, in base 32, in groups of four
+│  └─────── the size of the Delaney–Dress symbol: this one has 2 chambers
+└────────── a fixed prefix
+```
+
+The size is already contained in the encoded part; the prefix repeats it for the benefit of people
+reading the name, not of the program.
+
+The alphabet is Crockford base 32, `0123456789ABCDEFGHJKMNPQRSTVWXYZ`, which leaves out I, L, O and U
+precisely because they are the characters people confuse. Reading a name is correspondingly forgiving:
+case is ignored, I and L are read as 1, O as 0, and hyphens are dropped. So `DS02-1AM5-8`,
+`ds02-1am5-8` and `DS021AM58` are the same name, and a name survives being written on paper, read
+aloud or retyped.
+
+Names are short: about 9 characters for a symbol of size 1, 28 for size 18, 38 for size 24. Every
+character is in the QR alphanumeric set, so a name fits compactly into a QR code.
+
+### 5.2 Examples
+
+| tiling | name | geometry |
+|---|---|---|
+| `<1.1:1:1,1,1:5,3>` — the dodecahedron | `DS01-0TM0` | spherical |
+| `<1.1:1:1,1,1:3,5>` — the icosahedron | `DS01-0TH0` | spherical |
+| `<1.1:1:1,1,1:4,4>` — the square tiling | `DS01-0TJG` | euclidean |
+| `<1.1:1:1,1,1:7,3>` | `DS01-0TPE-0` | hyperbolic |
+
+The exact bit-level specification is given in the class documentation of `DSymbolCode` in the source.
+
+---
+
+## 6. Operations on a tiling
 
 These act on the tiling in the current editor tab, and are undoable.
 
@@ -196,9 +246,9 @@ These act on the tiling in the current editor tab, and are undoable.
 
 ---
 
-## 6. Menu reference
+## 7. Menu reference
 
-### 6.1 File menu
+### 7.1 File menu
 
 | item | |
 |---|---|
@@ -210,12 +260,12 @@ These act on the tiling in the current editor tab, and are undoable.
 | Close | close the current window |
 | Quit | leave the program |
 
-### 6.2 Edit menu
+### 7.2 Edit menu
 
 Undo, Redo, Copy, Paste, Select All, Select None, and **Open in Editor...**, which opens the selected
 tiling in an editor tab.
 
-### 6.3 View menu
+### 7.3 View menu
 
 | item | |
 |---|---|
@@ -229,16 +279,16 @@ tiling in an editor tab.
 | Set Max Copies Hyperbolic... / Euclidean... | limits on how many copies are generated |
 | Enter Fullscreen | fill the screen |
 
-### 6.4 Tiling menu
+### 7.4 Tiling menu
 
 First Page, Last Page and Choose Page... move through a collection; Dualize, Max Symmetry, Orientate
-and Straighten are described in section 5.
+and Straighten are described in section 6.
 
-### 6.5 Window menu
+### 7.5 Window menu
 
 Lists the open windows, so that you can bring any of them to the front.
 
-### 6.6 Help menu
+### 7.6 Help menu
 
 | item | |
 |---|---|
@@ -248,7 +298,7 @@ Lists the open windows, so that you can bring any of them to the front.
 
 ---
 
-## 7. Notes on the mathematics
+## 8. Notes on the mathematics
 
 The symmetry groups are named in **orbifold notation**: digits are the orders of rotation points, a
 `*` introduces mirror lines, and digits after a `*` are the orders of the corners where mirrors meet.
@@ -263,7 +313,7 @@ The underlying mathematics, the algorithms and the software are described in the
 
 ---
 
-## 8. Citation
+## 9. Citation
 
 If you use Tegula in your work, please cite:
 
@@ -273,7 +323,7 @@ If you use Tegula in your work, please cite:
 
 ---
 
-## 9. License
+## 10. License
 
 Tegula is free software, released under the GNU General Public License v3. It comes with no warranty.
 See `LICENSE.txt` in the source repository for the full text.
