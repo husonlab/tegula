@@ -58,6 +58,8 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
     private final Parent root;
 
     private final Map<Integer, Pane> pageCache = new HashMap<>();
+    private javafx.util.Callback<Integer, Node> pageFactory;
+    private boolean rebuildingPage; // updatePageSize() is also called from the page factory
 
     private final DBCollection dbCollection;
 
@@ -153,7 +155,7 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
         updatePageSize();
 
         final Pagination pagination = controller.getPagination();
-        pagination.setPageFactory(page -> {
+        pagination.setPageFactory(pageFactory = page -> {
             Pane pane = pageCache.get(page);
             if (pane == null || pane.getUserData() instanceof Integer && (Integer) pane.getUserData() != dbCollection.getNumberOfDSymbolsOnPage(page)) {
                 final TilingsPane paneNew = new TilingsPane();
@@ -274,8 +276,23 @@ public class DBCollectionTab extends Tab implements ICollectionTab, Closeable, P
 
         final int pageSize = rows * cols;
 
-        if (pageSize > 0 && pageSize != dbCollection.getPageSize()) {
+        if (pageSize > 0 && pageSize != dbCollection.getPageSize() && !rebuildingPage) {
             dbCollection.setPageSize(pageSize);
+            // the cached page was built for the old number of tilings, and the pagination will not
+            // rebuild the page it is already showing by itself, so throw the page away and hand the
+            // factory back to it, which makes it ask for the current page again
+            rebuildingPage = true;
+            try {
+                pageCache.clear();
+                if (pageFactory != null) {
+                    // wrap it: setting the very same factory object back would not change the property,
+                    // so the pagination would not notice and would keep showing the page it has
+                    final var factory = pageFactory;
+                    controller.getPagination().setPageFactory(page -> factory.call(page));
+                }
+            } finally {
+                rebuildingPage = false;
+            }
         }
     }
 

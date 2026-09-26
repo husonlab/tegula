@@ -62,6 +62,8 @@ public class FileCollectionTab extends Tab implements ICollectionTab, Closeable,
     private final Parent root;
 
     private final Map<Integer, Pane> pageCache = new HashMap<>();
+    private javafx.util.Callback<Integer, Node> pageFactory;
+    private boolean rebuildingPage; // updatePageSize() is also called from the page factory
 
     private final FileCollection fileCollection;
 
@@ -151,7 +153,7 @@ public class FileCollectionTab extends Tab implements ICollectionTab, Closeable,
                 final Pagination pagination = controller.getPagination();
                 updatePageSize();
 
-                pagination.setPageFactory((page) -> {
+                pagination.setPageFactory(pageFactory = (page) -> {
                     Pane pane = pageCache.get(page);
                     if (pane == null || pane.getUserData() instanceof Integer && (Integer) pane.getUserData() != fileCollection.getNumberOfDSymbolsOnPage(page)) {
                         final TilingsPane paneNew = new TilingsPane();
@@ -278,8 +280,23 @@ public class FileCollectionTab extends Tab implements ICollectionTab, Closeable,
 
         final int pageSize = rows * cols;
 
-        if (pageSize > 0 && pageSize != fileCollection.getPageSize()) {
+        if (pageSize > 0 && pageSize != fileCollection.getPageSize() && !rebuildingPage) {
             fileCollection.setPageSize(pageSize);
+            // the cached page was built for the old number of tilings, and the pagination will not
+            // rebuild the page it is already showing by itself, so throw the page away and hand the
+            // factory back to it, which makes it ask for the current page again
+            rebuildingPage = true;
+            try {
+                pageCache.clear();
+                if (pageFactory != null) {
+                    // wrap it: setting the very same factory object back would not change the property,
+                    // so the pagination would not notice and would keep showing the page it has
+                    final var factory = pageFactory;
+                    controller.getPagination().setPageFactory(page -> factory.call(page));
+                }
+            } finally {
+                rebuildingPage = false;
+            }
         }
     }
 

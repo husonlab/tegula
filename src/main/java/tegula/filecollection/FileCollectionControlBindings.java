@@ -55,7 +55,11 @@ public class FileCollectionControlBindings {
         fileCollection.totalCountProperty().addListener((c, o, n) -> controller.getCountLabel().setText(n == null ? "?" : String.format("Found: %,d", n.intValue())));
         controller.getSizeSlider().setOnMouseReleased((e) -> fileCollectionTab.updatePageSize());
 
-        fileCollectionTab.getMainWindow().getStage().widthProperty().addListener((c, o, n) -> fileCollectionTab.updatePageSize());
-        fileCollectionTab.getMainWindow().getStage().heightProperty().addListener((c, o, n) -> fileCollectionTab.updatePageSize());
+        // updatePageSize() measures the pagination, so watch the pagination rather than the stage: when a
+        // collection is first shown the pagination has not been laid out yet and is still zero wide, and a
+        // zero width rounds down to a single row and column. That is why a freshly opened collection used
+        // to show one tiling per page until the window was resized, which is what finally recomputed it
+        controller.getPagination().widthProperty().addListener((c, o, n) -> fileCollectionTab.updatePageSize());
+        controller.getPagination().heightProperty().addListener((c, o, n) -> fileCollectionTab.updatePageSize());
     }
 }
