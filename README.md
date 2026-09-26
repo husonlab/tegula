@@ -12,7 +12,7 @@ here: https://github.com/odf/julia-dsymbols.
 
 We have computed 2.4 billion tilings in total, but that file is too big to put online.
 
-<img src="https://github.com/husonlab/tegula/blob/master/images/greens-2.png" width="250"><img src="https://github.com/husonlab/tegula/blob/master/images/greens-3.png" width="250"><img src="https://github.com/husonlab/tegula/blob/master/images/greens-1.png" width="250">
+<img src="https://github.com/husonlab/tegula/blob/main/images/greens-2.png" width="250"><img src="https://github.com/husonlab/tegula/blob/main/images/greens-3.png" width="250"><img src="https://github.com/husonlab/tegula/blob/main/images/greens-1.png" width="250">
 Image credits: Daniel Huson
 
 The underlying mathematics, algorithms and sofware are described in this paper:
