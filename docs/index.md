@@ -30,9 +30,10 @@ Supported platforms:
 - Linux
 - Windows
 
-Databases of enumerated tilings are available separately from:
+Databases of enumerated tilings are downloaded from within the program, with **File → Download...**.
+They are also available separately from:
 
-- [https://software-ab.cs.uni-tuebingen.de/download/tegula](https://software-ab.cs.uni-tuebingen.de/download/tegula)
+- [https://github.com/husonlab/tegula/releases/tag/data-v1](https://github.com/husonlab/tegula/releases/tag/data-v1)
 
 ## Source Code
 

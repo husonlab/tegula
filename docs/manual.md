@@ -168,11 +168,19 @@ Holds operations that can be applied to the tiling; see section 5.
 
 ### 4.2 Getting a database
 
-Databases of enumerated tilings can be downloaded from:
+The program does not ship with a database, because the databases are hundreds of megabytes and do not
+change from one release to the next. Use **File → Download...** to fetch one: you are asked where to
+put it, and the download is expanded as it arrives, so no compressed copy is left behind. The first
+time you start the program it offers to do this for you.
 
-[https://software-ab.cs.uni-tuebingen.de/download/tegula](https://software-ab.cs.uni-tuebingen.de/download/tegula)
+`tilings-1-18.tdb` holds all tilings of Dress complexity at most 18. It is about 200 MB to download
+and about 1.5 GB on disk. Where you put it is remembered, so the question is asked only once.
 
-Unzip the download and open the file with **File → Open...**.
+The databases can also be downloaded by hand, from the release that holds them:
+
+[https://github.com/husonlab/tegula/releases/tag/data-v1](https://github.com/husonlab/tegula/releases/tag/data-v1)
+
+Unzip such a download and open the file with **File → Open...**.
 
 ### 4.3 Opening and saving
 
@@ -256,6 +264,7 @@ These act on the tiling in the current editor tab, and are undoable.
 | Open... | open a database or file of tilings |
 | Open Recent | reopen a previously opened file |
 | Save Selected... | write the selected tilings to a file |
+| Download... | fetch a database of tilings, expanding it as it arrives |
 | Page Setup... / Print... | print the current view |
 | Close | close the current window |
 | Quit | leave the program |

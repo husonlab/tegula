@@ -65,6 +65,9 @@ public class MainWindowController {
     private Menu openRecentMenu;
 
     @FXML
+    private MenuItem downloadMenuItem;
+
+    @FXML
     private MenuItem pageSetupMenuItem;
 
     @FXML
@@ -270,6 +273,10 @@ public class MainWindowController {
 
     public Menu getOpenRecentMenu() {
         return openRecentMenu;
+    }
+
+    public MenuItem getDownloadMenuItem() {
+        return downloadMenuItem;
     }
 
     public MenuItem getPageSetupMenuItem() {

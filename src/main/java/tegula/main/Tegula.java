@@ -124,6 +124,8 @@ public class Tegula extends Application {
         // needed by the Help menu to open the user manual in the user's browser
         jloda.fx.util.ProgramProperties.setHostServices(getHostServices());
 
+        offerDataDownloadOnFirstStart(primaryStage);
+
         try {
             primaryStage.setTitle(ProgramProperties.getProgramName());
 
@@ -153,5 +155,13 @@ public class Tegula extends Application {
         ProgramProperties.store();
         System.exit(0);
 
+    }
+
+    /**
+     * the program browses databases of tilings and ships with none, so on the very first start offer to
+     * fetch one. TegulaDesign offers the same thing, so this is here rather than in the subclass
+     */
+    protected void offerDataDownloadOnFirstStart(Stage stage) {
+        tegula.window.DataDownload.offerLater(stage, tegula.window.DataDownload.ALL_TO_18);
     }
 }

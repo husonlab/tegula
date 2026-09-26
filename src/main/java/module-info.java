@@ -6,6 +6,7 @@ module tegula {
     requires transitive javafx.swing;
     requires transitive javafx.fxml;
     requires transitive java.sql;
+    requires java.net.http; // downloading the tiling databases
 
     requires org.xerial.sqlitejdbc;
 

@@ -57,6 +57,8 @@
                                             </accelerator>
                                         </MenuItem>
                                         <SeparatorMenuItem/>
+                                        <MenuItem fx:id="downloadMenuItem" text="Download..."/>
+                                        <SeparatorMenuItem/>
                                         <MenuItem fx:id="pageSetupMenuItem" text="Page Setup..."/>
                                         <MenuItem fx:id="printMenuItem" text="Print...">
                                             <accelerator>

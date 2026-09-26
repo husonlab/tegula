@@ -487,6 +487,10 @@ public class MainWindowPresenter {
         controller.getCheckForUpdatesMenuItem().setOnAction((e) -> updateService.checkForUpdates(window.getStage(), Version.HOME_URL, Version.NAME, Version.VERSION));
         controller.getCheckForUpdatesMenuItem().disableProperty().bind(updateService.disabledProperty().or(MainWindowManager.getInstance().sizeProperty().greaterThan(1)));
 
+        // TegulaDesign replaces this with a menu offering each of the databases, see its
+        // ModifyMenusAndControls
+        controller.getDownloadMenuItem().setOnAction(e -> DataDownload.show(window.getStage(), DataDownload.ALL_TO_18));
+
         // TegulaDesign points this at its own manual, see teguladesign's ModifyMenusAndControls
         controller.getOpenOnlineUserManualInBrowserMenuItem().setOnAction(e -> openInBrowser(Version.WEBSITE_URL));
 
